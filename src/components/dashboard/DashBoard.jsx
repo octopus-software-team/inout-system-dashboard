@@ -43,17 +43,32 @@ const DashBoard = () => {
     <div className="p-4 space-y-6">
       {/* العنوان والوصف */}
       <div className="text-center md:text-left">
-        <h1 className="text-black text-2xl md:text-4xl font-bold">Project Manager</h1>
-        <p className="text-gray-500 py-3">Here's what's going on at your business right now</p>
+        <h1 className="text-black text-2xl md:text-4xl font-bold">
+          Project Manager
+        </h1>
+        <p className="text-gray-500 py-3">
+          Here's what's going on at your business right now
+        </p>
       </div>
 
       {/* قسم الحالة (Pending, Processing, etc.) */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="flex items-center space-x-3">
-          <div className="bg-yellow-100 p-2 rounded-full">
-            <svg className="w-6 h-6 text-yellow-600">
-              <rect x="20%" y="0" width="20%" height="100%" fill="currentColor" />
-              <rect x="60%" y="0" width="20%" height="100%" fill="currentColor" />
+          <div className="p-2 rounded-full">
+            <svg width="60" height="60" viewBox="0 0 60 60">
+              <rect
+                x="4"
+                y="25"
+                width="30"
+                height="30"
+                rx="9"
+                fill="#FFD89E"
+                transform="rotate(-1 60 80)"
+              />
+
+              <circle cx="30" cy="30" r="15" fill="#FFEED6" />
+              <rect x="26" y="20" width="4" height="20" rx="1" fill="#FFAE42" />
+              <rect x="34" y="20" width="4" height="20" rx="1" fill="#FFAE42" />
             </svg>
           </div>
           <div>
@@ -62,9 +77,20 @@ const DashBoard = () => {
           </div>
         </div>
         <div className="flex items-center space-x-3">
-          <div className="bg-blue-100 p-2 rounded-full">
-            <svg className="w-6 h-6 text-blue-500" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm4.28-10.28a1 1 0 00-1.41 0L9 11.59l-1.87-1.88a1 1 0 10-1.41 1.41l2.58 2.59a1 1 0 001.41 0l4.29-4.29a1 1 0 000-1.41z" />
+          <div className="p-2 rounded-full">
+            <svg width="60" height="60" viewBox="0 0 60 60">
+              <rect
+                x="4"
+                y="25"
+                width="30"
+                height="30"
+                rx="9"
+                fill="#3B82F6"
+                transform="rotate(-1 60 80)"
+              />
+
+              <circle cx="25" cy="25" r="15" fill="#9BDDFD" />
+                <polygon points="22,18 32,25 22,32" fill="#3B82F6" />
             </svg>
           </div>
           <div>
@@ -74,7 +100,11 @@ const DashBoard = () => {
         </div>
         <div className="flex items-center space-x-3">
           <div className="bg-green-100 p-2 rounded-full">
-            <svg className="w-6 h-6 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+            <svg
+              className="w-6 h-6 text-green-500"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
               <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm4.28-10.28a1 1 0 00-1.41 0L9 11.59l-1.87-1.88a1 1 0 10-1.41 1.41l2.58 2.59a1 1 0 001.41 0l4.29-4.29a1 1 0 000-1.41z" />
             </svg>
           </div>
@@ -85,7 +115,11 @@ const DashBoard = () => {
         </div>
         <div className="flex items-center space-x-3">
           <div className="bg-red-100 p-2 rounded-full">
-            <svg className="w-6 h-6 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+            <svg
+              className="w-6 h-6 text-red-500"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
               <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.54-10.46a1 1 0 00-1.41 0L10 9.59 7.87 7.46a1 1 0 00-1.41 1.41L8.59 11l-2.13 2.13a1 1 0 101.41 1.41L10 12.41l2.13 2.13a1 1 0 001.41-1.41L11.41 11l2.13-2.13a1 1 0 000-1.41z" />
             </svg>
           </div>
@@ -100,7 +134,9 @@ const DashBoard = () => {
       <div className="bg-gray-100 p-4 rounded-lg">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
           <div>
-            <h2 className="text-2xl md:text-3xl font-semibold text-black">Total Sales</h2>
+            <h2 className="text-2xl md:text-3xl font-semibold text-black">
+              Total Sales
+            </h2>
             <span className="block text-sm font-normal text-gray-500">
               Payment received across all channels
             </span>
@@ -116,9 +152,10 @@ const DashBoard = () => {
           <canvas ref={chartRef} id="lineChart"></canvas>
         </div>
       </div>
-      <Chartjs/>
+      <Chartjs />
     </div>
   );
 };
 
 export default DashBoard;
+
