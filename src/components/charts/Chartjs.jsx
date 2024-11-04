@@ -7,8 +7,9 @@ const Chartjs = () => {
   const barChartRef = useRef(null);
   const lineChartRef = useRef(null);
 
+  
+
   useEffect(() => {
-    // إعداد الشارت الشريطي في القسم الأول
     const barCtx = barChartRef.current.getContext("2d");
     const barChartInstance = new Chart(barCtx, {
       type: "bar",
@@ -110,11 +111,15 @@ const Chartjs = () => {
       },
     });
 
+   
+
     return () => {
       barChartInstance.destroy();
       lineChartInstance.destroy();
     };
   }, []);
+
+
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
@@ -209,20 +214,7 @@ const Chartjs = () => {
 
       {/* القسم الرابع */}
       <div className="bg-white shadow-md rounded-lg p-6 w-11/12">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-800">
-              Total Projects
-            </h3>
-            <p className="text-sm text-gray-500">Last 7 days</p>
-          </div>
-          <span className="text-sm text-red-500 bg-red-100 px-2 py-1 rounded-full">
-            -6.8%
-          </span>
-          <div className="mt-4">
-            <p className="text-1xl font-bold text-gray-800">16,247</p>
-          </div>
-        </div>
+       
       </div>
     </div>
   );

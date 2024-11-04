@@ -90,7 +90,7 @@ const DashBoard = () => {
               />
 
               <circle cx="25" cy="25" r="15" fill="#9BDDFD" />
-                <polygon points="22,18 32,25 22,32" fill="#3B82F6" />
+              <polygon points="22,18 32,25 22,32" fill="#3B82F6" />
             </svg>
           </div>
           <div>
@@ -99,28 +99,70 @@ const DashBoard = () => {
           </div>
         </div>
         <div className="flex items-center space-x-3">
-          <div className="bg-green-100 p-2 rounded-full">
-            <svg
-              className="w-6 h-6 text-green-500"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm4.28-10.28a1 1 0 00-1.41 0L9 11.59l-1.87-1.88a1 1 0 10-1.41 1.41l2.58 2.59a1 1 0 001.41 0l4.29-4.29a1 1 0 000-1.41z" />
+          <div className="p-2 rounded-full">
+            <svg width="60" height="60" viewBox="0 0 60 60">
+              <rect
+                x="4"
+                y="25"
+                width="30"
+                height="30"
+                rx="9"
+                fill="#10B981"
+                transform="rotate(-1 60 80)"
+              />
+
+              <svg width="50" height="50" viewBox="0 0 50 50">
+                <circle cx="25" cy="25" r="20" fill="#FDE68A" />
+                <path
+                  d="M18 25L22 29L32 19"
+                  stroke="#10B981"
+                  stroke-width="3"
+                  fill="none"
+                />
+              </svg>
             </svg>
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">Completed</h3>
+            <h3 className="text-lg font-semibold text-gray-900">completed</h3>
             <p className="text-sm text-gray-500">Out of stock</p>
           </div>
         </div>
+
         <div className="flex items-center space-x-3">
-          <div className="bg-red-100 p-2 rounded-full">
-            <svg
-              className="w-6 h-6 text-red-500"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.54-10.46a1 1 0 00-1.41 0L10 9.59 7.87 7.46a1 1 0 00-1.41 1.41L8.59 11l-2.13 2.13a1 1 0 101.41 1.41L10 12.41l2.13 2.13a1 1 0 001.41-1.41L11.41 11l2.13-2.13a1 1 0 000-1.41z" />
+          <div className="p-2 rounded-full">
+            <svg width="60" height="60" viewBox="0 0 60 60">
+              <rect
+                x="4"
+                y="25"
+                width="30"
+                height="30"
+                rx="9"
+                fill="#EF4444"
+                transform="rotate(-1 60 80)"
+              />
+
+              <svg width="40" height="50" viewBox="0 0 50 50">
+              <circle cx="25" cy="25" r="20" fill="#FEB2B2" />
+              
+
+                <line
+                  x1="20"
+                  y1="20"
+                  x2="30"
+                  y2="30"
+                  stroke="#EF4444"
+                  stroke-width="3"
+                />
+                <line
+                  x1="30"
+                  y1="20"
+                  x2="20"
+                  y2="30"
+                  stroke="#EF4444"
+                  stroke-width="3"
+                />
+
+              </svg>
             </svg>
           </div>
           <div>
@@ -158,4 +200,3 @@ const DashBoard = () => {
 };
 
 export default DashBoard;
-
