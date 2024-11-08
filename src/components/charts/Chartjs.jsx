@@ -2,12 +2,22 @@ import React, { useRef, useEffect } from "react";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import { Chart } from "chart.js/auto";
+import ReviewsProvider from "./ReviewsProvider";
 
 const Chartjs = () => {
   const barChartRef = useRef(null);
   const lineChartRef = useRef(null);
 
-  
+  const score = 72; 
+
+
+  const calcColor = (percent, start, end) => {
+    let a = percent / 100,
+      b = (end - start) * a,
+      c = b + start;
+
+    return "hsl(" + c + ", 100%, 50%)";
+  };
 
   useEffect(() => {
     const barCtx = barChartRef.current.getContext("2d");
@@ -34,16 +44,8 @@ const Chartjs = () => {
       },
       options: {
         scales: {
-          y: {
-            ticks: {
-              display: false,
-            },
-          },
-          x: {
-            ticks: {
-              display: false,
-            },
-          },
+          y: { ticks: { display: false } },
+          x: { ticks: { display: false } },
         },
         responsive: true,
       },
@@ -82,44 +84,27 @@ const Chartjs = () => {
       options: {
         responsive: true,
         plugins: {
-          legend: {
-            display: true,
-            position: "bottom",
-          },
+          legend: { display: true, position: "bottom" },
         },
         scales: {
           y: {
             beginAtZero: true,
-            grid: {
-              display: true,
-              color: "#e0e0e0",
-            },
-            ticks: {
-              display: false,
-            },
+            grid: { display: true, color: "#e0e0e0" },
+            ticks: { display: false },
           },
           x: {
-            grid: {
-              display: true,
-              color: "#e0e0e0",
-            },
-            ticks: {
-              display: false,
-            },
+            grid: { display: true, color: "#e0e0e0" },
+            ticks: { display: false },
           },
         },
       },
     });
-
-   
 
     return () => {
       barChartInstance.destroy();
       lineChartInstance.destroy();
     };
   }, []);
-
-
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
@@ -214,7 +199,67 @@ const Chartjs = () => {
 
       {/* القسم الرابع */}
       <div className="bg-white shadow-md rounded-lg p-6 w-11/12">
-       
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-800">
+            Paying vs non paying
+            </h3>
+            <p className="text-sm text-gray-500">Last 7 days</p>
+          </div>
+          
+        </div>
+
+        <div
+          className="mt-4 flex justify-center items-center"
+          style={{ height: "100px" }}
+        >
+          <ReviewsProvider valueStart={0} valueEnd={score}>
+            {({ value }) => (
+              <div
+                style={{ width: "100px", height: "50px", overflow: "hidden" }}
+              >
+                <CircularProgressbar
+                  value={value}
+                  circleRatio={0.5}
+                  styles={{
+                    trail: {
+                      strokeLinecap: "butt",
+                      transform: "rotate(-90deg)",
+                      transformOrigin: "center center",
+                    },
+                    path: {
+                      strokeLinecap: "butt",
+                      transform: "rotate(-90deg)",
+                      transformOrigin: "center center",
+                      stroke: calcColor(value, 0, 120),
+                    },
+                    text: {
+                      fill: "#ddd",
+                      fontSize: "16px",
+                    },
+                  }}
+                  strokeWidth={10}
+                />
+              </div>
+            )}
+          </ReviewsProvider>
+        </div>
+
+        <div className="mt-4 flex justify-between text-sm">
+          <div className="flex items-center space-x-2">
+            <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
+            <span className="text-gray-600">Paying customer</span>
+          </div>
+          <span className="text-gray-600">30%</span>
+        </div>
+
+        <div className="mt-2 flex justify-between text-sm">
+          <div className="flex items-center space-x-2">
+            <div className="w-3 h-3 bg-blue-300 rounded-full"></div>
+            <span className="text-gray-600">Non-paying customer</span>
+          </div>
+          <span className="text-gray-600">70%</span>
+        </div>
       </div>
     </div>
   );

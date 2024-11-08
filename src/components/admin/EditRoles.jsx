@@ -1,6 +1,6 @@
 import React from 'react'
 
-const AddBranch = () => {
+const EditRoles = () => {
   return (
     <div>
       
@@ -8,4 +8,4 @@ const AddBranch = () => {
   )
 }
 
-export default AddBranch
+export default EditRoles
