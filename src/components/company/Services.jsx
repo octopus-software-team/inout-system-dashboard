@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 
-const Consaltative = () => {
+const AddServices = () => {
   const [data, setData] = useState([]);
   const [order, setOrder] = useState("ASC");
   const [sortedColumn, setSortedColumn] = useState(null);
@@ -43,7 +43,7 @@ const Consaltative = () => {
 
   return (
     <div className="container mt-5">
-      <h2 className="text-center font-bold text-2xl">Consaltative</h2>
+      <h2 className="text-center font-bold text-2xl">Services</h2>
 
       <div className="flex justify-end my-3">
         <input
@@ -113,10 +113,10 @@ const Consaltative = () => {
     if (confirm) {
       axios.delete("http://localhost:3030/users/" + id).then((res) => {
         alert("record deleted");
-        navigate("/company/services");
+        navigate("/company/addservices");
       });
     }
   }
 };
 
-export default Consaltative;
+export default AddServices;

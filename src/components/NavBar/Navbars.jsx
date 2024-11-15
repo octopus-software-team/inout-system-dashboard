@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMoon, faSun, faBars } from "@fortawesome/free-solid-svg-icons"; // إضافة أيقونة faBars لزر القائمة
-import img from "../../assests/11.jpg";
+// import img from "../../assests/11.jpg";
 import { Link } from "react-router-dom";
+import DropDown from "../Login/DropDown";
 
 const Navbar = ({ toggleSidebar }) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -13,11 +14,10 @@ const Navbar = ({ toggleSidebar }) => {
   };
 
   return (
-   
     <nav className="bg-white dark:bg-gray-900 fixed w-full z-20 top-0 border-b border-gray-200 dark:border-gray-600">
       <div className="max-w-screen-xl flex items-center justify-between mx-auto p-4">
         <button
-          onClick={toggleSidebar} 
+          onClick={toggleSidebar}
           className="md:hidden p-2 text-gray-500 focus:outline-none"
         >
           <FontAwesomeIcon icon={faBars} size="lg" />
@@ -48,7 +48,9 @@ const Navbar = ({ toggleSidebar }) => {
             />
           </button>
 
-          <img src={img} alt="Profile" className="h-10 w-10 rounded-full" />
+          {/* <DropDown /> */}
+
+          {/* <img src={img} alt="Profile" className="h-10 w-10 rounded-full" /> */}
         </div>
       </div>
     </nav>

@@ -18,11 +18,9 @@ const AddNewProject = () => {
     const text = button.querySelector(".button-text");
     const spinner = button.querySelector(".loading-spinner");
 
-    // تفعيل وضع التحميل
     text.classList.add("hidden");
     spinner.classList.remove("hidden");
 
-    // إزالة وضع التحميل بعد فترة
     setTimeout(() => {
       text.classList.remove("hidden");
       spinner.classList.add("hidden");
@@ -156,11 +154,11 @@ const AddNewProject = () => {
       </div>
 
       <button
-        className="w-full bg-blue-500 text-white font-semibold py-4 px-4 rounded-lg shadow-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 flex items-center justify-center text-sm"
+        className="w-full bg-blue-500 text-white font-semibold py-3 px-4 rounded-lg shadow-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 flex items-center justify-center text-sm"
         onClick={(e) => buttonLoading(e.currentTarget)}
       >
-        <span className="button-text">Add Project</span>
-        <span className="loading-spinner hidden ml-4 border-4 border-white border-t-blue-500 rounded-full w-4 h-4 animate-spin"></span>
+        <span className="button-text font-bold">Add Project</span>
+        <span className="loading-spinner hidden ml-4  border-white border-t-blue-500  w-4"></span>
       </button>
     </div>
   );

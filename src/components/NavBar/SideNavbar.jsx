@@ -28,6 +28,7 @@ import {
   FaUserEdit,
 } from "react-icons/fa";
 import { path } from "d3";
+import DropDown from "../Login/DropDown";
 
 const projects = [
   {
@@ -44,19 +45,24 @@ const projects = [
 
 const company = [
   {
-    name: "Add Branch",
-    path: "/company/addbranch",
+    name: "Branchs",
+    path: "/company/Branchs",
     icon: <FaHome className="mr-2 text-gray-400" />,
   },
+  // {
+  //   name: "Engineers",
+  //   path: "/company/Engineers",
+  //   icon: <FaTools className="mr-2 text-gray-400" />,
+  // },
   {
-    name: "Add Engineer",
-    path: "/company/addengineer",
-    icon: <FaTools className="mr-2 text-gray-400" />,
+    name: "Services",
+    path: "/company/Services",
+    icon: <FaHardHat className="mr-2 text-gray-400" />,
   },
   {
-    name: "Add Services",
-    path: "/company/addservices",
-    icon: <FaHardHat className="mr-2 text-gray-400" />,
+    name: "employees",
+    path: "/company/employees",
+    icon: <FaUserTie className="mr-2 text-gray-400" />,
   },
 ];
 
@@ -197,8 +203,8 @@ const Navbar = () => {
               }
             />
           </button>
-          <img src={img} alt="Profile" className="h-10 w-10 rounded-full" />
-        </div>
+          <DropDown />
+c        </div>
       </nav>
 
       {sidebarOpen && (
@@ -208,7 +214,9 @@ const Navbar = () => {
 
             <NavItemWithSubMenu
               title="Projects"
-              icon={<FaChartPie className="text-transparent w-5 h-5 opacity-0" />}
+              icon={
+                <FaChartPie className="text-transparent w-5 h-5 opacity-0" />
+              }
               items={projects}
               isOpen={activeItem === "Projects"}
               onToggle={() => handleToggleItem("Projects")}
@@ -216,7 +224,9 @@ const Navbar = () => {
 
             <NavItemWithSubMenu
               title="Company"
-              icon={<FaHome className="text-gray-400 w-5 h-5 opacity-0 text-transparent" />}
+              icon={
+                <FaHome className="text-gray-400 w-5 h-5 opacity-0 text-transparent" />
+              }
               items={company}
               isOpen={activeItem === "Company"}
               onToggle={() => handleToggleItem("Company")}
@@ -224,7 +234,9 @@ const Navbar = () => {
 
             <NavItemWithSubMenu
               title="customers"
-              icon={<FaUser className="text-gray-400 w-5 h-5 opacity-0 text-transparent" />}
+              icon={
+                <FaUser className="text-gray-400 w-5 h-5 opacity-0 text-transparent" />
+              }
               items={customers}
               isOpen={activeItem === "customers"}
               onToggle={() => handleToggleItem("customers")}
@@ -232,7 +244,9 @@ const Navbar = () => {
 
             <NavItemWithSubMenu
               title="todo"
-              icon={<FaHome className="text-gray-400 w-5 h-5 opacity-0 text-transparent" />}
+              icon={
+                <FaHome className="text-gray-400 w-5 h-5 opacity-0 text-transparent" />
+              }
               items={todo}
               isOpen={activeItem === "todo"}
               onToggle={() => handleToggleItem("todo")}
@@ -240,7 +254,9 @@ const Navbar = () => {
 
             <NavItemWithSubMenu
               title="admin"
-              icon={<FaHome className="text-gray-400 w-5 h-5 opacity-0 text-transparent" />}
+              icon={
+                <FaHome className="text-gray-400 w-5 h-5 opacity-0 text-transparent" />
+              }
               items={admin}
               isOpen={activeItem === "admin"}
               onToggle={() => handleToggleItem("admin")}

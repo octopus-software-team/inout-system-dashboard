@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import toast, { Toaster } from "react-hot-toast";
 
 const Update = () => {
   const { id } = useParams();
@@ -24,23 +25,28 @@ const Update = () => {
     axios
       .put(`http://localhost:3030/users/${id}`, inputData)
       .then((res) => {
-        alert("Data updated successfully");
-        navigate("/company/addservices");
+        console.log("Response:", res); 
+        toast.success("Data Updated Successfully!"); 
+        setTimeout(() => {
+          navigate("/company/services"); 
+        }, 2000);
       })
       .catch((err) => {
         console.error("Error updating data:", err);
-        alert("Failed to update data. Please try again.");
+        toast.error("Failed to update data. Please try again.");
       });
   };
 
   return (
-    <div className="container bg-gray-100  mt-20 flex items-center justify-center">
+    <div className="container  mt-20 flex items-center justify-center relative">
+      <Toaster position="top-center" reverseOrder={false} />
+      
       <form
         onSubmit={handleSubmit}
-        className="bg-white p-6 rounded shadow-md w-full"
+        className=" p-6 rounded w-full"
       >
         <h2 className="text-2xl font-bold mb-4 text-gray-800 text-center">
-          Updated Page
+          Update Page
         </h2>
 
         <div className="mb-4">
@@ -85,7 +91,6 @@ const Update = () => {
           />
         </div>
 
-
         <div className="mb-4">
           <label
             htmlFor="phoneNumber"
@@ -94,10 +99,10 @@ const Update = () => {
             Phone Number
           </label>
           <input
-            type="phoneNumber"
+            type="text"
             id="phoneNumber"
-            name="v"
-            placeholder="Your phone Number"
+            name="phoneNumber"
+            placeholder="Your Phone Number"
             required
             className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-indigo-200"
             value={inputData.phoneNumber}
