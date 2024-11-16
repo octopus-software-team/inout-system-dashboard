@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import ProfileImage from "../../assests/11.jpg"; // Replace with your profile image path
 import { Link } from "react-router-dom";
+import Logout from "../logout/Logout";
+import DarkModeToggle from "../../theme/DarkMode";
 
 export default function DropDown() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -13,32 +15,34 @@ export default function DropDown() {
   };
 
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex gap-3 items-center justify-between">
+       <DarkModeToggle/>
       <div className="relative">
+     
         <img
           src={ProfileImage}
           alt="Profile"
           className="w-10 h-10 rounded-full cursor-pointer"
           onClick={toggleDropdown}
+
         />
 
+
         {dropdownOpen && (
+          < >
+          
+
+
+
+         
           <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg p-4 z-50">
-            {/* Profile Section */}
+
             <div className="flex items-center gap-3 mb-4">
               <img
                 src={ProfileImage}
                 alt="Profile"
-                className="w-12 h-12 rounded-full"
-              />
-              {/* <div>
-                <h2 className="font-semibold">Jassa Rich</h2>
-                <input
-                  type="text"
-                  placeholder="Update your status"
-                  className="mt-1 p-2 w-full border border-gray-300 rounded focus:outline-none focus:border-indigo-500 text-sm"
-                />
-              </div> */}
+                className="w-12 h-12 rounded-full" />
+
             </div>
 
             {/* Menu Options */}
@@ -51,10 +55,6 @@ export default function DropDown() {
                   <i className="fas fa-user"></i> Profile
                 </a>
               </li>
-              
-              
-             
-             
             </ul>
 
             {/* Additional Options */}
@@ -67,18 +67,12 @@ export default function DropDown() {
             </a>
 
             {/* Sign Out Button */}
-            <Link to="/loginn">  
-            
-            <button
-              // onClick={handleSignOut}
-              className="w-full mt-2 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded flex items-center justify-center gap-2 font-medium"
-            >
-              <i className="fas fa-sign-out-alt"></i> Sign out
-            </button>
-            </Link>
-          </div>
+            <Logout />
+          
+          </div></>
         )}
       </div>
+     
     </div>
   );
 }

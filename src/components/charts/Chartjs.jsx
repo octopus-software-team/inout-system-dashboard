@@ -108,8 +108,7 @@ const Chartjs = () => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
-      {/* القسم الأول: الشارت الشريطي */}
-      <div className="bg-white shadow-md rounded-lg p-6 w-11/12">
+      <div className="bg-white shadow-md rounded-lg p-6 w-11/12 dark:bg-black">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-lg font-semibold text-gray-800">

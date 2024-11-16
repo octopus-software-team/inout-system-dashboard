@@ -1,13 +1,8 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faMoon,
-  faSun,
-  faBars,
-  faTimes,
-} from "@fortawesome/free-solid-svg-icons";
-import img from "../../assests/11.jpg";
+import { faBars, faTimes } from "@fortawesome/free-solid-svg-icons";
+
 import {
   FaChartPie,
   FaPlus,
@@ -15,19 +10,17 @@ import {
   FaHome,
   FaTools,
   FaHardHat,
-  FaTimes,
-  FaBars,
   FaUser,
   FaUserTie,
   FaComments,
-  FaTasks,
   FaCheck,
   FaClipboardList,
-  FaUserPlus,
   FaBriefcase,
   FaUserEdit,
+  FaUserPlus,
+  FaTimes,
+  FaBars,
 } from "react-icons/fa";
-import { path } from "d3";
 import DropDown from "../Login/DropDown";
 
 const projects = [
@@ -49,49 +42,60 @@ const company = [
     path: "/company/Branchs",
     icon: <FaHome className="mr-2 text-gray-400" />,
   },
-  // {
-  //   name: "Engineers",
-  //   path: "/company/Engineers",
-  //   icon: <FaTools className="mr-2 text-gray-400" />,
-  // },
   {
     name: "Services",
     path: "/company/Services",
     icon: <FaHardHat className="mr-2 text-gray-400" />,
   },
   {
-    name: "employees",
+    name: "Employees",
     path: "/company/employees",
     icon: <FaUserTie className="mr-2 text-gray-400" />,
+  },
+  {
+    name: "Assets",
+    isSubmenu: true,
+    items: [
+      {
+        name: "Add New Assets",
+        path: "/company/assets/addnewassets",
+        icon: <FaHome className="mr-2 text-gray-400" />,
+      },
+      {
+        name: "Add Materials",
+        path: "/company/assets/addmaterials",
+        icon: <FaHome className="mr-2 text-gray-400" />,
+      },
+    ],
   },
 ];
 
 const customers = [
   {
-    name: "clients",
+    name: "Clients",
     path: "/customers/clients",
     icon: <FaUser className="mr-2 text-gray-400" />,
   },
   {
-    name: "owner",
+    name: "Owner",
     path: "/customers/owner",
     icon: <FaUserTie className="mr-2 text-gray-400" />,
   },
   {
-    name: "consaltative",
-    path: "/customers/consaltative",
+    name: "Consultative",
+    path: "/customers/consultative",
     icon: <FaComments className="mr-2 text-gray-400" />,
   },
 ];
 
 const todo = [
   {
-    name: "add new task",
+    name: "Add New Task",
     path: "/todo/addnewtask",
     icon: <FaCheck className="mr-2 text-gray-400" />,
   },
   {
-    name: "show all task",
+    name: "Show All Task",
     path: "/todo/showalltask",
     icon: <FaEye className="mr-2 text-gray-400" />,
   },
@@ -99,182 +103,123 @@ const todo = [
 
 const admin = [
   {
-    name: "addnewrole",
+    name: "Add New Role",
     path: "/admin/addnewrole",
     icon: <FaBriefcase className="mr-2 text-gray-400" />,
   },
   {
-    name: "editroles",
+    name: "Edit Roles",
     path: "/admin/editroles",
     icon: <FaUserEdit className="mr-2 text-gray-400" />,
   },
 ];
 
-const NavItemWithSubMenu = ({ title, icon, items, isOpen, onToggle }) => {
-  return (
-    <li>
-      <button
-        type="button"
-        onClick={onToggle}
-        className="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-      >
-        <svg
-          className={`w-3 h-3 mr-2 transition-transform duration-300 text-gray-400 ${
-            isOpen ? "rotate-180" : "rotate-0"
-          }`}
-          fill="none"
-          viewBox="0 0 10 6"
-        >
-          <path
-            stroke="currentColor"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="m1 1 4 4 4-4"
-          />
-        </svg>
-        <span className="flex items-center">
-          {icon}
-          <span className="flex-1 ml-3 text-left">{title}</span>
-        </span>
-      </button>
-      <ul
-        className={`pl-8 mt-2 space-y-1 overflow-hidden transition-all duration-300 ease-in-out ${
-          isOpen ? "max-h-screen opacity-100" : "max-h-0 opacity-0"
+const NavItemWithSubMenu = ({ title, icon, items, isOpen, onToggle }) => (
+  <li>
+    <button
+      type="button"
+      onClick={onToggle}
+      className="flex items-center w-full p-2 text-bas text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100"
+    >
+      <svg
+        className={`w-3 h-3 mr-2 transition-transform duration-300 text-gray-400 ${
+          isOpen ? "rotate-180" : "rotate-0"
         }`}
+        fill="none"
+        viewBox="0 0 10 6"
       >
-        {items.map((item, index) => (
-          <li key={index}>
+        <path
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2"
+          d="m1 1 4 4 4-4"
+        />
+      </svg>
+      <span className="flex items-center">
+        {icon}
+        <span className="flex-1 ml-3 text-gray-400 text-left">{title}</span>
+      </span>
+    </button>
+    <ul
+      className={`pl-8 mt-2 space-y-1 overflow-hidden transition-all duration-300 ease-in-out ${
+        isOpen ? "max-h-screen opacity-100" : "max-h-0 opacity-0"
+      }`}
+    >
+      {items.map((item, index) => (
+        <li key={index}>
+          {item.isSubmenu ? (
+            <NavItemWithSubMenu
+              title={item.name}
+              icon={item.icon}
+              items={item.items}
+              isOpen={isOpen} // Use individual isOpen state for each submenu
+              onToggle={onToggle}
+            />
+          ) : (
             <Link
               to={item.path}
-              className="flex items-center text-sm text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md"
+              className="flex items-center text-sm text-gray-400 hover:bg-gray-100 p-2 rounded-md"
             >
               {item.icon}
               <span className="ml-2">{item.name}</span>
             </Link>
-          </li>
-        ))}
-      </ul>
-    </li>
-  );
-};
+          )}
+        </li>
+      ))}
+    </ul>
+  </li>
+);
 
 const Navbar = () => {
-  const [isDarkMode, setIsDarkMode] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [activeItem, setActiveItem] = useState(null); // لإدارة العنصر المفتوح
-
-  const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-    document.documentElement.classList.toggle("dark");
-  };
+  const [activeItems, setActiveItems] = useState({});
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
 
   const handleToggleItem = (item) => {
-    setActiveItem((prevItem) => (prevItem === item ? null : item));
+    setActiveItems((prevItems) => ({
+      ...prevItems,
+      [item]: !prevItems[item],
+    }));
   };
 
   return (
-    <div>
-      <nav className="flex items-center justify-between bg-white dark:bg-gray-900 p-4 shadow-md fixed w-full z-30 top-0">
-        <div className="flex items-center space-x-3">
+    <div className="dark:bg-slate-900 bg-white transition-colors duration-300">
+      <nav className="flex items-center justify-between dark:bg-slate-900 p-4 border-b-2 fixed w-full z-30 top-0 transition-colors duration-300 ">
+        <div className="flex items-center space-x-">
           <button className="md:hidden text-gray-500" onClick={toggleSidebar}>
             {sidebarOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
           </button>
-          <Link to="/dashboard">
+          <Link className="dark:bg-slate-900" to="/dashboard">
             <h1 className="text-gray-400 ml-24 text-3xl font-bold cursor-pointer">
               INOUT
             </h1>
           </Link>
         </div>
 
+        <div>
+          <input type="text" placeholder="Search" />
+        </div>
         <div className="flex items-center space-x-4">
-          <button
-            onClick={toggleDarkMode}
-            className="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700"
-          >
-            <FontAwesomeIcon
-              icon={isDarkMode ? faSun : faMoon}
-              className={
-                isDarkMode ? "text-yellow-500" : "text-gray-800 dark:text-white"
-              }
-            />
-          </button>
           <DropDown />
-c        </div>
+        </div>
       </nav>
 
       {sidebarOpen && (
-        <div className="absolute top-16 left-0 w-full bg-white dark:bg-gray-800 z-20 p-4 shadow-md md:hidden">
+        <div className="absolute top-16 left-0 w-full z-20 p-4 shadow-md md:hidden">
           <ul className="font-medium">
-            <li className="text-gray-400 text-sm mb-4">Main Menu</li>
-
-            <NavItemWithSubMenu
-              title="Projects"
-              icon={
-                <FaChartPie className="text-transparent w-5 h-5 opacity-0" />
-              }
-              items={projects}
-              isOpen={activeItem === "Projects"}
-              onToggle={() => handleToggleItem("Projects")}
-            />
-
-            <NavItemWithSubMenu
-              title="Company"
-              icon={
-                <FaHome className="text-gray-400 w-5 h-5 opacity-0 text-transparent" />
-              }
-              items={company}
-              isOpen={activeItem === "Company"}
-              onToggle={() => handleToggleItem("Company")}
-            />
-
-            <NavItemWithSubMenu
-              title="customers"
-              icon={
-                <FaUser className="text-gray-400 w-5 h-5 opacity-0 text-transparent" />
-              }
-              items={customers}
-              isOpen={activeItem === "customers"}
-              onToggle={() => handleToggleItem("customers")}
-            />
-
-            <NavItemWithSubMenu
-              title="todo"
-              icon={
-                <FaHome className="text-gray-400 w-5 h-5 opacity-0 text-transparent" />
-              }
-              items={todo}
-              isOpen={activeItem === "todo"}
-              onToggle={() => handleToggleItem("todo")}
-            />
-
-            <NavItemWithSubMenu
-              title="admin"
-              icon={
-                <FaHome className="text-gray-400 w-5 h-5 opacity-0 text-transparent" />
-              }
-              items={admin}
-              isOpen={activeItem === "admin"}
-              onToggle={() => handleToggleItem("admin")}
-            />
-          </ul>
-        </div>
-      )}
-
-      <aside className="hidden md:block w-64 bg-white dark:bg-gray-800 h-full fixed top-0 left-0 z-10 pt-16">
-        <div className="h-full p-4 space-y-2 overflow-y-auto">
-          <ul className="font-medium ml-5">
-            <li className="text-gray-400 mt-10  text-sm mb-4">Main Menu</li>
+            <li className="text-gray-400 text-sm mb-4 font-extralight">
+              Main Menu
+            </li>
 
             <NavItemWithSubMenu
               title="Projects"
               icon={<FaChartPie className="text-gray-400 w-5 h-5" />}
               items={projects}
-              isOpen={activeItem === "Projects"}
+              isOpen={activeItems["Projects"]}
               onToggle={() => handleToggleItem("Projects")}
             />
 
@@ -282,32 +227,80 @@ c        </div>
               title="Company"
               icon={<FaHome className="text-gray-400 w-5 h-5" />}
               items={company}
-              isOpen={activeItem === "Company"}
+              isOpen={activeItems["Company"]}
               onToggle={() => handleToggleItem("Company")}
             />
 
             <NavItemWithSubMenu
-              title="customers"
+              title="Customers"
               icon={<FaUser className="text-gray-400 w-5 h-5" />}
               items={customers}
-              isOpen={activeItem === "customers"}
-              onToggle={() => handleToggleItem("customers")}
+              isOpen={activeItems["Customers"]}
+              onToggle={() => handleToggleItem("Customers")}
             />
 
             <NavItemWithSubMenu
-              title="todo"
+              title="To Do"
               icon={<FaClipboardList className="text-gray-400 w-5 h-5" />}
               items={todo}
-              isOpen={activeItem === "todo"}
-              onToggle={() => handleToggleItem("todo")}
+              isOpen={activeItems["ToDo"]}
+              onToggle={() => handleToggleItem("ToDo")}
             />
 
             <NavItemWithSubMenu
-              title="admin"
+              title="Admin"
               icon={<FaUserPlus className="text-gray-400 w-5 h-5" />}
               items={admin}
-              isOpen={activeItem === "admin"}
-              onToggle={() => handleToggleItem("admin")}
+              isOpen={activeItems["Admin"]}
+              onToggle={() => handleToggleItem("Admin")}
+            />
+          </ul>
+        </div>
+      )}
+
+      <aside className="hidden md:block w-80 dark:text-white bg-white h-full fixed top-0 left-0 z-10 pt-16">
+        <div className="h-full p-4 space-y-2 dark:bg-slate-900 dark:text-white overflow-y-auto">
+          <ul className="font-medium ml-5">
+            <li className="text-gray-400 mt-10 text-sm mb-4">Main Menu</li>
+
+            <NavItemWithSubMenu
+              title="Projects"
+              icon={<FaChartPie className="text-gray-400 w-5 h-5" />}
+              items={projects}
+              isOpen={activeItems["Projects"]}
+              onToggle={() => handleToggleItem("Projects")}
+            />
+
+            <NavItemWithSubMenu
+              title="Company"
+              icon={<FaHome className="text-gray-400 w-5 h-5" />}
+              items={company}
+              isOpen={activeItems["Company"]}
+              onToggle={() => handleToggleItem("Company")}
+            />
+
+            <NavItemWithSubMenu
+              title="Customers"
+              icon={<FaUser className="text-gray-400 w-5 h-5" />}
+              items={customers}
+              isOpen={activeItems["Customers"]}
+              onToggle={() => handleToggleItem("Customers")}
+            />
+
+            <NavItemWithSubMenu
+              title="To Do"
+              icon={<FaClipboardList className="text-gray-400 w-5 h-5" />}
+              items={todo}
+              isOpen={activeItems["ToDo"]}
+              onToggle={() => handleToggleItem("ToDo")}
+            />
+
+            <NavItemWithSubMenu
+              title="Admin"
+              icon={<FaUserPlus className="text-gray-400 w-5 h-5" />}
+              items={admin}
+              isOpen={activeItems["Admin"]}
+              onToggle={() => handleToggleItem("Admin")}
             />
           </ul>
         </div>

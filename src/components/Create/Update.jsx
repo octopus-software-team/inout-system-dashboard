@@ -1,74 +1,83 @@
-import axios from "axios";
-import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 
 const Update = () => {
-  const { id } = useParams();
-  const [inputData, setInputData] = useState({
-    id: "",
-    name: "",
-    phoneNumber: ""
-  });
-
+  const location = useLocation();
   const navigate = useNavigate();
+  const service = location.state; // Get the service data from state
+
+  const [serviceName, setServiceName] = useState(service?.name || "");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    axios
-      .get(`http://localhost:3030/users/${id}`)
-      .then((res) => setInputData(res.data))
-      .catch((err) => console.error("Error fetching user data:", err));
-  }, [id]);
+    // Ensure that the service data exists when the component mounts
+    if (!service) {
+      setError("No service data available");
+    }
+  }, [service]);
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    axios
-      .put(`http://localhost:3030/users/${id}`, inputData)
-      .then((res) => {
-        console.log("Response:", res); 
-        toast.success("Data Updated Successfully!"); 
-        setTimeout(() => {
-          navigate("/company/services"); 
-        }, 2000);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setError("No token found. Please log in.");
+      return;
+    }
+
+    setIsLoading(true);
+
+    fetch(`https://inout-api.octopusteam.net/api/front/updateService/${service.id}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`, // Corrected template literal
+      },
+      body: JSON.stringify({ name: serviceName }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to update service");
+        }
+        return response.json();
       })
-      .catch((err) => {
-        console.error("Error updating data:", err);
-        toast.error("Failed to update data. Please try again.");
+        
+      .then((data) => {
+        if (data && data.msg === "updated successfully") {
+          toast.success("Service updated successfully!");
+          navigate("/company/services"); // Navigate back to the services list
+        } else {
+          toast.error("Failed to update the service");
+        }
+      })
+      .catch((error) => {
+        console.error("Error updating service:", error);
+        toast.error("Error updating the service. Please try again.");
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   };
 
-  return (
-    <div className="container  mt-20 flex items-center justify-center relative">
-      <Toaster position="top-center" reverseOrder={false} />
-      
-      <form
-        onSubmit={handleSubmit}
-        className=" p-6 rounded w-full"
-      >
-        <h2 className="text-2xl font-bold mb-4 text-gray-800 text-center">
-          Update Page
-        </h2>
+  if (error) {
+    return (
+      <div className="container mt-20 flex items-center justify-center relative">
+        <p className="text-red-500">{error}</p>
+      </div>
+    );
+  }
 
-        <div className="mb-4">
-          <label
-            htmlFor="id"
-            className="block text-gray-700 font-semibold mb-2"
-          >
-            Id
-          </label>
-          <input
-            type="text"
-            id="id"
-            name="id"
-            placeholder="Your Id"
-            required
-            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-indigo-200"
-            value={inputData.id}
-            onChange={(e) =>
-              setInputData({ ...inputData, id: e.target.value })
-            }
-          />
-        </div>
+  return (
+    <div className="container mt-20 flex items-center justify-center relative">
+      <Toaster position="top-center" reverseOrder={false} />
+
+      <form onSubmit={handleSubmit} className="p-6 rounded w-full">
+        <h2 className="text-2xl font-bold mb-4 text-gray-800 text-center">
+          Update Service
+        </h2>
 
         <div className="mb-4">
           <label
@@ -81,42 +90,20 @@ const Update = () => {
             type="text"
             id="name"
             name="name"
-            placeholder="Your Name"
+            value={serviceName}
+            onChange={(e) => setServiceName(e.target.value)}
+            placeholder="Service Name"
             required
             className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-indigo-200"
-            value={inputData.name}
-            onChange={(e) =>
-              setInputData({ ...inputData, name: e.target.value })
-            }
-          />
-        </div>
-
-        <div className="mb-4">
-          <label
-            htmlFor="phoneNumber"
-            className="block text-gray-700 font-semibold mb-2"
-          >
-            Phone Number
-          </label>
-          <input
-            type="text"
-            id="phoneNumber"
-            name="phoneNumber"
-            placeholder="Your Phone Number"
-            required
-            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-indigo-200"
-            value={inputData.phoneNumber}
-            onChange={(e) =>
-              setInputData({ ...inputData, phoneNumber: e.target.value })
-            }
           />
         </div>
 
         <button
           type="submit"
           className="w-full bg-green-600 hover:bg-green-500 text-white font-semibold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-green-700"
+          disabled={isLoading}
         >
-          Update
+          {isLoading ? "Updating..." : "Update"}
         </button>
       </form>
     </div>

@@ -63,12 +63,10 @@ const datas = [
 const NewChart = () => {
   return (
     <div className="px-[25px]  pb-[40px]">
-      <div className="flex mt-[22px] w-full gap-[30px]">
-        <div className="cursor-pointer rounded-[4px]">
-          <div className="flex items-center justify-between py-[15px] px-[20px]  mb-[20px]">
-            {/* <h2 className="text-[#4e73df] text-[16px] leading-[19px] font-bold">
-              Earnings Overview
-            </h2> */}
+      <div className="flex mt-[22px] w-full gap-[30px] ">
+        <div className="cursor-pointer rounded-[4px] ">
+          <div className="flex items-center justify-between py-[15px] px-[20px]  mb-[20px] ">
+           
             <FaEllipsisV color="gray" className="cursor-pointer" />
           </div>
 

@@ -26,6 +26,8 @@ import EditRoles from "./components/admin/EditRoles";
 import Employees from "./components/company/Employees";
 import AddReport from "./components/allProjects/AddReport";
 import Loginn from "./components/Login/Loginn";
+import AddNewAssets from "./components/company/assets/AddNewAssets";
+import AddMaterials from "./components/company/assets/AddMaterials";
 
 function AppContent() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -38,18 +40,18 @@ function AppContent() {
   const isLoginPage = location.pathname === "/loginn";
 
   return (
-    <div className="bg-gray-100 min-h-screen"> {/* إضافة الخلفية الرمادية هنا */}
+    <div className="bg-gray-100 dark:text-white dark:bg-slate-950 min-h-screen">
       {!isLoginPage && (
         <Navbar
           toggleSidebar={toggleSidebar}
-          className="fixed top-0 w-full z-10"
+          className="fixed top-0 w-full z-10  "
         />
       )}
 
       <div className="flex">
         {!isLoginPage && (
           <div className={`${isSidebarOpen ? "block" : "hidden"} md:block`}>
-            <SideNavbar className="mt-16" />
+            <SideNavbar className="mt-5" />
           </div>
         )}
 
@@ -65,11 +67,12 @@ function AppContent() {
               path="/allprojects/showallprojects"
               element={<ShowAllProjects />}
             />
-          
             <Route path="/allprojects/addreport" element={<AddReport />} />
             <Route path="/company/branchs" element={<Branchs />} />
             <Route path="/company/services" element={<Services />} />
             <Route path="/company/engineers" element={<Engineers />} />
+            <Route path="/company/assets/addnewassets" element={<AddNewAssets />} />
+            <Route path="/company/assets/addmaterials" element={<AddMaterials />} />
             <Route path="/company/employees" element={<Employees />} />
             <Route path="/customers/clients" element={<Clients />} />
             <Route path="/customers/owner" element={<Owner />} />
