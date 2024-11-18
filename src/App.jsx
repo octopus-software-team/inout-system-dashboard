@@ -28,6 +28,7 @@ import AddReport from "./components/allProjects/AddReport";
 import Loginn from "./components/Login/Loginn";
 import AddNewAssets from "./components/company/assets/AddNewAssets";
 import AddMaterials from "./components/company/assets/AddMaterials";
+import SettingsIcon from "./components/settingicon/SettingIcon";
 
 function AppContent() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -44,8 +45,15 @@ function AppContent() {
       {!isLoginPage && (
         <Navbar
           toggleSidebar={toggleSidebar}
-          className="fixed top-0 w-full z-10  "
+          className="fixed top-0 w-full z-10"
         />
+      )}
+
+      {!isLoginPage && (
+        <div className="fixed bottom-5 right-5 z-50">
+          {/* إضافة أيقونة الإعدادات */}
+          <SettingsIcon />
+        </div>
       )}
 
       <div className="flex">
@@ -59,6 +67,7 @@ function AppContent() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/dashboard" element={<DashBoard />} />
+            <Route path="/settingicon/settingicon" element={<SettingsIcon />} />
             <Route
               path="/allprojects/addnewproject"
               element={<AddNewProject />}
@@ -71,12 +80,21 @@ function AppContent() {
             <Route path="/company/branchs" element={<Branchs />} />
             <Route path="/company/services" element={<Services />} />
             <Route path="/company/engineers" element={<Engineers />} />
-            <Route path="/company/assets/addnewassets" element={<AddNewAssets />} />
-            <Route path="/company/assets/addmaterials" element={<AddMaterials />} />
+            <Route
+              path="/company/assets/addnewassets"
+              element={<AddNewAssets />}
+            />
+            <Route
+              path="/company/assets/addmaterials"
+              element={<AddMaterials />}
+            />
             <Route path="/company/employees" element={<Employees />} />
             <Route path="/customers/clients" element={<Clients />} />
             <Route path="/customers/owner" element={<Owner />} />
-            <Route path="/customers/consaltative" element={<Consaltative />} />
+            <Route
+              path="/customers/consaltative"
+              element={<Consaltative />}
+            />
             <Route path="/create" element={<Create />} />
             <Route path="/update/:id" element={<Update />} />
             <Route path="/todo/addnewtask" element={<AddNewTask />} />

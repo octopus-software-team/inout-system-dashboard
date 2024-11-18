@@ -21,7 +21,7 @@ export default function DarkModeToggle() {
       onClick={() => setIsDarkMode(!isDarkMode)}
       className=""
     >
-      {isDarkMode ?  <FaMoon className="mr-2 text-gray-400" />  :  <FaSun className="mr-2 text-gray-400" />}
+      {isDarkMode ?  <FaMoon className="mr-2 text-2xl text-gray-400" />  :  <FaSun className="mr-2 text-2xl text-gray-400" />}
     </button>
   );
 }

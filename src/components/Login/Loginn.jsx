@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import { FaUser, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import logo4 from "../../assests/logo4.png";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function Loginn() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
+  const [isLoginSuccessful, setIsLoginSuccessful] = useState(false); // حالة الـ Modal
   const navigate = useNavigate();
 
   const togglePasswordVisibility = () => {
@@ -34,7 +35,10 @@ function Loginn() {
       if (response.ok) {
         // Store the token in localStorage (or any other storage)
         localStorage.setItem("token", data.data.token);
-        navigate('/'); // Redirect to home page after login
+        setIsLoginSuccessful(true); // إظهار الـ Modal عند تسجيل الدخول بنجاح
+        setTimeout(() => {
+          navigate("/"); // الانتقال إلى الصفحة الرئيسية بعد 2 ثانية
+        }, 2000);
       } else {
         setError(data.data.message || "Login failed");
       }
@@ -44,17 +48,17 @@ function Loginn() {
   };
 
   return (
-    <div className="flex justify-center items-center">
-      <div className="w-full max-w-md p-8 space-y-6">
-        <img className="w-20 ml-36" src={logo4} alt="" />
+    <div className="flex justify-center items-center h-96 mt-36  bg-gray-100">
+      <div className="w-11/12 max-w-md h-screen bg-white rounded-lg shadow-lg p-8 space-y-6">
+        <img className="w-24 mx-auto" src={logo4} alt="Logo" />
         <h2 className="text-center text-2xl font-bold text-gray-800">
           Sign In
         </h2>
-
         <form onSubmit={handleSubmit}>
-          <div className="flex flex-col">
-            <label htmlFor="email" className="text-gray-600 font-semibold mb-1">
-              EMAIL ADDRESS
+          {/* Email Field */}
+          <div className="flex flex-col space-y-2">
+            <label htmlFor="email" className="text-gray-600 font-semibold">
+              Email Address
             </label>
             <div className="relative">
               <span className="absolute inset-y-0 left-0 flex items-center pl-3">
@@ -73,12 +77,9 @@ function Loginn() {
           </div>
 
           {/* Password Field */}
-          <div className="flex flex-col">
-            <label
-              htmlFor="password"
-              className="text-gray-600 font-semibold mb-1"
-            >
-              PASSWORD
+          <div className="flex flex-col space-y-2 mt-4">
+            <label htmlFor="password" className="text-gray-600 font-semibold">
+              Password
             </label>
             <div className="relative">
               <span className="absolute inset-y-0 left-0 flex items-center pl-3">
@@ -106,28 +107,51 @@ function Loginn() {
             </div>
           </div>
 
-          {/* Remember Me and Forgot Password */}
-          <div className="flex items-center justify-between">
+          {/* Remember Me */}
+          <div className="flex items-center justify-between mt-4">
             <label className="flex items-center text-gray-600">
               <input type="checkbox" className="mr-2" />
               Remember me
             </label>
+            <Link
+              to="/forgot-password"
+              className="text-blue-500 hover:underline text-sm"
+            >
+              Forgot Password?
+            </Link>
           </div>
 
           {/* Sign In Button */}
-
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full mt-6 bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             Sign In
           </button>
         </form>
+
         {/* Create Account Link */}
+        <p className="text-center text-gray-600 text-sm mt-4">
+          Don't have an account?{" "}
+          <Link to="/register" className="text-blue-500 hover:underline">
+            Create one
+          </Link>
+        </p>
       </div>
+
+      {/* Success Modal */}
+      {isLoginSuccessful && (
+        <div className="fixed inset-x-0 top-1 flex items-center justify-center bg-opacity-50 z-50">
+          <div className="bg-white rounded-lg p-6 shadow-lg text-center space-y-4">
+            <h3 className="text-xl font-semibold text-green-600">
+              Login Successful!
+            </h3>
+            <p className="text-gray-600">Redirecting to the homepage...</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
 export default Loginn;
-
