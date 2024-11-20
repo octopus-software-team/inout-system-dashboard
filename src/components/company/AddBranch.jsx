@@ -1,60 +1,70 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 const AddBranch = () => {
-  const [branchName, setBranchName] = useState('');
-  const [latitude, setLatitude] = useState('');
-  const [longitude, setLongitude] = useState('');
-  const [message, setMessage] = useState('');
-  const [branchData, setBranchData] = useState(null); // لحفظ بيانات الفرع المضافة
+  const [branchName, setBranchName] = useState("");
+  const [latitude, setLatitude] = useState("");
+  const [longitude, setLongitude] = useState("");
+  const [message, setMessage] = useState("");
+  const [branchData, setBranchData] = useState(null);
 
-  const token = localStorage.getItem('authToken');
+//   const token = localStorage.getItem("token"); // Ensure this is set correctly
 
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Parse latitude and longitude to ensure they are numbers
+    // Parse latitude and longitude to ensure valid numbers
     const parsedLatitude = parseFloat(latitude);
     const parsedLongitude = parseFloat(longitude);
 
-    // Check if latitude and longitude are valid numbers
-    if (isNaN(parsedLatitude) || isNaN(parsedLongitude)) {
-      setMessage('Latitude and Longitude must be valid numbers.');
+    // Check if latitude and longitude are valid
+    if (!Number.isFinite(parsedLatitude) || !Number.isFinite(parsedLongitude)) {
+      setMessage("Latitude and Longitude must be valid numbers.");
       return;
     }
 
+    // Data to be sent
     const data = {
-      name: branchName,
+      name: branchName.trim(),
       latitude: parsedLatitude,
       longitude: parsedLongitude,
     };
 
     try {
-        const response = await fetch('https://inout-api.octopusteam.net/api/front/addBranch', {
-          method: 'POST',
+      // Debugging: Log the payload before sending
+      console.log("Payload:", JSON.stringify(data));
+
+      const response = await fetch(
+        "https://inout-api.octopusteam.net/api/front/addBranch",
+        {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`, // Ensure the token is correct
+            "Content-Type": "application/json",
+            // Authorization: `Bearer ${token}`, // Ensure the token is valid
           },
           body: JSON.stringify(data),
-        });
-      
-        const text = await response.text(); // Use text() instead of json() for debugging
-        console.log('Raw Response:', text); // Log the raw response for analysis
-      
-        if (!response.ok) {
-          throw new Error(`HTTP Error: ${response.status} - ${response.statusText}`);
         }
-      
-        const result = JSON.parse(text); // Parse manually if needed
-        setMessage(result.msg);
-        setBranchData(result.data);
-        console.log('Branch added successfully:', result.data);
-      } catch (error) {
-        setMessage('Error: ' + error.message);
-        console.error('Error:', error);
+      );
+
+      // Log the raw response text for debugging
+      const text = await response.text();
+      console.log("Raw Response:", text);
+
+      if (!response.ok) {
+        throw new Error(
+          `HTTP Error: ${response.status} - ${response.statusText}`
+        );
       }
-      
+
+      // Parse the response
+      const result = JSON.parse(text);
+      setMessage(result.msg || "Branch added successfully!");
+      setBranchData(result.data.data);
+      console.log("Branch added successfully:", result.data.data);
+    } catch (error) {
+      setMessage("Error: " + error.message);
+      console.error("Error:", error);
+    }
   };
 
   return (
@@ -109,16 +119,24 @@ const AddBranch = () => {
           Add Branch
         </button>
       </form>
-      {/* {message && (
+      {message && (
         <p className="mt-4 text-center text-sm text-gray-600">{message}</p>
-      )} */}
+      )}
       {branchData && (
         <div className="mt-4 p-4 bg-gray-100 rounded-lg">
           <h3 className="text-lg font-semibold">Branch Details:</h3>
-          <p><strong>ID:</strong> {branchData.id}</p>
-          <p><strong>Name:</strong> {branchData.name}</p>
-          <p><strong>Latitude:</strong> {branchData.latitude}</p>
-          <p><strong>Longitude:</strong> {branchData.longitude}</p>
+          <p>
+            <strong>ID:</strong> {branchData.id}
+          </p>
+          <p>
+            <strong>Name:</strong> {branchData.name}
+          </p>
+          <p>
+            <strong>Latitude:</strong> {branchData.latitude}
+          </p>
+          <p>
+            <strong>Longitude:</strong> {branchData.longitude}
+          </p>
         </div>
       )}
     </div>

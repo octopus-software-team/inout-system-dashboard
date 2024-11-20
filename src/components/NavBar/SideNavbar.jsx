@@ -199,7 +199,7 @@ const Navbar = () => {
 
   return (
     <div className="dark:bg-slate-900 bg-white transition-colors duration-300">
-      <nav className="flex items-center bg-white justify-between dark:bg-slate-900 h-20 p-4 border-b-2 fixed w-full z-30 top-0 transition-colors duration-300 ">
+      <nav className="nav-item flex items-center justify-between dark:bg-slate-900 h-20 p-4 border-b-2 fixed w-full z-30 top-0 transition-colors duration-300 ">
         <div className="flex items-center space-x-4">
           <button className="md:hidden text-gray-500" onClick={toggleSidebar}>
             {sidebarOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
@@ -209,7 +209,7 @@ const Navbar = () => {
             to="/dashboard"
           >
             <img className="w-16 min-h-3" src={logo22} alt="Logo" />
-            <h1 className="text-gray-500 text-3xl font-semibold cursor-pointer">
+            <h1 className="text-gray-500 dark:text-white text-3xl font-semibold cursor-pointer">
               INOUT
             </h1>
           </Link>

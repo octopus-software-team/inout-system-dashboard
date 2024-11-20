@@ -108,7 +108,7 @@ const Chartjs = () => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
-      <div className="bg-white shadow-md rounded-lg p-6 w-11/12 dark:bg-black">
+      <div className="nav-item dark:bg-slate-800 shadow-md rounded-lg p-6 w-11/12 k">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-lg font-semibold text-gray-800">
@@ -143,7 +143,7 @@ const Chartjs = () => {
       </div>
 
       {/* القسم الثاني: الشارت الخطي */}
-      <div className="bg-white shadow-md rounded-lg p-6 w-11/12">
+      <div className="nav-item dark:bg-slate-800  shadow-md rounded-lg p-6 w-11/12">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-lg font-semibold text-gray-800">Last 7 days</h3>
@@ -155,12 +155,12 @@ const Chartjs = () => {
       </div>
 
       {/* القسم الثالث: دائرة التقدم */}
-      <div className="bg-white shadow-md rounded-lg p-6 w-11/12 h-96 flex flex-col items-start">
+      <div className="nav-item dark:bg-slate-800  shadow-md rounded-lg p-6 w-11/12 h-96 flex flex-col items-start">
         <div>
           <h3 className="text-lg font-semibold text-gray-800">
             Total Projects
           </h3>
-          <p className="text-sm text-gray-500">Last 7 days</p>
+          <p className="text-sm text-gray-500 dark:text-white">Last 7 days</p>
         </div>
 
         <div className="mt-4 flex justify-center w-full">
@@ -197,7 +197,7 @@ const Chartjs = () => {
       </div>
 
       {/* القسم الرابع */}
-      <div className="bg-white shadow-md rounded-lg p-6 w-11/12">
+      <div className="nav-item dark:bg-slate-800 shadow-md rounded-lg p-6 w-11/12">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-lg font-semibold text-gray-800">
