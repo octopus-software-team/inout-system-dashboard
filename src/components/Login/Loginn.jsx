@@ -113,12 +113,7 @@ function Loginn() {
               <input type="checkbox" className="mr-2" />
               Remember me
             </label>
-            <Link
-              to="/forgot-password"
-              className="text-blue-500 hover:underline text-sm"
-            >
-              Forgot Password?
-            </Link>
+           
           </div>
 
           {/* Sign In Button */}
@@ -131,12 +126,7 @@ function Loginn() {
         </form>
 
         {/* Create Account Link */}
-        <p className="text-center text-gray-600 text-sm mt-4">
-          Don't have an account?{" "}
-          <Link to="/register" className="text-blue-500 hover:underline">
-            Create one
-          </Link>
-        </p>
+       
       </div>
 
       {/* Success Modal */}
