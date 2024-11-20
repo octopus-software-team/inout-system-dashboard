@@ -13,7 +13,7 @@ const DashBoard = () => {
   return (
     <div className="p-1 dark:bg-slate-950 dark:text-white">
       <div className="text-left md:text-left mt-11">
-        <h1 className="text-2xl text-black md:text-4xl font-bold  ml-11">
+        <h1 className="text-2xl  dark:text-white md:text-4xl font-bold  ml-11">
           Project Manager
         </h1>
 
@@ -85,8 +85,8 @@ const DashBoard = () => {
         <div className="flex flex-col ml-5 md:flex-row justify-between items-start md:items-center mb-6">
           <div>
             <div>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-3xl md:text-3xl font-bold text-black  dark:text-white">
+              <div className="flex dark:text-white items-center justify-between mb-4">
+                <h2 className="text-3xl md:text-3xl font-bold  dark:text-white">
                   Total Sells
                 </h2>
                 <select className="border  border-gray-300 w-5/12 ml-28 rounded-md px-4 mt-8 py-2 text-gray-700 bg-white focus:outline-none text-lg dark:bg-black dark:text-black dark:border-gray-600">

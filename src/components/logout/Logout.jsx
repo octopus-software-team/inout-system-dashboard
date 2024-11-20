@@ -35,7 +35,7 @@ const LogoutButton = () => {
       }
 
       localStorage.removeItem("token");
-      navigate("/loginn");
+      navigate("/");
     } catch (error) {
       console.log("An error occurred during logout", error);
     }

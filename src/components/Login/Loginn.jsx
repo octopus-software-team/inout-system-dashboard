@@ -37,7 +37,7 @@ function Loginn() {
         localStorage.setItem("token", data.data.token);
         setIsLoginSuccessful(true); // إظهار الـ Modal عند تسجيل الدخول بنجاح
         setTimeout(() => {
-          navigate("/"); // الانتقال إلى الصفحة الرئيسية بعد 2 ثانية
+          navigate("/home"); // الانتقال إلى الصفحة الرئيسية بعد 2 ثانية
         }, 2000);
       } else {
         setError(data.data.message || "Login failed");

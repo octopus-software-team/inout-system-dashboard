@@ -21,7 +21,7 @@ export default function DarkModeToggle() {
       {isDarkMode ? (
         <FaMoon className="mr-2 text-2xl text-gray-400" />
       ) : (
-        <div className="flex items-center justify-center bg-red-200 w-10 h-10 rounded-full">
+        <div className="flex items-center justify-center  w-10 h-10 rounded-full">
           <FaSun className="text-xl text-yellow-300" />
         </div>
       )}

@@ -4,6 +4,7 @@ import {
   Routes,
   Route,
   useLocation,
+  Navigate,
 } from "react-router-dom";
 import SideNavbar from "./components/NavBar/SideNavbar";
 import Navbar from "./components/NavBar/Navbars";
@@ -33,7 +34,13 @@ import CreateClients from "./components/customers/CreateClients";
 import UpdateClients from "./components/customers/UpdateClients";
 import AddBranch from "./components/company/AddBranch";
 import UpdateBranch from "./components/company/UpdateBranch";
-function AppContent() {
+
+const PrivateRoute = ({ element: Component }) => {
+  const isLoggedIn = localStorage.getItem("token"); // Check if the user is logged in
+  return isLoggedIn ? Component : <Navigate to="/" />;
+};
+
+function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const location = useLocation();
 
@@ -41,7 +48,7 @@ function AppContent() {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
-  const isLoginPage = location.pathname === "/loginn";
+  const isLoginPage = location.pathname === "/";
 
   return (
     <div className="bg-gray-100 dark:text-white dark:bg-slate-950 min-h-screen">
@@ -54,7 +61,6 @@ function AppContent() {
 
       {!isLoginPage && (
         <div className="fixed bottom-5 right-5 z-50">
-          {/* إضافة أيقونة الإعدادات */}
           <SettingsIcon />
         </div>
       )}
@@ -68,46 +74,102 @@ function AppContent() {
 
         <div className="flex-grow min-h-screen pt-16 md:ml-80">
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/dashboard" element={<DashBoard />} />
-            <Route path="/settingicon/settingicon" element={<SettingsIcon />} />
+            {/* Public Routes */}
+            <Route path="/" element={<Loginn />} />
+
+            {/* Private Routes */}
+            <Route
+              path="/home"
+              element={<PrivateRoute element={<Home />} />}
+            />
+            <Route
+              path="/dashboard"
+              element={<PrivateRoute element={<DashBoard />} />}
+            />
+            <Route
+              path="/settingicon/settingicon"
+              element={<PrivateRoute element={<SettingsIcon />} />}
+            />
             <Route
               path="/allprojects/addnewproject"
-              element={<AddNewProject />}
+              element={<PrivateRoute element={<AddNewProject />} />}
             />
             <Route
               path="/allprojects/showallprojects"
-              element={<ShowAllProjects />}
+              element={<PrivateRoute element={<ShowAllProjects />} />}
             />
-            <Route path="/allprojects/addreport" element={<AddReport />} />
-            <Route path="/company/branchs" element={<Branchs />} />
-            <Route path="/company/services" element={<Services />} />
-            <Route path="/company/engineers" element={<Engineers />} />
-            <Route path="/company/addbranch" element={<AddBranch />} />
-            <Route path="/company/updatebranch" element={<UpdateBranch />} />
+            <Route
+              path="/allprojects/addreport"
+              element={<PrivateRoute element={<AddReport />} />}
+            />
+            <Route
+              path="/company/branchs"
+              element={<PrivateRoute element={<Branchs />} />}
+            />
+            <Route
+              path="/company/services"
+              element={<PrivateRoute element={<Services />} />}
+            />
+            <Route
+              path="/company/engineers"
+              element={<PrivateRoute element={<Engineers />} />}
+            />
+            <Route
+              path="/company/addbranch"
+              element={<PrivateRoute element={<AddBranch />} />}
+            />
+            <Route
+              path="/company/updatebranch"
+              element={<PrivateRoute element={<UpdateBranch />} />}
+            />
             <Route
               path="/company/assets/addnewassets"
-              element={<AddNewAssets />}
+              element={<PrivateRoute element={<AddNewAssets />} />}
             />
             <Route
               path="/company/assets/addmaterials"
-              element={<AddMaterials />}
+              element={<PrivateRoute element={<AddMaterials />} />}
             />
-
-            <Route path="/customers/createclients" element={<CreateClients />} />
-            <Route path="/customers/updateclients" element={<UpdateClients />} />
-            <Route path="/company/employees" element={<Employees />} />
-            <Route path="/customers/clients" element={<Clients />} />
-            <Route path="/customers/owner" element={<Owner />} />
-            <Route path="/customers/consaltative" element={<Consaltative />} />
-            <Route path="/create" element={<Create />} />
-
-            <Route path="/update/:id" element={<Update />} />
-            <Route path="/todo/addnewtask" element={<AddNewTask />} />
-            <Route path="/todo/showalltask" element={<ShowAllTask />} />
-            <Route path="/admin/addnewrole" element={<AddNewRule />} />
-            <Route path="/admin/editrole" element={<EditRoles />} />
-            <Route path="/loginn" element={<Loginn />} />
+            <Route
+              path="/customers/createclients"
+              element={<PrivateRoute element={<CreateClients />} />}
+            />
+            <Route
+              path="/customers/updateclients"
+              element={<PrivateRoute element={<UpdateClients />} />}
+            />
+            <Route
+              path="/company/employees"
+              element={<PrivateRoute element={<Employees />} />}
+            />
+            <Route
+              path="/customers/clients"
+              element={<PrivateRoute element={<Clients />} />}
+            />
+            <Route
+              path="/customers/owner"
+              element={<PrivateRoute element={<Owner />} />}
+            />
+            <Route
+              path="/customers/consaltative"
+              element={<PrivateRoute element={<Consaltative />} />}
+            />
+            <Route
+              path="/todo/addnewtask"
+              element={<PrivateRoute element={<AddNewTask />} />}
+            />
+            <Route
+              path="/todo/showalltask"
+              element={<PrivateRoute element={<ShowAllTask />} />}
+            />
+            <Route
+              path="/admin/addnewrole"
+              element={<PrivateRoute element={<AddNewRule />} />}
+            />
+            <Route
+              path="/admin/editrole"
+              element={<PrivateRoute element={<EditRoles />} />}
+            />
           </Routes>
         </div>
       </div>
@@ -122,12 +184,10 @@ function AppContent() {
   );
 }
 
-function App() {
+export default function MainApp() {
   return (
     <Router>
-      <AppContent />
+      <App />
     </Router>
   );
 }
-
-export default App;
