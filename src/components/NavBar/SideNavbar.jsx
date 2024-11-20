@@ -197,7 +197,6 @@ const Navbar = () => {
     }));
   };
 
-
   return (
     <div className="dark:bg-slate-900 bg-white transition-colors duration-300">
       <nav className="flex items-center bg-white justify-between dark:bg-slate-900 h-20 p-4 border-b-2 fixed w-full z-30 top-0 transition-colors duration-300 ">
@@ -210,10 +209,12 @@ const Navbar = () => {
             to="/dashboard"
           >
             <img className="w-16 min-h-3" src={logo22} alt="Logo" />
-            <h1 className="text-gray-500 text-3xl font-semibold cursor-pointer">INOUT</h1>
+            <h1 className="text-gray-500 text-3xl font-semibold cursor-pointer">
+              INOUT
+            </h1>
           </Link>
         </div>
-        <form className="w-4/12 mx-auto">
+        <form className="w-4/12 mx-auto hidden sm:block">
           <label
             htmlFor="default-search"
             className="text-sm font-medium text-gray-900 sr-only dark:text-white"
@@ -233,16 +234,17 @@ const Navbar = () => {
             />
           </div>
         </form>
+
         <div className="flex items-center space-x-4">
           <DropDown />
         </div>
       </nav>
-  
+
       <aside className="hidden border border-b-8 md:block w-80 dark:text-white bg-white h-full fixed top-0 left-0 z-10 pt-16">
         <div className="h-full p-4 space-y-2 dark:bg-slate-900 dark:text-white overflow-y-auto">
           <ul className="font-medium ml-5">
             <li className="text-gray-400 mt-10 text-sm mb-4">Main Menu</li>
-  
+
             {/* قائمة Projects */}
             <NavItemWithSubMenu
               title="Projects"
@@ -251,7 +253,7 @@ const Navbar = () => {
               isOpen={activeItems["Projects"]}
               onToggle={() => handleToggleItem("Projects")}
             />
-  
+
             {/* قائمة Company */}
             <NavItemWithSubMenu
               title="Company"
@@ -268,7 +270,7 @@ const Navbar = () => {
               isOpen={activeItems["Company"]}
               onToggle={() => handleToggleItem("Company")}
             />
-  
+
             {/* قائمة Customers */}
             <NavItemWithSubMenu
               title="Customers"
@@ -277,7 +279,7 @@ const Navbar = () => {
               isOpen={activeItems["Customers"]}
               onToggle={() => handleToggleItem("Customers")}
             />
-  
+
             {/* قائمة To Do */}
             <NavItemWithSubMenu
               title="To Do"
@@ -286,7 +288,7 @@ const Navbar = () => {
               isOpen={activeItems["ToDo"]}
               onToggle={() => handleToggleItem("ToDo")}
             />
-  
+
             {/* قائمة Admin */}
             <NavItemWithSubMenu
               title="Admin"
@@ -300,7 +302,6 @@ const Navbar = () => {
       </aside>
     </div>
   );
-  
 };
 
 export default Navbar;

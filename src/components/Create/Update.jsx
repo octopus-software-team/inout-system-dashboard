@@ -12,7 +12,6 @@ const Update = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Ensure that the service data exists when the component mounts
     if (!service) {
       setError("No service data available");
     }
@@ -48,7 +47,7 @@ const Update = () => {
       .then((data) => {
         if (data && data.msg === "updated successfully") {
           toast.success("Service updated successfully!");
-          navigate("/company/services"); // Navigate back to the services list
+          navigate("/company/services"); 
         } else {
           toast.error("Failed to update the service");
         }
@@ -97,6 +96,7 @@ const Update = () => {
             className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-indigo-200"
           />
         </div>
+
 
         <button
           type="submit"

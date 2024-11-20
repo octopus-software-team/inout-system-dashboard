@@ -29,7 +29,10 @@ import Loginn from "./components/Login/Loginn";
 import AddNewAssets from "./components/company/assets/AddNewAssets";
 import AddMaterials from "./components/company/assets/AddMaterials";
 import SettingsIcon from "./components/settingicon/SettingIcon";
-
+import CreateClients from "./components/customers/CreateClients";
+import UpdateClients from "./components/customers/UpdateClients";
+import AddBranch from "./components/company/AddBranch";
+import UpdateBranch from "./components/company/UpdateBranch";
 function AppContent() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const location = useLocation();
@@ -58,7 +61,7 @@ function AppContent() {
 
       <div className="flex">
         {!isLoginPage && (
-          <div className={`${isSidebarOpen ? "block" : "hidden"} md:block`}>
+          <div className={`${isSidebarOpen ? "block" : ""} md:block`}>
             <SideNavbar className="mt-5" />
           </div>
         )}
@@ -80,6 +83,8 @@ function AppContent() {
             <Route path="/company/branchs" element={<Branchs />} />
             <Route path="/company/services" element={<Services />} />
             <Route path="/company/engineers" element={<Engineers />} />
+            <Route path="/company/addbranch" element={<AddBranch />} />
+            <Route path="/company/updatebranch" element={<UpdateBranch />} />
             <Route
               path="/company/assets/addnewassets"
               element={<AddNewAssets />}
@@ -88,14 +93,15 @@ function AppContent() {
               path="/company/assets/addmaterials"
               element={<AddMaterials />}
             />
+
+            <Route path="/customers/createclients" element={<CreateClients />} />
+            <Route path="/customers/updateclients" element={<UpdateClients />} />
             <Route path="/company/employees" element={<Employees />} />
             <Route path="/customers/clients" element={<Clients />} />
             <Route path="/customers/owner" element={<Owner />} />
-            <Route
-              path="/customers/consaltative"
-              element={<Consaltative />}
-            />
+            <Route path="/customers/consaltative" element={<Consaltative />} />
             <Route path="/create" element={<Create />} />
+
             <Route path="/update/:id" element={<Update />} />
             <Route path="/todo/addnewtask" element={<AddNewTask />} />
             <Route path="/todo/showalltask" element={<ShowAllTask />} />

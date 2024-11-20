@@ -108,7 +108,6 @@ const AddServices = () => {
         })
         .then((response) => {
           alert(response.msg || "Service deleted successfully.");
-          // تحديث البيانات بعد الحذف
           setData(data.filter((service) => service.id !== id));
         })
         .catch((error) => {

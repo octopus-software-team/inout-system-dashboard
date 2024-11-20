@@ -1,14 +1,12 @@
 import React, { useState } from "react";
-import {useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 
 const Create = () => {
-  const [serviceName, setServiceName] = useState("");
+  const [serviceName, setServiceName] = useState(""); // This will handle the name input
+  const [serviceId, setServiceId] = useState(""); // This will handle the ID input
   const [message, setMessage] = useState("");
-  const [serviceId, setServiceId] = useState(null);
   const navigate = useNavigate();
-
-  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,9 +25,9 @@ const Create = () => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ name: serviceName }),
+          body: JSON.stringify({ name: serviceName, id: serviceId }), // Send both id and name
         }
       );
 
@@ -37,8 +35,7 @@ const Create = () => {
 
       if (response.ok) {
         setMessage("Service added successfully");
-        setServiceId(data.data.id);
-        navigate("/company/services")
+        navigate("/company/services");
       } else {
         setMessage("Failed to add service");
       }
@@ -46,7 +43,6 @@ const Create = () => {
       setMessage("An error occurred");
       console.error(error);
     }
-    
   };
 
   return (
@@ -55,24 +51,26 @@ const Create = () => {
 
       <form onSubmit={handleSubmit} className="p-6 rounded w-10/12">
         <h2 className="text-center text-2xl font-bold mb-4 text-gray-800">
-          Add Branch
+          Add Services
         </h2>
 
-        {/* <div className="mb-4">
-          <label htmlFor="id" className="block text-gray-700 font-semibold mb-2">
+        <div className="mb-4">
+          <label
+            htmlFor="id"
+            className="block text-gray-700 font-semibold mb-2"
+          >
             Id
           </label>
           <input
             type="text"
             id="id"
-            name="id"
-            placeholder="Your id"
+            placeholder="Service ID"
             required
             className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-indigo-200"
-            onChange={(e) => setInputData({ ...inputData, id: e.target.value })}
+            value={serviceId}
+            onChange={(e) => setServiceId(e.target.value)} // Handle changes for ID separately
           />
-        </div> */}
-
+        </div>
         <div className="mb-4">
           <label
             htmlFor="name"
@@ -84,12 +82,11 @@ const Create = () => {
             type="text"
             id="name"
             name="name"
-            placeholder="Your Name"
+            placeholder="Service Name"
             required
             className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-indigo-200"
             value={serviceName}
-            onChange={(e) => setServiceName(e.target.value)}
-            
+            onChange={(e) => setServiceName(e.target.value)} // Handle changes for Name separately
           />
         </div>
 
