@@ -199,7 +199,7 @@ const Navbar = () => {
 
   return (
     <div className="dark:bg-slate-900 bg-white transition-colors duration-300">
-      <nav className="nav-item flex items-center justify-between dark:bg-slate-900 h-20 p-4 border-b-2 fixed w-full z-30 top-0 transition-colors duration-300 ">
+      <nav className="nav-item flex items-center justify-between dark:bg-slate-900 h-20 p-4 dark:border-b-slate-600 border-b-2 fixed w-full z-30 top-0 transition-colors duration-300 ">
         <div className="flex items-center space-x-4">
           <button className="md:hidden text-gray-500" onClick={toggleSidebar}>
             {sidebarOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
@@ -240,7 +240,7 @@ const Navbar = () => {
         </div>
       </nav>
 
-      <aside className="hidden border border-b-8 md:block w-80 dark:text-white bg-white h-full fixed top-0 left-0 z-10 pt-16">
+      <aside className="line hidden  border-b-2 md:block w-80 dark:text-white bg-white h-full fixed top-0 left-0 z-10 pt-16">
         <div className="h-full p-4 space-y-2 dark:bg-slate-900 dark:text-white overflow-y-auto">
           <ul className="font-medium ml-5">
             <li className="text-gray-400 mt-10 text-sm mb-4">Main Menu</li>

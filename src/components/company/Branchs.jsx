@@ -4,27 +4,8 @@ import { Link, useNavigate } from "react-router-dom";
 
 const Branchs = () => {
   const [data, setData] = useState([]);
-  const [order, setOrder] = useState("ASC");
-  const [sortedColumn, setSortedColumn] = useState(null);
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
-
-  const sorting = (col) => {
-    let sorted = [];
-    if (order === "ASC") {
-      sorted = [...data].sort((a, b) =>
-        a[col].toString().toLowerCase() > b[col].toString().toLowerCase() ? 1 : -1
-      );
-      setOrder("DSC");
-    } else {
-      sorted = [...data].sort((a, b) =>
-        a[col].toString().toLowerCase() < b[col].toString().toLowerCase() ? 1 : -1
-      );
-      setOrder("ASC");
-    }
-    setData(sorted);
-    setSortedColumn(col);
-  };
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -54,18 +35,6 @@ const Branchs = () => {
       });
   }, []);
 
-  const renderSortIcon = (col) => {
-    if (sortedColumn === col) {
-      return order === "ASC" ? <span>&#9650;</span> : <span>&#9660;</span>;
-    }
-    return "";
-  };
-
-  const handleEdit = (id) => {
-    const selectedBranch = data.find((branch) => branch.id === id);
-    navigate(`/company/updatebranch`, { state: selectedBranch });
-  };
-
   const handleDelete = (id) => {
     const token = localStorage.getItem("token");
     const confirm = window.confirm("Do you want to delete this branch?");
@@ -93,6 +62,11 @@ const Branchs = () => {
     }
   };
 
+  const handleViewMap = (latitude, longitude) => {
+    const url = `https://www.google.com/maps?q=${latitude},${longitude}`;
+    window.open(url, "_blank");
+  };
+
   return (
     <div className="container mt-5">
       <h2 className="text-center font-bold text-2xl text-black">Branches</h2>
@@ -117,33 +91,14 @@ const Branchs = () => {
         <table className="table-auto w-full border border-gray-200 bg-white rounded-lg">
           <thead>
             <tr className="bg-gradient-to-r from-blue-600 to-blue-400 text-white">
-              <th
-                className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300"
-                onClick={() => sorting("id")}
-                aria-sort={order === "ASC" ? "ascending" : "descending"}
-              >
-                ID {renderSortIcon("id")}
+              <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">
+                ID
               </th>
-              <th
-                className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300"
-                onClick={() => sorting("name")}
-                aria-sort={order === "ASC" ? "ascending" : "descending"}
-              >
-                Name {renderSortIcon("name")}
+              <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">
+                Name
               </th>
-              <th
-                className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300"
-                onClick={() => sorting("latitude")}
-                aria-sort={order === "ASC" ? "ascending" : "descending"}
-              >
-                Latitude {renderSortIcon("latitude")}
-              </th>
-              <th
-                className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300"
-                onClick={() => sorting("longitude")}
-                aria-sort={order === "ASC" ? "ascending" : "descending"}
-              >
-                Longitude {renderSortIcon("longitude")}
+              <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">
+                Location
               </th>
               <th className="px-4 py-3 text-right font-semibold text-lg border-b border-gray-300">
                 Actions
@@ -166,11 +121,17 @@ const Branchs = () => {
                 >
                   <td className="px-4 py-3 text-gray-800">{d.id}</td>
                   <td className="px-4 py-3 text-gray-800">{d.name}</td>
-                  <td className="px-4 py-3 text-gray-800">{d.latitude}</td>
-                  <td className="px-4 py-3 text-gray-800">{d.longitude}</td>
+                  <td className="px-4 py-3 text-gray-800">
+                    <button
+                      onClick={() => handleViewMap(d.latitude, d.longitude)}
+                      className="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:shadow-md transform hover:scale-105 transition duration-300"
+                    >
+                      View on Map
+                    </button>
+                  </td>
                   <td className="px-4 py-3 text-right space-x-2">
                     <button
-                      onClick={() => handleEdit(d.id)}
+                      onClick={() => navigate(`/company/updatebranch`, { state: d })}
                       className="bg-green-600 text-white font-semibold py-2 px-4 rounded-lg hover:shadow-md transform hover:scale-105 transition duration-300"
                     >
                       <FaEdit className="inline mr-2" />

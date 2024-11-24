@@ -34,6 +34,13 @@ import CreateClients from "./components/customers/CreateClients";
 import UpdateClients from "./components/customers/UpdateClients";
 import AddBranch from "./components/company/AddBranch";
 import UpdateBranch from "./components/company/UpdateBranch";
+import UpdateProjects from "./components/allProjects/UpdateProjects";
+import CreateProject from "./components/allProjects/CreateProject";
+import UpdateTask from "./components/todo/UpdateTask";
+import UpdateAssets from "./components/company/assets/UpdateAssets";
+import CreateAssets from "./components/company/assets/CreateAssets";
+import CreateMaterials from "./components/company/CreateMaterials";
+import UpdateMaterials from "./components/company/UpdateMaterials";
 
 const PrivateRoute = ({ element: Component }) => {
   const isLoggedIn = localStorage.getItem("token"); // Check if the user is logged in
@@ -78,10 +85,7 @@ function App() {
             <Route path="/" element={<Loginn />} />
 
             {/* Private Routes */}
-            <Route
-              path="/home"
-              element={<PrivateRoute element={<Home />} />}
-            />
+            <Route path="/home" element={<PrivateRoute element={<Home />} />} />
             <Route
               path="/dashboard"
               element={<PrivateRoute element={<DashBoard />} />}
@@ -98,6 +102,16 @@ function App() {
               path="/allprojects/showallprojects"
               element={<PrivateRoute element={<ShowAllProjects />} />}
             />
+
+            <Route
+              path="/allprojects/updateprojects/:id"
+              element={<PrivateRoute element={<UpdateProjects />} />}
+            />
+             <Route
+              path="/allprojects/createproject"
+              element={<PrivateRoute element={<CreateProject />} />}
+            />
+
             <Route
               path="/allprojects/addreport"
               element={<PrivateRoute element={<AddReport />} />}
@@ -130,6 +144,22 @@ function App() {
               path="/company/assets/addmaterials"
               element={<PrivateRoute element={<AddMaterials />} />}
             />
+              <Route
+              path="/company/assets/creatematerials"
+              element={<PrivateRoute element={<CreateMaterials />} />}
+            />
+             <Route
+              path="/company/assets/updatematerials"
+              element={<PrivateRoute element={<UpdateMaterials />} />}
+            />
+            <Route
+              path="/company/assets/updateassets"
+              element={<PrivateRoute element={<UpdateAssets />} />}
+            />
+             <Route
+              path="/company/assets/createassets"
+              element={<PrivateRoute element={<CreateAssets />} />}
+            />
             <Route
               path="/customers/createclients"
               element={<PrivateRoute element={<CreateClients />} />}
@@ -157,6 +187,10 @@ function App() {
             <Route
               path="/todo/addnewtask"
               element={<PrivateRoute element={<AddNewTask />} />}
+            />
+            <Route
+              path="/todo/updatetask"
+              element={<PrivateRoute element={<UpdateTask />} />}
             />
             <Route
               path="/todo/showalltask"

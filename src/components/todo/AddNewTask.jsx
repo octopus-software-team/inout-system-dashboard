@@ -1,58 +1,144 @@
-import React from 'react';
+import React, { useState } from "react";
 
 const AddNewTask = () => {
+  const [taskName, setTaskName] = useState("");
+  const [employeeId, setEmployeeId] = useState("");
+  const [status, setStatus] = useState(1); // القيمة الافتراضية للحالة
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [message, setMessage] = useState(""); // لإظهار الرسائل بعد الإرسال
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // التحقق من صحة البيانات
+    if (!taskName || !employeeId || !startDate || !endDate) {
+      setMessage("Please fill all fields.");
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setMessage("No token found. Please log in.");
+      return;
+    }
+
+    const taskData = {
+      name: taskName,
+      employee_id: employeeId,
+      status: status,
+      start_date: startDate,
+      end_date: endDate,
+    };
+
+    try {
+      const response = await fetch("https://inout-api.octopusteam.net/api/front/addTask", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(taskData),
+      });
+
+      const data = await response.json();
+
+      if (data.status === 200) {
+        setMessage("Task added successfully.");
+      } else {
+        setMessage("Failed to add task.");
+      }
+    } catch (error) {
+      console.error("Error adding task:", error);
+      setMessage("Failed to add task. Please try again.");
+    }
+  };
+
   return (
-    <div className="flex flex-col items-center pt-20">
-      <h1 className="text-2xl font-bold mb-8">Add New Task</h1>
+    <div className="container mt-5">
+      <h2 className="text-center font-bold text-3xl text-black">Add New Task</h2>
 
-      {/* Name Input */}
-      <div className="mb-6 w-1/2">
-        <label htmlFor="taskName" className="block text-gray-700 font-semibold mb-2">
-          Task Name
-        </label>
-        <input
-          type="text"
-          id="taskName"
-          placeholder="Enter task name"
-          className="border border-gray-300 rounded-lg p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      </div>
+      {message && <p className="text-center text-lg">{message}</p>}
 
-      {/* Status Select */}
-      <div className="mb-6 w-1/2">
-        <label htmlFor="status" className="block text-gray-700 font-semibold mb-2">
-          Task Status
-        </label>
-        <select
-          id="status"
-          className="border border-gray-300 rounded-lg p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="pending">Pending</option>
-          <option value="inProgress">In Progress</option>
-          <option value="completed">Completed</option>
-        </select>
-      </div>
+      <form onSubmit={handleSubmit} className="max-w-lg mx-auto mt-4">
+        <div className="mb-4">
+          <label htmlFor="taskName" className="block text-lg font-semibold text-gray-700">
+            Task Name
+          </label>
+          <input
+            type="text"
+            id="taskName"
+            value={taskName}
+            onChange={(e) => setTaskName(e.target.value)}
+            className="w-full px-4 py-2 border rounded-md"
+            placeholder="Enter task name"
+          />
+        </div>
 
-      {/* Employee Select */}
-      <div className="mb-6 w-1/2">
-        <label htmlFor="employee" className="block text-gray-700 font-semibold mb-2">
-          Assign to Employee
-        </label>
-        <select
-          id="employee"
-          className="border border-gray-300 rounded-lg p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="">Select an employee</option>
-          <option value="employee1">Employee 1</option>
-          <option value="employee2">Employee 2</option>
-          <option value="employee3">Employee 3</option>
-        </select>
-      </div>
+        <div className="mb-4">
+          <label htmlFor="employeeId" className="block text-lg font-semibold text-gray-700">
+            Employee ID
+          </label>
+          <input
+            type="number"
+            id="employeeId"
+            value={employeeId}
+            onChange={(e) => setEmployeeId(e.target.value)}
+            className="w-full px-4 py-2 border rounded-md"
+            placeholder="Enter employee ID"
+          />
+        </div>
 
-      {/* Submit Button */}
-      <button className="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
-        Add Task
-      </button>
+        <div className="mb-4">
+          <label htmlFor="status" className="block text-lg font-semibold text-gray-700">
+            Status
+          </label>
+          <select
+            id="status"
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+            className="w-full px-4 py-2 border rounded-md"
+          >
+            <option value={1}>Active</option>
+            <option value={0}>Inactive</option>
+          </select>
+        </div>
+
+        <div className="mb-4">
+          <label htmlFor="startDate" className="block text-lg font-semibold text-gray-700">
+            Start Date
+          </label>
+          <input
+            type="datetime-local"
+            id="startDate"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            className="w-full px-4 py-2 border rounded-md"
+          />
+        </div>
+
+        <div className="mb-4">
+          <label htmlFor="endDate" className="block text-lg font-semibold text-gray-700">
+            End Date
+          </label>
+          <input
+            type="datetime-local"
+            id="endDate"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            className="w-full px-4 py-2 border rounded-md"
+          />
+        </div>
+
+        <div className="text-center">
+          <button
+            type="submit"
+            className="bg-blue-500 text-white font-semibold py-2 px-6 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
+          >
+            Add Task
+          </button>
+        </div>
+      </form>
     </div>
   );
 };

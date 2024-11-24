@@ -20,7 +20,7 @@ export default function DropDown() {
         <img
           src={ProfileImage}
           alt="Profile"
-          className="w-10 h-10 rounded-full cursor-pointer"
+          className="w-10  h-10 rounded-full cursor-pointer"
           onClick={toggleDropdown}
         />
 
@@ -49,12 +49,7 @@ export default function DropDown() {
 
               {/* Additional Options */}
               <div className="border-t border-gray-200 my-3"></div>
-              <a
-                href="#"
-                className="block text-gray-700 text-sm p-2 hover:bg-gray-100 rounded text-center"
-              >
-                Add another account
-              </a>
+             
 
            
               <Logout />

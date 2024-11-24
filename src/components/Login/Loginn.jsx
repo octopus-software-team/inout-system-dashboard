@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { FaUser, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import logo4 from "../../assests/logo4.png";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 function Loginn() {
   const [showPassword, setShowPassword] = useState(false);
@@ -36,24 +36,33 @@ function Loginn() {
         // Store the token in localStorage (or any other storage)
         localStorage.setItem("token", data.data.token);
         setIsLoginSuccessful(true); // إظهار الـ Modal عند تسجيل الدخول بنجاح
+        setError(null); // التأكد من عدم وجود رسائل خطأ
         setTimeout(() => {
           navigate("/home"); // الانتقال إلى الصفحة الرئيسية بعد 2 ثانية
         }, 2000);
       } else {
-        setError(data.data.message || "Login failed");
+        setError(data.msg || "Login failed. Please check your credentials.");
       }
     } catch (error) {
-      setError("An error occurred, please try again.");
+      setError("An error occurred, please try again later.");
     }
   };
 
   return (
-    <div className="flex justify-center items-center h-96 mt-36  bg-gray-100">
+    <div className="flex justify-center items-center h-96 mt-36 bg-gray-100">
       <div className="w-11/12 max-w-md h-screen bg-white rounded-lg shadow-lg p-8 space-y-6">
         <img className="w-24 mx-auto" src={logo4} alt="Logo" />
         <h2 className="text-center text-2xl font-bold text-gray-800">
           Sign In
         </h2>
+
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+            {error}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit}>
           {/* Email Field */}
           <div className="flex flex-col space-y-2">
@@ -107,15 +116,6 @@ function Loginn() {
             </div>
           </div>
 
-          {/* Remember Me */}
-          <div className="flex items-center justify-between mt-4">
-            <label className="flex items-center text-gray-600">
-              <input type="checkbox" className="mr-2" />
-              Remember me
-            </label>
-           
-          </div>
-
           {/* Sign In Button */}
           <button
             type="submit"
@@ -124,9 +124,6 @@ function Loginn() {
             Sign In
           </button>
         </form>
-
-        {/* Create Account Link */}
-       
       </div>
 
       {/* Success Modal */}

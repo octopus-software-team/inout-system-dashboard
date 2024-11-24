@@ -1,4 +1,3 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
@@ -14,12 +13,12 @@ const Employees = () => {
     let sorted = [];
     if (order === "ASC") {
       sorted = [...data].sort((a, b) =>
-        a[col].toLowerCase() > b[col].toLowerCase() ? 1 : -1
+        a[col].toString().toLowerCase() > b[col].toString().toLowerCase() ? 1 : -1
       );
       setOrder("DSC");
     } else {
       sorted = [...data].sort((a, b) =>
-        a[col].toLowerCase() < b[col].toLowerCase() ? 1 : -1
+        a[col].toString().toLowerCase() < b[col].toString().toLowerCase() ? 1 : -1
       );
       setOrder("ASC");
     }
@@ -28,11 +27,53 @@ const Employees = () => {
   };
 
   useEffect(() => {
-    axios
-      .get("http://localhost:3030/users")
-      .then((res) => setData(res.data))
-      .catch((err) => console.log(err));
+    fetch("https://inout-api.octopusteam.net/api/front/getEmployees", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2lub3V0LWFwaS5vY3RvcHVzdGVhbS5uZXQvYXBpL2Zyb250L2xvZ2luIiwiaWF0IjoxNzMyMTc3NDA2LCJleHAiOjE3NjM3MTM0MDYsIm5iZiI6MTczMjE3NzQwNiwianRpIjoiR0FMMk5vcVA5TmR6RHpaWCIsInN1YiI6IjEiLCJwcnYiOiJkZjg4M2RiOTdiZDA1ZWY4ZmY4NTA4MmQ2ODZjNDVlODMyZTU5M2E5In0.WNmITXIkVJFmUZfhdiqtGgNaLafVAUD5Wu6wGA2C2Qw" 
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to fetch employees.");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        if (data.status === 200) {
+          setData(data.data); // تعيين البيانات من الحقل "data"
+        } else {
+          console.error("Error fetching employees:", data.msg);
+        }
+      })
+      .catch((error) => console.error("Error:", error));
   }, []);
+
+  const handleDelete = (id) => {
+    const confirm = window.confirm("Do you like to delete?");
+    if (confirm) {
+      fetch(`https://inout-api.octopusteam.net/api/front/deleteEmployee/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2lub3V0LWFwaS5vY3RvcHVzdGVhbS5uZXQvYXBpL2Zyb250L2xvZ2luIiwiaWF0IjoxNzMyMTc3NDA2LCJleHAiOjE3NjM3MTM0MDYsIm5iZiI6MTczMjE3NzQwNiwianRpIjoiR0FMMk5vcVA5TmR6RHpaWCIsInN1YiI6IjEiLCJwcnYiOiJkZjg4M2RiOTdiZDA1ZWY4ZmY4NTA4MmQ2ODZjNDVlODMyZTU5M2E5In0.WNmITXIkVJFmUZfhdiqtGgNaLafVAUD5Wu6wGA2C2Qw",
+        },
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Failed to delete record.");
+          }
+          return response.json();
+        })
+        .then(() => {
+          alert("Record deleted successfully.");
+          setData(data.filter((employee) => employee.id !== id)); // تحديث البيانات بعد الحذف
+        })
+        .catch((error) => console.error("Error deleting record:", error));
+    }
+  };
 
   const renderSortIcon = (col) => {
     if (sortedColumn === col) {
@@ -50,7 +91,7 @@ const Employees = () => {
           className="mr-auto border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-96"
           onChange={(e) => setSearch(e.target.value)}
           type="text"
-          placeholder="search"
+          placeholder="search by name"
         />
         <Link
           to="/company/engineers"
@@ -64,11 +105,14 @@ const Employees = () => {
         <thead>
           <tr>
             <th onClick={() => sorting("id")}>ID {renderSortIcon("id")}</th>
-            <th onClick={() => sorting("name")}>
-              Name {renderSortIcon("name")}
+            <th onClick={() => sorting("full_name")}>
+              Full Name {renderSortIcon("full_name")}
             </th>
-            <th onClick={() => sorting("phoneNumber")}>
-              Phone Number {renderSortIcon("phoneNumber")}
+            <th onClick={() => sorting("email")}>
+              Email {renderSortIcon("email")}
+            </th>
+            <th onClick={() => sorting("phone")}>
+              Phone {renderSortIcon("phone")}
             </th>
             <th>Action</th>
           </tr>
@@ -78,13 +122,14 @@ const Employees = () => {
             .filter((i) => {
               return search.toLowerCase() === ""
                 ? i
-                : i.name.toLowerCase().includes(search);
+                : i.full_name.toLowerCase().includes(search);
             })
             .map((d, i) => (
               <tr key={i}>
                 <td>{d.id}</td>
-                <td>{d.name}</td>
-                <td>{d.phoneNumber}</td>
+                <td>{d.full_name}</td>
+                <td>{d.email}</td>
+                <td>{d.phone}</td>
                 <td>
                   <Link
                     to={`/update/${d.id}`}
@@ -107,16 +152,6 @@ const Employees = () => {
       </table>
     </div>
   );
-
-  function handleDelete(id) {
-    const confirm = window.confirm("Do you like to delete");
-    if (confirm) {
-      axios.delete("http://localhost:3030/users/" + id).then((res) => {
-        alert("record deleted");
-        navigate("/company/services");
-      });
-    }
-  }
 };
 
 export default Employees;
