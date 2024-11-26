@@ -8,7 +8,7 @@ const AddMaterials = () => {
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    const token = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2lub3V0LWFwaS5vY3RvcHVzdGVhbS5uZXQvYXBpL2Zyb250L2xvZ2luIiwiaWF0IjoxNzMyMzEyMDkzLCJleHAiOjE3NjM4NDgwOTMsIm5iZiI6MTczMjMxMjA5MywianRpIjoiMVdmRWZka3hybmN4V2wycSIsInN1YiI6IjEiLCJwcnYiOiJkZjg4M2RiOTdiZDA1ZWY4ZmY4NTA4MmQ2ODZjNDVlODMyZTU5M2E5In0.8kk0U67fvEKT-MKytjKsFlshFOQsj4pE5YpmhiEVszY"
+    const token = localStorage.getItem('token');
 
     fetch("https://inout-api.octopusteam.net/api/front/getAssets", {
       method: "GET",
@@ -36,14 +36,14 @@ const AddMaterials = () => {
   }, []);
 
   const handleDelete = (id) => {
-    const token = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2lub3V0LWFwaS5vY3RvcHVzdGVhbS5uZXQvYXBpL2Zyb250L2xvZ2luIiwiaWF0IjoxNzMyMzEyMDkzLCJleHAiOjE3NjM4NDgwOTMsIm5iZiI6MTczMjMxMjA5MywianRpIjoiMVdmRWZka3hybmN4V2wycSIsInN1YiI6IjEiLCJwcnYiOiJkZjg4M2RiOTdiZDA1ZWY4ZmY4NTA4MmQ2ODZjNDVlODMyZTU5M2E5In0.8kk0U67fvEKT-MKytjKsFlshFOQsj4pE5YpmhiEVszY";
+    const token = localStorage.getItem('token');
     const confirmDelete = window.confirm("Do you really want to delete this asset?");
     
     if (confirmDelete) {
       fetch(`https://inout-api.octopusteam.net/api/front/deleteAsset/${id}`, {
         method: "POST",
         headers: {
-          Authorization: token,
+          Authorization: `Bearer ${token}`,
         },
       })
         .then((res) => {

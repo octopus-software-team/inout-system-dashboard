@@ -22,6 +22,18 @@
   }
   
 }
+
+@layer base{
+  .date-input{
+    @apply dark:bg-slate-900
+  }
+}
+
+/* @layer base{
+  .table1{
+    @apply dark:bg-slate-800
+  }
+} */
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
@@ -44,3 +56,5 @@ code {
 .nav-item {
   background-color: white;
 }
+
+

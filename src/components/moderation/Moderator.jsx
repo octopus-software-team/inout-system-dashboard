@@ -2,87 +2,101 @@ import React, { useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 
-const AddMaterials = () => {
+const Moderator = () => {
   const [data, setData] = useState([]);
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
 
-  // Fetch data from API with headers and token
   useEffect(() => {
     const token = localStorage.getItem('token');
-   
-    fetch("https://inout-api.octopusteam.net/api/front/getMaterials", {
+
+    if (!token) {
+      alert('Please log in first');
+      navigate('/moderation/moderators');
+      return;
+    }
+
+    fetch("https://inout-api.octopusteam.net/api/front/getAdmins", {
       method: "GET",
       headers: {
-        Authorization: token,
         Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
       },
     })
       .then((res) => {
         if (!res.ok) {
-          throw new Error("Failed to fetch materials");
+          throw new Error("Failed to fetch admins");
         }
         return res.json();
       })
       .then((resData) => {
         if (resData && resData.data) {
-          setData(resData.data);
+          // Only keep the necessary fields (id, name, email)
+          const filteredData = resData.data.map(({ id, name, email }) => ({
+            id,
+            name,
+            email,
+          }));
+          setData(filteredData);
         } else {
-          alert("No materials found");
+          alert("No admins found");
         }
       })
       .catch((err) => {
-        console.error("Error fetching materials:", err);
-        alert("Failed to fetch materials");
+        console.error("Error fetching admins:", err);
+        alert("Failed to fetch admins");
       });
-  }, []);
+  }, [navigate]);
+
+  // Delete admin function (if required)
   const handleDelete = (id) => {
-    const token = localStorage.getItem('token');
-    const confirmDelete = window.confirm("Do you really want to delete this material?");
+    const token = localStorage.getItem('token'); // استرجاع التوكن من localStorage
+    const confirmDelete = window.confirm("Do you really want to delete this admin?");
     if (confirmDelete) {
-      fetch(`https://inout-api.octopusteam.net/api/front/deleteMaterial/${id}`, {
+      fetch(`https://inout-api.octopusteam.net/api/front/deleteAdmin`, {
         method: "POST",
         headers: {
-          Authorization: token,
           Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
       })
-        .then((res) => {
+        .then(async (res) => {
+          console.log("Response status:", res.status); // حالة الاستجابة
+          const responseText = await res.text();
+          console.log("Response text:", responseText); // النص الخام للاستجابة
           if (!res.ok) {
-            throw new Error("Failed to delete material");
+            throw new Error("Failed to delete admin");
           }
-          return res.json();
+          return JSON.parse(responseText); // تحويل النص إلى JSON
         })
         .then((resData) => {
-          alert(resData.msg || "Material deleted successfully");
-          setData((prevData) => prevData.filter((material) => material.id !== id));
+          alert(resData.msg || "Admin deleted successfully");
+          setData((prevData) => prevData.filter((admin) => admin.id !== id));
         })
         .catch((err) => {
-          console.error("Error deleting material:", err);
-          alert("Failed to delete material. Please try again.");
+          console.error("Error deleting admin:", err);
+          alert("Failed to delete admin. Please try again.");
         });
     }
   };
 
-  
-
   return (
     <div className="container mt-5">
-      <h2 className="text-center font-bold text-2xl text-black">Materials</h2>
+      <h2 className="text-center font-bold text-2xl text-black">Moderators</h2>
 
       <div className="flex justify-between items-center my-4">
         <input
           className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-2/3 shadow-md"
           type="text"
-          placeholder="Search materials..."
+          placeholder="Search admins..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
         <Link
-          to="/company/assets/creatematerials"
+          to="/moderation/createadmin/"
           className="bg-gradient-to-r from-blue-500 to-green-500 text-white font-semibold py-2 px-6 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
         >
-          + Create Material
+          + Create Admin
         </Link>
       </div>
 
@@ -97,10 +111,7 @@ const AddMaterials = () => {
                 Name
               </th>
               <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">
-                Stock
-              </th>
-              <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">
-                Type
+                Email
               </th>
               <th className="px-4 py-3 text-right font-semibold text-lg border-b border-gray-300">
                 Actions
@@ -123,14 +134,11 @@ const AddMaterials = () => {
                 >
                   <td className="px-4 py-3 text-gray-800">{item.id}</td>
                   <td className="px-4 py-3 text-gray-800">{item.name}</td>
-                  <td className="px-4 py-3 text-gray-800">{item.stock}</td>
-                  <td className="px-4 py-3 text-gray-800">
-                    {item.type === 0 ? "Type A" : "Type B"}
-                  </td>
+                  <td className="px-4 py-3 text-gray-800">{item.email}</td>
                   <td className="px-4 py-3 text-right space-x-2">
                     <button
                       onClick={() =>
-                        navigate(`/company/assets/updatematerials`, { state: item })
+                        navigate(`/moderation/editadmin`, { state: item })
                       }
                       className="bg-green-600 text-white font-semibold py-2 px-4 rounded-lg hover:shadow-md transform hover:scale-105 transition duration-300"
                     >
@@ -154,4 +162,4 @@ const AddMaterials = () => {
   );
 };
 
-export default AddMaterials;
+export default Moderator;

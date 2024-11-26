@@ -10,8 +10,6 @@ const AddNewTask = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // التحقق من صحة البيانات
     if (!taskName || !employeeId || !startDate || !endDate) {
       setMessage("Please fill all fields.");
       return;
@@ -32,14 +30,17 @@ const AddNewTask = () => {
     };
 
     try {
-      const response = await fetch("https://inout-api.octopusteam.net/api/front/addTask", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(taskData),
-      });
+      const response = await fetch(
+        "https://inout-api.octopusteam.net/api/front/addTask",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(taskData),
+        }
+      );
 
       const data = await response.json();
 
@@ -56,13 +57,18 @@ const AddNewTask = () => {
 
   return (
     <div className="container mt-5">
-      <h2 className="text-center font-bold text-3xl text-black">Add New Task</h2>
+      <h2 className="text-center font-bold text-3xl text-black">
+        Add New Task
+      </h2>
 
       {message && <p className="text-center text-lg">{message}</p>}
 
       <form onSubmit={handleSubmit} className="max-w-lg mx-auto mt-4">
         <div className="mb-4">
-          <label htmlFor="taskName" className="block text-lg font-semibold text-gray-700">
+          <label
+            htmlFor="taskName"
+            className="block text-lg font-semibold text-gray-700"
+          >
             Task Name
           </label>
           <input
@@ -76,7 +82,10 @@ const AddNewTask = () => {
         </div>
 
         <div className="mb-4">
-          <label htmlFor="employeeId" className="block text-lg font-semibold text-gray-700">
+          <label
+            htmlFor="employeeId"
+            className="block text-lg font-semibold text-gray-700"
+          >
             Employee ID
           </label>
           <input
@@ -90,7 +99,10 @@ const AddNewTask = () => {
         </div>
 
         <div className="mb-4">
-          <label htmlFor="status" className="block text-lg font-semibold text-gray-700">
+          <label
+            htmlFor="status"
+            className="block text-lg font-semibold text-gray-700"
+          >
             Status
           </label>
           <select
@@ -105,7 +117,10 @@ const AddNewTask = () => {
         </div>
 
         <div className="mb-4">
-          <label htmlFor="startDate" className="block text-lg font-semibold text-gray-700">
+          <label
+            htmlFor="startDate"
+            className="block text-lg font-semibold text-gray-700"
+          >
             Start Date
           </label>
           <input
@@ -118,7 +133,10 @@ const AddNewTask = () => {
         </div>
 
         <div className="mb-4">
-          <label htmlFor="endDate" className="block text-lg font-semibold text-gray-700">
+          <label
+            htmlFor="endDate"
+            className="block text-lg font-semibold text-gray-700"
+          >
             End Date
           </label>
           <input

@@ -89,8 +89,8 @@ const DashBoard = () => {
                 <h2 className="text-3xl md:text-3xl font-bold  dark:text-white">
                   Total Sells
                 </h2>
-                <select className="border  border-gray-300 w-5/12 ml-28 rounded-md px-4 mt-8 py-2 text-gray-700 bg-white focus:outline-none text-lg dark:bg-black dark:text-black dark:border-gray-600">
-                  <option>Mar 1 - 31, 2022</option>
+                <select className="date-input border  border-gray-300  w-5/12 ml-28 rounded-md px-4 mt-8 py-2 text-gray-700 focus:outline-none text-lg dark:bg-slate-900 dark:text-white dark:border-gray-600">
+                  <option className="dark:text-white">Mar 1 - 31, 2022</option>
                 </select>
               </div>
               <span className="block text-sm font-normal text-gray-500 dark:text-white">

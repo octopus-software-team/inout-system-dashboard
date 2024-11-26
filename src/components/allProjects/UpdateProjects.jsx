@@ -18,14 +18,14 @@ const UpdateProject = () => {
     inspection_engineer_id: "",
   });
 
-  const token = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2lub3V0LWFwaS5vY3RvcHVzdGVhbS5uZXQvYXBpL2Zyb250L2xvZ2luIiwiaWF0IjoxNzMyMzAyODQ5LCJleHAiOjE3NjM4Mzg4NDksIm5iZiI6MTczMjMwMjg0OSwianRpIjoiQjlPaXJzNXpMSkk1ZHczYyIsInN1YiI6IjEiLCJwcnYiOiJkZjg4M2RiOTdiZDA1ZWY4ZmY4NTA4MmQ2ODZjNDVlODMyZTU5M2E5In0.DcN-RDrP0pVPWCUEnzNpRcsSt3eOa8_tF43lKSwH4Ak";
 
   useEffect(() => {
+    const token = localStorage.getItem('token');
     fetch("https://inout-api.octopusteam.net/api/front/getProjects", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: token,
+        Authorization: `Bearer ${token}`,
       },
     })
       .then((response) => response.json())
@@ -42,7 +42,7 @@ const UpdateProject = () => {
         }
       })
       .catch((err) => console.error("Error fetching projects:", err));
-  }, [id, token]);
+  },);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -50,12 +50,14 @@ const UpdateProject = () => {
   };
 
   const handleSubmit = (e) => {
+    const token = localStorage.getItem('token');
     e.preventDefault();
     fetch(`https://inout-api.octopusteam.net/api/front/updateProject/${id}`, {
+
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: token,
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(formData),
     })

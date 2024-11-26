@@ -49,7 +49,7 @@ function Loginn() {
   };
 
   return (
-    <div className="flex justify-center items-center h-96 mt-36 bg-gray-100">
+    <div className="flex justify-center items-center h-96 dark:bg-slate-950 mt-36 bg-gray-100">
       <div className="w-11/12 max-w-md h-screen bg-white rounded-lg shadow-lg p-8 space-y-6">
         <img className="w-24 mx-auto" src={logo4} alt="Logo" />
         <h2 className="text-center text-2xl font-bold text-gray-800">

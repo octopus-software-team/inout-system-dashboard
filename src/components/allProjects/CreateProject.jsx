@@ -18,7 +18,7 @@ const CreateProject = () => {
     inspection_engineer_id: "",
   });
 
-  const token = "Bearer <your-token>";
+ 
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -26,12 +26,13 @@ const CreateProject = () => {
   };
 
   const handleSubmit = (e) => {
+    const token = localStorage.getItem('token');
     e.preventDefault();
     fetch("https://inout-api.octopusteam.net/api/front/addProject", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: token,
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(formData),
     })

@@ -47,9 +47,26 @@ const company = [
     path: "/company/Services",
     icon: <FaHardHat className="mr-2 text-gray-400" />,
   },
+
+  {
+    name: "Project Services",
+    path: "/project_services/project_services",
+    icon: <FaHardHat className="mr-2 text-gray-400" />,
+  },
+ 
   {
     name: "Employees",
     path: "/company/employees",
+    icon: <FaUserTie className="mr-2 text-gray-400" />,
+  },
+  {
+    name: "Employee Specialize",
+    path: "/company/employeespecialise",
+    icon: <FaUserTie className="mr-2 text-gray-400" />,
+  },
+  {
+    name: "Employee Files",
+    path: "/company/employeefiles",
     icon: <FaUserTie className="mr-2 text-gray-400" />,
   },
   {
@@ -66,8 +83,15 @@ const company = [
         path: "/company/assets/addmaterials",
         icon: <FaCubes className="mr-2 text-gray-400" />,
       },
+      {
+        name: "assets type",
+        path: "/company/assets/assetstype",
+        icon: <FaCubes className="mr-2 text-gray-400" />,
+      },
     ],
   },
+
+
 ];
 
 const customers = [
@@ -82,8 +106,8 @@ const customers = [
     icon: <FaUserTie className="mr-2 text-gray-400" />,
   },
   {
-    name: "Consultative",
-    path: "/customers/consultative",
+    name: "Consaltative",
+    path: "/customers/consaltative",
     icon: <FaComments className="mr-2 text-gray-400" />,
   },
 ];
@@ -110,6 +134,14 @@ const admin = [
   {
     name: "Edit Roles",
     path: "/admin/editroles",
+    icon: <FaUserEdit className="mr-2 text-gray-400" />,
+  },
+];
+
+const moderator = [
+  {
+    name: "moderator",
+    path: "/moderation/moderator",
     icon: <FaUserEdit className="mr-2 text-gray-400" />,
   },
 ];
@@ -296,6 +328,14 @@ const Navbar = () => {
               items={admin}
               isOpen={activeItems["Admin"]}
               onToggle={() => handleToggleItem("Admin")}
+            />
+
+            <NavItemWithSubMenu
+              title="moderator"
+              icon={<FaUserPlus className="text-gray-400 w-5 h-5" />}
+              items={moderator}
+              isOpen={activeItems["moderator"]}
+              onToggle={() => handleToggleItem("moderator")}
             />
           </ul>
         </div>

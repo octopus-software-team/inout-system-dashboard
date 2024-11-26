@@ -41,6 +41,20 @@ import UpdateAssets from "./components/company/assets/UpdateAssets";
 import CreateAssets from "./components/company/assets/CreateAssets";
 import CreateMaterials from "./components/company/CreateMaterials";
 import UpdateMaterials from "./components/company/UpdateMaterials";
+import Moderator from "./components/moderation/Moderator";
+import CreateAdmin from "./components/moderation/CreateAdmin";
+import EditAdmin from "./components/moderation/EditAdmin";
+import CreateServices from "./components/company/CreateServices";
+import EditService from "./components/company/EditService";
+import AssetsType from "./components/company/assets/AssetsType";
+import CreateAssetType from "./components/company/assets/CreateAssetType";
+import UpdateAssetType from "./components/company/assets/UpdateAssetType";
+import EmployeeSpecialise from "./components/company/EmployeeSpecialise";
+import CreateSpecialise from "./components/company/CreateSpecialise";
+import UpdateSpecialise from "./components/company/UpdateSpecialise";
+import EmployeeFiles from "./components/company/EmployeeFiles";
+import Project_Services from "./components/project_services/Project_Services";
+import AddService from "./components/project_services/AddService";
 
 const PrivateRoute = ({ element: Component }) => {
   const isLoggedIn = localStorage.getItem("token"); // Check if the user is logged in
@@ -107,7 +121,7 @@ function App() {
               path="/allprojects/updateprojects/:id"
               element={<PrivateRoute element={<UpdateProjects />} />}
             />
-             <Route
+            <Route
               path="/allprojects/createproject"
               element={<PrivateRoute element={<CreateProject />} />}
             />
@@ -124,6 +138,24 @@ function App() {
               path="/company/services"
               element={<PrivateRoute element={<Services />} />}
             />
+            <Route
+              path="/company/createservices"
+              element={<PrivateRoute element={<CreateServices />} />}
+            />
+            <Route
+              path="/company/editservice"
+              element={<PrivateRoute element={<EditService />} />}
+            />
+            <Route
+              path="/project_services/project_services"
+              element={<PrivateRoute element={<Project_Services />} />}
+            />
+
+            <Route
+              path="/project_services/addservice"
+              element={<PrivateRoute element={<AddService />} />}
+            />
+
             <Route
               path="/company/engineers"
               element={<PrivateRoute element={<Engineers />} />}
@@ -144,11 +176,11 @@ function App() {
               path="/company/assets/addmaterials"
               element={<PrivateRoute element={<AddMaterials />} />}
             />
-              <Route
+            <Route
               path="/company/assets/creatematerials"
               element={<PrivateRoute element={<CreateMaterials />} />}
             />
-             <Route
+            <Route
               path="/company/assets/updatematerials"
               element={<PrivateRoute element={<UpdateMaterials />} />}
             />
@@ -156,9 +188,22 @@ function App() {
               path="/company/assets/updateassets"
               element={<PrivateRoute element={<UpdateAssets />} />}
             />
-             <Route
+            <Route
               path="/company/assets/createassets"
               element={<PrivateRoute element={<CreateAssets />} />}
+            />
+            <Route
+              path="/company/assets/assetstype"
+              element={<PrivateRoute element={<AssetsType />} />}
+            />
+
+            <Route
+              path="/company/assets/createassettype"
+              element={<PrivateRoute element={<CreateAssetType />} />}
+            />
+            <Route
+              path="/company/assets/updateassettype"
+              element={<PrivateRoute element={<UpdateAssetType />} />}
             />
             <Route
               path="/customers/createclients"
@@ -171,6 +216,23 @@ function App() {
             <Route
               path="/company/employees"
               element={<PrivateRoute element={<Employees />} />}
+            />
+            <Route
+              path="/company/employeespecialise"
+              element={<PrivateRoute element={<EmployeeSpecialise />} />}
+            />
+
+            <Route
+              path="/company/createSpecialise"
+              element={<PrivateRoute element={<CreateSpecialise />} />}
+            />
+            <Route
+              path="/company/updatespecialise"
+              element={<PrivateRoute element={<UpdateSpecialise />} />}
+            />
+            <Route
+              path="/company/employeefiles"
+              element={<PrivateRoute element={<EmployeeFiles />} />}
             />
             <Route
               path="/customers/clients"
@@ -203,6 +265,19 @@ function App() {
             <Route
               path="/admin/editrole"
               element={<PrivateRoute element={<EditRoles />} />}
+            />
+            <Route
+              path="/moderation/moderator"
+              element={<PrivateRoute element={<Moderator />} />}
+            />
+
+            <Route
+              path="/moderation/createadmin"
+              element={<PrivateRoute element={<CreateAdmin />} />}
+            />
+            <Route
+              path="/moderation/editadmin"
+              element={<PrivateRoute element={<EditAdmin />} />}
             />
           </Routes>
         </div>

@@ -27,12 +27,14 @@ const Employees = () => {
   };
 
   useEffect(() => {
+    const token = localStorage.getItem('token');
+
     fetch("https://inout-api.octopusteam.net/api/front/getEmployees", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
         "Accept": "application/json",
-        "Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2lub3V0LWFwaS5vY3RvcHVzdGVhbS5uZXQvYXBpL2Zyb250L2xvZ2luIiwiaWF0IjoxNzMyMTc3NDA2LCJleHAiOjE3NjM3MTM0MDYsIm5iZiI6MTczMjE3NzQwNiwianRpIjoiR0FMMk5vcVA5TmR6RHpaWCIsInN1YiI6IjEiLCJwcnYiOiJkZjg4M2RiOTdiZDA1ZWY4ZmY4NTA4MmQ2ODZjNDVlODMyZTU5M2E5In0.WNmITXIkVJFmUZfhdiqtGgNaLafVAUD5Wu6wGA2C2Qw" 
+        Authorization: `Bearer ${token}`,
       },
     })
       .then((response) => {
@@ -54,11 +56,12 @@ const Employees = () => {
   const handleDelete = (id) => {
     const confirm = window.confirm("Do you like to delete?");
     if (confirm) {
+      const token = localStorage.getItem('token');
       fetch(`https://inout-api.octopusteam.net/api/front/deleteEmployee/${id}`, {
-        method: "DELETE",
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2lub3V0LWFwaS5vY3RvcHVzdGVhbS5uZXQvYXBpL2Zyb250L2xvZ2luIiwiaWF0IjoxNzMyMTc3NDA2LCJleHAiOjE3NjM3MTM0MDYsIm5iZiI6MTczMjE3NzQwNiwianRpIjoiR0FMMk5vcVA5TmR6RHpaWCIsInN1YiI6IjEiLCJwcnYiOiJkZjg4M2RiOTdiZDA1ZWY4ZmY4NTA4MmQ2ODZjNDVlODMyZTU5M2E5In0.WNmITXIkVJFmUZfhdiqtGgNaLafVAUD5Wu6wGA2C2Qw",
+          Authorization: `Bearer ${token}`,
         },
       })
         .then((response) => {

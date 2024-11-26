@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Select from "react-select";
 
 const AddNewProject = () => {
@@ -6,6 +6,7 @@ const AddNewProject = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newService, setNewService] = useState("");
   const [modalTitle, setModalTitle] = useState("");
+  const [branches, setBranches] = useState([]);
 
   const options = [
     { value: "service1", label: "Service 1" },
@@ -31,21 +32,54 @@ const AddNewProject = () => {
     setIsModalOpen(true); // فتح البوب أب
   };
 
+  useEffect(() => {
+    const fetchBranches = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch(
+          "https://inout-api.octopusteam.net/api/front/getBranches",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        if (!res.ok) {
+          throw new Error("Failed to fetch branches");
+        }
+        const data = await res.json();
+        setBranches(data.data);
+      } catch (err) {
+        console.error("Error fetching branches:", err.message);
+      }
+    };
+
+    fetchBranches();
+  }, []);
+
   return (
     <div className="container ml-0  p-10 dark:bg-slate-950">
       <h1 className="text-4xl font-bold mb-4 ">Add New Project</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="p-1">
-          <label className="block text-sm font-medium  text-gray ml-6 ">
+          {" "}
+          <label className="block text-sm font-medium text-gray ml-6">
             BRANCH
-          </label>
+          </label>{" "}
           <select className="mt-1 dark:bg-slate-950 block w-full border border-gray-300 rounded-md p-2">
-            <option>Select branch</option>
-          </select>
+            {" "}
+            <option>Select branch</option>{" "}
+            {branches.map((branch) => (
+              <option key={branch.id} value={branch.id}>
+                {" "}
+                {branch.name}{" "}
+              </option>
+            ))}{" "}
+          </select>{" "}
         </div>
 
-        <div className="p-1">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1 ml-6">
+        <div className="p-1 ">
+          <label className="block text-sm font-medium  text-gray-700 dark:text-gray-400 mb-1 ml-6">
             SERVICES
           </label>
           <div className="flex items-center gap-2">
@@ -197,6 +231,7 @@ const AddNewProject = () => {
             </div>
           )}
         </div>
+        
         <div className="p-1">
           {/* Label */}
           <label className="block text-sm font-medium text-gray-700 ml-6">

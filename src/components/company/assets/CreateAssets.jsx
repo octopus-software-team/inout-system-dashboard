@@ -1,20 +1,45 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const CreateAssets = () => {
   const [name, setName] = useState("");
   const [assetTypeId, setAssetTypeId] = useState("");
+  const [assetTypes, setAssetTypes] = useState([]); // To store the asset types
   const navigate = useNavigate();
+
+  // Fetch asset types with token
+  useEffect(() => {
+    const token = localStorage.getItem("token"); // Get the token from localStorage
+
+    fetch("https://inout-api.octopusteam.net/api/front/getAssetTypes", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`, // Add the token in the Authorization header
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.status === 200) {
+          setAssetTypes(data.data); // Store fetched asset types
+        } else {
+          alert("Failed to load asset types");
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching asset types:", error);
+      });
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const token = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2lub3V0LWFwaS5vY3RvcHVzdGVhbS5uZXQvYXBpL2Zyb250L2xvZ2luIiwiaWF0IjoxNzMyMzEyMDkzLCJleHAiOjE3NjM4NDgwOTMsIm5iZiI6MTczMjMxMjA5MywianRpIjoiMVdmRWZka3hybmN4V2wycSIsInN1YiI6IjEiLCJwcnYiOiJkZjg4M2RiOTdiZDA1ZWY4ZmY4NTA4MmQ2ODZjNDVlODMyZTU5M2E5In0.8kk0U67fvEKT-MKytjKsFlshFOQsj4pE5YpmhiEVszY"
+    const token = localStorage.getItem("token"); // Get the token from localStorage
 
     fetch("https://inout-api.octopusteam.net/api/front/addAsset", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${token}`, // Add the token in the Authorization header
       },
       body: JSON.stringify({
         name,
@@ -29,7 +54,7 @@ const CreateAssets = () => {
       })
       .then((resData) => {
         alert(resData.msg || "Asset added successfully");
-        navigate("/company/assets/addmaterials"); // Redirect to the assets list page
+        navigate("/company/assets/addnewassets"); // Redirect to the assets list page
       })
       .catch((err) => {
         console.error("Error adding asset:", err.message);
@@ -63,17 +88,24 @@ const CreateAssets = () => {
             className="block text-gray-700 font-semibold mb-2"
             htmlFor="assetTypeId"
           >
-            Asset Type ID
+            Asset Type
           </label>
-          <input
-            type="number"
+          <select
             id="assetTypeId"
             className="border border-gray-300 rounded-lg w-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={assetTypeId}
             onChange={(e) => setAssetTypeId(e.target.value)}
-            placeholder="Enter asset type ID"
             required
-          />
+          >
+            <option value="id" disabled>
+              Select an asset type
+            </option>
+            {assetTypes.map((type) => (
+              <option key={type.id} value={type.id}>
+                {type.name}
+              </option>
+            ))}
+          </select>
         </div>
         <button
           type="submit"

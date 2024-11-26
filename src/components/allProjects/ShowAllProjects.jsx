@@ -9,7 +9,6 @@ const ShowAllProjects = () => {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
 
-  const token = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2lub3V0LWFwaS5vY3RvcHVzdGVhbS5uZXQvYXBpL2Zyb250L2xvZ2luIiwiaWF0IjoxNzMyMjk0NjU0LCJleHAiOjE3NjM4MzA2NTQsIm5iZiI6MTczMjI5NDY1NCwianRpIjoiMUlNQnhLRjBJcWJrUHlERiIsInN1YiI6IjEiLCJwcnYiOiJkZjg4M2RiOTdiZDA1ZWY4ZmY4NTA4MmQ2ODZjNDVlODMyZTU5M2E5In0.QkBDV1DsGpt0P3vgH9rYGR8C03YthiRz0WqoYEL6xjY";
 
   const handleViewClick = () => {
     navigate("/allprojects/addreport");
@@ -33,23 +32,24 @@ const ShowAllProjects = () => {
   };
 
   useEffect(() => {
+    const token = localStorage.getItem('token');
     fetch("https://inout-api.octopusteam.net/api/front/getProjects", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: token,
+        Authorization: `Bearer ${token}`,
       },
     })
       .then((response) => response.json())
       .then((res) => {
         if (res.status === 200) {
-          setData(res.data); // تعيين البيانات القادمة من API
+          setData(res.data); 
         } else {
           console.error("Error: Data not found");
         }
       })
       .catch((err) => console.error(err));
-  }, [token]);
+  }, );
 
   const renderSortIcon = (col) => {
     if (sortedColumn === col) {
@@ -64,7 +64,7 @@ const ShowAllProjects = () => {
 
       <div className="flex justify-end my-3">
         <input
-          className="mr-auto border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-96"
+          className="mr-auto dark:bg-slate-900 dark:text-white border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-96"
           onChange={(e) => setSearch(e.target.value)}
           type="text"
           placeholder="search"
@@ -80,12 +80,12 @@ const ShowAllProjects = () => {
       <table className="table">
         <thead>
           <tr>
-            <th onClick={() => sorting("id")}>ID {renderSortIcon("id")}</th>
-            <th onClick={() => sorting("name")}>Name {renderSortIcon("name")}</th>
-            <th onClick={() => sorting("inspection_date")}>
+            <th className="dark:bg-slate-900 dark:text-white" onClick={() => sorting("id")}>ID {renderSortIcon("id")}</th>
+            <th className="dark:bg-slate-900 dark:text-white" onClick={() => sorting("name")}>Name {renderSortIcon("name")}</th>
+            <th className="dark:bg-slate-900 dark:text-white" onClick={() => sorting("inspection_date")}>
               Inspection Date {renderSortIcon("inspection_date")}
             </th>
-            <th>Action</th>
+            <th className="dark:bg-slate-900 dark:text-white">Action</th>
           </tr>
         </thead>
         <tbody>
@@ -97,14 +97,14 @@ const ShowAllProjects = () => {
             })
             .map((d, i) => (
               <tr key={i}>
-                <td>{d.id}</td>
-                <td>{d.name}</td>
-                <td>{d.inspection_date}</td>
-                <td>
+                <td className="dark:bg-slate-900 dark:text-white">{d.id}</td>
+                <td className="dark:bg-slate-900 dark:text-white">{d.name}</td>
+                <td className="dark:bg-slate-900 dark:text-white">{d.inspection_date}</td>
+                <td className="dark:bg-slate-900 dark:text-white">
                   <button
                     onClick={() => navigate(`/allprojects/updateprojects/${d.id}`)}
 
-                    className="bg-green-800 text-white font-semibold py-2 px-4 rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-700 inline-flex items-center"
+                    className="bg-green-800  text-white font-semibold py-2 px-4 rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-700 inline-flex items-center"
                   >
                     <FaEdit className="mr-2 text-white w-4 h-4" />
                     Edit
@@ -133,29 +133,40 @@ const ShowAllProjects = () => {
 
   function handleDelete(id) {
     const confirm = window.confirm("Are you sure you want to delete this project?");
+    
     if (confirm) {
-      fetch(`https://inout-api.octopusteam.net/api/front/deleteProject/${id}`, {
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        alert("You are not authenticated. Please log in.");
+        return;
+      }
+  
+      fetch(`https://inout-api.octopusteam.net/api/front/deleteProject`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: token, // التوكن المطلوب للمصادقة
+          "Authorization": `Bearer ${token}`, // أضف التوكن هنا
         },
       })
         .then((response) => {
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
-          return response.json();
+          return response.json(); // تحويل الاستجابة إلى JSON
         })
         .then((res) => {
           if (res.status === 200) {
             alert("Project deleted successfully!");
             setData((prevData) => prevData.filter((project) => project.id !== id)); // تحديث الجدول
           } else {
-            alert(`Failed to delete project: ${res.msg}`);
+            alert(`Failed to delete project: ${res.msg || 'Unknown error'}`);
           }
         })
-        .catch((err) => console.error("Error deleting project:", err));
+        .catch((err) => {
+          console.error("Error deleting project:", err);
+          alert("Failed to delete project. Please try again.");
+        });
     }
   }
   

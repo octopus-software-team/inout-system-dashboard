@@ -12,9 +12,10 @@ const UpdateMaterials = () => {
   const [type, setType] = useState(material?.type || "");
 
   const handleSubmit = (e) => {
+    const token = localStorage.getItem('token');
+
     e.preventDefault();
 
-    const token = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2lub3V0LWFwaS5vY3RvcHVzdGVhbS5uZXQvYXBpL2Zyb250L2xvZ2luIiwiaWF0IjoxNzMyMzEyMDkzLCJleHAiOjE3NjM4NDgwOTMsIm5iZiI6MTczMjMxMjA5MywianRpIjoiMVdmRWZka3hybmN4V2wycSIsInN1YiI6IjEiLCJwcnYiOiJkZjg4M2RiOTdiZDA1ZWY4ZmY4NTA4MmQ2ODZjNDVlODMyZTU5M2E5In0.8kk0U67fvEKT-MKytjKsFlshFOQsj4pE5YpmhiEVszY"
     const updatedMaterial = {
       name,
       stock: parseInt(stock),
@@ -24,7 +25,7 @@ const UpdateMaterials = () => {
     fetch(`https://inout-api.octopusteam.net/api/front/updateMaterial/${material.id}`, {
       method: "POST",
       headers: {
-        Authorization: token,
+        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(updatedMaterial),

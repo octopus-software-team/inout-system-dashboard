@@ -1,27 +1,25 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
-const AddServices = () => {
+const Project_Services = () => {
   const [data, setData] = useState([]);
   const [order, setOrder] = useState("ASC");
   const [sortedColumn, setSortedColumn] = useState(null);
   const [search, setSearch] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
 
     if (!token) {
-      console.log("No token found, cannot fetch services.");
       setError("No token found. Please log in.");
       setIsLoading(false);
       return;
     }
 
-    fetch("https://inout-api.octopusteam.net/api/front/getServices", {
+    fetch("https://inout-api.octopusteam.net/api/front/getProjectServices", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -42,7 +40,7 @@ const AddServices = () => {
         }
       })
       .catch((error) => {
-        console.error("Error fetching services:", error);
+        console.error("Error fetching project services:", error);
         setError("Failed to fetch services. Please try again later.");
       })
       .finally(() => {
@@ -82,7 +80,8 @@ const AddServices = () => {
 
   const handleEdit = (id) => {
     const selectedService = data.find((service) => service.id === id);
-    navigate(`/company/editservice`, { state: selectedService });
+    console.log("Edit service", selectedService);
+    // Navigate to edit page
   };
 
   const handleDelete = (id) => {
@@ -93,7 +92,7 @@ const AddServices = () => {
     }
 
     if (window.confirm("Are you sure you want to delete this service?")) {
-      fetch(`https://inout-api.octopusteam.net/api/front/deleteService/${id}`, {
+      fetch(`https://inout-api.octopusteam.net/api/front/deleteProjectService/${id}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -119,7 +118,7 @@ const AddServices = () => {
 
   return (
     <div className="container mt-5">
-      <h2 className="text-center font-bold text-3xl text-black">Services</h2>
+      <h2 className="text-center font-bold text-3xl text-black">Project Services</h2>
 
       <div className="flex justify-between items-center my-4">
         <input
@@ -130,7 +129,7 @@ const AddServices = () => {
           onChange={(e) => setSearch(e.target.value)}
         />
         <Link
-          to="/company/createservices"
+          to="/project_services/addservice"
           className="bg-gradient-to-r from-blue-500 to-green-500 text-white font-semibold py-2 px-6 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
         >
           + Create Service
@@ -150,10 +149,16 @@ const AddServices = () => {
           <table className="table-auto w-full border border-gray-200 bg-white rounded-lg">
             <thead>
               <tr className="bg-gradient-to-r from-blue-600 to-blue-400 text-white">
-                <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">
+                <th
+                  className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300"
+                  onClick={() => sorting("id")}
+                >
                   ID {renderSortIcon("id")}
                 </th>
-                <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">
+                <th
+                  className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300"
+                  onClick={() => sorting("name")}
+                >
                   Name {renderSortIcon("name")}
                 </th>
                 <th className="px-4 py-3 text-right font-semibold text-lg border-b border-gray-300">
@@ -203,4 +208,4 @@ const AddServices = () => {
   );
 };
 
-export default AddServices;
+export default Project_Services;

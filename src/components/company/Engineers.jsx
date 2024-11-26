@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const AddEngineer = () => {
   const [formData, setFormData] = useState({
@@ -17,8 +17,60 @@ const AddEngineer = () => {
     type: 0,
   });
 
+  const [branches, setBranches] = useState([]);
+  const [specialties, setSpecialties] = useState([]);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // الحصول على التوكن من localStorage
+  const token = localStorage.getItem("token");
+
+  useEffect(() => {
+    // Fetch branches data
+    const fetchBranches = async () => {
+      try {
+        const response = await fetch(
+          "https://inout-api.octopusteam.net/api/front/getBranches",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`, // أضف التوكن هنا
+            },
+          }
+        );
+        const result = await response.json();
+        if (result.status === 200) {
+          setBranches(result.data);
+        }
+      } catch (error) {
+        console.error("Error fetching branches:", error);
+      }
+    };
+
+    // Fetch specialties data
+    const fetchSpecialties = async () => {
+      try {
+        const response = await fetch(
+          "https://inout-api.octopusteam.net/api/front/getEmployeesSpecials",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`, // أضف التوكن هنا
+            },
+          }
+        );
+        const result = await response.json();
+        if (result.status === 200) {
+          setSpecialties(result.data);
+        }
+      } catch (error) {
+        console.error("Error fetching specialties:", error);
+      }
+    };
+
+    fetchBranches();
+    fetchSpecialties();
+  }, [token]); // إضافة التوكن في الاعتماديات
 
   const handleChange = (e) => {
     const { id, value, type, files } = e.target;
@@ -53,7 +105,7 @@ const AddEngineer = () => {
         {
           method: "POST",
           headers: {
-            Authorization: "Bearer YOUR_ACCESS_TOKEN", // استبدل بـ التوكين الصحيح
+            Authorization: `Bearer ${token}`, // أضف التوكن هنا
           },
           body: formDataToSend,
         }
@@ -150,16 +202,21 @@ const AddEngineer = () => {
 
         <div className="flex flex-col">
           <label htmlFor="branch_id" className="mb-2 font-medium text-gray-700">
-            Branch ID
+            Branch
           </label>
-          <input
-            type="number"
+          <select
             id="branch_id"
             value={formData.branch_id}
             onChange={handleChange}
-            placeholder="Branch ID"
             className="p-2 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+          >
+            <option value="">Select Branch</option>
+            {branches.map((branch) => (
+              <option key={branch.id} value={branch.id}>
+                {branch.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="flex flex-col">
@@ -169,14 +226,19 @@ const AddEngineer = () => {
           >
             Specialty
           </label>
-          <input
-            type="number"
+          <select
             id="employee_special_id"
             value={formData.employee_special_id}
             onChange={handleChange}
-            placeholder="Specialty ID"
             className="p-2 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+          >
+            <option value="">Select Specialty</option>
+            {specialties.map((specialty) => (
+              <option key={specialty.id} value={specialty.id}>
+                {specialty.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="flex flex-col">
@@ -206,8 +268,8 @@ const AddEngineer = () => {
             className="p-2 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Select Gender</option>
-            <option value="0">0</option>
-            <option value="1">1</option>
+            <option value="0">male</option>
+            <option value="1">female</option>
           </select>
         </div>
 
@@ -230,14 +292,14 @@ const AddEngineer = () => {
           >
             Experience
           </label>
-          <textarea
+          <input
+            type="text"
             id="experience"
             value={formData.experience}
             onChange={handleChange}
-            placeholder="Engineer Experience"
-            rows="5"
+            placeholder="Experience"
             className="p-2 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          ></textarea>
+          />
         </div>
 
         <div className="flex flex-col">
@@ -259,23 +321,6 @@ const AddEngineer = () => {
 
         <div className="flex flex-col">
           <label
-            htmlFor="contract_duration"
-            className="mb-2 font-medium text-gray-700"
-          >
-            Contract Duration (in months)
-          </label>
-          <input
-            type="number"
-            id="contract_duration"
-            value={formData.contract_duration}
-            onChange={handleChange}
-            placeholder="Contract Duration in Months"
-            className="p-2 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <div className="flex flex-col">
-          <label
             htmlFor="contract_end_date"
             className="mb-2 font-medium text-gray-700"
           >
@@ -291,13 +336,28 @@ const AddEngineer = () => {
           />
         </div>
 
-        <div className="md:col-span-2">
+        <div className="flex flex-col">
+          <label htmlFor="type" className="mb-2 font-medium text-gray-700">
+            Type
+          </label>
+          <select
+            id="type"
+            value={formData.type}
+            onChange={handleChange}
+            className="p-2 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="0">Engineer</option>
+            <option value="1">Employee</option>
+          </select>
+        </div>
+
+        <div className="flex justify-end">
           <button
             type="submit"
+            className="bg-blue-500 text-white px-6 py-2 rounded-lg"
             disabled={loading}
-            className="p-2 w-full bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            {loading ? "Saving..." : "Add "}
+            {loading ? "Saving..." : "Save Engineer"}
           </button>
         </div>
       </form>
