@@ -1,17 +1,43 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
 const EmployeeFiles = () => {
-  const [data, setData] = useState([
-    { id: 1, full_name: "John Doe", email: "john@example.com", phone: "123-456-7890" },
-    { id: 2, full_name: "Jane Smith", email: "jane@example.com", phone: "987-654-3210" },
-    { id: 3, full_name: "Sam Johnson", email: "sam@example.com", phone: "555-123-4567" },
-    { id: 4, full_name: "Lisa White", email: "lisa@example.com", phone: "321-654-9870" },
-  ]);
+  const [data, setData] = useState([]);
   const [order, setOrder] = useState("ASC");
   const [sortedColumn, setSortedColumn] = useState(null);
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch data from API
+  useEffect(() => {
+    const token = localStorage.getItem("token"); 
+
+    const fetchData = async () => {
+      try {
+        const response = await fetch("https://inout-api.octopusteam.net/api/front/getEmployeeFiles", {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+          }
+        });
+        const result = await response.json();
+        if (result.status === 200) {
+          setData(result.data);
+        } else {
+          setError("Failed to fetch data");
+        }
+      } catch (error) {
+        setError("Error fetching data");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const sorting = (col) => {
     let sorted = [];
@@ -33,7 +59,7 @@ const EmployeeFiles = () => {
   const handleDelete = (id) => {
     const confirm = window.confirm("Do you like to delete?");
     if (confirm) {
-      setData(data.filter((employee) => employee.id !== id)); // إزالة الموظف من البيانات
+      setData(data.filter((employee) => employee.id !== id));
       alert("Record deleted successfully.");
     }
   };
@@ -44,6 +70,9 @@ const EmployeeFiles = () => {
     }
     return "";
   };
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
 
   return (
     <div className="container mt-5">
@@ -57,7 +86,7 @@ const EmployeeFiles = () => {
           placeholder="search by name"
         />
         <Link
-          to="/company/engineers"
+          to="/company/createempfiles"
           className="bg-slate-500 text-white font-semibold py-2 px-4 rounded hover:bg-slate-700 w-80 text-center"
         >
           Create +
@@ -72,24 +101,6 @@ const EmployeeFiles = () => {
               className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300"
             >
               ID {renderSortIcon("id")}
-            </th>
-            <th
-              onClick={() => sorting("full_name")}
-              className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300"
-            >
-              Full Name {renderSortIcon("full_name")}
-            </th>
-            <th
-              onClick={() => sorting("email")}
-              className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300"
-            >
-              Email {renderSortIcon("email")}
-            </th>
-            <th
-              onClick={() => sorting("phone")}
-              className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300"
-            >
-              Phone {renderSortIcon("phone")}
             </th>
             <th className="px-4 py-3 text-right font-semibold text-lg border-b border-gray-300">
               Action
@@ -106,9 +117,6 @@ const EmployeeFiles = () => {
             .map((d) => (
               <tr key={d.id} className="hover:bg-gray-100">
                 <td className="px-4 py-3">{d.id}</td>
-                <td className="px-4 py-3">{d.full_name}</td>
-                <td className="px-4 py-3">{d.email}</td>
-                <td className="px-4 py-3">{d.phone}</td>
                 <td className="px-4 py-3 flex justify-end space-x-2">
                   <Link
                     to={`/update/${d.id}`}

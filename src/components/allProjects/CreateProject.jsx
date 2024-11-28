@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
 
 const CreateProject = () => {
   const navigate = useNavigate();
@@ -8,6 +7,7 @@ const CreateProject = () => {
     name: "",
     branch_id: "",
     project_owner_id: "",
+    project_owner_type: "",  // إضافة حقل نوع الـ Owner
     customer_constructor_id: "",
     inspection_date: "",
     inspection_time: "",
@@ -18,7 +18,57 @@ const CreateProject = () => {
     inspection_engineer_id: "",
   });
 
- 
+  const [branches, setBranches] = useState([]); // State to hold the branches data
+  const [owners, setOwners] = useState([]); // State to hold the owners data
+
+  useEffect(() => {
+    // Fetch branches data on component mount
+    const fetchBranches = async () => {
+      const token = localStorage.getItem('token');
+      try {
+        const response = await fetch("https://inout-api.octopusteam.net/api/front/getBranches", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = await response.json();
+        if (data.status === 200) {
+          setBranches(data.data); // Set the branches data in the state
+        } else {
+          console.error("Failed to fetch branches");
+        }
+      } catch (error) {
+        console.error("Error fetching branches:", error);
+      }
+    };
+
+    // Fetch owners data on component mount
+    const fetchOwners = async () => {
+      const token = localStorage.getItem('token');
+      try {
+        const response = await fetch("https://inout-api.octopusteam.net/api/front/addCustomer", {
+          method: "GET", // Or use an appropriate GET or POST if needed to fetch owner data
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = await response.json();
+        if (data.status === 200) {
+          setOwners(data.data); // Set the owners data in the state
+        } else {
+          console.error("Failed to fetch owners");
+        }
+      } catch (error) {
+        console.error("Error fetching owners:", error);
+      }
+    };
+
+    fetchBranches();
+    fetchOwners();
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -28,6 +78,7 @@ const CreateProject = () => {
   const handleSubmit = (e) => {
     const token = localStorage.getItem('token');
     e.preventDefault();
+    
     fetch("https://inout-api.octopusteam.net/api/front/addProject", {
       method: "POST",
       headers: {
@@ -41,6 +92,7 @@ const CreateProject = () => {
         if (res.status === 200) {
           alert("Project added successfully!");
           navigate("/allprojects/showallprojects");
+        } else {
           alert("Failed to add project");
         }
       })
@@ -62,28 +114,59 @@ const CreateProject = () => {
             required
           />
         </div>
+
         <div className="mb-4">
-          <label className="block font-semibold">Branch ID</label>
-          <input
-            type="number"
+          <label className="block font-semibold">Branch</label>
+          <select
             name="branch_id"
             value={formData.branch_id}
             onChange={handleInputChange}
             className="border border-gray-300 rounded-lg px-4 py-2 w-full"
             required
-          />
+          >
+            <option value="">Select Branch</option>
+            {branches.map((branch) => (
+              <option key={branch.id} value={branch.id}>
+                {branch.name}
+              </option>
+            ))}
+          </select>
         </div>
+
+        <div className="mb-4">
+          <label className="block font-semibold">Project Owner</label>
+          <select
+            name="project_owner_type"
+            value={formData.project_owner_type}
+            onChange={handleInputChange}
+            className="border border-gray-300 rounded-lg px-4 py-2 w-full"
+            required
+          >
+            <option value="">Select Project Owner Type</option>
+            <option value="1">Owner</option>
+            <option value="0">Client</option>
+            <option value="2">Consultant</option>
+          </select>
+        </div>
+
         <div className="mb-4">
           <label className="block font-semibold">Project Owner ID</label>
-          <input
-            type="number"
+          <select
             name="project_owner_id"
             value={formData.project_owner_id}
             onChange={handleInputChange}
             className="border border-gray-300 rounded-lg px-4 py-2 w-full"
             required
-          />
+          >
+            <option value="">Select Project Owner</option>
+            {owners.map((owner) => (
+              <option key={owner.id} value={owner.id}>
+                {owner.name}
+              </option>
+            ))}
+          </select>
         </div>
+
         <div className="mb-4">
           <label className="block font-semibold">Customer Constructor ID</label>
           <input
@@ -95,6 +178,7 @@ const CreateProject = () => {
             required
           />
         </div>
+
         <div className="mb-4">
           <label className="block font-semibold">Inspection Date</label>
           <input
@@ -106,7 +190,7 @@ const CreateProject = () => {
             required
           />
         </div>
-        
+
         <div className="mb-4">
           <label className="block font-semibold">Inspection Time</label>
           <input
@@ -118,6 +202,7 @@ const CreateProject = () => {
             required
           />
         </div>
+
         <div className="mb-4">
           <label className="block font-semibold">Notes</label>
           <textarea
@@ -127,6 +212,7 @@ const CreateProject = () => {
             className="border border-gray-300 rounded-lg px-4 py-2 w-full"
           />
         </div>
+
         <div className="mb-4">
           <label className="block font-semibold">Latitude</label>
           <input
@@ -138,6 +224,7 @@ const CreateProject = () => {
             required
           />
         </div>
+
         <div className="mb-4">
           <label className="block font-semibold">Longitude</label>
           <input
@@ -149,6 +236,7 @@ const CreateProject = () => {
             required
           />
         </div>
+
         <div className="mb-4">
           <label className="block font-semibold">Status</label>
           <input
@@ -160,6 +248,7 @@ const CreateProject = () => {
             required
           />
         </div>
+
         <div className="mb-4">
           <label className="block font-semibold">Inspection Engineer ID</label>
           <input
@@ -171,12 +260,10 @@ const CreateProject = () => {
             required
           />
         </div>
-        <button
-          type="submit"
-          className="bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-700"
-        >
-          Create Project
-        </button>
+
+        <div className="text-center">
+          <button type="submit" className="bg-blue-500 text-white rounded-lg px-6 py-2">Create Project</button>
+        </div>
       </form>
     </div>
   );

@@ -7,29 +7,22 @@ const AddNewProject = () => {
   const [newService, setNewService] = useState("");
   const [modalTitle, setModalTitle] = useState("");
   const [branches, setBranches] = useState([]);
+  const [services, setServices] = useState([]);
+  const [customers, setCustomers] = useState([]);
 
-  const options = [
-    { value: "service1", label: "Service 1" },
-    { value: "service2", label: "Service 2" },
-    { value: "service3", label: "Service 3" },
-    { value: "service4", label: "Service 4" },
-  ];
   const buttonLoading = (button) => {
     const text = button.querySelector(".button-text");
     const spinner = button.querySelector(".loading-spinner");
-
     text.classList.add("hidden");
     spinner.classList.remove("hidden");
-
     setTimeout(() => {
       text.classList.remove("hidden");
       spinner.classList.add("hidden");
     }, 2000);
   };
-
   const openModal = (title) => {
-    setModalTitle(title); // تغيير عنوان النموذج بناءً على الزر الذي تم الضغط عليه
-    setIsModalOpen(true); // فتح البوب أب
+    setModalTitle(title);
+    setIsModalOpen(true);
   };
 
   useEffect(() => {
@@ -39,9 +32,7 @@ const AddNewProject = () => {
         const res = await fetch(
           "https://inout-api.octopusteam.net/api/front/getBranches",
           {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            headers: { Authorization: `Bearer ${token}` },
           }
         );
         if (!res.ok) {
@@ -53,8 +44,40 @@ const AddNewProject = () => {
         console.error("Error fetching branches:", err.message);
       }
     };
+    const fetchServices = async () => {
+      const token = localStorage.getItem("token");
+      try {
+        const response = await fetch(
+          "https://inout-api.octopusteam.net/api/front/getServices",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        const data = await response.json();
+        if (data.status === 200) {
+          const options = data.data.map((service) => ({
+            value: service.id,
+            label: service.name,
+          }));
+          setServices(options);
+        } else {
+          console.error("Error fetching services:", data.msg);
+        }
+      } catch (error) {
+        console.error("Error fetching services:", error);
+      }
+    };
 
+    fetch("https://inout-api.octopusteam.net/api/front/getCustomers")
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.status === 200) {
+          setCustomers(data.data); // تخزين العملاء في الـ state
+        }
+      })
+      .catch((error) => console.error("Error fetching data:", error));
     fetchBranches();
+    fetchServices();
   }, []);
 
   return (
@@ -79,13 +102,16 @@ const AddNewProject = () => {
         </div>
 
         <div className="p-1 ">
-          <label className="block text-sm font-medium  text-gray-700 dark:text-gray-400 mb-1 ml-6">
-            SERVICES
-          </label>
+          {" "}
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1 ml-6">
+            {" "}
+            SERVICES{" "}
+          </label>{" "}
           <div className="flex items-center gap-2">
+            {" "}
             <Select
               isMulti
-              options={options}
+              options={services}
               value={selectedOptions}
               onChange={(options) => setSelectedOptions(options)}
               placeholder="Select Services"
@@ -93,65 +119,69 @@ const AddNewProject = () => {
               styles={{
                 control: (base, state) => ({
                   ...base,
-                  backgroundColor: "white", // لون الخلفية الافتراضي
-                  color: "black", // لون النص
+                  backgroundColor: "white",
+                  color: "black",
                   border: state.isFocused
-                    ? "1px solid #6B7280" // لون الإطار عند التركيز
-                    : "1px solid #D1D5DB", // لون الإطار الافتراضي
-                  boxShadow: state.isFocused ? "0 0 0 2px #2563EB" : "none", // ظل عند التركيز
+                    ? "1px solid #6B7280"
+                    : "1px solid #D1D5DB",
+                  boxShadow: state.isFocused ? "0 0 0 2px #2563EB" : "none",
                 }),
                 menu: (base) => ({
                   ...base,
-                  backgroundColor: "white", // لون خلفية القائمة
-                  color: "black", // النص
+                  backgroundColor: "white",
+                  color: "black",
                 }),
                 option: (base, { isFocused }) => ({
                   ...base,
-                  backgroundColor: isFocused ? "#E5E7EB" : "white", // خلفية عند التمرير
-                  color: "black", // لون النص
+                  backgroundColor: isFocused ? "#E5E7EB" : "white",
+                  color: "black",
                 }),
-                placeholder: (base) => ({
-                  ...base,
-                  color: "#9CA3AF", // لون النص الافتراضي
-                }),
+                placeholder: (base) => ({ ...base, color: "#9CA3AF" }),
               }}
-            />
+            />{" "}
             <div>
+              {" "}
               <button
-                onClick={() => openModal("Add Project Owner")} // فتح نموذج "Add Project Owner"
+                onClick={() => openModal("Add Project Owner")}
                 className="ml-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-full w-8 h-8 flex items-center justify-center"
               >
-                +
-              </button>
-
+                {" "}
+                +{" "}
+              </button>{" "}
               {isModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                  {" "}
                   <div className="bg-white dark:bg-slate-800 dark:text-white w-96 h-96 p-6 rounded-lg shadow-lg">
-                    <h2 className="text-xl font-bold">Add Service</h2>
+                    {" "}
+                    <h2 className="text-xl font-bold">Add Service</h2>{" "}
                     <p className="mt-4 text-gray-600 dark:text-gray-400">
-                      Fill in the details below.
-                    </p>
+                      {" "}
+                      Fill in the details below.{" "}
+                    </p>{" "}
                     <input
                       type="text"
                       placeholder="Service Name"
                       className="mt-4 w-full p-2 rounded-md bg-white dark:bg-slate-800 text-black dark:text-white border border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500"
-                    />
+                    />{" "}
                     <div className="mt-6 flex justify-end gap-2">
+                      {" "}
                       <button
                         onClick={() => setIsModalOpen(false)}
                         className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md"
                       >
-                        Cancel
-                      </button>
+                        {" "}
+                        Cancel{" "}
+                      </button>{" "}
                       <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md">
-                        Save
-                      </button>
-                    </div>
-                  </div>
+                        {" "}
+                        Save{" "}
+                      </button>{" "}
+                    </div>{" "}
+                  </div>{" "}
                 </div>
-              )}
-            </div>
-          </div>
+              )}{" "}
+            </div>{" "}
+          </div>{" "}
         </div>
 
         <div className="p-1">
@@ -231,108 +261,72 @@ const AddNewProject = () => {
             </div>
           )}
         </div>
-        
         <div className="p-1">
-          {/* Label */}
-          <label className="block text-sm font-medium text-gray-700 ml-6">
-            CONSULTIVE/S
-          </label>
+      {/* Label */}
+      <label className="block text-sm font-medium text-gray-700 ml-6">
+        CONSULTIVE/S
+      </label>
 
-          {/* Select Dropdown and Button */}
-          <div className="flex items-center gap-2 mt-1">
-            <select className="block w-full border border-gray-300 rounded-md p-2 dark:bg-slate-950">
-              <option>Select or add new consultative</option>
-            </select>
+      {/* Select Dropdown and Button */}
+      <div className="flex items-center gap-2 mt-1">
+        <select className="block w-full border border-gray-300 rounded-md p-2 dark:bg-slate-950">
+          <option>Select or add new consultative</option>
+          {/* عرض أسماء العملاء هنا */}
+          {customers.map((customer) => (
+            <option key={customer.id} value={customer.id}>
+              {customer.name}
+            </option>
+          ))}
+        </select>
 
-            {/* Add Button */}
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-full w-8 h-8 flex items-center justify-center"
-            >
-              +
-            </button>
+        {/* Add Button */}
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-full w-8 h-8 flex items-center justify-center"
+        >
+          +
+        </button>
 
-            {/* Modal */}
-            {isModalOpen && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                {/* Modal Content */}
-                <div className="bg-white dark:bg-slate-900 dark:text-white w-96 rounded-lg shadow-lg p-6">
-                  <h2 className="text-xl font-bold text-gray-800 dark:text-white">
-                    Add New Consultative
-                  </h2>
-                  <p className="mt-4 text-gray-600 dark:text-gray-400">
-                    Fill in the details below to add a new consultative.
-                  </p>
+        {/* Modal */}
+        {isModalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white dark:bg-slate-900 dark:text-white w-96 rounded-lg shadow-lg p-6">
+              <h2 className="text-xl font-bold text-gray-800 dark:text-white">
+                Add New Consultative
+              </h2>
+              <p className="mt-4 text-gray-600 dark:text-gray-400">
+                Fill in the details below to add a new consultative.
+              </p>
 
-                  {/* Input Field */}
-                  <div className="mt-4">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                      Name
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Enter consultative name"
-                      className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-white dark:bg-slate-800 text-black dark:text-white focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-
-                  {/* Modal Buttons */}
-                  <div className="mt-6 flex justify-end gap-2">
-                    <button
-                      onClick={() => setIsModalOpen(false)}
-                      className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md"
-                    >
-                      Cancel
-                    </button>
-                    <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md">
-                      Save
-                    </button>
-                  </div>
-                </div>
+              {/* Input Field */}
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Name
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter consultative name"
+                  className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-white dark:bg-slate-800 text-black dark:text-white focus:ring-blue-500 focus:border-blue-500"
+                />
               </div>
-            )}
-          </div>
 
-          {/* Modal */}
-          {isModalOpen && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-              <div className="bg-white w-96 rounded-lg shadow-lg p-6">
-                <h2 className="text-xl font-bold text-gray-800">
-                  Add New Consultative
-                </h2>
-                <p className="mt-4 text-gray-600">
-                  Fill in the details below to add a new consultative.
-                </p>
-
-                {/* Input Field */}
-                <div className="mt-4">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Name
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Enter consultative name"
-                    className="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-
-                {/* Modal Buttons */}
-                <div className="mt-6 flex justify-end gap-2">
-                  <button
-                    onClick={() => setIsModalOpen(false)}
-                    className="bg-gray-500 hover:bg-gray-600 text-white font-semibold px-4 py-2 rounded-md"
-                  >
-                    Cancel
-                  </button>
-                  <button className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded-md">
-                    Save
-                  </button>
-                </div>
+              {/* Modal Buttons */}
+              <div className="mt-6 flex justify-end gap-2">
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md"
+                >
+                  Cancel
+                </button>
+                <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md">
+                  Save
+                </button>
               </div>
             </div>
-          )}
-        </div>
-
+          </div>
+        )}
+      </div>
+    </div>
         <div className="p-1">
           <label className="block text-sm font-medium text-gray-700 ml-6">
             INSPECTION DATE

@@ -15,7 +15,6 @@ const CreateCustomer = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setCustomerData({ ...customerData, [name]: name === "type" ? +value : value });
-
   };
 
   const handleSubmit = async (e) => {
@@ -131,16 +130,18 @@ const CreateCustomer = () => {
           >
             Type
           </label>
-          <input
-            type="number"
+          <select
             id="type"
             name="type"
-            placeholder="Customer Type (0 or 1)"
-            required
             className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-indigo-200"
             value={customerData.type}
             onChange={handleChange}
-          />
+            required
+          >
+            <option value={0}>Client</option>
+            <option value={1}>Owner</option>
+            <option value={2}>Consultant</option>
+          </select>
         </div>
 
         <button

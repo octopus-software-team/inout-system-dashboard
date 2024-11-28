@@ -135,7 +135,7 @@ const Employees = () => {
                 <td>{d.phone}</td>
                 <td>
                   <Link
-                    to={`/update/${d.id}`}
+                    to={`/company/editemp/${d.id}`}
                     className="bg-green-800 text-white font-semibold py-2 px-4 rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-700 inline-flex items-center"
                   >
                     <FaEdit className="mr-2 text-white w-4 h-4" />

@@ -55,6 +55,9 @@ import UpdateSpecialise from "./components/company/UpdateSpecialise";
 import EmployeeFiles from "./components/company/EmployeeFiles";
 import Project_Services from "./components/project_services/Project_Services";
 import AddService from "./components/project_services/AddService";
+import EditEmp from "./components/company/EditEmp";
+import CreateEmpFiles from "./components/company/CreateEmpFiles";
+import CreateConsultive from "./components/customers/CreateConsultive";
 
 const PrivateRoute = ({ element: Component }) => {
   const isLoggedIn = localStorage.getItem("token"); // Check if the user is logged in
@@ -217,6 +220,14 @@ function App() {
               path="/company/employees"
               element={<PrivateRoute element={<Employees />} />}
             />
+             <Route
+              path="/company/editemp"
+              element={<PrivateRoute element={<EditEmp />} />}
+            />
+             <Route
+              path="/company/createempfiles"
+              element={<PrivateRoute element={<CreateEmpFiles />} />}
+            />
             <Route
               path="/company/employeespecialise"
               element={<PrivateRoute element={<EmployeeSpecialise />} />}
@@ -245,6 +256,10 @@ function App() {
             <Route
               path="/customers/consaltative"
               element={<PrivateRoute element={<Consaltative />} />}
+            />
+             <Route
+              path="/customers/createconsultive"
+              element={<PrivateRoute element={<CreateConsultive />} />}
             />
             <Route
               path="/todo/addnewtask"
