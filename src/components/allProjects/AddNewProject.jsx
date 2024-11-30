@@ -9,6 +9,10 @@ const AddNewProject = () => {
   const [branches, setBranches] = useState([]);
   const [services, setServices] = useState([]);
   const [customers, setCustomers] = useState([]);
+  const [owners, setOwners] = useState([]);
+  const [selectedOwner, setSelectedOwner] = useState("");
+  const [selectedConsultative, setSelectedConsultative] = useState("");
+  const [selectedCustomer, setSelectedCustomer] = useState("");
 
   const buttonLoading = (button) => {
     const text = button.querySelector(".button-text");
@@ -80,6 +84,99 @@ const AddNewProject = () => {
     fetchServices();
   }, []);
 
+  useEffect(() => {
+    // ارسال طلب API لتحميل البيانات باستخدام fetch
+    fetch("https://inout-api.octopusteam.net/api/front/getCustomers", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`, // استخدام التوكن من localStorage
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.status === 200) {
+          // تنسيق البيانات لتشمل الاسم والنوع
+          const formattedOwners = data.data.map((item) => {
+            let typeName = "";
+            switch (item.type) {
+              case 0:
+                typeName = "Client";
+                break;
+              case 1:
+                typeName = "Owner";
+                break;
+              case 2:
+                typeName = "Consultant";
+                break;
+              default:
+                typeName = "Unknown";
+            }
+            return {
+              id: item.id,
+              name: item.name,
+              type: typeName,
+            };
+          });
+          setOwners(formattedOwners);
+        }
+      })
+      .catch((error) => {
+        console.error("Error loading data:", error);
+      });
+  }, []);
+
+  useEffect(() => {
+    fetch("https://inout-api.octopusteam.net/api/front/getCustomers", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`, // استخدام التوكن من localStorage
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.status === 200) {
+          // تنسيق البيانات لتشمل الاسم والنوع (Client أو Consultant)
+          const formattedCustomers = data.data
+            .filter((item) => item.type === 2)
+            .map((item) => ({
+              id: item.id,
+              name: item.name,
+              type: item.type === 2 ? "Consultant" : "Client",
+            }));
+          setCustomers(formattedCustomers);
+        }
+      })
+      .catch((error) => {
+        console.error("Error loading data:", error);
+      });
+  }, []);
+
+  useEffect(() => {
+    // ارسال طلب API لتحميل البيانات باستخدام fetch
+    fetch("https://inout-api.octopusteam.net/api/front/getCustomers", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`, // استخدام التوكن من localStorage
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.status === 200) {
+          // تصفية العملاء بناءً على نوعهم
+          const formattedCustomers = data.data
+            .filter((item) => item.type === 0)
+            .map((item) => ({
+              id: item.id,
+              name: item.name,
+            }));
+          setCustomers(formattedCustomers);
+        }
+      })
+      .catch((error) => {
+        console.error("Error loading data:", error);
+      });
+  }, []);
+
   return (
     <div className="container ml-0  p-10 dark:bg-slate-950">
       <h1 className="text-4xl font-bold mb-4 ">Add New Project</h1>
@@ -101,14 +198,11 @@ const AddNewProject = () => {
           </select>{" "}
         </div>
 
-        <div className="p-1 ">
-          {" "}
+        <div className="p-1">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1 ml-6">
-            {" "}
-            SERVICES{" "}
-          </label>{" "}
+            SERVICES
+          </label>
           <div className="flex items-center gap-2">
-            {" "}
             <Select
               isMulti
               options={services}
@@ -138,50 +232,42 @@ const AddNewProject = () => {
                 }),
                 placeholder: (base) => ({ ...base, color: "#9CA3AF" }),
               }}
-            />{" "}
+            />
             <div>
-              {" "}
               <button
                 onClick={() => openModal("Add Project Owner")}
                 className="ml-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-full w-8 h-8 flex items-center justify-center"
               >
-                {" "}
-                +{" "}
-              </button>{" "}
+                +
+              </button>
               {isModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                  {" "}
                   <div className="bg-white dark:bg-slate-800 dark:text-white w-96 h-96 p-6 rounded-lg shadow-lg">
-                    {" "}
-                    <h2 className="text-xl font-bold">Add Service</h2>{" "}
+                    <h2 className="text-xl font-bold">Add Service</h2>
                     <p className="mt-4 text-gray-600 dark:text-gray-400">
-                      {" "}
-                      Fill in the details below.{" "}
-                    </p>{" "}
+                      Fill in the details below.
+                    </p>
                     <input
                       type="text"
                       placeholder="Service Name"
-                      className="mt-4 w-full p-2 rounded-md bg-white dark:bg-slate-800 text-black dark:text-white border border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500"
-                    />{" "}
+                      className="mt-4 w-full p-2 rounded-md bg-white dark:bg-slate-900 text-black dark:text-white border border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500"
+                    />
                     <div className="mt-6 flex justify-end gap-2">
-                      {" "}
                       <button
                         onClick={() => setIsModalOpen(false)}
                         className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md"
                       >
-                        {" "}
-                        Cancel{" "}
-                      </button>{" "}
+                        Cancel
+                      </button>
                       <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md">
-                        {" "}
-                        Save{" "}
-                      </button>{" "}
-                    </div>{" "}
-                  </div>{" "}
+                        Save
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              )}{" "}
-            </div>{" "}
-          </div>{" "}
+              )}
+            </div>
+          </div>
         </div>
 
         <div className="p-1">
@@ -189,8 +275,17 @@ const AddNewProject = () => {
             PROJECT OWNER
           </label>
           <div className="flex items-center mt-1">
-            <select className="PROJECT block w-full dark:bg-slate-950 border border-gray-300 rounded-md p-2">
+            <select
+              className="PROJECT block w-full dark:bg-slate-950 border border-gray-300 rounded-md p-2"
+              value={selectedOwner}
+              onChange={(e) => setSelectedOwner(e.target.value)}
+            >
               <option>Select or add new owner</option>
+              {owners.map((owner) => (
+                <option key={owner.id} value={owner.id}>
+                  {owner.name} ({owner.type})
+                </option>
+              ))}
             </select>
             <button
               onClick={() => setIsModalOpen(true)}
@@ -202,7 +297,7 @@ const AddNewProject = () => {
 
           {isModalOpen && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-              <div className=" w-96 h-96 p-6 rounded-lg shadow-lg">
+              <div className="w-96 h-96 p-6 rounded-lg shadow-lg">
                 <button
                   onClick={() => setIsModalOpen(false)}
                   className="mt-56 bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded"
@@ -222,8 +317,18 @@ const AddNewProject = () => {
 
           {/* Select Dropdown and Add Button */}
           <div className="flex items-center gap-2 mt-1">
-            <select className="block w-full border border-gray-300 rounded-md p-2 dark:bg-slate-950">
+            <select
+              className="block w-full border border-gray-300 rounded-md p-2 dark:bg-slate-950"
+              value={selectedCustomer}
+              onChange={(e) => setSelectedCustomer(e.target.value)}
+            >
               <option>Select or add new customer</option>
+              {/* عرض أسماء العملاء هنا */}
+              {customers.map((customer) => (
+                <option key={customer.id} value={customer.id}>
+                  {customer.name}
+                </option>
+              ))}
             </select>
 
             {/* Add Button */}
@@ -257,76 +362,95 @@ const AddNewProject = () => {
                     className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-white dark:bg-slate-800 text-black dark:text-white focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
+
+                {/* Modal Buttons */}
+                <div className="mt-6 flex justify-end gap-2">
+                  <button
+                    onClick={() => setIsModalOpen(false)}
+                    className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md"
+                  >
+                    Cancel
+                  </button>
+                  <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md">
+                    Save
+                  </button>
+                </div>
               </div>
             </div>
           )}
         </div>
+
         <div className="p-1">
-      {/* Label */}
-      <label className="block text-sm font-medium text-gray-700 ml-6">
-        CONSULTIVE/S
-      </label>
+          {/* Label */}
+          <label className="block text-sm font-medium text-gray-700 ml-6">
+            CONSULTIVE/S
+          </label>
 
-      {/* Select Dropdown and Button */}
-      <div className="flex items-center gap-2 mt-1">
-        <select className="block w-full border border-gray-300 rounded-md p-2 dark:bg-slate-950">
-          <option>Select or add new consultative</option>
-          {/* عرض أسماء العملاء هنا */}
-          {customers.map((customer) => (
-            <option key={customer.id} value={customer.id}>
-              {customer.name}
-            </option>
-          ))}
-        </select>
+          {/* Select Dropdown and Button */}
+          <div className="flex items-center gap-2 mt-1">
+            <select
+              className="block w-full border border-gray-300 rounded-md p-2 dark:bg-slate-950"
+              value={selectedConsultative}
+              onChange={(e) => setSelectedConsultative(e.target.value)}
+            >
+              <option>Select or add new consultative</option>
+              {/* عرض أسماء المستشارين هنا */}
+              {customers.map((customer) => (
+                <option key={customer.id} value={customer.id}>
+                  {customer.name}
+                </option>
+              ))}
+            </select>
 
-        {/* Add Button */}
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-full w-8 h-8 flex items-center justify-center"
-        >
-          +
-        </button>
+            {/* Add Button */}
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-full w-8 h-8 flex items-center justify-center"
+            >
+              +
+            </button>
 
-        {/* Modal */}
-        {isModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white dark:bg-slate-900 dark:text-white w-96 rounded-lg shadow-lg p-6">
-              <h2 className="text-xl font-bold text-gray-800 dark:text-white">
-                Add New Consultative
-              </h2>
-              <p className="mt-4 text-gray-600 dark:text-gray-400">
-                Fill in the details below to add a new consultative.
-              </p>
+            {/* Modal */}
+            {isModalOpen && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-white dark:bg-slate-900 dark:text-white w-96 rounded-lg shadow-lg p-6">
+                  <h2 className="text-xl font-bold text-gray-800 dark:text-white">
+                    Add New Consultative
+                  </h2>
+                  <p className="mt-4 text-gray-600 dark:text-gray-400">
+                    Fill in the details below to add a new consultative.
+                  </p>
 
-              {/* Input Field */}
-              <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Name
-                </label>
-                <input
-                  type="text"
-                  placeholder="Enter consultative name"
-                  className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-white dark:bg-slate-800 text-black dark:text-white focus:ring-blue-500 focus:border-blue-500"
-                />
+                  {/* Input Field */}
+                  <div className="mt-4">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Name
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Enter consultative name"
+                      className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-white dark:bg-slate-800 text-black dark:text-white focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+
+                  {/* Modal Buttons */}
+                  <div className="mt-6 flex justify-end gap-2">
+                    <button
+                      onClick={() => setIsModalOpen(false)}
+                      className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md"
+                    >
+                      Cancel
+                    </button>
+                    <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md">
+                      Save
+                    </button>
+                  </div>
+                </div>
               </div>
-
-              {/* Modal Buttons */}
-              <div className="mt-6 flex justify-end gap-2">
-                <button
-                  onClick={() => setIsModalOpen(false)}
-                  className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md"
-                >
-                  Cancel
-                </button>
-                <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md">
-                  Save
-                </button>
-              </div>
-            </div>
+            )}
           </div>
-        )}
-      </div>
-    </div>
+        </div>
+
         <div className="p-1">
           <label className="block text-sm font-medium text-gray-700 ml-6">
             INSPECTION DATE

@@ -1,16 +1,15 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 
-const Consaltative = () => {
+const Consultative = () => {
   const [data, setData] = useState([]);
   const [order, setOrder] = useState("ASC");
   const [sortedColumn, setSortedColumn] = useState(null);
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
 
-  // Fetch data with token from the new API
+  // Fetch data with token from the new API (getCustomers)
   useEffect(() => {
     const token = localStorage.getItem("token"); // Get token from localStorage
     if (!token) {
@@ -18,15 +17,16 @@ const Consaltative = () => {
       return;
     }
 
-    axios
-      .get("https://inout-api.octopusteam.net/api/front/getProjectConsultives", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+    fetch("https://inout-api.octopusteam.net/api/front/getCustomers", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((response) => response.json())
       .then((res) => {
-        if (res.data && res.data.data) {
-          setData(res.data.data);
+        if (res.data) {
+          setData(res.data); // Set the customer data from API
         } else {
           alert("No data found in the response.");
         }
@@ -67,12 +67,12 @@ const Consaltative = () => {
 
     const confirm = window.confirm("Do you like to delete?");
     if (confirm) {
-      axios
-        .delete(`https://inout-api.octopusteam.net/api/front/deleteProjectConsultive/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
+      fetch(`https://inout-api.octopusteam.net/api/front/deleteProjectConsultive/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
         .then(() => {
           alert("Record deleted successfully.");
           setData(data.filter((item) => item.id !== id));
@@ -107,8 +107,8 @@ const Consaltative = () => {
             <th onClick={() => sorting("name")}>
               Name {renderSortIcon("name")}
             </th>
-            <th onClick={() => sorting("phoneNumber")}>
-              Phone Number {renderSortIcon("phoneNumber")}
+            <th onClick={() => sorting("phone")}>
+              Phone Number {renderSortIcon("phone")}
             </th>
             <th>Action</th>
           </tr>
@@ -124,7 +124,7 @@ const Consaltative = () => {
               <tr key={item.id}>
                 <td>{item.id}</td>
                 <td>{item.name}</td>
-                <td>{item.phoneNumber}</td>
+                <td>{item.phone}</td>
                 <td>
                   <Link
                     to={`/update/${item.id}`}
@@ -149,4 +149,4 @@ const Consaltative = () => {
   );
 };
 
-export default Consaltative;
+export default Consultative;

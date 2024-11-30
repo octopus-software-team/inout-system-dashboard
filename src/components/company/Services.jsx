@@ -123,7 +123,7 @@ const AddServices = () => {
 
       <div className="flex justify-between items-center my-4">
         <input
-          className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-2/3 shadow-md"
+          className="border border-gray-300 dark:bg-slate-900 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-2/3 shadow-md"
           type="text"
           placeholder="Search services..."
           value={search}
@@ -150,13 +150,13 @@ const AddServices = () => {
           <table className="table-auto w-full border border-gray-200 bg-white rounded-lg">
             <thead>
               <tr className="bg-gradient-to-r from-blue-600 to-blue-400 text-white">
-                <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">
+                <th className="px-4 dark:bg-slate-900 py-3 text-left font-semibold text-lg border-b border-gray-300">
                   ID {renderSortIcon("id")}
                 </th>
-                <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">
+                <th className="px-4 dark:bg-slate-900 py-3 text-left font-semibold text-lg border-b border-gray-300">
                   Name {renderSortIcon("name")}
                 </th>
-                <th className="px-4 py-3 text-right font-semibold text-lg border-b border-gray-300">
+                <th className="px-4 dark:bg-slate-900 py-3 text-right font-semibold text-lg border-b border-gray-300">
                   Actions
                 </th>
               </tr>
@@ -171,13 +171,13 @@ const AddServices = () => {
                 .map((d, index) => (
                   <tr
                     key={d.id}
-                    className={`hover:bg-gray-100 transition duration-200 ${
+                    className={`hover:bg-gray-100 dark:bg-slate-900 transition duration-200 ${
                       index % 2 === 0 ? "bg-gray-50" : "bg-white"
                     }`}
                   >
-                    <td className="px-4 py-3 text-gray-800">{d.id}</td>
-                    <td className="px-4 py-3 text-gray-800">{d.name}</td>
-                    <td className="px-4 py-3 text-right space-x-2">
+                    <td className="px-4 py-3 dark:bg-slate-900 dark:text-white text-gray-800">{d.id}</td>
+                    <td className="px-4 py-3 dark:bg-slate-900 dark:text-white text-gray-800">{d.name}</td>
+                    <td className="px-4 py-3 dark:bg-slate-900 dark:text-white text-right space-x-2">
                       <button
                         onClick={() => handleEdit(d.id)}
                         className="bg-green-600 text-white font-semibold py-2 px-4 rounded-lg hover:shadow-md transform hover:scale-105 transition duration-300"

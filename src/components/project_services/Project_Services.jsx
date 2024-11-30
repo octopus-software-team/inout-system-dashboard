@@ -19,7 +19,8 @@ const Project_Services = () => {
       return;
     }
 
-    fetch("https://inout-api.octopusteam.net/api/front/getProjectServices", {
+    // تحديث رابط الـ API هنا
+    fetch("https://inout-api.octopusteam.net/api/front/getServices", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -34,7 +35,7 @@ const Project_Services = () => {
       })
       .then((resData) => {
         if (resData && resData.data) {
-          setData(resData.data);
+          setData(resData.data); // تحديث البيانات بناءً على الاستجابة من الـ API
         } else {
           setError("No data found in the response");
         }
