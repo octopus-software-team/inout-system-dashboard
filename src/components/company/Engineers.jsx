@@ -25,6 +25,14 @@ const AddEngineer = () => {
   // الحصول على التوكن من localStorage
   const token = localStorage.getItem("token");
 
+  const formatDate = (date) => {
+    if (date) {
+      const dateParts = date.split("-");
+      return `${dateParts[1]}-${dateParts[2]}-${dateParts[0].slice(2)}`;
+    }
+    return date;
+  };
+
   useEffect(() => {
     // Fetch branches data
     const fetchBranches = async () => {
@@ -70,7 +78,7 @@ const AddEngineer = () => {
 
     fetchBranches();
     fetchSpecialties();
-  }, [token]); // إضافة التوكن في الاعتماديات
+  }, [token]);
 
   const handleChange = (e) => {
     const { id, value, type, files } = e.target;
@@ -78,15 +86,13 @@ const AddEngineer = () => {
     if (type === "file") {
       setFormData({ ...formData, [id]: files[0] });
     } else {
-      setFormData({ ...formData, [id]: value });
-    }
-  };
-
-  const formatDate = (id) => {
-    if (formData[id]) {
-      const dateParts = formData[id].split("-");
-      const formattedDate = `${dateParts[1]}-${dateParts[2]}-${dateParts[0].slice(2)}`;
-      setFormData({ ...formData, [id]: formattedDate });
+      // إذا كان الحقل من نوع تاريخ تأكد من تنسيقه بشكل صحيح
+      if (id === "contract_start_date" || id === "contract_end_date") {
+        const formattedDate = value ? value : ""; // التأكد من أن القيمة لا تصبح فارغة
+        setFormData({ ...formData, [id]: formattedDate });
+      } else {
+        setFormData({ ...formData, [id]: value });
+      }
     }
   };
 
@@ -293,7 +299,7 @@ const AddEngineer = () => {
             Experience
           </label>
           <input
-            type="text"
+            type="textArea"
             id="experience"
             value={formData.experience}
             onChange={handleChange}
@@ -314,7 +320,7 @@ const AddEngineer = () => {
             id="contract_start_date"
             value={formData.contract_start_date}
             onChange={handleChange}
-            onBlur={() => formatDate("contract_start_date")}
+            onBlur={() => formatDate(formData.contract_start_date)}
             className="p-2 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
@@ -331,20 +337,20 @@ const AddEngineer = () => {
             id="contract_end_date"
             value={formData.contract_end_date}
             onChange={handleChange}
-            onBlur={() => formatDate("contract_end_date")}
+            onBlur={() => formatDate(formData.contract_end_date)}
             className="p-2 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
         <div className="flex flex-col">
-          <label htmlFor="type" className="mb-2 font-medium text-gray-700">
+          <label htmlFor="type" className="font-medium text-gray-700">
             Type
           </label>
           <select
             id="type"
             value={formData.type}
             onChange={handleChange}
-            className="p-2 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="0">Engineer</option>
             <option value="1">Employee</option>

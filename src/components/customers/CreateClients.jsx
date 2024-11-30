@@ -7,14 +7,14 @@ const CreateCustomer = () => {
     name: "",
     email: "",
     phone: "",
-    type: 0, // Default value for type
+    type: 0, // قيمة type ستظل ثابتة 0 (Client)
   });
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setCustomerData({ ...customerData, [name]: name === "type" ? +value : value });
+    setCustomerData({ ...customerData, [name]: value });
   };
 
   const handleSubmit = async (e) => {
@@ -63,7 +63,7 @@ const CreateCustomer = () => {
 
       <form onSubmit={handleSubmit} className="p-6 rounded w-10/12 max-w-md">
         <h2 className="text-center text-2xl font-bold mb-4 text-gray-800">
-          Add Customer
+          Add Client
         </h2>
 
         <div className="mb-4">
@@ -123,26 +123,12 @@ const CreateCustomer = () => {
           />
         </div>
 
-        <div className="mb-4">
-          <label
-            htmlFor="type"
-            className="block text-gray-700 font-semibold mb-2"
-          >
-            Type
-          </label>
-          <select
-            id="type"
-            name="type"
-            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-indigo-200"
-            value={customerData.type}
-            onChange={handleChange}
-            required
-          >
-            <option value={0}>Client</option>
-            <option value={1}>Owner</option>
-            <option value={2}>Consultant</option>
-          </select>
-        </div>
+        <input
+          type="hidden"
+          id="type"
+          name="type"
+          value="0" 
+        />
 
         <button
           type="submit"
