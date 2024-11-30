@@ -202,19 +202,19 @@ const AddNewProject = () => {
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1 ml-6">
             SERVICES
           </label>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center text-white gap-2">
             <Select
               isMulti
               options={services}
               value={selectedOptions}
               onChange={(options) => setSelectedOptions(options)}
               placeholder="Select Services"
-              className="flex-1"
+              className="select1 flex-1 dark:bg-slate-900"
               styles={{
                 control: (base, state) => ({
                   ...base,
-                  backgroundColor: "white",
-                  color: "black",
+                  backgroundColor: "",
+                  color: "",
                   border: state.isFocused
                     ? "1px solid #6B7280"
                     : "1px solid #D1D5DB",
@@ -227,7 +227,7 @@ const AddNewProject = () => {
                 }),
                 option: (base, { isFocused }) => ({
                   ...base,
-                  backgroundColor: isFocused ? "#E5E7EB" : "white",
+                  backgroundColor: isFocused ? "" : "",
                   color: "black",
                 }),
                 placeholder: (base) => ({ ...base, color: "#9CA3AF" }),
@@ -242,7 +242,7 @@ const AddNewProject = () => {
               </button>
               {isModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                  <div className="bg-white dark:bg-slate-800 dark:text-white w-96 h-96 p-6 rounded-lg shadow-lg">
+                  <div className="dark:bg-slate-800 dark:text-white w-96 h-96 p-6 rounded-lg shadow-lg">
                     <h2 className="text-xl font-bold">Add Service</h2>
                     <p className="mt-4 text-gray-600 dark:text-gray-400">
                       Fill in the details below.
@@ -250,7 +250,7 @@ const AddNewProject = () => {
                     <input
                       type="text"
                       placeholder="Service Name"
-                      className="mt-4 w-full p-2 rounded-md bg-white dark:bg-slate-900 text-black dark:text-white border border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500"
+                      className="mt-4 w-full p-2 rounded-md"
                     />
                     <div className="mt-6 flex justify-end gap-2">
                       <button
@@ -475,12 +475,12 @@ const AddNewProject = () => {
             </select>
 
             {/* Add Button */}
-            <button
+            {/* <button
               onClick={() => setIsModalOpen(true)}
               className="bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-full w-8 h-8 flex items-center justify-center"
             >
               +
-            </button>
+            </button> */}
           </div>
 
           {/* Modal */}

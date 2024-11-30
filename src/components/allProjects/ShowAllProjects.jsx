@@ -69,12 +69,12 @@ const ShowAllProjects = () => {
           type="text"
           placeholder="search"
         />
-        <Link
+        {/* <Link
           to="/allprojects/createproject"
           className="bg-slate-500 text-white font-semibold py-2 px-4 rounded hover:bg-slate-700 w-80 text-center"
         >
           Create +
-        </Link>
+        </Link> */}
       </div>
 
       <table className="table">

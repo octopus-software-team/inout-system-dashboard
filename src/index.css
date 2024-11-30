@@ -12,6 +12,9 @@
   p {
     @apply dark:text-[#a6a2a2];
   }
+
+
+  
 }
 
 
@@ -28,6 +31,10 @@
     @apply dark:bg-slate-900
   }
 }
+
+
+
+
 
 @layer base{
   .form1{
@@ -57,4 +64,7 @@ code {
   background-color: white;
 }
 
-
+.select1{
+  background: white;
+  color: white;
+}

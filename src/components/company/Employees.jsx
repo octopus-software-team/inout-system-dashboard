@@ -6,8 +6,8 @@ const Employees = () => {
   const [data, setData] = useState([]);
   const [order, setOrder] = useState("ASC");
   const [sortedColumn, setSortedColumn] = useState(null);
-  const navigate = useNavigate();
   const [search, setSearch] = useState("");
+  const navigate = useNavigate();
 
   const sorting = (col) => {
     let sorted = [];
@@ -89,12 +89,14 @@ const Employees = () => {
     <div className="container mt-5">
       <h2 className="text-center font-bold text-2xl">Employees</h2>
 
-      <div className="flex justify-end my-3">
+      {/* Search Input */}
+      <div className="flex justify-between items-center my-4">
         <input
-          className="mr-auto border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-96"
-          onChange={(e) => setSearch(e.target.value)}
+          className="border border-gray-300 dark:bg-slate-900 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-2/3 shadow-md"
           type="text"
-          placeholder="search by name"
+          placeholder="Search employees by name..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
         />
         <Link
           to="/company/engineers"
@@ -104,36 +106,56 @@ const Employees = () => {
         </Link>
       </div>
 
-      <table className="table">
+      {/* Employees Table */}
+      <table className="table-auto w-full border border-gray-200 bg-white rounded-lg">
         <thead>
-          <tr>
-            <th onClick={() => sorting("id")}>ID {renderSortIcon("id")}</th>
-            <th onClick={() => sorting("full_name")}>
+          <tr className="bg-gradient-to-r from-blue-600 to-blue-400 text-white">
+            <th
+              className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300"
+              onClick={() => sorting("id")}
+            >
+              ID {renderSortIcon("id")}
+            </th>
+            <th
+              className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300"
+              onClick={() => sorting("full_name")}
+            >
               Full Name {renderSortIcon("full_name")}
             </th>
-            <th onClick={() => sorting("email")}>
+            <th
+              className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300"
+              onClick={() => sorting("email")}
+            >
               Email {renderSortIcon("email")}
             </th>
-            <th onClick={() => sorting("phone")}>
+            <th
+              className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300"
+              onClick={() => sorting("phone")}
+            >
               Phone {renderSortIcon("phone")}
             </th>
-            <th>Action</th>
+            <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">
+              Actions
+            </th>
           </tr>
         </thead>
         <tbody>
           {data
-            .filter((i) => {
+            .filter((employee) => {
               return search.toLowerCase() === ""
-                ? i
-                : i.full_name.toLowerCase().includes(search);
+                ? employee
+                : employee.full_name.toLowerCase().includes(search.toLowerCase());
             })
-            .map((d, i) => (
-              <tr key={i}>
-                <td>{d.id}</td>
-                <td>{d.full_name}</td>
-                <td>{d.email}</td>
-                <td>{d.phone}</td>
-                <td>
+            .map((d) => (
+              <tr
+                key={d.id}
+                className="hover:bg-gray-100 dark:bg-slate-900 transition duration-200"
+              >
+                <td className="px-4 py-3 dark:text-white">{d.id}</td>
+                <td className="px-4 py-3 dark:text-white">{d.full_name}</td>
+                <td className="px-4 py-3 dark:text-white">{d.email}</td>
+                <td className="px-4 py-3 dark:text-white">{d.phone}</td>
+                <td className="px-4 py-3 dark:text-white">
                   <Link
                     to={`/company/editemp/${d.id}`}
                     className="bg-green-800 text-white font-semibold py-2 px-4 rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-700 inline-flex items-center"

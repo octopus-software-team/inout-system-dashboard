@@ -48,27 +48,27 @@ const company = [
     icon: <FaHardHat className="mr-2 text-gray-400" />,
   },
 
-  {
-    name: "Project Services",
-    path: "/project_services/project_services",
-    icon: <FaHardHat className="mr-2 text-gray-400" />,
-  },
+  // {
+  //   name: "Project Services",
+  //   path: "/project_services/project_services",
+  //   icon: <FaHardHat className="mr-2 text-gray-400" />,
+  // },
  
   {
     name: "Employees",
     path: "/company/employees",
     icon: <FaUserTie className="mr-2 text-gray-400" />,
   },
-  {
-    name: "Employee Specialize",
-    path: "/company/employeespecialise",
-    icon: <FaUserTie className="mr-2 text-gray-400" />,
-  },
-  {
-    name: "Employee Files",
-    path: "/company/employeefiles",
-    icon: <FaUserTie className="mr-2 text-gray-400" />,
-  },
+  // {
+  //   name: "Employee Specialize",
+  //   path: "/company/employeespecialise",
+  //   icon: <FaUserTie className="mr-2 text-gray-400" />,
+  // },
+  // {
+  //   name: "Employee Files",
+  //   path: "/company/employeefiles",
+  //   icon: <FaUserTie className="mr-2 text-gray-400" />,
+  // },
   {
     name: "Assets",
     isSubmenu: true,
