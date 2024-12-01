@@ -68,3 +68,17 @@ code {
   background: white;
   color: white;
 }
+
+
+.select1 .css-1pahdxg-control {
+  color: black !important;  /* تحديد اللون الأسود للنص */
+}
+
+.select1 .css-yt9ioa-Menu {
+  background-color: #f0f0f0 !important;  /* تغيير لون الخلفية */
+}
+
+.select1 {
+  color: black;  /* تغيير لون النص داخل الـ Select */
+  background-color: #f0f0f0;  /* تغيير خلفية الـ Select */
+}
