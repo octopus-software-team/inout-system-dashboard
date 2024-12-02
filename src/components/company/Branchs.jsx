@@ -1,11 +1,38 @@
 import React, { useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
+import MapPicker from "react-google-map-picker";
 
 const Branchs = () => {
   const [data, setData] = useState([]);
-  const navigate = useNavigate();
   const [search, setSearch] = useState("");
+  const [openMap, setOpenMap] = useState(false); 
+  const [selectedBranch, setSelectedBranch] = useState(null); 
+  const navigate = useNavigate();
+
+  const DefaultLocation = { lat: 10, lng: 106 };
+  const DefaultZoom = 10;
+
+  const [location, setLocation] = useState(DefaultLocation);
+  const [zoom, setZoom] = useState(DefaultZoom);
+
+  function handleChangeLocation(lat, lng) {
+    setLocation({ lat, lng });
+    if (selectedBranch) {
+      selectedBranch.latitude = lat;
+      selectedBranch.longitude = lng;
+      setSelectedBranch({ ...selectedBranch });
+    }
+  }
+
+  function handleChangeZoom(newZoom) {
+    setZoom(newZoom);
+  }
+
+  const handleResetLocation = () => {
+    setSelectedBranch(null);
+    setOpenMap(false);
+  };
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -62,9 +89,9 @@ const Branchs = () => {
     }
   };
 
-  const handleViewMap = (latitude, longitude) => {
-    const url = `https://www.google.com/maps?q=${latitude},${longitude}`;
-    window.open(url, "_blank");
+  const handleViewMap = (latitude, longitude, branchData) => {
+    setSelectedBranch(branchData);
+    setOpenMap(true);
   };
 
   return (
@@ -119,19 +146,25 @@ const Branchs = () => {
                     index % 2 === 0 ? "bg-gray-50" : "bg-white"
                   }`}
                 >
-                  <td className="px-4 py-3 dark:text-white dark:bg-slate-900 text-gray-800">{d.id}</td>
-                  <td className="px-4 py-3 dark:text-white dark:bg-slate-900 text-gray-800">{d.name}</td>
+                  <td className="px-4 py-3 dark:text-white dark:bg-slate-900 text-gray-800">
+                    {d.id}
+                  </td>
+                  <td className="px-4 py-3 dark:text-white dark:bg-slate-900 text-gray-800">
+                    {d.name}
+                  </td>
                   <td className="px-4 py-3 dark:text-white dark:bg-slate-900 text-gray-800">
                     <button
-                      onClick={() => handleViewMap(d.latitude, d.longitude)}
-                      className="bg-blue-500  text-white font-semibold py-2 px-4 rounded-lg hover:shadow-md transform hover:scale-105 transition duration-300"
+                      onClick={() => handleViewMap(d.latitude, d.longitude, d)}
+                      className="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:shadow-md transform hover:scale-105 transition duration-300"
                     >
                       View on Map
                     </button>
                   </td>
                   <td className="px-4 py-3 dark:bg-slate-900 text-right space-x-2">
                     <button
-                      onClick={() => navigate(`/company/updatebranch`, { state: d })}
+                      onClick={() =>
+                        navigate(`/company/updatebranch`, { state: d })
+                      }
                       className="bg-green-600 text-white font-semibold py-2 px-4 rounded-lg hover:shadow-md transform hover:scale-105 transition duration-300"
                     >
                       <FaEdit className="inline mr-2" />
@@ -150,6 +183,32 @@ const Branchs = () => {
           </tbody>
         </table>
       </div>
+
+      {openMap && selectedBranch && (
+        <div className="modal">
+          <button
+            onClick={handleResetLocation}
+            className="bg-red-500 text-white px-4 py-2 rounded"
+          >
+            Close Map
+          </button>
+          <MapPicker
+            defaultLocation={DefaultLocation}
+            zoom={zoom}
+            mapTypeId="roadmap"
+            style={{ height: "700px" }}
+            onChangeLocation={handleChangeLocation}
+            onChangeZoom={handleChangeZoom}
+            apiKey=""
+          />
+          <div>
+            <label>Latitude:</label>
+            <input type="text" value={selectedBranch.latitude} disabled />
+            <label>Longitude:</label>
+            <input type="text" value={selectedBranch.longitude} disabled />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

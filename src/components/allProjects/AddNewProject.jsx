@@ -29,6 +29,10 @@ const AddNewProject = () => {
   const [selectedCustomer, setSelectedCustomer] = useState("");
   const [engineers, setEngineers] = useState([]);
   const [open, setOpen] = useState(true);
+  const [consultive, setConsultive] = useState([]);
+  const [newConsultiveName, setNewConsultiveName] = useState("");
+  const [isConsultiveModalOpen, setIsConsultiveModalOpen] = useState(false);
+
 
   const buttonLoading = (button) => {
     const text = button.querySelector(".button-text");
@@ -72,14 +76,14 @@ const AddNewProject = () => {
       }
 
       const response = await fetch(
-        "https://inout-api.octopusteam.net/api/front/addCustomer", // رابط الـ API
+        "https://inout-api.octopusteam.net/api/front/addCustomer", 
         {
-          method: "POST", // تأكد من استخدام POST إذا كنت ترسل بيانات
+          method: "POST", 
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(customerData), // إرسال البيانات في الـ body
+          body: JSON.stringify(customerData), 
         }
       );
 
@@ -97,6 +101,58 @@ const AddNewProject = () => {
       alert("Error saving customer: " + error.message);
     }
   };
+
+  const handleSaveConsultive = async () => {
+    if (!newConsultiveName.trim()) {
+      alert("Please enter a consultive name");
+      return;
+    }
+
+    const customerData = {
+      name: newConsultiveName,
+      type: 2,
+    };
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("You need to log in first.");
+        return;
+      }
+
+      const response = await fetch(
+        "https://inout-api.octopusteam.net/api/front/addCustomer", 
+        {
+          method: "POST", 
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(customerData), 
+        }
+      );
+
+      const result = await response.json();
+      if (response.ok && result.status === 200) {
+        setCustomers((prevCustomers) => [...prevCustomers, result.data]);
+        setIsCustomerModalOpen(false);
+        setNewCustomerName("");
+      } else {
+        console.error("Error adding customer", result.message);
+        alert("Failed to add customer: " + result.message);
+      }
+    } catch (error) {
+      console.error("Error saving customer:", error);
+      alert("Error saving customer: " + error.message);
+    }
+  };
+
+  const handleCancelConsultive = () => {
+    setIsConsultiveModalOpen(false);
+    setNewConsultiveName(""); 
+  };
+
+
 
   const handleSaveService = async () => {
     if (!newService.trim()) {
@@ -135,7 +191,6 @@ const AddNewProject = () => {
     }
   };
 
-  // الدالة التي تستخدم لإغلاق الـ Modal عند الضغط على Cancel
   const handleCancelService = () => {
     setIsServiceModalOpen(false); // إغلاق الـ Modal عند الإلغاء
     setNewService(""); // إعادة تعيين الخدمة الجديدة
@@ -559,18 +614,17 @@ const AddNewProject = () => {
             </select>
 
             <button
-              onClick={() => setIsCustomerModalOpen(true)} // عند الضغط على الزر نفتح المودال
+              onClick={() => setIsCustomerModalOpen(true)}
               className="ml-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-full w-8 h-8 flex items-center justify-center"
             >
               +
             </button>
           </div>
 
-          {/* Modal لإضافة العميل */}
           {isCustomerModalOpen && (
             <Dialog
               open={isCustomerModalOpen}
-              onClose={() => setIsCustomerModalOpen(false)} // إغلاق الـ Modal عند النقر خارج الـ Modal
+              onClose={() => setIsCustomerModalOpen(false)}
               className="relative z-10"
             >
               <DialogBackdrop
@@ -596,11 +650,17 @@ const AddNewProject = () => {
                             <input
                               type="text"
                               placeholder="Enter customer name"
-                              value={newCustomerName} // قيمة الحقل هي اسم العميل الجديد
+                              value={newCustomerName}
                               onChange={(e) =>
                                 setNewCustomerName(e.target.value)
-                              } // عند الكتابة في الحقل، سيتم تحديث قيمة newCustomerName
+                              }
                               className="mt-1 block w-full border border-gray-300 rounded-md p-2 dark:bg-slate-950"
+                            />
+                            <input
+                              type="hidden"
+                              id="type"
+                              name="type"
+                              value="0"
                             />
                           </div>
                         </div>
@@ -641,22 +701,85 @@ const AddNewProject = () => {
               onChange={(e) => setSelectedConsultative(e.target.value)}
             >
               <option>Select or add new consultative</option>
-              {customers.map((customer) => (
-                <option key={customer.id} value={customer.id}>
-                  {customer.name}
+              {consultive.map((consultive) => (
+                <option key={consultive.id} value={consultive.id}>
+                  {consultive.name}
                 </option>
               ))}
             </select>
 
             <button
-              onClick={() => setIsModalOpen(true)}
+              onClick={() => setIsConsultiveModalOpen(true)}
               className="bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-full w-8 h-8 flex items-center justify-center"
             >
               +
             </button>
 
-            {isModalOpen && (
-              <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50"></div>
+            {isConsultiveModalOpen && (
+              <Dialog
+                open={isConsultiveModalOpen}
+                onClose={() => setIsConsultiveModalOpen(false)}
+                className="relative z-10"
+              >
+                <DialogBackdrop
+                  transition
+                  className="fixed inset-0 bg-gray-500/75 transition-opacity"
+                />
+                <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+                  <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                    <DialogPanel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+                      <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                        <div className="sm:flex sm:items-start">
+                          <div className="mx-auto flex size-12 shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:size-10">
+                            <ExclamationTriangleIcon className="size-6 text-red-600" />
+                          </div>
+                          <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
+                            <DialogTitle
+                              as="h3"
+                              className="text-base font-semibold text-gray-900"
+                            >
+                              Add New Consultive
+                            </DialogTitle>
+                            <div className="mt-2">
+                              <input
+                                type="text"
+                                placeholder="Enter consultive name"
+                                value={newConsultiveName}
+                                onChange={(e) =>
+                                  setNewConsultiveName(e.target.value)
+                                }
+                                className="mt-1 block w-full border border-gray-300 rounded-md p-2 dark:bg-slate-950"
+                              />
+                              <input
+                                type="hidden"
+                                id="type"
+                                name="type"
+                                value="0"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                        <button
+                          type="button"
+                          onClick={handleSaveConsultive} // دالة لحفظ العميل
+                          className="inline-flex mt-3 w-full h-10 justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto"
+                        >
+                          Save Consultive
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleCancelConsultive} // دالة لإغلاق الـ Modal
+                          className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </DialogPanel>
+                  </div>
+                </div>
+              </Dialog>
             )}
           </div>
         </div>
@@ -666,7 +789,7 @@ const AddNewProject = () => {
             INSPECTION DATE
           </label>
           <input
-            type="text"
+            type="date"
             placeholder="mm/dd/yyyy"
             className="mt-1 block w-full border border-gray-300 rounded-md p-2 dark:bg-slate-950"
           />
@@ -688,7 +811,6 @@ const AddNewProject = () => {
             </select>
           </div>
 
-          {/* Modal */}
           {isModalOpen && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"></div>
           )}
@@ -699,7 +821,7 @@ const AddNewProject = () => {
             INSPECTION TIME
           </label>
           <input
-            type="text"
+            type="time"
             placeholder="--:-- --"
             className="mt-1 block w-full border border-gray-300 rounded-md p-2 dark:bg-slate-950"
           />

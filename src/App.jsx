@@ -58,6 +58,7 @@ import AddService from "./components/project_services/AddService";
 import EditEmp from "./components/company/EditEmp";
 import CreateEmpFiles from "./components/company/CreateEmpFiles";
 import CreateConsultive from "./components/customers/CreateConsultive";
+import AddRepo from "./components/allProjects/AddRepo";
 
 const PrivateRoute = ({ element: Component }) => {
   const isLoggedIn = localStorage.getItem("token"); // Check if the user is logged in
@@ -132,6 +133,10 @@ function App() {
             <Route
               path="/allprojects/addreport"
               element={<PrivateRoute element={<AddReport />} />}
+            />
+             <Route
+              path="/allprojects/addrepo"
+              element={<PrivateRoute element={<AddRepo />} />}
             />
             <Route
               path="/company/branchs"

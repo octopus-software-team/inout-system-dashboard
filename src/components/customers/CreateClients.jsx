@@ -123,12 +123,7 @@ const CreateCustomer = () => {
           />
         </div>
 
-        <input
-          type="hidden"
-          id="type"
-          name="type"
-          value="0" 
-        />
+        <input type="hidden" id="type" name="type" value="0" />
 
         <button
           type="submit"

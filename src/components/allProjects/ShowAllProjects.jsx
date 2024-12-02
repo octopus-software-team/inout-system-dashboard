@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { FaEdit, FaEye, FaTrash } from "react-icons/fa";
+import { FaEdit, FaEye, FaRProject, FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 
 const ShowAllProjects = () => {
@@ -15,16 +15,24 @@ const ShowAllProjects = () => {
     navigate("/allprojects/addreport");
   };
 
+  const handleReportClick = () => {
+    navigate("/allprojects/addrepo");
+  };
+
   const sorting = (col) => {
     let sorted = [];
     if (order === "ASC") {
       sorted = [...data].sort((a, b) =>
-        a[col].toString().toLowerCase() > b[col].toString().toLowerCase() ? 1 : -1
+        a[col].toString().toLowerCase() > b[col].toString().toLowerCase()
+          ? 1
+          : -1
       );
       setOrder("DSC");
     } else {
       sorted = [...data].sort((a, b) =>
-        a[col].toString().toLowerCase() < b[col].toString().toLowerCase() ? 1 : -1
+        a[col].toString().toLowerCase() < b[col].toString().toLowerCase()
+          ? 1
+          : -1
       );
       setOrder("ASC");
     }
@@ -33,7 +41,7 @@ const ShowAllProjects = () => {
   };
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     fetch("https://inout-api.octopusteam.net/api/front/getProjects", {
       method: "GET",
       headers: {
@@ -44,7 +52,7 @@ const ShowAllProjects = () => {
       .then((response) => response.json())
       .then((res) => {
         if (res.status === 200) {
-          setData(res.data); 
+          setData(res.data);
         } else {
           console.error("Error: Data not found");
           setError("No data found");
@@ -67,21 +75,23 @@ const ShowAllProjects = () => {
   };
 
   const handleDelete = (id) => {
-    const confirm = window.confirm("Are you sure you want to delete this project?");
-    
+    const confirm = window.confirm(
+      "Are you sure you want to delete this project?"
+    );
+
     if (confirm) {
-      const token = localStorage.getItem('token');
-      
+      const token = localStorage.getItem("token");
+
       if (!token) {
         alert("You are not authenticated. Please log in.");
         return;
       }
-  
+
       fetch(`https://inout-api.octopusteam.net/api/front/deleteProject/${id}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`, 
+          Authorization: `Bearer ${token}`,
         },
       })
         .then((response) => {
@@ -93,9 +103,11 @@ const ShowAllProjects = () => {
         .then((res) => {
           if (res.status === 200) {
             alert("Project deleted successfully!");
-            setData((prevData) => prevData.filter((project) => project.id !== id));
+            setData((prevData) =>
+              prevData.filter((project) => project.id !== id)
+            );
           } else {
-            alert(`Failed to delete project: ${res.msg || 'Unknown error'}`);
+            alert(`Failed to delete project: ${res.msg || "Unknown error"}`);
           }
         })
         .catch((err) => {
@@ -166,12 +178,20 @@ const ShowAllProjects = () => {
                       index % 2 === 0 ? "bg-gray-50" : "bg-white"
                     }`}
                   >
-                    <td className="px-4 py-3 dark:bg-slate-900 dark:text-white text-gray-800">{d.id}</td>
-                    <td className="px-4 py-3 dark:bg-slate-900 dark:text-white text-gray-800">{d.name}</td>
-                    <td className="px-4 py-3 dark:bg-slate-900 dark:text-white text-gray-800">{d.inspection_date}</td>
+                    <td className="px-4 py-3 dark:bg-slate-900 dark:text-white text-gray-800">
+                      {d.id}
+                    </td>
+                    <td className="px-4 py-3 dark:bg-slate-900 dark:text-white text-gray-800">
+                      {d.name}
+                    </td>
+                    <td className="px-4 py-3 dark:bg-slate-900 dark:text-white text-gray-800">
+                      {d.inspection_date}
+                    </td>
                     <td className="px-4 py-3 dark:bg-slate-900 dark:text-white text-right space-x-2">
                       <button
-                        onClick={() => navigate(`/allprojects/updateprojects/${d.id}`)}
+                        onClick={() =>
+                          navigate(`/allprojects/updateprojects/${d.id}`)
+                        }
                         className="bg-green-600 text-white font-semibold py-2 px-4 rounded-lg hover:shadow-md transform hover:scale-105 transition duration-300"
                       >
                         <FaEdit className="inline mr-2" />
@@ -190,6 +210,14 @@ const ShowAllProjects = () => {
                       >
                         <FaEye className="inline mr-2" />
                         View
+                      </button>
+
+                      <button
+                        onClick={handleReportClick}
+                        className="bg-slate-500 text-white font-semibold py-2 px-4 rounded-lg hover:shadow-md transform hover:scale-105 transition duration-300"
+                      >
+                        <FaRProject className="inline mr-2" />
+                        Add Report
                       </button>
                     </td>
                   </tr>
