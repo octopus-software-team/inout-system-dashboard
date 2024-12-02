@@ -46,7 +46,7 @@ const UpdateAssets = () => {
       <h2 className="text-center font-bold text-2xl mb-5">Update Asset</h2>
       <form
         onSubmit={handleSubmit}
-        className="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md"
+        className="service max-w-md mx-auto  p-6 rounded-lg shadow-md"
       >
         <div className="mb-4">
           <label className="block text-gray-700 font-semibold mb-2" htmlFor="name">
@@ -55,7 +55,7 @@ const UpdateAssets = () => {
           <input
             type="text"
             id="name"
-            className="border border-gray-300 rounded-lg w-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border border-gray-300 dark:bg-slate-900 dark:text-white rounded-lg w-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Enter asset name"
@@ -72,7 +72,7 @@ const UpdateAssets = () => {
           <input
             type="number"
             id="assetTypeId"
-            className="border border-gray-300 rounded-lg w-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border border-gray-300 dark:bg-slate-900 dark:text-white rounded-lg w-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={assetTypeId}
             onChange={(e) => setAssetTypeId(e.target.value)}
             placeholder="Enter asset type ID"

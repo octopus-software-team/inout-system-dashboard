@@ -149,7 +149,7 @@ const Employees = () => {
             .map((d) => (
               <tr
                 key={d.id}
-                className="hover:bg-gray-100 dark:bg-slate-900 transition duration-200"
+                className="hover:bg-gray-100 dark:hover:bg-slate-500 dark:bg-slate-900 transition duration-200"
               >
                 <td className="px-4 py-3 dark:text-white">{d.id}</td>
                 <td className="px-4 py-3 dark:text-white">{d.full_name}</td>

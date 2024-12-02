@@ -77,51 +77,52 @@ const CreateAssetType = () => {
   };
 
   return (
-    <div className="container mx-auto mt-10 p-4">
-      <h2 className="text-center font-bold text-2xl mb-5">Create Asset Type</h2>
+    <div className="container mx-auto mt-10 p-4 flex justify-center">
+      <div className="service dark:bg-slate-800 p-8 rounded-lg shadow-lg w-full max-w-xs">
+        <h2 className="text-center font-bold text-2xl mb-5">Create Asset Type</h2>
 
-      {/* الفورم لإضافة نوع جديد */}
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white shadow-md rounded-lg px-8 pt-6 pb-8 mb-4"
-      >
-        {/* حقل إدخال النوع الجديد */}
-        <div className="mb-4">
-          <label
-            className="block text-gray-700 text-sm font-bold mb-2"
-            htmlFor="newType"
-          >
-            Asset Type Name
-          </label>
-          <input
-            type="text"
-            id="newType"
-            value={newType}
-            onChange={(e) => setNewType(e.target.value)}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            placeholder="Enter new asset type name"
-            required
-          />
-        </div>
+        {/* الفورم لإضافة نوع جديد */}
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-4"
+        >
+          {/* حقل إدخال النوع الجديد */}
+          <div className="mb-4">
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="newType"
+            >
+              Asset Type Name
+            </label>
+            <input
+              type="text"
+              id="newType"
+              value={newType}
+              onChange={(e) => setNewType(e.target.value)}
+              className="shadow dark:bg-slate-900 dark:text-white appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              placeholder="Enter new asset type name"
+              required
+            />
+          </div>
 
-        {/* زر الإضافة */}
-        <div className="flex items-center justify-between">
-          <button
-            type="submit"
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-          >
-            Save
-          </button>
-        </div>
-      </form>
+          {/* زر الإضافة */}
+          <div className="flex items-center justify-between">
+            <button
+              type="submit"
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            >
+              Save
+            </button>
+          </div>
+        </form>
 
-      {/* رسالة نجاح أو خطأ */}
-      {message && (
-        <p className="mt-4 text-center text-green-600 font-semibold">{message}</p>
-      )}
+        {/* رسالة نجاح أو خطأ */}
+        {message && (
+          <p className="mt-4 text-center text-green-600 font-semibold">{message}</p>
+        )}
 
-      {/* قائمة الأنواع الموجودة */}
-     
+        {/* قائمة الأنواع الموجودة */}
+      </div>
     </div>
   );
 };

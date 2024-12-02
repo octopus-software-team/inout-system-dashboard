@@ -36,8 +36,8 @@ const CreateServices = () => {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-100">
-      <div className="bg-white p-8 rounded shadow-md w-full max-w-md">
+    <div className="flex dark:bg-slate-950 justify-center items-center h-screen bg-gray-100">
+      <div className="service dark:bg-slate-800 p-8 rounded shadow-md w-full max-w-md">
         <h1 className="text-2xl font-bold mb-6 text-center">Create Service</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -50,7 +50,7 @@ const CreateServices = () => {
               value={serviceName}
               onChange={(e) => setServiceName(e.target.value)}
               required
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              className="mt-1 dark:bg-slate-800 dark:text-white block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
           </div>
           <button

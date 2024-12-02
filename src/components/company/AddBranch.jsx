@@ -44,7 +44,7 @@ const AddBranch = () => {
   
 
   return (
-    <div className="max-w-lg mx-auto p-6 bg-white rounded-lg shadow-md">
+    <div className="service max-w-lg mt-24  mx-auto p-6  rounded-lg shadow-sm">
       <h2 className="text-2xl font-semibold text-center mb-4">Add Branch</h2>
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
@@ -55,7 +55,7 @@ const AddBranch = () => {
             type="text"
             value={branchName}
             onChange={(e) => setBranchName(e.target.value)}
-            className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="mt-2 w-full dark:bg-slate-800 dark:text-white px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
             required
           />
         </div>

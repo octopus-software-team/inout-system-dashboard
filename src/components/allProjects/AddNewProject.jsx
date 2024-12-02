@@ -380,16 +380,16 @@ const AddNewProject = () => {
               isMulti
               options={services.map((service) => ({
                 value: service.id,
-                label: service.name, // عرض اسم الخدمة
+                label: service.name,
               }))}
               value={selectedOptions}
-              onChange={(options) => setSelectedOptions(options)} // تعيين الاختيارات
+              onChange={(options) => setSelectedOptions(options)}
               placeholder="Select Services"
-              className="select1 flex-1 dark:bg-slate-900"
+              className="select1 flex-1"
             />
             <div>
               <button
-                onClick={() => setIsServiceModalOpen(true)} // افتح نافذة الخدمة
+                onClick={() => setIsServiceModalOpen(true)}
                 className="ml-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-full w-8 h-8 flex items-center justify-center"
               >
                 +
@@ -425,7 +425,7 @@ const AddNewProject = () => {
                                 placeholder="Enter service name"
                                 value={newService}
                                 onChange={(e) => setNewService(e.target.value)}
-                                className="mt-1 block w-full border border-gray-300 rounded-md p-2 dark:bg-slate-950"
+                                className="mt-1 block w-full border border-gray-300 rounded-md p-2 dark:bg-black dark:text-white"
                               />
                             </div>
                           </div>
@@ -434,14 +434,14 @@ const AddNewProject = () => {
                       <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
                         <button
                           type="button"
-                          onClick={handleSaveService} // حفظ الخدمة
+                          onClick={handleSaveService}
                           className="inline-flex mt-3 w-full h-10 justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto"
                         >
                           Save Service
                         </button>
                         <button
                           type="button"
-                          onClick={handleCancelService} // إغلاق الـ Modal عند الإلغاء
+                          onClick={handleCancelService}
                           className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
                         >
                           Cancel
@@ -544,7 +544,7 @@ const AddNewProject = () => {
             CUSTOMER / CONTRACTOR
           </label>
 
-          <div className="flex items-center gap-2 mt-1">
+          <div className="select-service flex items-center gap-2 mt-1">
             <select
               className="block w-full border border-gray-300 rounded-md p-2 dark:bg-slate-950"
               value={newCustomerName}

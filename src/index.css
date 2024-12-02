@@ -12,33 +12,41 @@
   p {
     @apply dark:text-[#a6a2a2];
   }
-
-
-  
 }
 
-
-
-@layer base{
-  .line{
+@layer base {
+  .line {
     @apply dark:border-b-slate-950;
   }
-  
 }
 
-@layer base{
-  .date-input{
-    @apply dark:bg-slate-900
+@layer base {
+  .branch {
+    @apply dark:border-b-slate-950;
   }
 }
 
+@layer base {
+  .select-service {
+    @apply dark:border-b-slate-950;
+  }
+}
 
+@layer base {
+  .date-input {
+    @apply dark:bg-slate-900;
+  }
+}
 
+@layer base {
+  .select1 {
+    @apply dark:bg-slate-900;
+  }
+}
 
-
-@layer base{
-  .form1{
-    @apply dark:bg-slate-800
+@layer base {
+  .form1 {
+    @apply dark:bg-slate-800;
   }
 }
 body {
@@ -64,21 +72,40 @@ code {
   background-color: white;
 }
 
-.select1{
-  background: white;
+.select1 {
+  /* background: white; */
   color: white;
 }
 
-
 .select1 .css-1pahdxg-control {
-  color: black !important;  /* تحديد اللون الأسود للنص */
+  color: black !important;
 }
 
-.select1 .css-yt9ioa-Menu {
-  background-color: #f0f0f0 !important;  /* تغيير لون الخلفية */
-}
+/* .select1 .css-yt9ioa-Menu {
+  background-color: #f0f0f0 !important; 
+} */
 
 .select1 {
-  color: black;  /* تغيير لون النص داخل الـ Select */
-  background-color: #f0f0f0;  /* تغيير خلفية الـ Select */
+  color: black;
+  /* background-color: #f0f0f0;  */
 }
+
+.service {
+  background-color: white;
+}
+
+@layer base {
+  .service {
+    @apply dark:bg-slate-900;
+  }
+}
+
+/* .branch {
+  background-color: white;
+}
+
+@layer base {
+  .branch {
+    @apply dark:bg-slate-900;
+  }
+} */

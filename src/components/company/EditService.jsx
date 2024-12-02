@@ -101,8 +101,8 @@ const EditService = () => {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-100">
-      <div className="bg-white p-8 rounded shadow-md w-full max-w-md">
+    <div className="flex dark:bg-slate-800 justify-center items-center h-screen bg-gray-100">
+      <div className="service p-8 rounded shadow-md w-full max-w-md">
         <h1 className="text-2xl font-bold mb-6 text-center">Edit Service</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -115,7 +115,7 @@ const EditService = () => {
               name="id"
               value={serviceData.id}
               disabled
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-100 sm:text-sm"
+              className="mt-1 dark:bg-slate-800 dark:text-white block w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-100 sm:text-sm"
             />
           </div>
           <div>
@@ -129,7 +129,7 @@ const EditService = () => {
               value={serviceData.name}
               onChange={handleChange}
               required
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              className="mt-1 dark:bg-slate-800 dark:text-white block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
           </div>
           <div className="flex space-x-4">

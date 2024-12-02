@@ -87,7 +87,7 @@ const UpdateProject = () => {
             name="name"
             value={formData.name || ""}
             onChange={handleChange}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full dark:bg-slate-900 dark:text-white border  border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
         <button

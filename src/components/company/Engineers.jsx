@@ -174,7 +174,7 @@ const AddEngineer = () => {
             value={formData.full_name}
             onChange={handleChange}
             placeholder="Engineer Name"
-            className="p-2 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
@@ -188,7 +188,7 @@ const AddEngineer = () => {
             value={formData.email}
             onChange={handleChange}
             placeholder="email@example.com"
-            className="p-2 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
@@ -202,7 +202,7 @@ const AddEngineer = () => {
             value={formData.phone}
             onChange={handleChange}
             placeholder="Phone Number"
-            className="p-2 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
@@ -214,7 +214,7 @@ const AddEngineer = () => {
             id="branch_id"
             value={formData.branch_id}
             onChange={handleChange}
-            className="p-2 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Select Branch</option>
             {branches.map((branch) => (
@@ -236,7 +236,7 @@ const AddEngineer = () => {
             id="employee_special_id"
             value={formData.employee_special_id}
             onChange={handleChange}
-            className="p-2 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Select Specialty</option>
             {specialties.map((specialty) => (
@@ -259,7 +259,7 @@ const AddEngineer = () => {
             id="date_of_birth"
             value={formData.date_of_birth}
             onChange={handleChange}
-            className="p-2 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
@@ -271,7 +271,7 @@ const AddEngineer = () => {
             id="gender"
             value={formData.gender}
             onChange={handleChange}
-            className="p-2 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Select Gender</option>
             <option value="0">male</option>
@@ -287,7 +287,7 @@ const AddEngineer = () => {
             type="file"
             id="image"
             onChange={handleChange}
-            className="p-2 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
@@ -304,7 +304,7 @@ const AddEngineer = () => {
             value={formData.experience}
             onChange={handleChange}
             placeholder="Experience"
-            className="p-2 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
@@ -321,7 +321,7 @@ const AddEngineer = () => {
             value={formData.contract_start_date}
             onChange={handleChange}
             onBlur={() => formatDate(formData.contract_start_date)}
-            className="p-2 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
@@ -338,7 +338,7 @@ const AddEngineer = () => {
             value={formData.contract_end_date}
             onChange={handleChange}
             onBlur={() => formatDate(formData.contract_end_date)}
-            className="p-2 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
@@ -350,7 +350,7 @@ const AddEngineer = () => {
             id="type"
             value={formData.type}
             onChange={handleChange}
-            className="w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full dark:bg-slate-900 dark:text-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="0">Engineer</option>
             <option value="1">Employee</option>

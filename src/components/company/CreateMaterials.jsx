@@ -46,7 +46,7 @@ const CreateMaterials = () => {
     <div className="container mt-5">
       <h2 className="text-center font-bold text-2xl text-black">Create Material</h2>
 
-      <form onSubmit={handleSubmit} className="max-w-lg mx-auto bg-white p-8 rounded-lg shadow-lg">
+      <form onSubmit={handleSubmit} className="service max-w-lg mx-auto  p-8 rounded-lg shadow-lg">
         <div className="mb-4">
           <label className="block text-gray-700 font-semibold mb-2" htmlFor="name">
             Material Name
@@ -56,7 +56,7 @@ const CreateMaterials = () => {
             id="name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full dark:bg-slate-900 dark:text-white px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Enter material name"
             required
           />
@@ -71,7 +71,7 @@ const CreateMaterials = () => {
             id="stock"
             value={stock}
             onChange={(e) => setStock(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 dark:bg-slate-900 dark:text-white py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Enter stock quantity"
             required
           />
@@ -85,7 +85,7 @@ const CreateMaterials = () => {
             id="type"
             value={type}
             onChange={(e) => setType(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 dark:bg-slate-900 dark:text-white py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           >
             <option value="">Select type</option>

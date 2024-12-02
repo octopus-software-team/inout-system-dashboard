@@ -76,7 +76,7 @@ const UpdateBranch = () => {
       <h2 className="text-center font-bold text-3xl text-black">Update Branch</h2>
       <form
         onSubmit={handleSubmit}
-        className="mt-5 p-5 border border-gray-200 shadow-lg rounded-lg max-w-md mx-auto bg-white"
+        className="service mt-5 p-5 border border-gray-200 shadow-lg rounded-lg max-w-md mx-auto"
       >
         <div className="mb-4">
           <label className="block text-gray-700 font-medium mb-2" htmlFor="name">
@@ -88,7 +88,7 @@ const UpdateBranch = () => {
             name="name"
             value={formData.name}
             onChange={handleInputChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+            className="w-full dark:bg-slate-900 dark:text-white px-4 py-2 border border-gray-300 rounded-lg"
             required
           />
         </div>
@@ -102,7 +102,7 @@ const UpdateBranch = () => {
             name="latitude"
             value={formData.latitude}
             onChange={handleInputChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+            className="w-full px-4 dark:bg-slate-900 dark:text-white py-2 border border-gray-300 rounded-lg"
             required
           />
         </div>
@@ -116,7 +116,7 @@ const UpdateBranch = () => {
             name="longitude"
             value={formData.longitude}
             onChange={handleInputChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+            className="w-full px-4 dark:bg-slate-900 dark:text-white py-2 border border-gray-300 rounded-lg"
             required
           />
         </div>

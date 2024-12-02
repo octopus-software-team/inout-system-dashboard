@@ -72,7 +72,7 @@ const AddMaterials = () => {
 
       <div className="flex justify-between items-center my-4">
         <input
-          className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-2/3 shadow-md"
+          className="border dark:bg-slate-900 dark:text-white border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-2/3 shadow-md"
           type="text"
           placeholder="Search materials..."
           value={search}
@@ -90,19 +90,19 @@ const AddMaterials = () => {
         <table className="table-auto w-full border border-gray-200 bg-white rounded-lg">
           <thead>
             <tr className="bg-gradient-to-r from-blue-600 to-blue-400 text-white">
-              <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">
+              <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
                 ID
               </th>
-              <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">
+              <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
                 Name
               </th>
-              <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">
+              <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
                 Stock
               </th>
-              <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">
+              <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
                 Type
               </th>
-              <th className="px-4 py-3 text-right font-semibold text-lg border-b border-gray-300">
+              <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-right font-semibold text-lg border-b border-gray-300">
                 Actions
               </th>
             </tr>
@@ -121,13 +121,13 @@ const AddMaterials = () => {
                     index % 2 === 0 ? "bg-gray-50" : "bg-white"
                   }`}
                 >
-                  <td className="px-4 py-3 text-gray-800">{item.id}</td>
-                  <td className="px-4 py-3 text-gray-800">{item.name}</td>
-                  <td className="px-4 py-3 text-gray-800">{item.stock}</td>
-                  <td className="px-4 py-3 text-gray-800">
+                  <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">{item.id}</td>
+                  <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">{item.name}</td>
+                  <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">{item.stock}</td>
+                  <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">
                     {item.type === 0 ? "Type A" : "Type B"}
                   </td>
-                  <td className="px-4 py-3 text-right space-x-2">
+                  <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-right space-x-2">
                     <button
                       onClick={() =>
                         navigate(`/company/assets/updatematerials`, { state: item })
