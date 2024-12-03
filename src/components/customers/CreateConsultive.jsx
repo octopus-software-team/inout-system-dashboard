@@ -2,17 +2,16 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const CreateConsultive = () => {
-  const [projectId, setProjectId] = useState("");  // لحفظ project_id
-  const [consultiveId, setConsultiveId] = useState("");  // لحفظ consultive_id
-  const [projects, setProjects] = useState([]);  // لحفظ بيانات المشاريع
-  const [consultives, setConsultives] = useState([]);  // لحفظ بيانات الاستشارات
-  const [message, setMessage] = useState("");  // لحفظ الرسالة
-  const navigate = useNavigate();  // استخدام useNavigate
+  const [projectId, setProjectId] = useState("");  
+  const [consultiveId, setConsultiveId] = useState("");  
+  const [projects, setProjects] = useState([]);  
+  const [consultives, setConsultives] = useState([]);  
+  const [message, setMessage] = useState("");  
+  const navigate = useNavigate();
 
-  // جلب بيانات المشاريع من الـ API
   useEffect(() => {
     const fetchProjects = async () => {
-      const token = localStorage.getItem("token");  // الحصول على التوكن
+      const token = localStorage.getItem("token");
       if (!token) {
         alert("No token found. Please log in.");
         return;
@@ -27,7 +26,7 @@ const CreateConsultive = () => {
         });
         const result = await response.json();
         if (result.status === 200) {
-          setProjects(result.data);  // تعيين المشاريع
+          setProjects(result.data);
         } else {
           setMessage("Failed to fetch projects.");
         }
@@ -41,7 +40,7 @@ const CreateConsultive = () => {
 
   useEffect(() => {
     const fetchConsultives = async () => {
-      const token = localStorage.getItem("token");  // الحصول على التوكن
+      const token = localStorage.getItem("token");
       if (!token) {
         alert("No token found. Please log in.");
         return;
@@ -56,7 +55,7 @@ const CreateConsultive = () => {
         });
         const result = await response.json();
         if (result.status === 200) {
-          setConsultives(result.data);  // تعيين الاستشارات
+          setConsultives(result.data);
         } else {
           setMessage("Failed to fetch consultives.");
         }
@@ -81,16 +80,15 @@ const CreateConsultive = () => {
       const response = await fetch("https://inout-api.octopusteam.net/api/front/addProjectConsultive", {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${token}`,  // إضافة التوكن إلى الهيدر
-          "Content-Type": "application/json",  // تحديد نوع المحتوى
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),  // إرسال البيانات كـ JSON
+        body: JSON.stringify(data),
       });
 
       const result = await response.json();
       if (result.status === 200) {
         setMessage("Consultive added successfully!");
-        // بعد إضافة الاستشارة بنجاح، نقوم بتوجيه المستخدم إلى صفحة customers/consultative
         navigate("/customers/consaltative");
       } else {
         setMessage("Failed to add consultive.");
@@ -107,7 +105,6 @@ const CreateConsultive = () => {
       <form onSubmit={handleSubmit} className="max-w-lg mx-auto mt-5">
         {message && <div className="text-center mb-4 text-red-500">{message}</div>}
 
-        {/* Project ID Select */}
         <div className="mb-4">
           <label htmlFor="project_id" className="block text-lg font-semibold">Select Project</label>
           <select
@@ -119,13 +116,12 @@ const CreateConsultive = () => {
             <option value="">Select a project</option>
             {projects.map((project) => (
               <option key={project.id} value={project.id}>
-                {project.name} {/* يعرض اسم المشروع */}
+                {project.name}
               </option>
             ))}
           </select>
         </div>
 
-        {/* Consultive ID Select */}
         <div className="mb-4">
           <label htmlFor="consultive_id" className="block text-lg font-semibold">Select Consultive</label>
           <select
@@ -136,14 +132,13 @@ const CreateConsultive = () => {
           >
             <option value="">Select a consultive</option>
             {consultives.map((consultive) => (
-              <option key={consultive.id} value={consultive.consultive_id}>
-                Consultive ID: {consultive.consultive_id} {/* يعرض الـ consultive_id */}
+              <option key={consultive.id} value="m02">
+                Consultive ID: m02
               </option>
             ))}
           </select>
         </div>
 
-        {/* Submit Button */}
         <div className="mb-4 text-center">
           <button type="submit" className="bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700">
             Submit

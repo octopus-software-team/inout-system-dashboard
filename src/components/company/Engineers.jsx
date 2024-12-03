@@ -21,8 +21,8 @@ const AddEngineer = () => {
   const [specialties, setSpecialties] = useState([]);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [imagePreview, setImagePreview] = useState(null);
 
-  // الحصول على التوكن من localStorage
   const token = localStorage.getItem("token");
 
   const formatDate = (date) => {
@@ -34,7 +34,6 @@ const AddEngineer = () => {
   };
 
   useEffect(() => {
-    // Fetch branches data
     const fetchBranches = async () => {
       try {
         const response = await fetch(
@@ -42,7 +41,7 @@ const AddEngineer = () => {
           {
             method: "GET",
             headers: {
-              Authorization: `Bearer ${token}`, // أضف التوكن هنا
+              Authorization: `Bearer ${token}`,
             },
           }
         );
@@ -55,7 +54,6 @@ const AddEngineer = () => {
       }
     };
 
-    // Fetch specialties data
     const fetchSpecialties = async () => {
       try {
         const response = await fetch(
@@ -63,7 +61,7 @@ const AddEngineer = () => {
           {
             method: "GET",
             headers: {
-              Authorization: `Bearer ${token}`, // أضف التوكن هنا
+              Authorization: `Bearer ${token}`,
             },
           }
         );
@@ -85,10 +83,18 @@ const AddEngineer = () => {
 
     if (type === "file") {
       setFormData({ ...formData, [id]: files[0] });
+
+      // إضافة تحديث المعاينة للصورة
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result); // تحديث المعاينة
+      };
+      if (files[0]) {
+        reader.readAsDataURL(files[0]);
+      }
     } else {
-      // إذا كان الحقل من نوع تاريخ تأكد من تنسيقه بشكل صحيح
       if (id === "contract_start_date" || id === "contract_end_date") {
-        const formattedDate = value ? value : ""; // التأكد من أن القيمة لا تصبح فارغة
+        const formattedDate = value ? value : "";
         setFormData({ ...formData, [id]: formattedDate });
       } else {
         setFormData({ ...formData, [id]: value });
@@ -288,9 +294,15 @@ const AddEngineer = () => {
             id="image"
             onChange={handleChange}
             className="p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            style={{
+              backgroundImage: imagePreview ? `url(${imagePreview})` : "",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              height: "200px",
+              color: "transparent",
+            }}
           />
         </div>
-
         <div className="flex flex-col">
           <label
             htmlFor="experience"

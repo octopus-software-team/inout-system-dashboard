@@ -226,7 +226,7 @@ function App() {
               element={<PrivateRoute element={<Employees />} />}
             />
              <Route
-              path="/company/editemp"
+              path="/company/editemp/:id"
               element={<PrivateRoute element={<EditEmp />} />}
             />
              <Route

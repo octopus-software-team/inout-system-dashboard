@@ -33,7 +33,6 @@ const AddNewProject = () => {
   const [newConsultiveName, setNewConsultiveName] = useState("");
   const [isConsultiveModalOpen, setIsConsultiveModalOpen] = useState(false);
 
-
   const buttonLoading = (button) => {
     const text = button.querySelector(".button-text");
     const spinner = button.querySelector(".loading-spinner");
@@ -76,14 +75,14 @@ const AddNewProject = () => {
       }
 
       const response = await fetch(
-        "https://inout-api.octopusteam.net/api/front/addCustomer", 
+        "https://inout-api.octopusteam.net/api/front/addCustomer",
         {
-          method: "POST", 
+          method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(customerData), 
+          body: JSON.stringify(customerData),
         }
       );
 
@@ -121,14 +120,14 @@ const AddNewProject = () => {
       }
 
       const response = await fetch(
-        "https://inout-api.octopusteam.net/api/front/addCustomer", 
+        "https://inout-api.octopusteam.net/api/front/addCustomer",
         {
-          method: "POST", 
+          method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(customerData), 
+          body: JSON.stringify(customerData),
         }
       );
 
@@ -149,10 +148,8 @@ const AddNewProject = () => {
 
   const handleCancelConsultive = () => {
     setIsConsultiveModalOpen(false);
-    setNewConsultiveName(""); 
+    setNewConsultiveName("");
   };
-
-
 
   const handleSaveService = async () => {
     if (!newService.trim()) {
@@ -460,17 +457,14 @@ const AddNewProject = () => {
                   className="fixed inset-0 bg-gray-500/75 transition-opacity"
                 />
                 <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-                  <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                  <div className="flex min-h-full items-end justify-center p-4 text-m sm:items-center sm:p-0">
                     <DialogPanel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
                       <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
                         <div className="sm:flex sm:items-start">
-                          <div className="mx-auto flex size-12 shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:size-10">
-                            <ExclamationTriangleIcon className="size-6 text-red-600" />
-                          </div>
                           <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
                             <DialogTitle
                               as="h3"
-                              className="text-base font-semibold text-gray-900"
+                              className="text-base mr-16 font-semibold text-gray-900"
                             >
                               Add New Service
                             </DialogTitle>
@@ -480,7 +474,7 @@ const AddNewProject = () => {
                                 placeholder="Enter service name"
                                 value={newService}
                                 onChange={(e) => setNewService(e.target.value)}
-                                className="mt-1 block w-full border border-gray-300 rounded-md p-2 dark:bg-black dark:text-white"
+                                className="mt-1  w-full border border-gray-300 rounded-md p-2 dark:bg-black dark:text-white"
                               />
                             </div>
                           </div>
@@ -490,7 +484,7 @@ const AddNewProject = () => {
                         <button
                           type="button"
                           onClick={handleSaveService}
-                          className="inline-flex mt-3 w-full h-10 justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto"
+                          className="inline-flex mr-60 mt-3 w-full h-10 justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto"
                         >
                           Save Service
                         </button>
@@ -550,13 +544,10 @@ const AddNewProject = () => {
                 <DialogPanel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
                   <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
                     <div className="sm:flex sm:items-start">
-                      <div className="mx-auto flex size-12 shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:size-10">
-                        <ExclamationTriangleIcon className="size-6 text-red-600" />
-                      </div>
                       <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
                         <DialogTitle
                           as="h3"
-                          className="text-base font-semibold text-gray-900"
+                          className="text-base mr-20 font-semibold text-gray-900"
                         >
                           Add New Owner
                         </DialogTitle>
@@ -566,7 +557,7 @@ const AddNewProject = () => {
                             placeholder="Enter owner name"
                             value={newOwner}
                             onChange={(e) => setNewOwner(e.target.value)}
-                            className="mt-1 block w-full border border-gray-300 rounded-md p-2 dark:bg-slate-950"
+                            className="mt-1  block w-full border border-gray-300 rounded-md p-2 dark:bg-slate-950"
                           />
                         </div>
                       </div>
@@ -576,7 +567,7 @@ const AddNewProject = () => {
                     <button
                       type="button"
                       onClick={handleSaveOwner} // حفظ المالك
-                      className="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto"
+                      className="inline-flex mr-60 mt-3 w-full h-10 justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto"
                     >
                       Save Owner
                     </button>
@@ -636,13 +627,10 @@ const AddNewProject = () => {
                   <DialogPanel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
                     <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
                       <div className="sm:flex sm:items-start">
-                        <div className="mx-auto flex size-12 shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:size-10">
-                          <ExclamationTriangleIcon className="size-6 text-red-600" />
-                        </div>
                         <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
                           <DialogTitle
                             as="h3"
-                            className="text-base font-semibold text-gray-900"
+                            className="text-base mr-20 font-semibold text-gray-900"
                           >
                             Add New Customer
                           </DialogTitle>
@@ -669,14 +657,14 @@ const AddNewProject = () => {
                     <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
                       <button
                         type="button"
-                        onClick={handleSaveCustomer} // دالة لحفظ العميل
-                        className="inline-flex mt-3 w-full h-10 justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto"
+                        onClick={handleSaveCustomer}
+                        className="inline-flex mr-56 mt-3 w-full h-10 justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto"
                       >
                         Save Customer
                       </button>
                       <button
                         type="button"
-                        onClick={handleCancelCustomer} // دالة لإغلاق الـ Modal
+                        onClick={handleCancelCustomer}
                         className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
                       >
                         Cancel
@@ -730,9 +718,6 @@ const AddNewProject = () => {
                     <DialogPanel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
                       <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
                         <div className="sm:flex sm:items-start">
-                          <div className="mx-auto flex size-12 shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:size-10">
-                            <ExclamationTriangleIcon className="size-6 text-red-600" />
-                          </div>
                           <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
                             <DialogTitle
                               as="h3"
@@ -764,7 +749,7 @@ const AddNewProject = () => {
                         <button
                           type="button"
                           onClick={handleSaveConsultive} // دالة لحفظ العميل
-                          className="inline-flex mt-3 w-full h-10 justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto"
+                          className="inline-flex mr-56 mt-3 w-full h-10 justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto"
                         >
                           Save Consultive
                         </button>

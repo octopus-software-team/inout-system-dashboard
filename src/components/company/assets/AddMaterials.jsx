@@ -14,7 +14,6 @@ const AddMaterials = () => {
     fetch("https://inout-api.octopusteam.net/api/front/getMaterials", {
       method: "GET",
       headers: {
-        Authorization: token,
         Authorization: `Bearer ${token}`,
       },
     })
@@ -36,6 +35,7 @@ const AddMaterials = () => {
         alert("Failed to fetch materials");
       });
   }, []);
+
   const handleDelete = (id) => {
     const token = localStorage.getItem('token');
     const confirmDelete = window.confirm("Do you really want to delete this material?");
@@ -43,7 +43,6 @@ const AddMaterials = () => {
       fetch(`https://inout-api.octopusteam.net/api/front/deleteMaterial/${id}`, {
         method: "POST",
         headers: {
-          Authorization: token,
           Authorization: `Bearer ${token}`,
         },
       })
@@ -63,8 +62,6 @@ const AddMaterials = () => {
         });
     }
   };
-
-  
 
   return (
     <div className="container mt-5">
@@ -99,9 +96,6 @@ const AddMaterials = () => {
               <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
                 Stock
               </th>
-              <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
-                Type
-              </th>
               <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-right font-semibold text-lg border-b border-gray-300">
                 Actions
               </th>
@@ -124,9 +118,6 @@ const AddMaterials = () => {
                   <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">{item.id}</td>
                   <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">{item.name}</td>
                   <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">{item.stock}</td>
-                  <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">
-                    {item.type === 0 ? "Type A" : "Type B"}
-                  </td>
                   <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-right space-x-2">
                     <button
                       onClick={() =>

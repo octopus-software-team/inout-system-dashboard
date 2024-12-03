@@ -6,16 +6,17 @@ import MapPicker from "react-google-map-picker";
 const Branchs = () => {
   const [data, setData] = useState([]);
   const [search, setSearch] = useState("");
-  const [openMap, setOpenMap] = useState(false); 
-  const [selectedBranch, setSelectedBranch] = useState(null); 
+  const [openMap, setOpenMap] = useState(false);
+  const [selectedBranch, setSelectedBranch] = useState(null);
   const navigate = useNavigate();
 
-  const DefaultLocation = { lat: 10, lng: 106 };
+  const DefaultLocation = { lat: 10, lng: 106 }; // الموقع الافتراضي للخريطة
   const DefaultZoom = 10;
 
   const [location, setLocation] = useState(DefaultLocation);
   const [zoom, setZoom] = useState(DefaultZoom);
 
+  // لتغيير الموقع عندما يختار المستخدم مكانًا على الخريطة
   function handleChangeLocation(lat, lng) {
     setLocation({ lat, lng });
     if (selectedBranch) {
@@ -25,15 +26,18 @@ const Branchs = () => {
     }
   }
 
+  // لتغيير الزوم عند التعديل عليه
   function handleChangeZoom(newZoom) {
     setZoom(newZoom);
   }
 
+  // لإغلاق الخريطة
   const handleResetLocation = () => {
     setSelectedBranch(null);
     setOpenMap(false);
   };
 
+  // جلب البيانات من الـ API
   useEffect(() => {
     const token = localStorage.getItem("token");
 
@@ -62,6 +66,7 @@ const Branchs = () => {
       });
   }, []);
 
+  // حذف الفرع
   const handleDelete = (id) => {
     const token = localStorage.getItem("token");
     const confirm = window.confirm("Do you want to delete this branch?");
@@ -89,9 +94,11 @@ const Branchs = () => {
     }
   };
 
+  // عرض الخريطة للموقع المحدد
   const handleViewMap = (latitude, longitude, branchData) => {
     setSelectedBranch(branchData);
     setOpenMap(true);
+    setLocation({ lat: latitude, lng: longitude });  // تحديد الموقع على الخريطة
   };
 
   return (
@@ -193,19 +200,21 @@ const Branchs = () => {
             Close Map
           </button>
           <MapPicker
-            defaultLocation={DefaultLocation}
+            defaultLocation={location}  
             zoom={zoom}
             mapTypeId="roadmap"
             style={{ height: "700px" }}
             onChangeLocation={handleChangeLocation}
             onChangeZoom={handleChangeZoom}
-            apiKey=""
+            apiKey="AIzaSyD07E1VvpsN_0FvsmKAj4nK9GnLq-9jtj8"  
           />
           <div>
             <label>Latitude:</label>
-            <input type="text" value={selectedBranch.latitude} disabled />
+            <input type="text" value={location.lat} disabled />
             <label>Longitude:</label>
-            <input type="text" value={selectedBranch.longitude} disabled />
+            <input type="text" value={location.lng} disabled />
+            <label>Zoom:</label>
+            <input type="text" value={zoom} disabled />
           </div>
         </div>
       )}

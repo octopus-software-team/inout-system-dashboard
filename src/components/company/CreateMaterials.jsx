@@ -8,13 +8,13 @@ const CreateMaterials = () => {
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
 
     e.preventDefault();
 
-      const newMaterial = {
+    const newMaterial = {
       name,
-      stock: parseInt(stock), 
+      stock: parseInt(stock),
       type: parseInt(type), 
     };
 
@@ -34,7 +34,7 @@ const CreateMaterials = () => {
       })
       .then((resData) => {
         alert(resData.msg || "Material added successfully");
-        navigate("/company/assets/addmaterials"); // Redirect to materials page after success
+        navigate("/company/assets/addmaterials"); 
       })
       .catch((err) => {
         console.error("Error creating material:", err);
@@ -42,13 +42,23 @@ const CreateMaterials = () => {
       });
   };
 
+  const typeLabels = ["kg", "piece", "meter", "liter"];
+
   return (
     <div className="container mt-5">
-      <h2 className="text-center font-bold text-2xl text-black">Create Material</h2>
+      <h2 className="text-center font-bold text-2xl text-black">
+        Create Material
+      </h2>
 
-      <form onSubmit={handleSubmit} className="service max-w-lg mx-auto  p-8 rounded-lg shadow-lg">
+      <form
+        onSubmit={handleSubmit}
+        className="service max-w-lg mx-auto p-8 rounded-lg shadow-lg"
+      >
         <div className="mb-4">
-          <label className="block text-gray-700 font-semibold mb-2" htmlFor="name">
+          <label
+            className="block text-gray-700 font-semibold mb-2"
+            htmlFor="name"
+          >
             Material Name
           </label>
           <input
@@ -63,7 +73,10 @@ const CreateMaterials = () => {
         </div>
 
         <div className="mb-4">
-          <label className="block text-gray-700 font-semibold mb-2" htmlFor="stock">
+          <label
+            className="block text-gray-700 font-semibold mb-2"
+            htmlFor="stock"
+          >
             Stock
           </label>
           <input
@@ -78,7 +91,10 @@ const CreateMaterials = () => {
         </div>
 
         <div className="mb-4">
-          <label className="block text-gray-700 font-semibold mb-2" htmlFor="type">
+          <label
+            className="block text-gray-700 font-semibold mb-2"
+            htmlFor="type"
+          >
             Type
           </label>
           <select
@@ -88,9 +104,11 @@ const CreateMaterials = () => {
             className="w-full px-4 dark:bg-slate-900 dark:text-white py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           >
-            <option value="">Select type</option>
-            <option value="0">Type A</option>
-            <option value="1">Type B</option>
+           
+            <option value="0">kg</option>
+            <option value="1">piece</option>
+            <option value="2">meter</option>
+            <option value="3">liter</option>
           </select>
         </div>
 

@@ -1,12 +1,42 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const AddNewTask = () => {
   const [taskName, setTaskName] = useState("");
   const [employeeId, setEmployeeId] = useState("");
-  const [status, setStatus] = useState(1); // القيمة الافتراضية للحالة
+  const [status, setStatus] = useState(1);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [message, setMessage] = useState(""); // لإظهار الرسائل بعد الإرسال
+  const [message, setMessage] = useState(""); 
+  const [employees, setEmployees] = useState([]);
+
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      const token = localStorage.getItem("token");
+
+      try {
+        const response = await fetch("https://inout-api.octopusteam.net/api/front/getEmployees",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const data = await response.json();
+        if (data.status === 200) {
+          setEmployees(data.data);
+        } else {
+          setMessage("Failed to load employees.");
+        }
+      } catch (error) {
+        console.error("Error fetching employees:", error);
+        setMessage("Failed to load employees. Please try again.");
+      }
+    };
+
+    fetchEmployees();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -57,18 +87,13 @@ const AddNewTask = () => {
 
   return (
     <div className="container mt-5">
-      <h2 className="text-center font-bold text-3xl text-black">
-        Add New Task
-      </h2>
+      <h2 className="text-center font-bold text-3xl text-black">Add New Task</h2>
 
       {message && <p className="text-center text-lg">{message}</p>}
 
       <form onSubmit={handleSubmit} className="max-w-lg mx-auto mt-4">
         <div className="mb-4">
-          <label
-            htmlFor="taskName"
-            className="block text-lg font-semibold text-gray-700"
-          >
+          <label htmlFor="taskName" className="block text-lg font-semibold text-gray-700">
             Task Name
           </label>
           <input
@@ -82,27 +107,26 @@ const AddNewTask = () => {
         </div>
 
         <div className="mb-4">
-          <label
-            htmlFor="employeeId"
-            className="block text-lg font-semibold text-gray-700"
-          >
-            Employee ID
+          <label htmlFor="employeeId" className="block text-lg font-semibold text-gray-700">
+            Employee
           </label>
-          <input
-            type="number"
+          <select
             id="employeeId"
             value={employeeId}
             onChange={(e) => setEmployeeId(e.target.value)}
             className="w-full px-4 py-2 border rounded-md"
-            placeholder="Enter employee ID"
-          />
+          >
+            <option value="">Select Employee</option>
+            {employees.map((employee) => (
+              <option key={employee.id} value={employee.id}>
+                {employee.full_name}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="mb-4">
-          <label
-            htmlFor="status"
-            className="block text-lg font-semibold text-gray-700"
-          >
+          <label htmlFor="status" className="block text-lg font-semibold text-gray-700">
             Status
           </label>
           <select
@@ -117,10 +141,7 @@ const AddNewTask = () => {
         </div>
 
         <div className="mb-4">
-          <label
-            htmlFor="startDate"
-            className="block text-lg font-semibold text-gray-700"
-          >
+          <label htmlFor="startDate" className="block text-lg font-semibold text-gray-700">
             Start Date
           </label>
           <input
@@ -133,10 +154,7 @@ const AddNewTask = () => {
         </div>
 
         <div className="mb-4">
-          <label
-            htmlFor="endDate"
-            className="block text-lg font-semibold text-gray-700"
-          >
+          <label htmlFor="endDate" className="block text-lg font-semibold text-gray-700">
             End Date
           </label>
           <input

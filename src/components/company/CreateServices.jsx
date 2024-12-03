@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const CreateServices = () => {
   const [serviceName, setServiceName] = useState('');
-  const [responseMessage, setResponseMessage] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -23,20 +24,21 @@ const CreateServices = () => {
       const result = await response.json();
 
       if (response.ok) {
-        setResponseMessage(result.msg);
+        toast.success(result.msg || 'Service added successfully!');
         setServiceName('');
-        navigate('/company/Services');
+        setTimeout(() => navigate('/company/Services'), 2000); // Navigate after 2 seconds
       } else {
-        setResponseMessage(result.msg || 'An error occurred while adding the service.');
+        toast.error(result.msg || 'An error occurred while adding the service.');
       }
     } catch (error) {
       console.error('Error:', error);
-      setResponseMessage('An error occurred while adding the service.');
+      toast.error('An error occurred while adding the service.');
     }
   };
 
   return (
     <div className="flex dark:bg-slate-950 justify-center items-center h-screen bg-gray-100">
+      <ToastContainer />
       <div className="service dark:bg-slate-800 p-8 rounded shadow-md w-full max-w-md">
         <h1 className="text-2xl font-bold mb-6 text-center">Create Service</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -60,9 +62,6 @@ const CreateServices = () => {
             Add Service
           </button>
         </form>
-        {responseMessage && (
-          <p className="mt-4 text-center text-green-600 font-medium">{responseMessage}</p>
-        )}
       </div>
     </div>
   );

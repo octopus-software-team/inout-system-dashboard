@@ -17,6 +17,12 @@ const UpdateBranch = () => {
     longitude: branchData.longitude,
   });
 
+  const [errors, setErrors] = useState({
+    name: "",
+    latitude: "",
+    longitude: "",
+  });
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -25,8 +31,33 @@ const UpdateBranch = () => {
     }));
   };
 
+  const validate = () => {
+    const newErrors = {};
+
+    if (!formData.name.trim()) {
+      newErrors.name = "Name is required.";
+    }
+
+    if (isNaN(formData.latitude) || formData.latitude === "") {
+      newErrors.latitude = "Invalid latitude.";
+    }
+
+    if (isNaN(formData.longitude) || formData.longitude === "") {
+      newErrors.longitude = "Invalid longitude.";
+    }
+
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (!validate()) {
+      return;
+    }
+
     const token = localStorage.getItem("token");
 
     if (!token) {
@@ -63,7 +94,7 @@ const UpdateBranch = () => {
       })
       .then((resData) => {
         alert(resData.msg || "Branch updated successfully.");
-        navigate("/company/branchs"); // الانتقال إلى صفحة الفروع بعد التحديث
+        navigate("/company/branchs"); 
       })
       .catch((err) => {
         console.error("Error updating branch:", err);
@@ -91,6 +122,7 @@ const UpdateBranch = () => {
             className="w-full dark:bg-slate-900 dark:text-white px-4 py-2 border border-gray-300 rounded-lg"
             required
           />
+          {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 font-medium mb-2" htmlFor="latitude">
@@ -105,6 +137,7 @@ const UpdateBranch = () => {
             className="w-full px-4 dark:bg-slate-900 dark:text-white py-2 border border-gray-300 rounded-lg"
             required
           />
+          {errors.latitude && <p className="text-red-500 text-sm">{errors.latitude}</p>}
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 font-medium mb-2" htmlFor="longitude">
@@ -119,6 +152,7 @@ const UpdateBranch = () => {
             className="w-full px-4 dark:bg-slate-900 dark:text-white py-2 border border-gray-300 rounded-lg"
             required
           />
+          {errors.longitude && <p className="text-red-500 text-sm">{errors.longitude}</p>}
         </div>
         <div className="text-center">
           <button

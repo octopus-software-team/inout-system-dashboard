@@ -97,9 +97,6 @@ const AddMaterials = () => {
               <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
                 Asset Type
               </th>
-              <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
-                QR Code
-              </th>
               <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-right font-semibold text-lg border-b border-gray-300">
                 Actions
               </th>
@@ -123,13 +120,6 @@ const AddMaterials = () => {
                   <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">{d.name}</td>
                   <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">
                     {d.asset_type_id || "N/A"}
-                  </td>
-                  <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">
-                    {d.qrcode ? (
-                      <img src={d.qrcode} alt="QR Code" className="w-16 h-16" />
-                    ) : (
-                      "No QR Code"
-                    )}
                   </td>
                   <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-right space-x-2">
                     <button
