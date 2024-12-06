@@ -129,12 +129,6 @@ const ShowAllProjects = () => {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        {/* <Link
-          to="/allprojects/createproject"
-          className="bg-gradient-to-r from-blue-500 to-green-500 text-white font-semibold py-2 px-6 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
-        >
-          + Create Project
-        </Link> */}
       </div>
 
       {isLoading ? (

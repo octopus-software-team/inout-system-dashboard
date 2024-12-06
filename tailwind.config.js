@@ -7,7 +7,7 @@ module.exports = {
         'spin-slow': 'spin 3s linear infinite',
       },
       colors: {
-        'custom-gray': '#6e7891', // اسم اللون الذي تريده
+        'custom-gray': '#6e7891',
       },
     },
   },

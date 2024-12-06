@@ -84,10 +84,9 @@ const AddEngineer = () => {
     if (type === "file") {
       setFormData({ ...formData, [id]: files[0] });
 
-      // إضافة تحديث المعاينة للصورة
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreview(reader.result); // تحديث المعاينة
+        setImagePreview(reader.result);
       };
       if (files[0]) {
         reader.readAsDataURL(files[0]);
@@ -117,7 +116,7 @@ const AddEngineer = () => {
         {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${token}`, // أضف التوكن هنا
+            Authorization: `Bearer ${token}`,
           },
           body: formDataToSend,
         }
