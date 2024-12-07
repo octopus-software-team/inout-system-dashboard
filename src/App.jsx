@@ -59,6 +59,8 @@ import EditEmp from "./components/company/EditEmp";
 import CreateEmpFiles from "./components/company/CreateEmpFiles";
 import CreateConsultive from "./components/customers/CreateConsultive";
 import AddRepo from "./components/allProjects/AddRepo";
+import CreateOwner from "./components/customers/CreateOwner";
+import EditOwner from "./components/customers/EditOwner";
 
 const PrivateRoute = ({ element: Component }) => {
   const isLoggedIn = localStorage.getItem("token"); // Check if the user is logged in
@@ -258,6 +260,10 @@ function App() {
               path="/customers/owner"
               element={<PrivateRoute element={<Owner />} />}
             />
+             <Route
+              path="/customers/editowner"
+              element={<PrivateRoute element={<EditOwner />} />}
+            />
             <Route
               path="/customers/consaltative"
               element={<PrivateRoute element={<Consaltative />} />}
@@ -265,6 +271,10 @@ function App() {
              <Route
               path="/customers/createconsultive"
               element={<PrivateRoute element={<CreateConsultive />} />}
+            />
+             <Route
+              path="/customers/createowner"
+              element={<PrivateRoute element={<CreateOwner />} />}
             />
             <Route
               path="/todo/addnewtask"

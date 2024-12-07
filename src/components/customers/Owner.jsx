@@ -1,4 +1,3 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
@@ -9,6 +8,8 @@ const Owner = () => {
   const [sortedColumn, setSortedColumn] = useState(null);
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
+
+  const token = localStorage.getItem("token");
 
   const sorting = (col) => {
     let sorted = [];
@@ -28,9 +29,22 @@ const Owner = () => {
   };
 
   useEffect(() => {
-    axios
-      .get("http://localhost:3030/users")
-      .then((res) => setData(res.data))
+    fetch("https://inout-api.octopusteam.net/api/front/getOwners", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+     
+      },
+    })
+      .then((res) => res.json())
+      .then((result) => {
+        if (result.status === 200) {
+          setData(result.data);
+        } else {
+          console.log("Failed to fetch data:", result.msg);
+        }
+      })
       .catch((err) => console.log(err));
   }, []);
 
@@ -39,6 +53,28 @@ const Owner = () => {
       return order === "ASC" ? <span>&#9650;</span> : <span>&#9660;</span>;
     }
     return "";
+  };
+
+  const handleDelete = (id) => {
+    const confirm = window.confirm("Do you like to delete");
+    if (confirm) {
+      fetch(`https://inout-api.octopusteam.net/api/front/deleteOwner/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((res) => res.json())
+        .then((result) => {
+          if (result.status === 200) {
+            alert("Record deleted");
+            setData(data.filter((item) => item.id !== id));
+          } else {
+            alert("Failed to delete record");
+          }
+        })
+        .catch((err) => console.log(err));
+    }
   };
 
   return (
@@ -53,7 +89,7 @@ const Owner = () => {
           placeholder="search"
         />
         <Link
-          to="/create"
+          to="/customers/createowner"
           className="bg-slate-500 text-white font-semibold py-2 px-4 rounded hover:bg-slate-700 w-80 text-center"
         >
           Create +
@@ -67,8 +103,8 @@ const Owner = () => {
             <th onClick={() => sorting("name")}>
               Name {renderSortIcon("name")}
             </th>
-            <th onClick={() => sorting("phoneNumber")}>
-              Phone Number {renderSortIcon("phoneNumber")}
+            <th onClick={() => sorting("phone")}>
+              Phone Number {renderSortIcon("phone")}
             </th>
             <th>Action</th>
           </tr>
@@ -84,10 +120,10 @@ const Owner = () => {
               <tr key={i}>
                 <td>{d.id}</td>
                 <td>{d.name}</td>
-                <td>{d.phoneNumber}</td>
+                <td>{d.phone}</td>
                 <td>
                   <Link
-                    to={`/update/${d.id}`}
+                    to={`/customers/editowner/${d.id}`}
                     className="bg-green-800 text-white font-semibold py-2 px-4 rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-700 inline-flex items-center"
                   >
                     <FaEdit className="mr-2 text-white w-4 h-4" />
@@ -107,16 +143,6 @@ const Owner = () => {
       </table>
     </div>
   );
-
-  function handleDelete(id) {
-    const confirm = window.confirm("Do you like to delete");
-    if (confirm) {
-      axios.delete("http://localhost:3030/users/" + id).then((res) => {
-        alert("record deleted");
-        navigate("/company/services");
-      });
-    }
-  }
 };
 
 export default Owner;
