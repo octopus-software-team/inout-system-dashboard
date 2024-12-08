@@ -1,147 +1,123 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const CreateConsultive = () => {
-  const [projectId, setProjectId] = useState("");  
-  const [consultiveId, setConsultiveId] = useState("");  
-  const [projects, setProjects] = useState([]);  
-  const [consultives, setConsultives] = useState([]);  
-  const [message, setMessage] = useState("");  
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchProjects = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        alert("No token found. Please log in.");
-        return;
-      }
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    type: 2, // Consultant by default
+  });
 
-      try {
-        const response = await fetch("https://inout-api.octopusteam.net/api/front/getProjects", {
-          method: "GET",
-          headers: {
-            "Authorization": `Bearer ${token}`,
-          },
-        });
-        const result = await response.json();
-        if (result.status === 200) {
-          setProjects(result.data);
-        } else {
-          setMessage("Failed to fetch projects.");
-        }
-      } catch (error) {
-        setMessage("Error fetching projects.");
-      }
-    };
+  const [errors, setErrors] = useState({}); 
 
-    fetchProjects();
-  }, []);
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
 
-  useEffect(() => {
-    const fetchConsultives = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        alert("No token found. Please log in.");
-        return;
-      }
-
-      try {
-        const response = await fetch("https://inout-api.octopusteam.net/api/front/getProjectConsultives", {
-          method: "GET",
-          headers: {
-            "Authorization": `Bearer ${token}`,
-          },
-        });
-        const result = await response.json();
-        if (result.status === 200) {
-          setConsultives(result.data);
-        } else {
-          setMessage("Failed to fetch consultives.");
-        }
-      } catch (error) {
-        setMessage("Error fetching consultives.");
-      }
-    };
-
-    fetchConsultives();
-  }, []);
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
 
-    const data = {
-      project_id: projectId,
-      consultive_id: consultiveId,
-    };
-
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch("https://inout-api.octopusteam.net/api/front/addProjectConsultive", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-
-      const result = await response.json();
-      if (result.status === 200) {
-        setMessage("Consultive added successfully!");
-        navigate("/customers/consaltative");
-      } else {
-        setMessage("Failed to add consultive.");
-      }
-    } catch (error) {
-      setMessage("Error submitting the form.");
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('No token found. Please log in.');
+      return;
     }
+
+    fetch('https://inout-api.octopusteam.net/api/front/addCustomer', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(formData),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.status === 200) {
+          alert('Consultative added successfully');
+          navigate("/customers/consaltative");
+          setFormData({
+            name: '',
+            email: '',
+            phone: '',
+            type: 2, 
+          });
+          setErrors({}); 
+        } else {
+          setErrors(data.data);
+        }
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+        alert('An error occurred');
+      });
   };
 
   return (
     <div className="container mt-5">
-      <h2 className="text-center font-bold text-2xl">Create Project Consultive</h2>
-
+      <h2 className="text-center font-bold text-2xl">Create Consultative</h2>
       <form onSubmit={handleSubmit} className="max-w-lg mx-auto mt-5">
-        {message && <div className="text-center mb-4 text-red-500">{message}</div>}
-
         <div className="mb-4">
-          <label htmlFor="project_id" className="block text-lg font-semibold">Select Project</label>
-          <select
-            id="project_id"
-            value={projectId}
-            onChange={(e) => setProjectId(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-lg"
-          >
-            <option value="">Select a project</option>
-            {projects.map((project) => (
-              <option key={project.id} value={project.id}>
-                {project.name}
-              </option>
-            ))}
-          </select>
+          <label htmlFor="name" className="block text-lg font-semibold">Name</label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
         </div>
 
         <div className="mb-4">
-          <label htmlFor="consultive_id" className="block text-lg font-semibold">Select Consultive</label>
-          <select
-            id="consultive_id"
-            value={consultiveId}
-            onChange={(e) => setConsultiveId(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-lg"
-          >
-            <option value="">Select a consultive</option>
-            {consultives.map((consultive) => (
-              <option key={consultive.id} value="m02">
-                Consultive ID: m02
-              </option>
-            ))}
-          </select>
+          <label htmlFor="email" className="block text-lg font-semibold">Email</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            className={`w-full px-4 py-2 border ${errors.email ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500`}
+            required
+          />
+          {errors.email && <p className="text-red-500 text-sm">{errors.email[0]}</p>}
         </div>
 
-        <div className="mb-4 text-center">
-          <button type="submit" className="bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700">
-            Submit
+        <div className="mb-4">
+          <label htmlFor="phone" className="block text-lg font-semibold">Phone</label>
+          <input
+            type="tel"
+            id="phone"
+            name="phone"
+            value={formData.phone}
+            onChange={handleChange}
+            className={`w-full px-4 py-2 border ${errors.phone ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500`}
+            required
+          />
+          {errors.phone && <p className="text-red-500 text-sm">{errors.phone[0]}</p>}
+        </div>
+
+        <input
+          type="hidden"
+          id="type"
+          name="type"
+          value={formData.type}
+        />
+
+        <div className="mt-6 text-center">
+          <button
+            type="submit"
+            className="bg-gradient-to-r from-blue-500 to-green-500 text-white font-semibold py-2 px-6 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
+          >
+            Create Consultative
           </button>
         </div>
       </form>

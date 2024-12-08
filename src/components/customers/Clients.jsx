@@ -84,7 +84,6 @@ const Clients = () => {
     const selectedClient = data.find((client) => client.id === id);
     navigate(`/customers/updateclients`, { state: selectedClient });
   };
-  
 
   const handleDelete = (id) => {
     const token = localStorage.getItem("token");
@@ -94,13 +93,16 @@ const Clients = () => {
     }
 
     if (window.confirm("Are you sure you want to delete this client?")) {
-      fetch(`https://inout-api.octopusteam.net/api/front/deleteCustomer/${id}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      })
+      fetch(
+        `https://inout-api.octopusteam.net/api/front/deleteCustomer/${id}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
         .then((res) => {
           if (!res.ok) {
             throw new Error("Failed to delete client.");
@@ -120,11 +122,13 @@ const Clients = () => {
 
   return (
     <div className="container mt-5">
-      <h2 className="text-center font-bold text-3xl text-black">Clients</h2>
+      <h2 className="text-center font-bold text-3xl dark:text-white">
+        Clients
+      </h2>
 
       <div className="flex justify-between items-center my-4">
         <input
-          className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-2/3 shadow-md"
+          className="border border-gray-300 dark:bg-slate-900 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-2/3 shadow-md"
           type="text"
           placeholder="Search clients..."
           value={search}
@@ -152,34 +156,34 @@ const Clients = () => {
             <thead>
               <tr className="bg-gradient-to-r from-blue-600 to-blue-400 text-white">
                 <th
-                  className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300"
+                  className="px-4 dark:bg-slate-900 text-white py-3 text-left font-semibold text-lg border-b border-gray-300"
                   onClick={() => sorting("id")}
                   aria-sort={order === "ASC" ? "ascending" : "descending"}
                 >
                   ID {renderSortIcon("id")}
                 </th>
                 <th
-                  className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300"
+                  className="px-4 dark:bg-slate-900 text-white py-3 text-left font-semibold text-lg border-b border-gray-300"
                   onClick={() => sorting("name")}
                   aria-sort={order === "ASC" ? "ascending" : "descending"}
                 >
                   Name {renderSortIcon("name")}
                 </th>
                 <th
-                  className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300"
+                  className="px-4  py-3 dark:bg-slate-900 text-white text-left font-semibold text-lg border-b border-gray-300"
                   onClick={() => sorting("email")}
                   aria-sort={order === "ASC" ? "ascending" : "descending"}
                 >
                   Email {renderSortIcon("email")}
                 </th>
                 <th
-                  className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300"
+                  className="px-4 dark:bg-slate-900 text-white py-3 text-left font-semibold text-lg border-b border-gray-300"
                   onClick={() => sorting("phone")}
                   aria-sort={order === "ASC" ? "ascending" : "descending"}
                 >
                   Phone {renderSortIcon("phone")}
                 </th>
-                <th className="px-4 py-3 text-right font-semibold text-lg border-b border-gray-300">
+                <th className="px-4 dark:bg-slate-900 text-white py-3 text-right font-semibold text-lg border-b border-gray-300">
                   Actions
                 </th>
               </tr>
@@ -198,11 +202,13 @@ const Clients = () => {
                       index % 2 === 0 ? "bg-gray-50" : "bg-white"
                     }`}
                   >
-                    <td className="px-4 py-3 text-gray-800">{d.id}</td>
-                    <td className="px-4 py-3 text-gray-800">{d.name}</td>
-                    <td className="px-4 py-3 text-gray-800">{d.email}</td>
-                    <td className="px-4 py-3 text-gray-800">{d.phone}</td>
-                    <td className="px-4 py-3 text-right space-x-2">
+                    <td className="px-4 dark:bg-slate-900 text-white  py-3 ">
+                      {d.id}
+                    </td>
+                    <td className="px-4 py-3 dark:bg-slate-900 text-white">{d.name}</td>
+                    <td className="px-4 py-3 dark:bg-slate-900 text-white">{d.email}</td>
+                    <td className="px-4 py-3 dark:bg-slate-900 text-white">{d.phone}</td>
+                    <td className="px-4 py-3 text-right space-x-2 dark:bg-slate-900 text-white">
                       <button
                         onClick={() => handleEdit(d.id)}
                         className="bg-green-600 text-white font-semibold py-2 px-4 rounded-lg hover:shadow-md transform hover:scale-105 transition duration-300"

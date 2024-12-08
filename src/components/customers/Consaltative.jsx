@@ -9,9 +9,8 @@ const Consultative = () => {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
 
-  // Fetch data with token from the new API (getCustomers)
   useEffect(() => {
-    const token = localStorage.getItem("token"); // Get token from localStorage
+    const token = localStorage.getItem("token"); 
     if (!token) {
       alert("No token found. Please log in.");
       return;
@@ -26,7 +25,7 @@ const Consultative = () => {
       .then((response) => response.json())
       .then((res) => {
         if (res.data) {
-          setData(res.data); // Set the customer data from API
+          setData(res.data); 
         } else {
           alert("No data found in the response.");
         }
@@ -67,12 +66,15 @@ const Consultative = () => {
 
     const confirm = window.confirm("Do you like to delete?");
     if (confirm) {
-      fetch(`https://inout-api.octopusteam.net/api/front/deleteProjectConsultive/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+      fetch(
+        `https://inout-api.octopusteam.net/api/front/deleteProjectConsultive/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
         .then(() => {
           alert("Record deleted successfully.");
           setData(data.filter((item) => item.id !== id));
@@ -83,68 +85,89 @@ const Consultative = () => {
 
   return (
     <div className="container mt-5">
-      <h2 className="text-center font-bold text-2xl">Consultatives</h2>
+      <h2 className="text-center font-bold text-2xl text-gray-800">
+        Consultatives
+      </h2>
 
-      <div className="flex justify-end my-3">
+      <div className="flex justify-between items-center my-4">
         <input
-          className="mr-auto border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-96"
-          onChange={(e) => setSearch(e.target.value)}
+          className="border border-gray-300 dark:bg-slate-900 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-2/3 shadow-md"
           type="text"
-          placeholder="Search"
+          placeholder="Search clients..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
         />
         <Link
           to="/customers/createconsultive"
-          className="bg-slate-500 text-white font-semibold py-2 px-4 rounded hover:bg-slate-700 w-80 text-center"
+          className="bg-gradient-to-r from-blue-500 to-green-500 text-white font-semibold py-2 px-6 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
         >
-          Create +
+          + Create Consultive
         </Link>
       </div>
 
-      <table className="table">
-        <thead>
-          <tr>
-            <th onClick={() => sorting("id")}>ID {renderSortIcon("id")}</th>
-            <th onClick={() => sorting("name")}>
-              Name {renderSortIcon("name")}
-            </th>
-            <th onClick={() => sorting("phone")}>
-              Phone Number {renderSortIcon("phone")}
-            </th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data
-            .filter((item) =>
-              search.toLowerCase() === ""
-                ? item
-                : item.name.toLowerCase().includes(search.toLowerCase())
-            )
-            .map((item) => (
-              <tr key={item.id}>
-                <td>{item.id}</td>
-                <td>{item.name}</td>
-                <td>{item.phone}</td>
-                <td>
-                  <Link
-                    to={`/update/${item.id}`}
-                    className="bg-green-800 text-white font-semibold py-2 px-4 rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-700 inline-flex items-center"
-                  >
-                    <FaEdit className="mr-2 text-white w-4 h-4" />
-                    Edit
-                  </Link>
-                  <button
-                    onClick={() => handleDelete(item.id)}
-                    className="bg-red-600 text-white font-semibold py-2 px-4 rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-700 ml-2 inline-flex items-center"
-                  >
-                    <FaTrash className="mr-2 text-white w-4 h-4" />
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-        </tbody>
-      </table>
+      <div className="overflow-x-auto shadow-lg rounded-lg w-full mx-auto">
+        <table className="table-auto w-full border-collapse border border-gray-200 rounded-lg">
+          <thead>
+            <tr className="text-white bg-gradient-to-r from-blue-600 to-blue-400">
+              <th
+                onClick={() => sorting("id")}
+                className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
+              >
+                ID {renderSortIcon("id")}
+              </th>
+              <th
+                onClick={() => sorting("name")}
+                className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
+              >
+                Name {renderSortIcon("name")}
+              </th>
+              <th
+                onClick={() => sorting("phone")}
+                className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
+              >
+                Phone Number {renderSortIcon("phone")}
+              </th>
+              <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-center font-semibold text-lg border-b border-gray-300">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {data
+              .filter((item) =>
+                search.toLowerCase() === ""
+                  ? item
+                  : item.name.toLowerCase().includes(search.toLowerCase())
+              )
+              .map((item) => (
+                <tr
+                  key={item.id}
+                  className="hover:bg-gray-100 transition duration-200"
+                >
+                  <td className="px-4 py-3 dark:text-white text-gray-800">{item.id}</td>
+                  <td className="px-4 py-3 dark:text-white text-gray-800">{item.name}</td>
+                  <td className="px-4 py-3 dark:text-white text-gray-800">{item.phone}</td>
+                  <td className="px-4 py-3 dark:text-white text-center">
+                    <Link
+                      to={`/update/${item.id}`}
+                      className="bg-green-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-500 transform hover:scale-105 transition duration-300"
+                    >
+                      <FaEdit className="inline mr-2" />
+                      Edit
+                    </Link>
+                    <button
+                      onClick={() => handleDelete(item.id)}
+                      className="bg-red-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-red-500 ml-2 transform hover:scale-105 transition duration-300"
+                    >
+                      <FaTrash className="inline mr-2" />
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
