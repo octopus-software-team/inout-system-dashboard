@@ -163,7 +163,7 @@ const Clients = () => {
                   ID {renderSortIcon("id")}
                 </th>
                 <th
-                  className="px-4 dark:bg-slate-900 text-white py-3 text-left font-semibold text-lg border-b border-gray-300"
+                  className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300"
                   onClick={() => sorting("name")}
                   aria-sort={order === "ASC" ? "ascending" : "descending"}
                 >
@@ -202,13 +202,13 @@ const Clients = () => {
                       index % 2 === 0 ? "bg-gray-50" : "bg-white"
                     }`}
                   >
-                    <td className="px-4 dark:bg-slate-900 text-white  py-3 ">
+                    <td className="px-4 dark:bg-slate-900  py-3 ">
                       {d.id}
                     </td>
-                    <td className="px-4 py-3 dark:bg-slate-900 text-white">{d.name}</td>
-                    <td className="px-4 py-3 dark:bg-slate-900 text-white">{d.email}</td>
-                    <td className="px-4 py-3 dark:bg-slate-900 text-white">{d.phone}</td>
-                    <td className="px-4 py-3 text-right space-x-2 dark:bg-slate-900 text-white">
+                    <td className="px-4 py-3 dark:bg-slate-900">{d.name}</td>
+                    <td className="px-4 py-3 dark:bg-slate-900 ">{d.email}</td>
+                    <td className="px-4 py-3 dark:bg-slate-900 ">{d.phone}</td>
+                    <td className="px-4 py-3 text-right space-x-2 dark:bg-slate-900 ">
                       <button
                         onClick={() => handleEdit(d.id)}
                         className="bg-green-600 text-white font-semibold py-2 px-4 rounded-lg hover:shadow-md transform hover:scale-105 transition duration-300"

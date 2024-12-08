@@ -94,11 +94,20 @@ const Branchs = () => {
     }
   };
 
+  
+
+  const openMapp = (latitude, longitude) => {
+    const url = `https://www.google.com/maps?q=${latitude},${longitude}`;
+
+    // Open the URL in a new window/tab
+    window.open(url, "_blank");
+  };
+
   // عرض الخريطة للموقع المحدد
   const handleViewMap = (latitude, longitude, branchData) => {
     setSelectedBranch(branchData);
     setOpenMap(true);
-    setLocation({ lat: latitude, lng: longitude });  // تحديد الموقع على الخريطة
+    setLocation({ lat: latitude, lng: longitude });
   };
 
   return (
@@ -161,7 +170,7 @@ const Branchs = () => {
                   </td>
                   <td className="px-4 py-3 dark:text-white dark:bg-slate-900 text-gray-800">
                     <button
-                      onClick={() => handleViewMap(d.latitude, d.longitude, d)}
+                      onClick={() => openMapp(d.latitude, d.longitude)}
                       className="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:shadow-md transform hover:scale-105 transition duration-300"
                     >
                       View on Map
@@ -200,13 +209,13 @@ const Branchs = () => {
             Close Map
           </button>
           <MapPicker
-            defaultLocation={location}  
+            defaultLocation={location}
             zoom={zoom}
             mapTypeId="roadmap"
             style={{ height: "700px" }}
             onChangeLocation={handleChangeLocation}
             onChangeZoom={handleChangeZoom}
-            apiKey="AIzaSyD07E1VvpsN_0FvsmKAj4nK9GnLq-9jtj8"  
+            apiKey="AIzaSyD07E1VvpsN_0FvsmKAj4nK9GnLq-9jtj8"
           />
           <div>
             <label>Latitude:</label>

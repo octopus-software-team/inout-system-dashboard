@@ -261,7 +261,7 @@ function App() {
               element={<PrivateRoute element={<Owner />} />}
             />
              <Route
-              path="/customers/editowner"
+              path="/customers/editowner/:id"
               element={<PrivateRoute element={<EditOwner />} />}
             />
             <Route

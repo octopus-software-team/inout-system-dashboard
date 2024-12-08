@@ -17,7 +17,8 @@ const UpdateProject = () => {
     status: "",
     inspection_engineer_id: "",
   });
-
+  const [loading, setLoading] = useState(true);  // حالة التحميل
+  const [error, setError] = useState(null);  // حالة الخطأ
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -35,14 +36,15 @@ const UpdateProject = () => {
           if (project) {
             setFormData(project); // تعيين بيانات المشروع
           } else {
-            console.error("Project not found");
+            setError("Project not found");
           }
         } else {
-          console.error("Failed to fetch projects:", res.msg);
+          setError(`Failed to fetch projects: ${res.msg}`);
         }
       })
-      .catch((err) => console.error("Error fetching projects:", err));
-  },);
+      .catch((err) => setError(`Error fetching projects: ${err.message}`))
+      .finally(() => setLoading(false));  // انتهاء التحميل
+  }, [id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -52,8 +54,16 @@ const UpdateProject = () => {
   const handleSubmit = (e) => {
     const token = localStorage.getItem('token');
     e.preventDefault();
-    fetch(`https://inout-api.octopusteam.net/api/front/updateProject/${id}`, {
 
+    // تحقق من أن جميع الحقول الأساسية مليئة
+    if (!formData.name) {
+      alert("Please enter the project name");
+      return;
+    }
+
+    setLoading(true);  // تفعيل حالة التحميل
+
+    fetch(`https://inout-api.octopusteam.net/api/front/updateProject/${id}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -70,8 +80,17 @@ const UpdateProject = () => {
           alert(`Failed to update project: ${res.msg}`);
         }
       })
-      .catch((err) => console.error("Error updating project:", err));
+      .catch((err) => setError(`Error updating project: ${err.message}`))
+      .finally(() => setLoading(false));  // انتهاء التحميل
   };
+
+  if (loading) {
+    return <div>Loading...</div>;  // عرض النص أثناء التحميل
+  }
+
+  if (error) {
+    return <div className="error">{error}</div>;  // عرض رسالة الخطأ إذا كان هناك خطأ
+  }
 
   return (
     <div className="container mt-5">

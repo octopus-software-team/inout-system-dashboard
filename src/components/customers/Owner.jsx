@@ -65,24 +65,28 @@ const Owner = () => {
   };
 
   const handleDelete = (id) => {
-    const confirm = window.confirm("Do you like to delete");
+    const confirm = window.confirm("Are you sure you want to delete this owner?");
     if (confirm) {
-      fetch(`https://inout-api.octopusteam.net/api/front/deleteOwner/${id}`, {
+      fetch(`https://inout-api.octopusteam.net/api/front/deleteCustomer/${id}`, {
         method: "POST",
         headers: {
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       })
         .then((res) => res.json())
         .then((result) => {
           if (result.status === 200) {
-            alert("Record deleted");
-            setData(data.filter((item) => item.id !== id));
+            alert("Owner deleted successfully");
+            setData(data.filter((item) => item.id !== id)); // Remove deleted item from the state
           } else {
-            alert("Failed to delete record");
+            alert("Failed to delete owner.");
           }
         })
-        .catch((err) => console.log(err));
+        .catch((err) => {
+          console.log(err);
+          alert("An error occurred while deleting the owner.");
+        });
     }
   };
 

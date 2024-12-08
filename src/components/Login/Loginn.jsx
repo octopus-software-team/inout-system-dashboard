@@ -14,7 +14,6 @@ function Loginn() {
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -40,7 +39,14 @@ function Loginn() {
           navigate("/home");
         }, 2000);
       } else {
-        setError(data.msg || "Login failed. Please check your credentials.");
+        if (data.data && data.data.email) {
+          setError(data.data.email.join(", "));
+        }
+        else if (response.status === 400 && data.msg === "failed to login") {
+          setError("Failed to login. Please check your password.");
+        } else {
+          setError(data.msg || "Login failed. Please check your credentials.");
+        }
       }
     } catch (error) {
       setError("An error occurred, please try again later.");
@@ -48,7 +54,6 @@ function Loginn() {
   };
 
   useEffect(() => {
-    // Disable scroll when modal is visible
     if (isLoginSuccessful) {
       document.body.style.overflow = "hidden";
     } else {
@@ -64,7 +69,9 @@ function Loginn() {
     <div className="flex justify-center items-center h-min mr-64 bg-gray-100 dark:bg-slate-950">
       <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8 space-y-6">
         <img className="w-24 mx-auto" src={logo4} alt="Logo" />
-        <h2 className="text-center text-2xl font-bold text-gray-800">Sign In</h2>
+        <h2 className="text-center text-2xl font-bold text-gray-800">
+          Sign In
+        </h2>
 
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">

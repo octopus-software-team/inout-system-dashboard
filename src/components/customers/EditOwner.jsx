@@ -2,19 +2,19 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
 const EditOwner = () => {
-  const { id } = useParams(); 
+  const { id } = useParams();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
-    type: 1, 
+    type: 1,
   });
 
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    fetch(`https://inout-api.octopusteam.net/api/front/getOwner/${id}`, {
+    fetch("https://inout-api.octopusteam.net/api/front/getOwners", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -24,14 +24,20 @@ const EditOwner = () => {
       .then((res) => res.json())
       .then((result) => {
         if (result.status === 200) {
-          setFormData({
-            name: result.data.name || "",
-            email: result.data.email || "",
-            phone: result.data.phone || "",
-            type: 1,
-          });
+          // تصفية البيانات للحصول على owner الذي يتطابق مع id
+          const owner = result.data.find((owner) => owner.id === parseInt(id));
+          if (owner) {
+            setFormData({
+              name: owner.name || "",
+              email: owner.email || "",
+              phone: owner.phone || "",
+              type: owner.type || 1, // تأكد من تعيين النوع بشكل صحيح
+            });
+          } else {
+            alert("Owner not found!");
+          }
         } else {
-          alert("Failed to fetch owner details: " + result.msg);
+          alert("Failed to fetch owners: " + result.msg);
         }
       })
       .catch((err) => console.error("Error fetching owner details:", err));
@@ -60,7 +66,7 @@ const EditOwner = () => {
       .then((result) => {
         if (result.status === 200) {
           alert("Owner updated successfully!");
-          navigate("/customers");
+          navigate("/customers/owner");
         } else {
           alert("Failed to update owner: " + result.msg);
         }
@@ -131,6 +137,7 @@ const EditOwner = () => {
           />
         </div>
 
+        {/* Hidden input for type */}
         <input type="hidden" name="type" value={formData.type} />
 
         <div className="text-center">

@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 
 const AddRepo = () => {
   const location = useLocation();
-  const { projectId } = location.state || {}; // Passing projectId from previous page
+  const { projectId } = location.state || {}; 
   const [reportType, setReportType] = useState("daily");
   const [reportStock, setReportStock] = useState("");
   const [isInspection, setIsInspection] = useState(1);
@@ -47,19 +47,19 @@ const AddRepo = () => {
   };
 
   return (
-    <div className="mt-10 flex justify-center items-center">
+    <div className="mt-10 flex justify-center items-center  dark:text-white">
       <form className="w-full max-w-sm" onSubmit={handleSubmit}>
         <input type="hidden" value={projectId} />
 
         <div className="mb-4">
-          <label htmlFor="reportType" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="reportType" className="blocktext-sm font-medium text-gray-700 dark:text-white">
             Report Type
           </label>
           <select
             id="reportType"
             value={reportType}
             onChange={(e) => setReportType(e.target.value)}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="mt-1 dark:bg-slate-900  block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500  dark:text-white dark:border-gray-600"
           >
             <option value="daily">Daily</option>
             <option value="weekly">Weekly</option>
@@ -68,7 +68,7 @@ const AddRepo = () => {
         </div>
 
         <div className="mb-4 flex items-center">
-          <label htmlFor="isInspection" className="mr-2 text-sm font-medium text-gray-700">
+          <label htmlFor="isInspection" className="mr-2 text-sm font-medium text-gray-700 dark:text-white">
             Is Inspection:
           </label>
           <input
@@ -83,7 +83,7 @@ const AddRepo = () => {
         {isInspection === 1 && (
           <>
             <div className="mb-4">
-              <label htmlFor="reportStock" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="reportStock" className="block text-sm font-medium text-gray-700 dark:text-white">
                 Report Stock
               </label>
               <textarea
@@ -91,13 +91,13 @@ const AddRepo = () => {
                 value={reportStock}
                 onChange={(e) => setReportStock(e.target.value)}
                 placeholder="Enter report stock"
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-900  dark:text-white dark:border-gray-600"
                 rows="3"
               ></textarea>
             </div>
 
             <div className="mb-4">
-              <label htmlFor="report" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="report" className="block text-sm font-medium text-gray-700 dark:text-white">
                 Report
               </label>
               <textarea
@@ -105,7 +105,7 @@ const AddRepo = () => {
                 value={report}
                 onChange={(e) => setReport(e.target.value)}
                 placeholder="Enter report"
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-900  dark:text-white dark:border-gray-600"
                 rows="4"
               ></textarea>
             </div>
@@ -114,7 +114,7 @@ const AddRepo = () => {
 
         <button
           type="submit"
-          className="w-full px-4 py-2 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-4 py-2 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-blue-600 dark:hover:bg-blue-700"
         >
           Submit
         </button>
