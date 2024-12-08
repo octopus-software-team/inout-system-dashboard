@@ -24,7 +24,12 @@ const EditOwner = () => {
       .then((res) => res.json())
       .then((result) => {
         if (result.status === 200) {
-          setFormData(result.data); 
+          setFormData({
+            name: result.data.name || "",
+            email: result.data.email || "",
+            phone: result.data.phone || "",
+            type: 1,
+          });
         } else {
           alert("Failed to fetch owner details: " + result.msg);
         }
@@ -55,7 +60,7 @@ const EditOwner = () => {
       .then((result) => {
         if (result.status === 200) {
           alert("Owner updated successfully!");
-          navigate("/customers"); 
+          navigate("/customers");
         } else {
           alert("Failed to update owner: " + result.msg);
         }

@@ -100,12 +100,3 @@ code {
   }
 }
 
-/* .branch {
-  background-color: white;
-}
-
-@layer base {
-  .branch {
-    @apply dark:bg-slate-900;
-  }
-} */

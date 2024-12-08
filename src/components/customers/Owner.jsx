@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const Owner = () => {
   const [data, setData] = useState([]);
   const [order, setOrder] = useState("ASC");
   const [sortedColumn, setSortedColumn] = useState(null);
-  const navigate = useNavigate();
   const [search, setSearch] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const token = localStorage.getItem("token");
 
@@ -29,24 +30,32 @@ const Owner = () => {
   };
 
   useEffect(() => {
-    fetch("https://inout-api.octopusteam.net/api/front/getOwners", {
+    if (!token) {
+      console.log("No token found, cannot fetch data.");
+      setError("No token found. Please log in.");
+      setIsLoading(false);
+      return;
+    }
+
+    fetch("https://inout-api.octopusteam.net/api/front/getCustomers", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
-     
       },
     })
       .then((res) => res.json())
       .then((result) => {
         if (result.status === 200) {
-          setData(result.data);
+          const owners = result.data.filter((item) => item.type === 1);
+          setData(owners);
         } else {
           console.log("Failed to fetch data:", result.msg);
         }
       })
-      .catch((err) => console.log(err));
-  }, []);
+      .catch((err) => console.log(err))
+      .finally(() => setIsLoading(false));
+  }, [token]);
 
   const renderSortIcon = (col) => {
     if (sortedColumn === col) {
@@ -59,7 +68,7 @@ const Owner = () => {
     const confirm = window.confirm("Do you like to delete");
     if (confirm) {
       fetch(`https://inout-api.octopusteam.net/api/front/deleteOwner/${id}`, {
-        method: "DELETE",
+        method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -79,68 +88,110 @@ const Owner = () => {
 
   return (
     <div className="container mt-5">
-      <h2 className="text-center font-bold text-2xl">Owner</h2>
+      <h2 className="text-center font-bold dark:text-white text-3xl">Owners</h2>
 
-      <div className="flex justify-end my-3">
+      <div className="flex justify-between items-center my-4">
         <input
-          className="mr-auto border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-96"
-          onChange={(e) => setSearch(e.target.value)}
+          className="border border-gray-300 dark:bg-slate-900  rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-2/3 shadow-md"
           type="text"
-          placeholder="search"
+          placeholder="Search owners..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
         />
         <Link
           to="/customers/createowner"
-          className="bg-slate-500 text-white font-semibold py-2 px-4 rounded hover:bg-slate-700 w-80 text-center"
+          className="bg-gradient-to-r from-blue-500 to-green-500 text-white font-semibold py-2 px-6 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
         >
-          Create +
+          + Create Owner
         </Link>
       </div>
 
-      <table className="table">
-        <thead>
-          <tr>
-            <th onClick={() => sorting("id")}>ID {renderSortIcon("id")}</th>
-            <th onClick={() => sorting("name")}>
-              Name {renderSortIcon("name")}
-            </th>
-            <th onClick={() => sorting("phone")}>
-              Phone Number {renderSortIcon("phone")}
-            </th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data
-            .filter((i) => {
-              return search.toLowerCase() === ""
-                ? i
-                : i.name.toLowerCase().includes(search);
-            })
-            .map((d, i) => (
-              <tr key={i}>
-                <td>{d.id}</td>
-                <td>{d.name}</td>
-                <td>{d.phone}</td>
-                <td>
-                  <Link
-                    to={`/customers/editowner/${d.id}`}
-                    className="bg-green-800 text-white font-semibold py-2 px-4 rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-700 inline-flex items-center"
-                  >
-                    <FaEdit className="mr-2 text-white w-4 h-4" />
-                    Edit
-                  </Link>
-                  <button
-                    onClick={() => handleDelete(d.id)}
-                    className="bg-red-600 text-white font-semibold py-2 px-4 rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-700 ml-2 inline-flex items-center"
-                  >
-                    <FaTrash className="mr-2 text-white w-4 h-4" />
-                    Delete
-                  </button>
-                </td>
+      {isLoading ? (
+        <div className="flex justify-center items-center">
+          <p className="text-blue-600 text-xl font-semibold">Loading...</p>
+        </div>
+      ) : error ? (
+        <p className="text-red-500 text-center">{error}</p>
+      ) : data.length === 0 ? (
+        <p className="text-center text-gray-600 text-lg">No owners found.</p>
+      ) : (
+        <div className="overflow-x-auto shadow-lg rounded-lg w-full mx-auto">
+          <table className="table-auto w-full border border-gray-200 bg-white rounded-lg">
+            <thead>
+              <tr className="bg-gradient-to-r from-blue-600 to-blue-400 text-white">
+                <th
+                  className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300"
+                  onClick={() => sorting("id")}
+                  aria-sort={order === "ASC" ? "ascending" : "descending"}
+                >
+                  ID {renderSortIcon("id")}
+                </th>
+                <th
+                  className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300"
+                  onClick={() => sorting("name")}
+                  aria-sort={order === "ASC" ? "ascending" : "descending"}
+                >
+                  Name {renderSortIcon("name")}
+                </th>
+                <th
+                  className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300"
+                  onClick={() => sorting("email")}
+                  aria-sort={order === "ASC" ? "ascending" : "descending"}
+                >
+                  Email {renderSortIcon("email")}
+                </th>
+                <th
+                  className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300"
+                  onClick={() => sorting("phone")}
+                  aria-sort={order === "ASC" ? "ascending" : "descending"}
+                >
+                  Phone {renderSortIcon("phone")}
+                </th>
+                <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-right font-semibold text-lg border-b border-gray-300">
+                  Actions
+                </th>
               </tr>
-            ))}
-        </tbody>
-      </table>
+            </thead>
+            <tbody>
+              {data
+                .filter((i) => {
+                  return search.toLowerCase() === ""
+                    ? i
+                    : i.name.toLowerCase().includes(search.toLowerCase());
+                })
+                .map((d, index) => (
+                  <tr
+                    key={d.id}
+                    className={`hover:bg-gray-100 transition duration-200 ${
+                      index % 2 === 0 ? "bg-gray-50" : "bg-white"
+                    }`}
+                  >
+                    <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">{d.id}</td>
+                    <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">{d.name}</td>
+                    <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">{d.email}</td>
+                    <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">{d.phone}</td>
+                    <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-right space-x-2">
+                      <Link
+                        to={`/customers/editowner/${d.id}`}
+                        className="bg-green-600 text-white font-semibold py-2 px-4 rounded-lg hover:shadow-md transform hover:scale-105 transition duration-300"
+                      >
+                        <FaEdit className="inline mr-2" />
+                        Edit
+                      </Link>
+                      <button
+                        onClick={() => handleDelete(d.id)}
+                        className="bg-red-600 text-white font-semibold py-2 px-4 rounded-lg hover:shadow-md transform hover:scale-105 transition duration-300"
+                      >
+                        <FaTrash className="inline mr-2" />
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,12 +1,18 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 
 const CreateOwner = () => {
+
+    const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
     type: 1,
   });
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -18,9 +24,26 @@ const CreateOwner = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const token = localStorage.getItem("token");
 
-    fetch("https://inout-api.octopusteam.net/api/front/createOwner", {
+    
+    if (!formData.name || !formData.email || !formData.phone) {
+      alert("All fields are required.");
+      return;
+    }
+
+    const phoneRegex = /^[0-9]{10,15}$/;
+    if (!phoneRegex.test(formData.phone)) {
+      alert("Please enter a valid phone number.");
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("You must be logged in to create an owner.");
+      return;
+    }
+
+    fetch("https://inout-api.octopusteam.net/api/front/addCustomer", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -28,10 +51,16 @@ const CreateOwner = () => {
       },
       body: JSON.stringify(formData),
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`Server error: ${res.statusText}`);
+        }
+        return res.json();
+      })
       .then((result) => {
         if (result.status === 200) {
           alert("Owner created successfully!");
+          navigate("/customers/owner");
           setFormData({
             name: "",
             email: "",
@@ -39,14 +68,17 @@ const CreateOwner = () => {
             type: 1,
           });
         } else {
-          alert("Failed to create owner: " + result.msg);
+          alert(`Failed to create owner: ${result.msg}`);
         }
       })
-      .catch((err) => console.error("Error:", err));
+      .catch((err) => {
+        alert(`An error occurred: ${err.message}`);
+        console.error(err);
+      });
   };
 
   return (
-    <div className="container mx-auto mt-10 p-6 max-w-lg bg-white shadow-lg rounded-lg">
+    <div className="service container mx-auto mt-10 p-6 max-w-lg  shadow-lg rounded-lg">
       <h2 className="text-center text-3xl font-bold text-blue-600 mb-6">
         Create Owner
       </h2>
@@ -59,7 +91,7 @@ const CreateOwner = () => {
             Name
           </label>
           <input
-            className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            className="w-full dark:bg-slate-900 dark:text-white border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
             id="name"
             type="text"
             name="name"
@@ -78,7 +110,7 @@ const CreateOwner = () => {
             Email
           </label>
           <input
-            className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            className="w-full dark:bg-slate-900 dark:text-white border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
             id="email"
             type="email"
             name="email"
@@ -97,7 +129,7 @@ const CreateOwner = () => {
             Phone
           </label>
           <input
-            className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            className="w-full dark:bg-slate-900 dark:text-white border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
             id="phone"
             type="text"
             name="phone"

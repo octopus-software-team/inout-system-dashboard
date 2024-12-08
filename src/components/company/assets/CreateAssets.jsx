@@ -4,24 +4,23 @@ import { useNavigate } from "react-router-dom";
 const CreateAssets = () => {
   const [name, setName] = useState("");
   const [assetTypeId, setAssetTypeId] = useState("");
-  const [assetTypes, setAssetTypes] = useState([]); // To store the asset types
+  const [assetTypes, setAssetTypes] = useState([]);
+  const [errors, setErrors] = useState({});
   const navigate = useNavigate();
 
-  // Fetch asset types with token
   useEffect(() => {
-    const token = localStorage.getItem("token"); // Get the token from localStorage
-
+    const token = localStorage.getItem("token");
     fetch("https://inout-api.octopusteam.net/api/front/getAssetTypes", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`, // Add the token in the Authorization header
+        Authorization: `Bearer ${token}`,
       },
     })
       .then((res) => res.json())
       .then((data) => {
         if (data.status === 200) {
-          setAssetTypes(data.data); // Store fetched asset types
+          setAssetTypes(data.data);
         } else {
           alert("Failed to load asset types");
         }
@@ -33,28 +32,33 @@ const CreateAssets = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const token = localStorage.getItem("token"); // Get the token from localStorage
+
+    if (!assetTypeId || assetTypeId === "id") {
+      setErrors({ asset_type_id: ["Please select a valid asset type"] });
+      return;
+    }
+
+    const token = localStorage.getItem("token");
 
     fetch("https://inout-api.octopusteam.net/api/front/addAsset", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`, // Add the token in the Authorization header
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
         name,
         asset_type_id: assetTypeId,
       }),
     })
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error("Failed to add asset");
-        }
-        return res.json();
-      })
+      .then((res) => res.json())
       .then((resData) => {
-        alert(resData.msg || "Asset added successfully");
-        navigate("/company/assets/addnewassets"); // Redirect to the assets list page
+        if (resData.status === 422) {
+          setErrors(resData.data);
+        } else {
+          alert(resData.msg || "Asset added successfully");
+          navigate("/company/assets/addnewassets");
+        }
       })
       .catch((err) => {
         console.error("Error adding asset:", err.message);
@@ -67,10 +71,13 @@ const CreateAssets = () => {
       <h2 className="text-center font-bold text-2xl mb-5">Create New Asset</h2>
       <form
         onSubmit={handleSubmit}
-        className="service max-w-md mx-auto  p-6 rounded-lg shadow-md"
+        className="service max-w-md mx-auto p-6 rounded-lg shadow-md"
       >
         <div className="mb-4">
-          <label className="block text-gray-700 font-semibold mb-2" htmlFor="name">
+          <label
+            className="block text-gray-700 font-semibold mb-2"
+            htmlFor="name"
+          >
             Asset Name
           </label>
           <input
@@ -106,6 +113,11 @@ const CreateAssets = () => {
               </option>
             ))}
           </select>
+          {errors.asset_type_id && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.asset_type_id[0]}
+            </p>
+          )}
         </div>
         <button
           type="submit"
