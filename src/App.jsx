@@ -137,7 +137,7 @@ function App() {
               path="/allprojects/addreport"
               element={<PrivateRoute element={<AddReport />} />}
             />
-             <Route
+            <Route
               path="/allprojects/addrepo"
               element={<PrivateRoute element={<AddRepo />} />}
             />
@@ -228,11 +228,11 @@ function App() {
               path="/company/employees"
               element={<PrivateRoute element={<Employees />} />}
             />
-             <Route
+            <Route
               path="/company/editemp/:id"
               element={<PrivateRoute element={<EditEmp />} />}
             />
-             <Route
+            <Route
               path="/company/createempfiles"
               element={<PrivateRoute element={<CreateEmpFiles />} />}
             />
@@ -261,7 +261,7 @@ function App() {
               path="/customers/owner"
               element={<PrivateRoute element={<Owner />} />}
             />
-             <Route
+            <Route
               path="/customers/editowner/:id"
               element={<PrivateRoute element={<EditOwner />} />}
             />
@@ -273,11 +273,11 @@ function App() {
               path="/customers/editconsultive/:id"
               element={<PrivateRoute element={<EditConsultive />} />}
             />
-             <Route
+            <Route
               path="/customers/createconsultive"
               element={<PrivateRoute element={<CreateConsultive />} />}
             />
-             <Route
+            <Route
               path="/customers/createowner"
               element={<PrivateRoute element={<CreateOwner />} />}
             />

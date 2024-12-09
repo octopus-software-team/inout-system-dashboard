@@ -1,18 +1,20 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify"; // استيراد المكتبة
+import "react-toastify/dist/ReactToastify.css"; // استيراد الأنماط الخاصة بالتوست
 
 const UpdateMaterials = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const material = location.state; // المادة التي تم تمريرها
 
-  // استخدام بيانات المادة لتهيئة الحقول
   const [name, setName] = useState(material?.name || "");
   const [stock, setStock] = useState(material?.stock || "");
   const [type, setType] = useState(material?.type || "");
 
   const handleSubmit = (e) => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
+    console.log("Token:", token);
 
     e.preventDefault();
 
@@ -22,14 +24,19 @@ const UpdateMaterials = () => {
       type: parseInt(type),
     };
 
-    fetch(`https://inout-api.octopusteam.net/api/front/updateMaterial/${material.id}`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(updatedMaterial),
-    })
+    console.log("Updated Material:", updatedMaterial);
+
+    fetch(
+      `https://inout-api.octopusteam.net/api/front/updateMaterial/${material.id}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedMaterial),
+      }
+    )
       .then((res) => {
         if (!res.ok) {
           throw new Error("Failed to update material");
@@ -37,22 +44,31 @@ const UpdateMaterials = () => {
         return res.json();
       })
       .then((resData) => {
-        alert(resData.msg || "Material updated successfully");
-        navigate("/company/assets/addmaterials"); // إعادة التوجيه لصفحة المواد
+        console.log("Response Data:", resData);
+        toast.success(resData.msg || "Material updated successfully");
+        navigate("/company/assets/addmaterials");
       })
       .catch((err) => {
         console.error("Error updating material:", err);
-        alert("Failed to update material. Please try again.");
+        toast.error("Failed to update material. Please try again.");
       });
   };
 
   return (
     <div className="container mt-5">
-      <h2 className="text-center font-bold text-2xl text-black">Update Material</h2>
+      <h2 className="text-center font-bold text-2xl text-black">
+        Update Material
+      </h2>
 
-      <form onSubmit={handleSubmit} className="service max-w-lg mx-auto p-8 rounded-lg shadow-lg">
+      <form
+        onSubmit={handleSubmit}
+        className="service max-w-lg mx-auto p-8 rounded-lg shadow-lg"
+      >
         <div className="mb-4">
-          <label className="block text-gray-700 font-semibold mb-2" htmlFor="name">
+          <label
+            className="block text-gray-700 font-semibold mb-2"
+            htmlFor="name"
+          >
             Material Name
           </label>
           <input
@@ -67,7 +83,10 @@ const UpdateMaterials = () => {
         </div>
 
         <div className="mb-4">
-          <label className="block text-gray-700 font-semibold mb-2" htmlFor="stock">
+          <label
+            className="block text-gray-700 font-semibold mb-2"
+            htmlFor="stock"
+          >
             Stock
           </label>
           <input
@@ -82,7 +101,10 @@ const UpdateMaterials = () => {
         </div>
 
         <div className="mb-4">
-          <label className="block text-gray-700 font-semibold mb-2" htmlFor="type">
+          <label
+            className="block text-gray-700 font-semibold mb-2"
+            htmlFor="type"
+          >
             Type
           </label>
           <select
@@ -108,6 +130,9 @@ const UpdateMaterials = () => {
           </button>
         </div>
       </form>
+
+      {/* إضافة ToastContainer هنا لتفعيل التوست */}
+      <ToastContainer />
     </div>
   );
 };

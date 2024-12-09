@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import MapPicker from "react-google-map-picker";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Branchs = () => {
   const [data, setData] = useState([]);
@@ -16,7 +18,6 @@ const Branchs = () => {
   const [location, setLocation] = useState(DefaultLocation);
   const [zoom, setZoom] = useState(DefaultZoom);
 
-  // لتغيير الموقع عندما يختار المستخدم مكانًا على الخريطة
   function handleChangeLocation(lat, lng) {
     setLocation({ lat, lng });
     if (selectedBranch) {
@@ -57,53 +58,72 @@ const Branchs = () => {
         if (resData && resData.data) {
           setData(resData.data);
         } else {
-          alert("No data found");
+          toast.error("No data found");
         }
       })
       .catch((err) => {
         console.error("Error fetching branches:", err);
-        alert("Failed to fetch branches");
+        toast.error("Failed to fetch branches");
       });
   }, []);
 
-  // حذف الفرع
+  // عملية الحذف مع التوست
   const handleDelete = (id) => {
     const token = localStorage.getItem("token");
-    const confirm = window.confirm("Do you want to delete this branch?");
-    if (confirm) {
-      fetch(`https://inout-api.octopusteam.net/api/front/deleteBranch/${id}`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-        .then((res) => {
-          if (!res.ok) {
-            throw new Error("Failed to delete branch");
-          }
-          return res.json();
-        })
-        .then((resData) => {
-          alert(resData.msg || "Branch deleted successfully");
-          setData(data.filter((branch) => branch.id !== id));
-        })
-        .catch((err) => {
-          console.error("Error deleting branch:", err);
-          alert("Failed to delete branch");
-        });
-    }
+
+    // عرض توست التأكيد للحذف
+    const confirmToast = toast(
+      <div>
+        <p>Are you sure you want to delete this branch?</p>
+        <div className="flex space-x-2 justify-end">
+          <button
+            onClick={() => handleConfirmDelete(id, token, confirmToast)}
+            className="bg-red-600 text-white py-1 px-4 rounded-lg"
+          >
+            Yes
+          </button>
+          <button
+            onClick={() => toast.dismiss(confirmToast)} // إغلاق التوست إذا تم اختيار "No"
+            className="bg-gray-600 text-white py-1 px-4 rounded-lg"
+          >
+            No
+          </button>
+        </div>
+      </div>,
+      { autoClose: false, closeButton: false }
+    );
   };
 
-  
+  const handleConfirmDelete = (id, token, confirmToast) => {
+    fetch(`https://inout-api.octopusteam.net/api/front/deleteBranch/${id}`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to delete branch");
+        }
+        return res.json();
+      })
+      .then((resData) => {
+        toast.success(resData.msg || "Branch deleted successfully");  // عرض التوست عند النجاح
+        setData(data.filter((branch) => branch.id !== id));
+        toast.dismiss(confirmToast); // إغلاق التوست بعد الحذف
+      })
+      .catch((err) => {
+        console.error("Error deleting branch:", err);
+        toast.error("Failed to delete branch");  // عرض التوست عند حدوث خطأ
+        toast.dismiss(confirmToast); // إغلاق التوست بعد الخطأ
+      });
+  };
 
   const openMapp = (latitude, longitude) => {
     const url = `https://www.google.com/maps?q=${latitude},${longitude}`;
-
-    // Open the URL in a new window/tab
     window.open(url, "_blank");
   };
 
-  // عرض الخريطة للموقع المحدد
   const handleViewMap = (latitude, longitude, branchData) => {
     setSelectedBranch(branchData);
     setOpenMap(true);
@@ -227,6 +247,7 @@ const Branchs = () => {
           </div>
         </div>
       )}
+      <ToastContainer />
     </div>
   );
 };

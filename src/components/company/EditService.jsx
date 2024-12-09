@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify"; // استيراد المكتبة
+import "react-toastify/dist/ReactToastify.css"; // استيراد الأنماط
 
 const EditService = () => {
   const location = useLocation();
@@ -53,6 +55,7 @@ const EditService = () => {
 
       if (response.ok) {
         setResponseMessage(result.msg);
+        toast.success("Service updated successfully!"); // هنا إضافة التوست عند النجاح
         setTimeout(() => {
           navigate("/company/Services");
         }, 2000);
@@ -62,41 +65,6 @@ const EditService = () => {
     } catch (error) {
       console.error("Error updating service:", error);
       setResponseMessage("An error occurred while updating the service.");
-    }
-  };
-
-  const handleDelete = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      alert("No token found. Please log in.");
-      return;
-    }
-
-    if (window.confirm("Are you sure you want to delete this service?")) {
-      try {
-        const response = await fetch(
-          `https://inout-api.octopusteam.net/api/front/deleteService/${serviceData.id}`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        const result = await response.json();
-
-        if (response.ok) {
-          alert(result.msg);
-          navigate("/company/Services");
-        } else {
-          alert(result.msg || "Failed to delete the service.");
-        }
-      } catch (error) {
-        console.error("Error deleting service:", error);
-        alert("An error occurred while deleting the service.");
-      }
     }
   };
 
@@ -139,19 +107,15 @@ const EditService = () => {
             >
               Update Service
             </button>
-            <button
-              type="button"
-              onClick={handleDelete}
-              className="w-full bg-red-600 text-white py-2 px-4 rounded hover:bg-red-700 focus:ring-4 focus:ring-red-300"
-            >
-              Delete Service
-            </button>
           </div>
         </form>
         {responseMessage && (
           <p className="mt-4 text-center text-green-600 font-medium">{responseMessage}</p>
         )}
       </div>
+
+      {/* هنا إضافة ToastContainer لتفعيل التوست */}
+      <ToastContainer />
     </div>
   );
 };

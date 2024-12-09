@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const AddMaterials = () => {
   const [data, setData] = useState([]);
@@ -38,29 +40,53 @@ const AddMaterials = () => {
 
   const handleDelete = (id) => {
     const token = localStorage.getItem('token');
-    const confirmDelete = window.confirm("Do you really want to delete this material?");
-    if (confirmDelete) {
-      fetch(`https://inout-api.octopusteam.net/api/front/deleteMaterial/${id}`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+
+    // Show a toast confirmation for deletion
+    const confirmToast = toast(
+      <div>
+        <p>Are you sure you want to delete this material?</p>
+        <div className="flex space-x-2 justify-end">
+          <button
+            onClick={() => handleConfirmDelete(id, token, confirmToast)}
+            className="bg-red-600 text-white py-1 px-4 rounded-lg"
+          >
+            Yes
+          </button>
+          <button
+            onClick={() => toast.dismiss(confirmToast)} // Dismiss the toast if "No"
+            className="bg-gray-600 text-white py-1 px-4 rounded-lg"
+          >
+            No
+          </button>
+        </div>
+      </div>,
+      { autoClose: false, closeButton: false }
+    );
+  };
+
+  const handleConfirmDelete = (id, token, confirmToast) => {
+    fetch(`https://inout-api.octopusteam.net/api/front/deleteMaterial/${id}`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to delete material");
+        }
+        return res.json();
       })
-        .then((res) => {
-          if (!res.ok) {
-            throw new Error("Failed to delete material");
-          }
-          return res.json();
-        })
-        .then((resData) => {
-          alert(resData.msg || "Material deleted successfully");
-          setData((prevData) => prevData.filter((material) => material.id !== id));
-        })
-        .catch((err) => {
-          console.error("Error deleting material:", err);
-          alert("Failed to delete material. Please try again.");
-        });
-    }
+      .then((resData) => {
+        toast.success(resData.msg || "Material deleted successfully");
+        setData((prevData) => prevData.filter((material) => material.id !== id));
+        toast.dismiss(confirmToast); // Dismiss the confirmation toast
+      })
+      .catch((err) => {
+        console.error("Error deleting material:", err);
+        toast.error("Failed to delete material. Please try again.");
+        toast.dismiss(confirmToast); // Dismiss the confirmation toast on error
+      });
   };
 
   return (
@@ -141,6 +167,8 @@ const AddMaterials = () => {
           </tbody>
         </table>
       </div>
+
+      <ToastContainer />
     </div>
   );
 };

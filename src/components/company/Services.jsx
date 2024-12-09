@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const AddServices = () => {
   const [data, setData] = useState([]);
@@ -85,6 +87,7 @@ const AddServices = () => {
     navigate(`/company/editservice`, { state: selectedService });
   };
 
+  // لتأكيد الحذف باستخدام Toast
   const handleDelete = (id) => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -92,29 +95,54 @@ const AddServices = () => {
       return;
     }
 
-    if (window.confirm("Are you sure you want to delete this service?")) {
-      fetch(`https://inout-api.octopusteam.net/api/front/deleteService/${id}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+    // عرض Toast للتأكيد على الحذف
+    const confirmToast = toast(
+      <div>
+        <p>Are you sure you want to delete this service?</p>
+        <div className="flex space-x-2 justify-end">
+          <button
+            onClick={() => handleConfirmDelete(id, token, confirmToast)}
+            className="bg-red-600 text-white py-1 px-4 rounded-lg"
+          >
+            Yes
+          </button>
+          <button
+            onClick={() => toast.dismiss(confirmToast)} // إغلاق التوست إذا تم اختيار "No"
+            className="bg-gray-600 text-white py-1 px-4 rounded-lg"
+          >
+            No
+          </button>
+        </div>
+      </div>,
+      { autoClose: false, closeButton: false }
+    );
+  };
+
+  // تنفيذ عملية الحذف
+  const handleConfirmDelete = (id, token, confirmToast) => {
+    fetch(`https://inout-api.octopusteam.net/api/front/deleteService/${id}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to delete service.");
+        }
+        return res.json();
       })
-        .then((res) => {
-          if (!res.ok) {
-            throw new Error("Failed to delete service.");
-          }
-          return res.json();
-        })
-        .then((response) => {
-          alert(response.msg || "Service deleted successfully.");
-          setData(data.filter((service) => service.id !== id));
-        })
-        .catch((error) => {
-          console.error("Error deleting service:", error);
-          alert("Failed to delete the service. Please try again.");
-        });
-    }
+      .then((response) => {
+        toast.success(response.msg || "Service deleted successfully.");
+        setData(data.filter((service) => service.id !== id));
+        toast.dismiss(confirmToast); // إغلاق التوست بعد الحذف
+      })
+      .catch((error) => {
+        console.error("Error deleting service:", error);
+        toast.error("Failed to delete the service. Please try again.");
+        toast.dismiss(confirmToast); // إغلاق التوست بعد الخطأ
+      });
   };
 
   return (
@@ -199,6 +227,8 @@ const AddServices = () => {
           </table>
         </div>
       )}
+
+      <ToastContainer />
     </div>
   );
 };

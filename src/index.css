@@ -72,24 +72,6 @@ code {
   background-color: white;
 }
 
-.select1 {
-  /* background: white; */
-  color: white;
-}
-
-.select1 .css-1pahdxg-control {
-  color: black !important;
-}
-
-/* .select1 .css-yt9ioa-Menu {
-  background-color: #f0f0f0 !important; 
-} */
-
-.select1 {
-  color: black;
-  /* background-color: #f0f0f0;  */
-}
-
 .service {
   background-color: white;
 }
@@ -98,6 +80,11 @@ code {
   .service {
     @apply dark:bg-slate-900;
   }
+}
+
+
+.Toastify__toast-container {
+  z-index: 9999; /* التأكد أن التوست في الواجهة العلوية */
 }
 
 

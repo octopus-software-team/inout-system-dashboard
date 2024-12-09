@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify"; 
+import "react-toastify/dist/ReactToastify.css"; 
 
 const CreateAssets = () => {
   const [name, setName] = useState("");
@@ -22,11 +24,12 @@ const CreateAssets = () => {
         if (data.status === 200) {
           setAssetTypes(data.data);
         } else {
-          alert("Failed to load asset types");
+          toast.error("Failed to load asset types"); // توست في حالة فشل تحميل الأنواع
         }
       })
       .catch((error) => {
         console.error("Error fetching asset types:", error);
+        toast.error("Error fetching asset types"); // توست في حالة وجود مشكلة في الاتصال
       });
   }, []);
 
@@ -55,14 +58,15 @@ const CreateAssets = () => {
       .then((resData) => {
         if (resData.status === 422) {
           setErrors(resData.data);
+          toast.error("Validation errors occurred. Please check the form."); // توست عند وجود أخطاء تحقق
         } else {
-          alert(resData.msg || "Asset added successfully");
+          toast.success(resData.msg || "Asset added successfully!"); // توست عند نجاح إضافة الأسيتم
           navigate("/company/assets/addnewassets");
         }
       })
       .catch((err) => {
         console.error("Error adding asset:", err.message);
-        alert("Failed to add asset. Please try again.");
+        toast.error("Failed to add asset. Please try again."); // توست في حالة الفشل
       });
   };
 
@@ -126,6 +130,7 @@ const CreateAssets = () => {
           Save
         </button>
       </form>
+      <ToastContainer /> 
     </div>
   );
 };

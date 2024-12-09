@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify"; // استيراد مكتبة react-toastify
+import "react-toastify/dist/ReactToastify.css"; // استيراد الأنماط الخاصة بالتوست
 
 const AddMaterials = () => {
   const [data, setData] = useState([]);
@@ -8,7 +10,7 @@ const AddMaterials = () => {
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
 
     fetch("https://inout-api.octopusteam.net/api/front/getAssets", {
       method: "GET",
@@ -36,33 +38,59 @@ const AddMaterials = () => {
   }, []);
 
   const handleDelete = (id) => {
-    const token = localStorage.getItem('token');
-    const confirmDelete = window.confirm("Do you really want to delete this asset?");
-    
-    if (confirmDelete) {
-      fetch(`https://inout-api.octopusteam.net/api/front/deleteAsset/${id}`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-        .then((res) => {
-          if (!res.ok) {
-            throw new Error("Failed to delete asset");
-          }
-          return res.json();
-        })
-        .then((resData) => {
-          alert(resData.msg || "Asset deleted successfully");
-          setData((prevData) => prevData.filter((asset) => asset.id !== id));
-        })
-        .catch((err) => {
-          console.error("Error deleting asset:", err.message);
-          alert("Failed to delete asset. Please try again.");
-        });
-    }
+    const token = localStorage.getItem("token");
+
+    // إظهار توست مع خيارات "نعم" و "لا"
+    toast(
+      <div>
+        <p>Are you sure you want to delete this asset?</p>
+        <div className="flex space-x-4 justify-center mt-2">
+          <button
+            onClick={() => handleConfirmDelete(id, token)}
+            className="bg-red-500 text-white py-2 px-4 rounded-lg"
+          >
+            Yes
+          </button>
+          <button
+            onClick={() => toast.dismiss()}
+            className="bg-gray-500 text-white py-2 px-4 rounded-lg"
+          >
+            No
+          </button>
+        </div>
+      </div>,
+      {
+        position: "top-center",
+        autoClose: false,
+        closeOnClick: false,
+        pauseOnHover: false,
+      }
+    );
   };
-  
+
+  // تنفيذ عملية الحذف بعد التأكيد
+  const handleConfirmDelete = (id, token) => {
+    fetch(`https://inout-api.octopusteam.net/api/front/deleteAsset/${id}`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to delete asset");
+        }
+        return res.json();
+      })
+      .then((resData) => {
+        toast.success("Asset deleted successfully!"); // توست عند نجاح الحذف
+        setData((prevData) => prevData.filter((asset) => asset.id !== id));
+      })
+      .catch((err) => {
+        console.error("Error deleting asset:", err.message);
+        toast.error("Failed to delete asset. Please try again."); // توست عند فشل الحذف
+      });
+  };
 
   return (
     <div className="container mt-5">
@@ -144,6 +172,8 @@ const AddMaterials = () => {
           </tbody>
         </table>
       </div>
+
+      <ToastContainer />
     </div>
   );
 };

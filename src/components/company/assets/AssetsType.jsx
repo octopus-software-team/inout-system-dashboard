@@ -20,7 +20,6 @@ const AddServices = () => {
       return;
     }
 
-    // طلب البيانات من API
     fetch("https://inout-api.octopusteam.net/api/front/getAssetTypes", {
       method: "GET",
       headers: {

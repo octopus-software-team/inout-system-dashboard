@@ -32,24 +32,58 @@ const AddNewProject = () => {
   const [consultive, setConsultive] = useState([]);
   const [newConsultiveName, setNewConsultiveName] = useState("");
   const [isConsultiveModalOpen, setIsConsultiveModalOpen] = useState(false);
-
-  const buttonLoading = (button) => {
-    const text = button.querySelector(".button-text");
-    const spinner = button.querySelector(".loading-spinner");
-    text.classList.add("hidden");
-    spinner.classList.remove("hidden");
-    setTimeout(() => {
-      text.classList.remove("hidden");
-      spinner.classList.add("hidden");
-    }, 2000);
+  const [selectedTask, setSelectedTask] = useState("");
+  const [tasks, setTasks] = useState([]);
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedServices, setSelectedServices] = useState([]);
+  const [selectedConsultives, setSelectedConsultives] = useState([]);
+  const handleAddProject = async () => {
+    setIsLoading(true);
+  
+    try {
+      const selectedServiceIds = selectedServices.map((service) => service.value);
+      const selectedConsultiveIds = selectedConsultives.map((c) => c.value);
+  
+      const projectData = {
+        service_ids: selectedServiceIds,
+        consultive_ids: selectedConsultiveIds,
+        // ... بقية البيانات التي سترسلها
+      };
+  
+      // استدعاء addProjectData مع projectData
+      const result = await addProjectData(projectData);
+  
+      // بناءً على الاستجابة تعرض رسالة نجاح
+      alert("Project added successfully!");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to add project.");
+    } finally {
+      setIsLoading(false);
+    }
   };
+  
+
+  const addProjectData = (projectData) => {
+    const token = localStorage.getItem("token");
+    return fetch("https://inout-api.octopusteam.net/api/front/getServices", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(projectData),
+    }).then((res) => res.json());
+  };
+
   const openModal = () => {
     setIsModalOpen(true);
   };
 
   const handleCancelCustomer = () => {
     setIsCustomerModalOpen(false);
-    setNewCustomerName(""); // إعادة تعيين اسم العميل عند إغلاق الـ Modal
+    setNewCustomerName("");
   };
 
   const openCustomerModal = () => {
@@ -233,7 +267,16 @@ const AddNewProject = () => {
         console.error("Error fetching data: ", error);
       }
     };
-    fetch("https://inout-api.octopusteam.net/api/front/getCustomers")
+
+    const token = localStorage.getItem("token");
+
+    fetch("https://inout-api.octopusteam.net/api/front/getCustomers", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`, // التوكن في الهيدر
+      },
+    })
       .then((response) => response.json())
       .then((data) => {
         if (data.status === 200) {
@@ -334,10 +377,43 @@ const AddNewProject = () => {
   }, []);
 
   useEffect(() => {
+    fetch("https://inout-api.octopusteam.net/api/front/getCustomers", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.status === 200) {
+          const formattedCustomers = data.data
+            .filter((item) => item.type === 2)
+            .map((item) => ({
+              id: item.id,
+              name: item.name,
+            }));
+          setConsultive(formattedCustomers);
+        }
+      })
+      .catch((error) => {
+        console.error("Error loading data:", error);
+      });
+  }, []);
+
+  useEffect(() => {
     const fetchOwners = async () => {
+      const token = localStorage.getItem("token");
+
       try {
         const response = await fetch(
-          "https://inout-api.octopusteam.net/api/front/getOwners"
+          "https://inout-api.octopusteam.net/api/front/getOwners",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`, // التوكن في الهيدر
+            },
+          }
         );
         const data = await response.json();
         if (data.status === 200) {
@@ -375,20 +451,46 @@ const AddNewProject = () => {
 
     setOwners([...owners, { id: owners.length + 1, name: newOwner, type: 1 }]);
 
-    setIsOwnerModalOpen(false); // أغلق نافذة إضافة المالك
+    setIsOwnerModalOpen(false);
+    setNewOwner("");
+  };
+
+  const handleSaveTask = () => {
+    if (!newOwner.trim()) {
+      alert("Please enter an owner name");
+      return;
+    }
+
+    setOwners([...owners, { id: owners.length + 1, name: newOwner, type: 1 }]);
+
+    setIsOwnerModalOpen(false);
     setNewOwner("");
   };
 
   const handleCancelOwner = () => {
-    setIsOwnerModalOpen(false); // إغلاق الـ Modal عند الإلغاء
-    setNewOwner(""); // إعادة تعيين القيمة الخاصة بالمالك الجديد
+    setIsOwnerModalOpen(false);
+    setNewOwner("");
+  };
+
+  const handleCanceTask = () => {
+    setIsOwnerModalOpen(false);
+    setNewOwner("");
   };
 
   useEffect(() => {
     const fetchOwners = async () => {
+      const token = localStorage.getItem("token");
+
       try {
         const response = await fetch(
-          "https://inout-api.octopusteam.net/api/front/getOwners"
+          "https://inout-api.octopusteam.net/api/front/getOwners",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`, // التوكن في الهيدر
+            },
+          }
         );
         const data = await response.json();
         if (data.status === 200) {
@@ -434,11 +536,12 @@ const AddNewProject = () => {
                 value: service.id,
                 label: service.name,
               }))}
-              value={selectedOptions}
-              onChange={(options) => setSelectedOptions(options)}
+              value={selectedServices}
+              onChange={(options) => setSelectedServices(options)}
               placeholder="Select Services"
               className="select1 flex-1"
             />
+
             <div>
               <button
                 onClick={() => setIsServiceModalOpen(true)}
@@ -523,7 +626,7 @@ const AddNewProject = () => {
             </select>
 
             <button
-              onClick={() => setIsOwnerModalOpen(true)} // افتح نافذة المالك
+              onClick={() => setIsOwnerModalOpen(true)}
               className="ml-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-full w-8 h-8 flex items-center justify-center"
             >
               +
@@ -532,7 +635,7 @@ const AddNewProject = () => {
 
           <Dialog
             open={isOwnerModalOpen}
-            onClose={handleCancelOwner} 
+            onClose={handleCancelOwner}
             className="relative z-10"
           >
             <DialogBackdrop
@@ -566,7 +669,7 @@ const AddNewProject = () => {
                   <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
                     <button
                       type="button"
-                      onClick={handleSaveOwner} 
+                      onClick={handleSaveOwner}
                       className="inline-flex mr-60 mt-3 w-full h-10 justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto"
                     >
                       Save Owner
@@ -584,6 +687,87 @@ const AddNewProject = () => {
             </div>
           </Dialog>
         </div>
+
+        {/* <div className="p-1">
+          <label className="block text-sm font-medium text-gray-700 ml-6">
+            PROJECT Tasks
+          </label>
+          <div className="flex items-center mt-1">
+            <select
+              className="PROJECT block w-full dark:bg-slate-950 border border-gray-300 rounded-md p-2"
+              value={selectedTask}
+              onChange={(e) => setSelectedTask(e.target.value)}
+            >
+              <option>Select or add new task</option>
+              {tasks.map((task) => (
+                <option key={task.id} value={task.id}>
+                  {task.name} {task.type === 1 ? "(tasks)" : ""}
+                </option>
+              ))}
+            </select>
+
+            <button
+              onClick={() => setIsTaskModalOpen(true)}
+              className="ml-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-full w-8 h-8 flex items-center justify-center"
+            >
+              +
+            </button>
+          </div>
+
+          <Dialog
+            open={isTaskModalOpen}
+            onClose={handleCancelOwner}
+            className="relative z-10"
+          >
+            <DialogBackdrop
+              transition
+              className="fixed inset-0 bg-gray-500/75 transition-opacity"
+            />
+            <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+              <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                <DialogPanel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+                  <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                    <div className="sm:flex sm:items-start">
+                      <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
+                        <DialogTitle
+                          as="h3"
+                          className="text-base mr-20 font-semibold text-gray-900"
+                        >
+                          Add New Owner
+                        </DialogTitle>
+                        <div className="mt-2">
+                          <input
+                            type="text"
+                            placeholder="Enter owner name"
+                            value={newOwner}
+                            onChange={(e) => setNewOwner(e.target.value)}
+                            className="mt-1  block w-full border border-gray-300 rounded-md p-2 dark:bg-slate-950"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                    <button
+                      type="button"
+                      onClick={handleSaveTask}
+                      className="inline-flex mr-60 mt-3 w-full h-10 justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto"
+                    >
+                      Save Owner
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleCanceTask} 
+                      className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </DialogPanel>
+              </div>
+            </div>
+          </Dialog>
+        </div> */}
 
         <div className="p-1">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1 ml-6">
@@ -630,7 +814,7 @@ const AddNewProject = () => {
                         <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
                           <DialogTitle
                             as="h3"
-                            className="text-base mr-20 font-semibold text-gray-900"
+                            className="text-base ml-6 font-semibold text-gray-900"
                           >
                             Add New Customer
                           </DialogTitle>
@@ -642,7 +826,7 @@ const AddNewProject = () => {
                               onChange={(e) =>
                                 setNewCustomerName(e.target.value)
                               }
-                              className="mt-1 block w-full border border-gray-300 rounded-md p-2 dark:bg-slate-950"
+                              className="mt-1 ml-14 block w-full border border-gray-300 rounded-md p-2 dark:bg-slate-950"
                             />
                             <input
                               type="hidden"
@@ -683,18 +867,17 @@ const AddNewProject = () => {
           </label>
 
           <div className="flex items-center gap-2 mt-1">
-            <select
-              className="block w-full border border-gray-300 rounded-md p-2 dark:bg-slate-950"
-              value={selectedConsultative}
-              onChange={(e) => setSelectedConsultative(e.target.value)}
-            >
-              <option>Select or add new consultative</option>
-              {consultive.map((consultive) => (
-                <option key={consultive.id} value={consultive.id}>
-                  {consultive.name}
-                </option>
-              ))}
-            </select>
+            <Select
+              isMulti
+              options={consultive.map((c) => ({
+                value: c.id,
+                label: c.name,
+              }))}
+              value={selectedConsultives}
+              onChange={(options) => setSelectedConsultives(options)}
+              placeholder="Select Consultives"
+              className="select1 flex-1"
+            />
 
             <button
               onClick={() => setIsConsultiveModalOpen(true)}
@@ -844,11 +1027,19 @@ const AddNewProject = () => {
       </div>
 
       <button
+        type="button"
         className="mt-6 w-full bg-blue-500 text-white font-semibold py-3 px-4 rounded-lg shadow-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 flex items-center justify-center text-sm"
-        onClick={(e) => buttonLoading(e.currentTarget)}
+        onClick={handleAddProject}
+        disabled={isLoading} // Disable the button while loading
       >
-        <span className="button-text font-bold">Add Project</span>
-        <span className="loading-spinner hidden ml-4 border-2 border-white border-t-blue-500 rounded-full w-4 h-4"></span>
+        {isLoading ? (
+          <>
+            <span className="loading-spinner ml-4 border-2 border-white border-t-blue-500 rounded-full w-4 h-4 animate-spin"></span>
+            <span className="sr-only">Loading...</span>
+          </>
+        ) : (
+          <span className="button-text font-bold">Add Project</span>
+        )}
       </button>
     </div>
   );
