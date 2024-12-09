@@ -67,7 +67,7 @@ function Loginn() {
 
   return (
     <div className="flex justify-center items-center h-min mr-64 bg-gray-100 dark:bg-slate-950">
-      <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8 space-y-6">
+      <div className="service w-full max-w-md rounded-lg shadow-lg p-8 space-y-6">
         <img className="w-24 mx-auto" src={logo4} alt="Logo" />
         <h2 className="text-center text-2xl font-bold text-gray-800">
           Sign In
@@ -91,7 +91,7 @@ function Loginn() {
               <input
                 type="email"
                 id="email"
-                className="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-300 dark:bg-slate-900 dark:text-white  rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="name@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -111,7 +111,7 @@ function Loginn() {
               <input
                 type={showPassword ? "text" : "password"}
                 id="password"
-                className="w-full border border-gray-300 rounded-lg pl-10 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border dark:bg-slate-900 dark:text-white  border-gray-300 rounded-lg pl-10 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
