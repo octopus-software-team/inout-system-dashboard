@@ -149,7 +149,7 @@ const Consultative = () => {
                   <td className="px-4 py-3 dark:text-white text-gray-800">{item.phone}</td>
                   <td className="px-4 py-3 dark:text-white text-center">
                     <Link
-                      to={`/update/${item.id}`}
+                      to={`/customers/editconsultive/${item.id}`}
                       className="bg-green-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-500 transform hover:scale-105 transition duration-300"
                     >
                       <FaEdit className="inline mr-2" />

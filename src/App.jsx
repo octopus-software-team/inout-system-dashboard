@@ -61,6 +61,7 @@ import CreateConsultive from "./components/customers/CreateConsultive";
 import AddRepo from "./components/allProjects/AddRepo";
 import CreateOwner from "./components/customers/CreateOwner";
 import EditOwner from "./components/customers/EditOwner";
+import EditConsultive from "./components/customers/EditConsultive";
 
 const PrivateRoute = ({ element: Component }) => {
   const isLoggedIn = localStorage.getItem("token"); // Check if the user is logged in
@@ -267,6 +268,10 @@ function App() {
             <Route
               path="/customers/consaltative"
               element={<PrivateRoute element={<Consaltative />} />}
+            />
+            <Route
+              path="/customers/editconsultive/:id"
+              element={<PrivateRoute element={<EditConsultive />} />}
             />
              <Route
               path="/customers/createconsultive"

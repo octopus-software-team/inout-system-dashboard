@@ -7,11 +7,11 @@
 
 //   const handleSubmit = async (e) => {
 //     e.preventDefault();
-  
+
 //     const data = {
 //       name: branchName.trim(),
 //     };
-  
+
 //     try {
 //       const token = localStorage.getItem("token");
 //       const response = await fetch(
@@ -25,15 +25,15 @@
 //           body: JSON.stringify(data),
 //         }
 //       );
-  
+
 //       const result = await response.json();
-  
+
 //       // عرض التفاصيل إذا حدث خطأ
 //       if (!response.ok) {
 //         console.error("Error Details:", result);
 //         throw new Error(result.msg || "Failed to add branch");
 //       }
-  
+
 //       setMessage(result.msg || "Branch added successfully!");
 //       setBranchData(result.data);
 //     } catch (error) {
@@ -41,7 +41,6 @@
 //       console.error("Error:", error);
 //     }
 //   };
-  
 
 //   return (
 //     <div className="service max-w-lg mt-24  mx-auto p-6  rounded-lg shadow-sm">
@@ -94,11 +93,11 @@
 // };
 
 // export default AddBranch;
+
 import React, { useState } from "react";
 import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 
-// Replace with your actual Google Maps API Key
-const googleMapsAPIKey = "YOUR_GOOGLE_MAPS_API_KEY";
+const googleMapsAPIKey = "AIzaSyD7IXBWO2i9Dc7phqL9uJiqNxKD4Er1zdk";
 
 const AddBranch = () => {
   const [branchName, setBranchName] = useState("");
@@ -112,8 +111,8 @@ const AddBranch = () => {
 
     const data = {
       name: branchName.trim(),
-      latitude: latitude,   // Send the latitude
-      longitude: longitude, // Send the longitude
+      latitude: latitude,
+      longitude: longitude,
     };
 
     try {

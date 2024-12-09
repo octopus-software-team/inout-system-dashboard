@@ -24,14 +24,13 @@ const EditOwner = () => {
       .then((res) => res.json())
       .then((result) => {
         if (result.status === 200) {
-          // تصفية البيانات للحصول على owner الذي يتطابق مع id
           const owner = result.data.find((owner) => owner.id === parseInt(id));
           if (owner) {
             setFormData({
               name: owner.name || "",
               email: owner.email || "",
               phone: owner.phone || "",
-              type: owner.type || 1, // تأكد من تعيين النوع بشكل صحيح
+              type: owner.type || 1, 
             });
           } else {
             alert("Owner not found!");
@@ -52,6 +51,7 @@ const EditOwner = () => {
   };
 
   const handleSubmit = (e) => {
+
     e.preventDefault();
 
     fetch(`https://inout-api.octopusteam.net/api/front/updateCustomer/${id}`, {
@@ -137,7 +137,6 @@ const EditOwner = () => {
           />
         </div>
 
-        {/* Hidden input for type */}
         <input type="hidden" name="type" value={formData.type} />
 
         <div className="text-center">
