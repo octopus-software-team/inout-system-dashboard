@@ -254,9 +254,9 @@ const ShowAllProjects = () => {
         Show All Projects
       </h2>
 
-      <div className="w-full flex justify-center mb-6">
+      <div className="w-full flex justify-start mb-6">
         <input
-          className="border dark:bg-slate-950  border-gray-300  rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-1/2 shadow-sm"
+          className="border dark:bg-slate-950 ml-4  border-gray-300  rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 w-4/12 sm:w-1/2 shadow-sm"
           type="text"
           placeholder="Search projects by name..."
           value={search}
