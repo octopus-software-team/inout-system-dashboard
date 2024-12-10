@@ -175,23 +175,27 @@ const ShowAllProjects = () => {
   }, []);
 
   const handleViewClick = (projectId) => {
-    navigate(`/allprojects/addreport/${projectId}`);
+    navigate(`/allprojects/addreport`);
   };
 
   const handleReportClick = (projectId) => {
-    navigate(`/allprojects/addreport/${projectId}`);
+    navigate(`/allprojects/addrepo`);
   };
 
   const sorting = (col) => {
     let sorted = [];
     if (order === "ASC") {
       sorted = [...projects].sort((a, b) =>
-        a[col].toString().toLowerCase() > b[col].toString().toLowerCase() ? 1 : -1
+        a[col].toString().toLowerCase() > b[col].toString().toLowerCase()
+          ? 1
+          : -1
       );
       setOrder("DSC");
     } else {
       sorted = [...projects].sort((a, b) =>
-        a[col].toString().toLowerCase() < b[col].toString().toLowerCase() ? 1 : -1
+        a[col].toString().toLowerCase() < b[col].toString().toLowerCase()
+          ? 1
+          : -1
       );
       setOrder("ASC");
     }
@@ -245,12 +249,14 @@ const ShowAllProjects = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8 flex flex-col items-center">
-      <h2 className="text-center font-bold text-3xl mb-8 text-gray-800">Show All Projects</h2>
+    <div className="min-h-screen dark:bg-slate-950 bg-gray-50 p-8 flex flex-col items-center">
+      <h2 className="text-center font-bold text-3xl mb-8 text-gray-800">
+        Show All Projects
+      </h2>
 
       <div className="w-full flex justify-center mb-6">
         <input
-          className="border border-gray-300 bg-white rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-1/2 shadow-sm"
+          className="border dark:bg-slate-950  border-gray-300  rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-1/2 shadow-sm"
           type="text"
           placeholder="Search projects by name..."
           value={search}
@@ -272,57 +278,57 @@ const ShowAllProjects = () => {
             <thead>
               <tr className="bg-gradient-to-r from-blue-600 to-blue-400 text-white">
                 <th
-                  className="px-4 py-3 text-left font-semibold border-b border-gray-200 cursor-pointer whitespace-nowrap"
+                  className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold border-b border-gray-200 cursor-pointer whitespace-nowrap"
                   onClick={() => sorting("id")}
                 >
                   ID {renderSortIcon("id")}
                 </th>
                 <th
-                  className="px-4 py-3 text-left font-semibold border-b border-gray-200 cursor-pointer whitespace-nowrap"
+                  className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold border-b border-gray-200 cursor-pointer whitespace-nowrap"
                   onClick={() => sorting("name")}
                 >
                   Name {renderSortIcon("name")}
                 </th>
                 <th
-                  className="px-4 py-3 text-left font-semibold border-b border-gray-200 cursor-pointer whitespace-nowrap"
+                  className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold border-b border-gray-200 cursor-pointer whitespace-nowrap"
                   onClick={() => sorting("inspection_date")}
                 >
                   Inspection Date {renderSortIcon("inspection_date")}
                 </th>
                 <th
-                  className="px-4 py-3 text-left font-semibold border-b border-gray-200 cursor-pointer whitespace-nowrap"
+                  className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold border-b border-gray-200 cursor-pointer whitespace-nowrap"
                   onClick={() => sorting("statusText")}
                 >
                   Status {renderSortIcon("statusText")}
                 </th>
                 <th
-                  className="px-4 py-3 text-left font-semibold border-b border-gray-200 cursor-pointer whitespace-nowrap"
+                  className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold border-b border-gray-200 cursor-pointer whitespace-nowrap"
                   onClick={() => sorting("branchName")}
                 >
                   Branch {renderSortIcon("branchName")}
                 </th>
                 <th
-                  className="px-4 py-3 text-left font-semibold border-b border-gray-200 cursor-pointer whitespace-nowrap"
+                  className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold border-b border-gray-200 cursor-pointer whitespace-nowrap"
                   onClick={() => sorting("ownerName")}
                 >
                   Owner {renderSortIcon("ownerName")}
                 </th>
                 <th
-                  className="px-4 py-3 text-left font-semibold border-b border-gray-200 cursor-pointer whitespace-nowrap"
+                  className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold border-b border-gray-200 cursor-pointer whitespace-nowrap"
                   onClick={() => sorting("customerName")}
                 >
                   Customer {renderSortIcon("customerName")}
                 </th>
                 <th
-                  className="px-4 py-3 text-left font-semibold border-b border-gray-200 cursor-pointer whitespace-nowrap"
+                  className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold border-b border-gray-200 cursor-pointer whitespace-nowrap"
                   onClick={() => sorting("engineerName")}
                 >
                   Engineer {renderSortIcon("engineerName")}
                 </th>
-                <th className="px-4 py-3 text-left font-semibold border-b border-gray-200 whitespace-nowrap">
+                <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold border-b border-gray-200 whitespace-nowrap">
                   Notes
                 </th>
-                <th className="px-4 py-3 text-right font-semibold border-b border-gray-200 whitespace-nowrap">
+                <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-right font-semibold border-b border-gray-200 whitespace-nowrap">
                   Actions
                 </th>
               </tr>
@@ -341,38 +347,40 @@ const ShowAllProjects = () => {
                       index % 2 === 0 ? "bg-white" : "bg-gray-50"
                     } hover:bg-gray-100 transition duration-200`}
                   >
-                    <td className="px-4 py-3 text-gray-800 whitespace-nowrap">
+                    <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800 whitespace-nowrap">
                       {project.id}
                     </td>
-                    <td className="px-4 py-3 text-gray-800 whitespace-nowrap">
+                    <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800 whitespace-nowrap">
                       {project.name}
                     </td>
-                    <td className="px-4 py-3 text-gray-800 whitespace-nowrap">
+                    <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800 whitespace-nowrap">
                       {project.inspection_date}
                     </td>
-                    <td className="px-4 py-3 text-gray-800 whitespace-nowrap">
+                    <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800 whitespace-nowrap">
                       {project.statusText}
                     </td>
-                    <td className="px-4 py-3 text-gray-800 whitespace-nowrap">
+                    <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800 whitespace-nowrap">
                       {project.branchName}
                     </td>
-                    <td className="px-4 py-3 text-gray-800 whitespace-nowrap">
+                    <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800 whitespace-nowrap">
                       {project.ownerName}
                     </td>
-                    <td className="px-4 py-3 text-gray-800 whitespace-nowrap">
+                    <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800 whitespace-nowrap">
                       {project.customerName}
                     </td>
-                    <td className="px-4 py-3 text-gray-800 whitespace-nowrap">
+                    <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800 whitespace-nowrap">
                       {project.engineerName}
                     </td>
-                    <td className="px-4 py-3 text-gray-800 whitespace-nowrap">
+                    <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800 whitespace-nowrap">
                       {project.notes}
                     </td>
-                    <td className="px-4 py-3 text-gray-800 whitespace-nowrap">
+                    <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800 whitespace-nowrap">
                       <div className="flex items-center justify-end gap-2 overflow-x-auto flex-nowrap max-w-sm">
                         <button
                           onClick={() =>
-                            navigate(`/allprojects/updateprojects/${project.id}`)
+                            navigate(
+                              `/allprojects/updateprojects/${project.id}`
+                            )
                           }
                           className="bg-green-600 text-white font-semibold py-2 px-3 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-200"
                         >

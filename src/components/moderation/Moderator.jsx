@@ -48,9 +48,8 @@ const Moderator = () => {
       });
   }, [navigate]);
 
-  // Delete admin function (if required)
   const handleDelete = (id) => {
-    const token = localStorage.getItem('token'); // استرجاع التوكن من localStorage
+    const token = localStorage.getItem('token'); 
     const confirmDelete = window.confirm("Do you really want to delete this admin?");
     if (confirmDelete) {
       fetch(`https://inout-api.octopusteam.net/api/front/deleteAdmin`, {
@@ -61,13 +60,13 @@ const Moderator = () => {
         },
       })
         .then(async (res) => {
-          console.log("Response status:", res.status); // حالة الاستجابة
+          console.log("Response status:", res.status); 
           const responseText = await res.text();
-          console.log("Response text:", responseText); // النص الخام للاستجابة
+          console.log("Response text:", responseText); 
           if (!res.ok) {
             throw new Error("Failed to delete admin");
           }
-          return JSON.parse(responseText); // تحويل النص إلى JSON
+          return JSON.parse(responseText);
         })
         .then((resData) => {
           alert(resData.msg || "Admin deleted successfully");
@@ -86,7 +85,7 @@ const Moderator = () => {
 
       <div className="flex justify-between items-center my-4">
         <input
-          className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-2/3 shadow-md"
+          className="border border-gray-300 dark:bg-slate-900 dark:text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-2/3 shadow-md"
           type="text"
           placeholder="Search admins..."
           value={search}
@@ -104,16 +103,16 @@ const Moderator = () => {
         <table className="table-auto w-full border border-gray-200 bg-white rounded-lg">
           <thead>
             <tr className="bg-gradient-to-r from-blue-600 to-blue-400 text-white">
-              <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">
+              <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
                 ID
               </th>
-              <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">
+              <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
                 Name
               </th>
-              <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">
+              <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
                 Email
               </th>
-              <th className="px-4 py-3 text-right font-semibold text-lg border-b border-gray-300">
+              <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-right font-semibold text-lg border-b border-gray-300">
                 Actions
               </th>
             </tr>
@@ -132,10 +131,10 @@ const Moderator = () => {
                     index % 2 === 0 ? "bg-gray-50" : "bg-white"
                   }`}
                 >
-                  <td className="px-4 py-3 text-gray-800">{item.id}</td>
-                  <td className="px-4 py-3 text-gray-800">{item.name}</td>
-                  <td className="px-4 py-3 text-gray-800">{item.email}</td>
-                  <td className="px-4 py-3 text-right space-x-2">
+                  <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">{item.id}</td>
+                  <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">{item.name}</td>
+                  <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">{item.email}</td>
+                  <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-right space-x-2">
                     <button
                       onClick={() =>
                         navigate(`/moderation/editadmin`, { state: item })

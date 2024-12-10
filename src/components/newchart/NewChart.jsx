@@ -92,10 +92,10 @@ const NewChart = () => {
               <Line
                 type="monotone"
                 dataKey="pv"
-                stroke="#8884d8"
+                stroke="#3874FF"
                 activeDot={{ r: 8 }}
               />
-              <Line type="monotone" dataKey="uv" stroke="#82ca9d" />
+              <Line type="monotone" dataKey="uv" stroke="#60C6FF" />
             </LineChart>
           </div>
         </div>

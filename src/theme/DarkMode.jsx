@@ -3,7 +3,12 @@ import { FaMoon, FaSun } from "react-icons/fa";
 
 export default function DarkModeToggle() {
   const [isDarkMode, setIsDarkMode] = useState(() => {
-    return localStorage.getItem("theme") === "dark";
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme) {
+      return savedTheme === "dark";
+    }
+    
+    return false; 
   });
 
   useEffect(() => {
@@ -17,13 +22,14 @@ export default function DarkModeToggle() {
   }, [isDarkMode]);
 
   return (
-    <button onClick={() => setIsDarkMode(!isDarkMode)} className="">
+    <button 
+      onClick={() => setIsDarkMode(!isDarkMode)} 
+      className="p-2 rounded-full bg-yellow-50 text-white"
+    >
       {isDarkMode ? (
-        <FaMoon className="mr-2 text-2xl text-gray-400" />
+        <FaMoon className="text-2xl text-gray-400" />
       ) : (
-        <div className="flex items-center justify-center  w-10 h-10 rounded-full">
-          <FaSun className="text-xl text-yellow-300" />
-        </div>
+        <FaSun className="text-xl text-yellow-300" />
       )}
     </button>
   );

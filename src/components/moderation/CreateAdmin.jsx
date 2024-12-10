@@ -38,7 +38,7 @@ const CreateAdmin = () => {
       })
       .then((data) => {
         alert(data.msg || "Admin registered successfully!");
-        navigate("/moderators"); // Redirect to the moderators list
+        navigate("/moderators"); 
       })
       .catch((err) => {
         console.error("Error registering admin:", err);
@@ -54,11 +54,11 @@ const CreateAdmin = () => {
       <h2 className="text-center text-2xl font-bold mb-5">Create New Admin</h2>
       <form
         onSubmit={handleSubmit}
-        className="max-w-lg mx-auto bg-white shadow-md rounded px-8 pt-6 pb-8"
+        className="service max-w-lg mx-auto shadow-md rounded px-8 pt-6 pb-8"
       >
         <div className="mb-4">
           <label
-            className="block text-gray-700 text-sm font-bold mb-2"
+            className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2"
             htmlFor="name"
           >
             Name
@@ -70,13 +70,13 @@ const CreateAdmin = () => {
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:ring-blue-500"
+            className="shadow dark:bg-slate-900 dark:text-white appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:ring focus:ring-blue-500"
           />
         </div>
 
         <div className="mb-4">
           <label
-            className="block text-gray-700 text-sm font-bold mb-2"
+            className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2"
             htmlFor="email"
           >
             Email
@@ -88,13 +88,13 @@ const CreateAdmin = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:ring-blue-500"
+            className="shadow dark:bg-slate-900 dark:text-white appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:ring focus:ring-blue-500"
           />
         </div>
 
         <div className="mb-4">
           <label
-            className="block text-gray-700 text-sm font-bold mb-2"
+            className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2"
             htmlFor="password"
           >
             Password
@@ -106,7 +106,7 @@ const CreateAdmin = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:ring-blue-500"
+            className="shadow dark:bg-slate-900 dark:text-white appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:ring focus:ring-blue-500"
           />
         </div>
 

@@ -13,11 +13,11 @@ const DashBoard = () => {
   return (
     <div className="p-1 dark:bg-slate-950 dark:text-white">
       <div className="text-left md:text-left mt-11">
-        <h1 className="text-2xl  dark:text-white md:text-4xl font-bold  ml-11">
+        <h1 className="project1 text-2xl md:text-4xl font-bold  ml-11">
           Project Manager
         </h1>
 
-        <p className="text-gray-500 text-2xl dark:text-white py-3 ml-11">
+        <p className="text-gray-500 text-xl dark:text-white py-3 ml-11">
           Here's what's going on at your business right now
         </p>
       </div>
@@ -75,9 +75,7 @@ const DashBoard = () => {
         </div>
       </div>
       <div class="my-1">
-        
         <hr class="border-t border-gray-300 mx-auto w-11/12" />
-       
       </div>
 
       {/* Chart and Sales Section */}
@@ -89,7 +87,7 @@ const DashBoard = () => {
                 <h2 className="text-3xl md:text-3xl font-bold  dark:text-white">
                   Total Sells
                 </h2>
-                <select className="date-input border  border-gray-300  w-5/12 ml-28 rounded-md px-4 mt-8 py-2 text-gray-700 focus:outline-none text-lg dark:bg-slate-900 dark:text-white dark:border-gray-600">
+                <select className="date-input border  border-gray-300  w-4/12 rounded-md px-4 mt-8 py-2 text-gray-700 focus:outline-none text-lg dark:bg-slate-900 dark:text-white dark:border-gray-600">
                   <option className="dark:text-white">Mar 1 - 31, 2022</option>
                 </select>
               </div>

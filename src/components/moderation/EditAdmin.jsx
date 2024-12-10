@@ -33,9 +33,9 @@ const EditAdmin = () => {
       body: JSON.stringify(payload),
     })
       .then(async (res) => {
-        console.log("Response status:", res.status); // عرض حالة الاستجابة
+        console.log("Response status:", res.status);
         const rawText = await res.text();
-        console.log("Raw response text:", rawText); // عرض النص الخام
+        console.log("Raw response text:", rawText);
         if (!res.ok) {
           throw new Error("Server error: " + rawText);
         }
@@ -60,7 +60,7 @@ const EditAdmin = () => {
       <h2 className="text-center text-2xl font-bold mb-5">Edit Admin</h2>
       <form
         onSubmit={handleSubmit}
-        className="max-w-lg mx-auto bg-white shadow-md rounded px-8 pt-6 pb-8"
+        className="service max-w-lg mx-auto shadow-md rounded px-8 pt-6 pb-8"
       >
         <div className="mb-4">
           <label
@@ -76,7 +76,7 @@ const EditAdmin = () => {
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:ring-blue-500"
+            className="shadow dark:bg-slate-900 dark:text-white appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:ring-blue-500"
           />
         </div>
 
@@ -94,7 +94,7 @@ const EditAdmin = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:ring-blue-500"
+            className="shadow dark:bg-slate-900 dark:text-white appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:ring-blue-500"
           />
         </div>
 

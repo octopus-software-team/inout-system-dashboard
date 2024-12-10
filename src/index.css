@@ -87,6 +87,19 @@ code {
   z-index: 9999; /* التأكد أن التوست في الواجهة العلوية */
 }
 
+.project1{
+  color: black;
+}
 
 
 
+@layer base {
+  .project1 {
+    @apply dark:text-white;
+  }
+}
+
+
+.select1{
+  background-color: white;
+}
