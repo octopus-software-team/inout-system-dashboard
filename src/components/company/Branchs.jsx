@@ -1,81 +1,61 @@
+// src/components/Branchs.js
 import React, { useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
-import MapPicker from "react-google-map-picker";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const Branchs = () => {
   const [data, setData] = useState([]);
   const [search, setSearch] = useState("");
-  const [openMap, setOpenMap] = useState(false);
-  const [selectedBranch, setSelectedBranch] = useState(null);
   const navigate = useNavigate();
 
-  const DefaultLocation = { lat: 10, lng: 106 }; // الموقع الافتراضي للخريطة
-  const DefaultZoom = 10;
-
-  const [location, setLocation] = useState(DefaultLocation);
-  const [zoom, setZoom] = useState(DefaultZoom);
-
-  function handleChangeLocation(lat, lng) {
-    setLocation({ lat, lng });
-    if (selectedBranch) {
-      selectedBranch.latitude = lat;
-      selectedBranch.longitude = lng;
-      setSelectedBranch({ ...selectedBranch });
-    }
-  }
-
-  // لتغيير الزوم عند التعديل عليه
-  function handleChangeZoom(newZoom) {
-    setZoom(newZoom);
-  }
-
-  // لإغلاق الخريطة
-  const handleResetLocation = () => {
-    setSelectedBranch(null);
-    setOpenMap(false);
-  };
-
-  // جلب البيانات من الـ API
+  // Fetch branches from the API
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const fetchBranches = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast.error("You are not authenticated. Please log in.");
+        return;
+      }
 
-    fetch("https://inout-api.octopusteam.net/api/front/getBranches", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error("Failed to fetch branches");
+      try {
+        const response = await fetch("https://inout-api.octopusteam.net/api/front/getBranches", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch branches.");
         }
-        return res.json();
-      })
-      .then((resData) => {
-        if (resData && resData.data) {
+
+        const resData = await response.json();
+
+        if (resData.status === 200 && resData.data) {
           setData(resData.data);
         } else {
-          toast.error("No data found");
+          toast.error(resData.msg || "No data found.");
         }
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error("Error fetching branches:", err);
-        toast.error("Failed to fetch branches");
-      });
+        toast.error("Failed to fetch branches.");
+      }
+    };
+
+    fetchBranches();
   }, []);
 
-  // عملية الحذف مع التوست
+  // Handle deletion with confirmation toast
   const handleDelete = (id) => {
     const token = localStorage.getItem("token");
 
-    // عرض توست التأكيد للحذف
+    // Display confirmation toast
     const confirmToast = toast(
       <div>
         <p>Are you sure you want to delete this branch?</p>
-        <div className="flex space-x-2 justify-end">
+        <div className="flex space-x-2 justify-end mt-2">
           <button
             onClick={() => handleConfirmDelete(id, token, confirmToast)}
             className="bg-red-600 text-white py-1 px-4 rounded-lg"
@@ -83,7 +63,7 @@ const Branchs = () => {
             Yes
           </button>
           <button
-            onClick={() => toast.dismiss(confirmToast)} // إغلاق التوست إذا تم اختيار "No"
+            onClick={() => toast.dismiss(confirmToast)} // Close toast if "No" is selected
             className="bg-gray-600 text-white py-1 px-4 rounded-lg"
           >
             No
@@ -94,40 +74,38 @@ const Branchs = () => {
     );
   };
 
-  const handleConfirmDelete = (id, token, confirmToast) => {
-    fetch(`https://inout-api.octopusteam.net/api/front/deleteBranch/${id}`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error("Failed to delete branch");
-        }
-        return res.json();
-      })
-      .then((resData) => {
-        toast.success(resData.msg || "Branch deleted successfully");  // عرض التوست عند النجاح
-        setData(data.filter((branch) => branch.id !== id));
-        toast.dismiss(confirmToast); // إغلاق التوست بعد الحذف
-      })
-      .catch((err) => {
-        console.error("Error deleting branch:", err);
-        toast.error("Failed to delete branch");  // عرض التوست عند حدوث خطأ
-        toast.dismiss(confirmToast); // إغلاق التوست بعد الخطأ
+  const handleConfirmDelete = async (id, token, confirmToast) => {
+    try {
+      const response = await fetch(`https://inout-api.octopusteam.net/api/front/deleteBranch/${id}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete branch.");
+      }
+
+      const resData = await response.json();
+
+      if (resData.status === 200) {
+        toast.success(resData.msg || "Branch deleted successfully.");
+        setData(data.filter((branch) => branch.id !== id));
+        toast.dismiss(confirmToast); // Close confirmation toast
+      } else {
+        toast.error(resData.msg || "Failed to delete branch.");
+      }
+    } catch (err) {
+      console.error("Error deleting branch:", err);
+      toast.error("An error occurred while deleting the branch.");
+      toast.dismiss(confirmToast); // Close confirmation toast
+    }
   };
 
-  const openMapp = (latitude, longitude) => {
-    const url = `https://www.google.com/maps?q=${latitude},${longitude}`;
-    window.open(url, "_blank");
-  };
-
-  const handleViewMap = (latitude, longitude, branchData) => {
-    setSelectedBranch(branchData);
-    setOpenMap(true);
-    setLocation({ lat: latitude, lng: longitude });
+  // Open the branch location in a new tab
+  const openMap = (locationUrl) => {
+    window.open(locationUrl, "_blank");
   };
 
   return (
@@ -190,7 +168,7 @@ const Branchs = () => {
                   </td>
                   <td className="px-4 py-3 dark:text-white dark:bg-slate-900 text-gray-800">
                     <button
-                      onClick={() => openMapp(d.latitude, d.longitude)}
+                      onClick={() => openMap(d.location)}
                       className="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:shadow-md transform hover:scale-105 transition duration-300"
                     >
                       View on Map
@@ -199,7 +177,7 @@ const Branchs = () => {
                   <td className="px-4 py-3 dark:bg-slate-900 text-right space-x-2">
                     <button
                       onClick={() =>
-                        navigate(`/company/updatebranch`, { state: d })
+                        navigate(`/company/updatebranch/${d.id}`, { state: d })
                       }
                       className="bg-green-600 text-white font-semibold py-2 px-4 rounded-lg hover:shadow-md transform hover:scale-105 transition duration-300"
                     >
@@ -219,35 +197,18 @@ const Branchs = () => {
           </tbody>
         </table>
       </div>
-
-      {openMap && selectedBranch && (
-        <div className="modal">
-          <button
-            onClick={handleResetLocation}
-            className="bg-red-500 text-white px-4 py-2 rounded"
-          >
-            Close Map
-          </button>
-          <MapPicker
-            defaultLocation={location}
-            zoom={zoom}
-            mapTypeId="roadmap"
-            style={{ height: "700px" }}
-            onChangeLocation={handleChangeLocation}
-            onChangeZoom={handleChangeZoom}
-            apiKey="AIzaSyD07E1VvpsN_0FvsmKAj4nK9GnLq-9jtj8"
-          />
-          <div>
-            <label>Latitude:</label>
-            <input type="text" value={location.lat} disabled />
-            <label>Longitude:</label>
-            <input type="text" value={location.lng} disabled />
-            <label>Zoom:</label>
-            <input type="text" value={zoom} disabled />
-          </div>
-        </div>
-      )}
-      <ToastContainer />
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        style={{ zIndex: 9999 }} // Ensure toast appears above other elements
+      />
     </div>
   );
 };

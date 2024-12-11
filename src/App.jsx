@@ -176,7 +176,7 @@ function App() {
               element={<PrivateRoute element={<AddBranch />} />}
             />
             <Route
-              path="/company/updatebranch"
+              path="/company/updatebranch/:id"
               element={<PrivateRoute element={<UpdateBranch />} />}
             />
             <Route

@@ -152,7 +152,6 @@ const ShowAllProjects = () => {
         });
         setEngineers(engineersMap);
 
-        // Map Projects with Mapped Data
         const mappedProjects = fetchedProjects.map((project) => ({
           ...project,
           branchName: branchesMap[project.branch_id] || "Unknown",
@@ -214,7 +213,6 @@ const ShowAllProjects = () => {
   };
 
   const handleDelete = (id) => {
-    // عرض توست التأكيد المخصص
     toast(
       ({ closeToast }) => (
         <div>
@@ -297,12 +295,12 @@ const ShowAllProjects = () => {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        <Link
+        {/* <Link
           to="/allprojects/addproject"
           className="mt-2 md:mt-0 bg-slate-500 text-white font-semibold py-1 px-3 rounded hover:bg-slate-700 w-96 md:w-1/6 text-center text-xs"
         >
           +Add Project
-        </Link>
+        </Link> */}
       </div>
 
       {isLoading ? (

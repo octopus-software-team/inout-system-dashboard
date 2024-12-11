@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 
 const Employees = () => {
   const [employees, setEmployees] = useState([]);
@@ -69,7 +72,6 @@ const Employees = () => {
     }
   };
 
-  // Fetch employee specials
   const fetchEmployeeSpecials = async () => {
     const token = localStorage.getItem("token");
     try {
@@ -104,7 +106,7 @@ const Employees = () => {
     fetchEmployeeSpecials();
   }, []);
 
-  // Sorting
+  
   const sorting = (col) => {
     let sorted = [];
     if (order === "ASC") {
@@ -126,7 +128,6 @@ const Employees = () => {
     setSortedColumn(col);
   };
 
-  // Delete handler
   const handleDelete = (id) => {
     const confirmDelete = window.confirm(
       "Do you want to delete this employee?"
@@ -149,13 +150,22 @@ const Employees = () => {
           }
           return response.json();
         })
-        .then(() => {
-          alert("Employee deleted successfully.");
-          setEmployees(employees.filter((employee) => employee.id !== id));
+        .then((response) => {
+          const toastId = toast.success(
+            response.msg || "Employee deleted successfully."
+          );
+          setEmployees(employees.filter((employee) => employee.id !== id)); 
+          setTimeout(() => {
+            toast.dismiss(toastId); 
+          }, 3000);
         })
-        .catch((error) => console.error("Error deleting record:", error));
+        .catch((error) => {
+          console.error("Error deleting employee:", error);
+          toast.error("Failed to delete the employee. Please try again.");
+        });
     }
   };
+  
 
   const renderSortIcon = (col) => {
     if (sortedColumn === col) {
@@ -377,7 +387,9 @@ const Employees = () => {
               ))}
           </tbody>
         </table>
+   
       </div>
+      <ToastContainer />
     </div>
   );
 };

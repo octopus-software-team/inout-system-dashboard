@@ -1,13 +1,16 @@
 import React, { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 
 const AddRepo = () => {
   const location = useLocation();
-  const { projectId } = location.state || {}; 
+  const { projectId } = location.state || {};
   const [reportType, setReportType] = useState("daily");
   const [reportStock, setReportStock] = useState("");
   const [isInspection, setIsInspection] = useState(1);
   const [report, setReport] = useState("");
+  const { id } = useParams();
+
+
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -44,6 +47,25 @@ const AddRepo = () => {
         console.error("Error submitting report:", error);
         alert("Failed to submit report. Please try again.");
       });
+
+    const fetchCustomers = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch(
+          `https://inout-api.octopusteam.net/api/front/getProjects/${id}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    fetchCustomers();
   };
 
   return (
@@ -52,7 +74,10 @@ const AddRepo = () => {
         <input type="hidden" value={projectId} />
 
         <div className="mb-4">
-          <label htmlFor="reportType" className="blocktext-sm font-medium text-gray-700 dark:text-white">
+          <label
+            htmlFor="reportType"
+            className="blocktext-sm font-medium text-gray-700 dark:text-white"
+          >
             Report Type
           </label>
           <select
@@ -68,7 +93,10 @@ const AddRepo = () => {
         </div>
 
         <div className="mb-4 flex items-center">
-          <label htmlFor="isInspection" className="mr-2 text-sm font-medium text-gray-700 dark:text-white">
+          <label
+            htmlFor="isInspection"
+            className="mr-2 text-sm font-medium text-gray-700 dark:text-white"
+          >
             Is Inspection:
           </label>
           <input
@@ -83,7 +111,10 @@ const AddRepo = () => {
         {isInspection === 1 && (
           <>
             <div className="mb-4">
-              <label htmlFor="reportStock" className="block text-sm font-medium text-gray-700 dark:text-white">
+              <label
+                htmlFor="reportStock"
+                className="block text-sm font-medium text-gray-700 dark:text-white"
+              >
                 Report Stock
               </label>
               <textarea
@@ -97,7 +128,10 @@ const AddRepo = () => {
             </div>
 
             <div className="mb-4">
-              <label htmlFor="report" className="block text-sm font-medium text-gray-700 dark:text-white">
+              <label
+                htmlFor="report"
+                className="block text-sm font-medium text-gray-700 dark:text-white"
+              >
                 Report
               </label>
               <textarea

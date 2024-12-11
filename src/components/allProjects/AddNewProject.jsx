@@ -50,11 +50,9 @@ const AddNewProject = () => {
   const [newCustomerName, setNewCustomerName] = useState("");
   const [newConsultiveName, setNewConsultiveName] = useState("");
 
-  // **New Variables to Manage Image Upload**
   const [projectImage, setProjectImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
 
-  // Ref for Dropify input
   const dropifyRef = useRef(null);
 
   const isDarkMode = () =>
@@ -79,7 +77,7 @@ const AddNewProject = () => {
           : "#aaa",
       },
       color: isDarkMode() ? "#fff" : "#000",
-      minHeight: "2.5rem", // Ensure consistent height
+      minHeight: "2.5rem",
     }),
     menu: (provided) => ({
       ...provided,
@@ -327,8 +325,6 @@ const AddNewProject = () => {
     }
   }, []);
 
-
-
   const handleAddProject = async () => {
     setIsLoading(true);
 
@@ -392,6 +388,7 @@ const AddNewProject = () => {
         notes: notes,
         inspection_time: inspectionTime,
         project_image: projectImage,
+        inspection_location_location: inspectionLocation,
       });
 
       const result = await addProjectData(formData);
@@ -698,7 +695,7 @@ const AddNewProject = () => {
         </div>
 
         {/* Latitude */}
-        <div className="">
+        {/* <div className="">
           <label className="block ml-6 text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
             Latitude
           </label>
@@ -708,10 +705,10 @@ const AddNewProject = () => {
             onChange={(e) => setLatValue(e.target.value)}
             className="border border-gray-300 rounded-md p-2 dark:bg-slate-900 dark:text-white w-full"
           />
-        </div>
+        </div> */}
 
         {/* Longitude */}
-        <div className="">
+        {/* <div className="">
           <label className="block ml-6 text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
             Longitude
           </label>
@@ -721,7 +718,7 @@ const AddNewProject = () => {
             onChange={(e) => setLongValue(e.target.value)}
             className="border border-gray-300 rounded-md p-2 dark:bg-slate-900 dark:text-white w-full"
           />
-        </div>
+        </div> */}
 
         {/* Image Upload Field using Dropify */}
       </div>
@@ -1144,18 +1141,15 @@ const AddNewProject = () => {
           ></textarea>
         </div>
 
-        {/* Inspection Location */}
         <div className="p-1">
           <label className="block text-sm font-medium text-gray-700 ml-6">
             Inspection Location
           </label>
-          {/* You can use the latValue and longValue coordinates instead of this iframe, or add fields to input the location */}
           <div className="mt-1 block w-full border border-gray-300 dark:border-gray-700 rounded-md p-2 dark:bg-slate-950 dark:text-white">
             <input
               type="text"
+              name="  inspection_location_location"
               placeholder="Inspection Location Description"
-              value={inspectionLocation}
-              onChange={(e) => setInspectionLocation(e.target.value)}
               className="w-full p-2 border border-gray-300 rounded-md dark:bg-slate-900 dark:text-white"
             />
           </div>
@@ -1177,7 +1171,6 @@ const AddNewProject = () => {
           data-allowed-file-extensions="jpg jpeg png gif"
           data-max-file-size="2M"
         />
-        {/* Display image preview if selected */}
         {imagePreview && (
           <img
             src={imagePreview}

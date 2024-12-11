@@ -87,7 +87,6 @@ const AddServices = () => {
     navigate(`/company/editservice`, { state: selectedService });
   };
 
-  // لتأكيد الحذف باستخدام Toast
   const handleDelete = (id) => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -95,7 +94,6 @@ const AddServices = () => {
       return;
     }
 
-    // عرض Toast للتأكيد على الحذف
     const confirmToast = toast(
       <div>
         <p>Are you sure you want to delete this service?</p>
@@ -107,7 +105,7 @@ const AddServices = () => {
             Yes
           </button>
           <button
-            onClick={() => toast.dismiss(confirmToast)} // إغلاق التوست إذا تم اختيار "No"
+            onClick={() => toast.dismiss(confirmToast)}
             className="bg-gray-600 text-white py-1 px-4 rounded-lg"
           >
             No
@@ -118,7 +116,6 @@ const AddServices = () => {
     );
   };
 
-  // تنفيذ عملية الحذف
   const handleConfirmDelete = (id, token, confirmToast) => {
     fetch(`https://inout-api.octopusteam.net/api/front/deleteService/${id}`, {
       method: "POST",
@@ -136,12 +133,12 @@ const AddServices = () => {
       .then((response) => {
         toast.success(response.msg || "Service deleted successfully.");
         setData(data.filter((service) => service.id !== id));
-        toast.dismiss(confirmToast); // إغلاق التوست بعد الحذف
+        toast.dismiss(confirmToast); 
       })
       .catch((error) => {
         console.error("Error deleting service:", error);
         toast.error("Failed to delete the service. Please try again.");
-        toast.dismiss(confirmToast); // إغلاق التوست بعد الخطأ
+        toast.dismiss(confirmToast); 
       });
   };
 

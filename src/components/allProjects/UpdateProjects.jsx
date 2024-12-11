@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const UpdateProject = () => {
   const { id } = useParams();
@@ -37,60 +39,77 @@ const UpdateProject = () => {
     const fetchData = async () => {
       try {
         // Fetch project data
-        const projectsRes = await fetch("https://inout-api.octopusteam.net/api/front/getProjects", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const projectsRes = await fetch(
+          "https://inout-api.octopusteam.net/api/front/getProjects",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         const projectsData = await projectsRes.json();
         if (projectsData.status !== 200) {
           throw new Error(projectsData.msg || "Failed to fetch projects.");
         }
-        const project = projectsData.data.find((item) => item.id === parseInt(id));
+        const project = projectsData.data.find(
+          (item) => item.id === parseInt(id)
+        );
         if (!project) {
           throw new Error("Project not found");
         }
 
         // Fetch branches
-        const branchesRes = await fetch("https://inout-api.octopusteam.net/api/front/getBranches", {
-          method: "GET",
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const branchesRes = await fetch(
+          "https://inout-api.octopusteam.net/api/front/getBranches",
+          {
+            method: "GET",
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         const branchesData = await branchesRes.json();
         if (branchesData.status !== 200) {
           throw new Error(branchesData.msg || "Failed to fetch branches.");
         }
 
         // Fetch owners
-        const ownersRes = await fetch("https://inout-api.octopusteam.net/api/front/getOwners", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const ownersRes = await fetch(
+          "https://inout-api.octopusteam.net/api/front/getOwners",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         const ownersData = await ownersRes.json();
         if (ownersData.status !== 200) {
           throw new Error(ownersData.msg || "Failed to fetch owners.");
         }
 
         // Fetch customers
-        const customersRes = await fetch("https://inout-api.octopusteam.net/api/front/getCustomers", {
-          method: "GET",
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const customersRes = await fetch(
+          "https://inout-api.octopusteam.net/api/front/getCustomers",
+          {
+            method: "GET",
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         const customersDataRes = await customersRes.json();
         if (customersDataRes.status !== 200) {
           throw new Error(customersDataRes.msg || "Failed to fetch customers.");
         }
 
         // Fetch engineers
-        const engineersRes = await fetch("https://inout-api.octopusteam.net/api/front/getEngineers", {
-          method: "GET",
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const engineersRes = await fetch(
+          "https://inout-api.octopusteam.net/api/front/getEngineers",
+          {
+            method: "GET",
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         const engineersDataRes = await engineersRes.json();
         if (engineersDataRes.status !== 200) {
           throw new Error(engineersDataRes.msg || "Failed to fetch engineers.");
@@ -126,7 +145,6 @@ const UpdateProject = () => {
           status: status !== undefined ? status : "",
           inspection_engineer_id: inspection_engineer_id || "",
         });
-
       } catch (err) {
         console.error(err);
         setError(err.message || "An unexpected error occurred.");
@@ -143,12 +161,12 @@ const UpdateProject = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (e) => {
-    const token = localStorage.getItem('token');
+  const handleSubmit = async (e) => {
+    const token = localStorage.getItem("token");
     e.preventDefault();
 
     if (!formData.name) {
-      alert("Please enter the project name");
+      toast.error("Please enter the project name");
       return;
     }
 
@@ -163,7 +181,7 @@ const UpdateProject = () => {
       inspection_time,
       notes,
       status,
-      inspection_engineer_id
+      inspection_engineer_id,
     } = formData;
 
     const updateBody = {
@@ -178,42 +196,68 @@ const UpdateProject = () => {
       inspection_engineer_id,
     };
 
-    fetch(`https://inout-api.octopusteam.net/api/front/updateProject/${id}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(updateBody),
-    })
-      .then((response) => response.json())
-      .then((res) => {
-        if (res.status === 200) {
-          alert("Project updated successfully!");
-          navigate("/allprojects");
-        } else {
-          alert(`Failed to update project: ${res.msg}`);
+    try {
+      const response = await fetch(
+        `https://inout-api.octopusteam.net/api/front/updateProject/${id}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(updateBody),
         }
-      })
-      .catch((err) => setError(`Error updating project: ${err.message}`))
-      .finally(() => setLoading(false));
+      );
+
+      const res = await response.json();
+
+      if (res.status === 200) {
+        toast.success(res.msg || "Project updated successfully!");
+
+        setTimeout(() => {
+          navigate("/allprojects/showallprojects");
+        }, 1500);
+      } else {
+        toast.error(`Failed to update project: ${res.msg}`);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error(`Error updating project: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-xl font-semibold text-gray-700 dark:text-gray-300">
+          Loading...
+        </div>
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="error text-red-500">{error}</div>;
+    return (
+      <div className="container mx-auto mt-10 p-4 bg-red-100 border border-red-400 text-red-700 dark:text-red-300 rounded">
+        {error}
+      </div>
+    );
   }
 
   return (
-    <div className="container mt-5 max-w-xl mx-auto">
-      <h2 className="text-center font-bold text-2xl mb-4">Update Project</h2>
-      <form onSubmit={handleSubmit} className="mt-5">
+    <div className="container mx-auto p-6 bg-white dark:bg-slate-800 shadow-md rounded-lg max-w-2xl mt-10">
+      <h2 className="text-center font-bold text-3xl mb-6 text-gray-800 dark:text-white">
+        Update Project
+      </h2>
+      <form onSubmit={handleSubmit} className="space-y-6">
         {/* Project ID (read-only) */}
-        <div className="mb-4">
-          <label htmlFor="id" className="block text-sm font-bold mb-2">
+        <div>
+          <label
+            htmlFor="id"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+          >
             Project ID
           </label>
           <input
@@ -221,15 +265,18 @@ const UpdateProject = () => {
             id="id"
             name="id"
             value={formData.id}
-            className="w-full dark:bg-slate-900 dark:text-white border border-gray-300 rounded-lg px-4 py-2"
+            className="w-full bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2"
             disabled
           />
         </div>
 
         {/* Project Name */}
-        <div className="mb-4">
-          <label htmlFor="name" className="block text-sm font-bold mb-2">
-            Project Name
+        <div>
+          <label
+            htmlFor="name"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+          >
+            Project Name <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
@@ -237,13 +284,17 @@ const UpdateProject = () => {
             name="name"
             value={formData.name}
             onChange={handleChange}
-            className="w-full dark:bg-slate-900 dark:text-white border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+            className="w-full dark:bg-slate-700 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
           />
         </div>
 
         {/* Inspection Date */}
-        <div className="mb-4">
-          <label htmlFor="inspection_date" className="block text-sm font-bold mb-2">
+        <div>
+          <label
+            htmlFor="inspection_date"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+          >
             Inspection Date
           </label>
           <input
@@ -252,13 +303,16 @@ const UpdateProject = () => {
             name="inspection_date"
             value={formData.inspection_date}
             onChange={handleChange}
-            className="w-full dark:bg-slate-900 dark:text-white border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full dark:bg-slate-700 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
           />
         </div>
 
         {/* Inspection Time */}
-        <div className="mb-4">
-          <label htmlFor="inspection_time" className="block text-sm font-bold mb-2">
+        <div>
+          <label
+            htmlFor="inspection_time"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+          >
             Inspection Time
           </label>
           <input
@@ -267,13 +321,16 @@ const UpdateProject = () => {
             name="inspection_time"
             value={formData.inspection_time}
             onChange={handleChange}
-            className="w-full dark:bg-slate-900 dark:text-white border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full dark:bg-slate-700 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
           />
         </div>
 
         {/* Notes */}
-        <div className="mb-4">
-          <label htmlFor="notes" className="block text-sm font-bold mb-2">
+        <div>
+          <label
+            htmlFor="notes"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+          >
             Notes
           </label>
           <textarea
@@ -281,14 +338,17 @@ const UpdateProject = () => {
             name="notes"
             value={formData.notes}
             onChange={handleChange}
-            className="w-full dark:bg-slate-900 dark:text-white border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full dark:bg-slate-700 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
             rows={4}
           />
         </div>
 
         {/* Status */}
-        <div className="mb-4">
-          <label htmlFor="status" className="block text-sm font-bold mb-2">
+        <div>
+          <label
+            htmlFor="status"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+          >
             Status (0-10)
           </label>
           <input
@@ -297,13 +357,18 @@ const UpdateProject = () => {
             name="status"
             value={formData.status}
             onChange={handleChange}
-            className="w-full dark:bg-slate-900 dark:text-white border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            min="0"
+            max="10"
+            className="w-full dark:bg-slate-700 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
           />
         </div>
 
-        {/* Branch ID -> Branch Name */}
-        <div className="mb-4">
-          <label htmlFor="branch_id" className="block text-sm font-bold mb-2">
+        {/* Branch */}
+        <div>
+          <label
+            htmlFor="branch_id"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+          >
             Branch
           </label>
           <select
@@ -311,7 +376,7 @@ const UpdateProject = () => {
             name="branch_id"
             value={formData.branch_id}
             onChange={handleChange}
-            className="w-full dark:bg-slate-900 dark:text-white border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full dark:bg-slate-700 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
           >
             <option value="">Select Branch</option>
             {branches.map((b) => (
@@ -322,9 +387,12 @@ const UpdateProject = () => {
           </select>
         </div>
 
-        {/* Project Owner ID -> Owner Name */}
-        <div className="mb-4">
-          <label htmlFor="project_owner_id" className="block text-sm font-bold mb-2">
+        {/* Project Owner */}
+        <div>
+          <label
+            htmlFor="project_owner_id"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+          >
             Project Owner
           </label>
           <select
@@ -332,7 +400,7 @@ const UpdateProject = () => {
             name="project_owner_id"
             value={formData.project_owner_id}
             onChange={handleChange}
-            className="w-full dark:bg-slate-900 dark:text-white border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full dark:bg-slate-700 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
           >
             <option value="">Select Owner</option>
             {owners.map((o) => (
@@ -343,9 +411,12 @@ const UpdateProject = () => {
           </select>
         </div>
 
-        {/* Customer Constructor ID -> Customer Name */}
-        <div className="mb-4">
-          <label htmlFor="customer_constructor_id" className="block text-sm font-bold mb-2">
+        {/* Customer */}
+        <div>
+          <label
+            htmlFor="customer_constructor_id"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+          >
             Customer
           </label>
           <select
@@ -353,7 +424,7 @@ const UpdateProject = () => {
             name="customer_constructor_id"
             value={formData.customer_constructor_id}
             onChange={handleChange}
-            className="w-full dark:bg-slate-900 dark:text-white border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full dark:bg-slate-700 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
           >
             <option value="">Select Customer</option>
             {customers.map((c) => (
@@ -364,9 +435,12 @@ const UpdateProject = () => {
           </select>
         </div>
 
-        {/* Inspection Engineer ID -> Engineer Name */}
-        <div className="mb-4">
-          <label htmlFor="inspection_engineer_id" className="block text-sm font-bold mb-2">
+        {/* Inspection Engineer */}
+        <div>
+          <label
+            htmlFor="inspection_engineer_id"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+          >
             Inspection Engineer
           </label>
           <select
@@ -374,7 +448,7 @@ const UpdateProject = () => {
             name="inspection_engineer_id"
             value={formData.inspection_engineer_id}
             onChange={handleChange}
-            className="w-full dark:bg-slate-900 dark:text-white border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full dark:bg-slate-700 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
           >
             <option value="">Select Engineer</option>
             {engineers.map((eng) => (
@@ -385,13 +459,19 @@ const UpdateProject = () => {
           </select>
         </div>
 
-        <button
-          type="submit"
-          className="bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-700"
-        >
-          Save Changes
-        </button>
+        <div className="flex justify-center">
+          <button
+            type="submit"
+            disabled={loading}
+            className={`w-full sm:w-auto bg-blue-600 text-white font-semibold py-2 px-6 rounded-md shadow hover:bg-blue-700 transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              loading ? "opacity-50 cursor-not-allowed" : ""
+            }`}
+          >
+            {loading ? "Saving..." : "Save Changes"}
+          </button>
+        </div>
       </form>
+      <ToastContainer />
     </div>
   );
 };
