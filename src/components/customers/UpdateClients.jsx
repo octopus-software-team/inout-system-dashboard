@@ -72,7 +72,7 @@ const UpdateClients = () => {
       <h2 className="text-center font-bold text-3xl text-black">Update Client</h2>
       <form
         onSubmit={handleSubmit}
-        className="mt-5 p-5 border border-gray-200 shadow-lg rounded-lg max-w-md mx-auto bg-white"
+        className="service  mt-5 p-5 border border-gray-200 shadow-lg rounded-lg max-w-md mx-auto "
       >
         <div className="mb-4">
           <label className="block text-gray-700 font-medium mb-2" htmlFor="id">

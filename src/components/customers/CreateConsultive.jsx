@@ -65,7 +65,7 @@ const CreateConsultive = () => {
       <h2 className="text-center font-bold text-2xl">Create Consultative</h2>
       <form onSubmit={handleSubmit} className="max-w-lg mx-auto mt-5">
         <div className="mb-4">
-          <label htmlFor="name" className="block text-lg font-semibold">Name</label>
+          <label htmlFor="name" className="block text-gray-800 dark:text-white text-lg font-semibold">Name</label>
           <input
             type="text"
             id="name"
@@ -78,7 +78,7 @@ const CreateConsultive = () => {
         </div>
 
         <div className="mb-4">
-          <label htmlFor="email" className="block text-lg font-semibold">Email</label>
+          <label htmlFor="email" className="block text-gray-800 text-lg dark:text-white font-semibold">Email</label>
           <input
             type="email"
             id="email"
@@ -92,7 +92,7 @@ const CreateConsultive = () => {
         </div>
 
         <div className="mb-4">
-          <label htmlFor="phone" className="block text-lg font-semibold">Phone</label>
+          <label htmlFor="phone" className="block text-gray-800 text-lg dark:text-white font-semibold">Phone</label>
           <input
             type="tel"
             id="phone"

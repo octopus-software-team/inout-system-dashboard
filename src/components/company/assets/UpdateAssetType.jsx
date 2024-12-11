@@ -58,7 +58,7 @@ const UpdateAssetType = () => {
 
       <form
         onSubmit={handleUpdate}
-        className="bg-white shadow-md rounded-lg px-8 pt-6 pb-8 mb-4"
+        className="service shadow-md rounded-lg px-8 pt-6 pb-8 mb-4"
       >
         {/* حقل إدخال الاسم */}
         <div className="mb-4">

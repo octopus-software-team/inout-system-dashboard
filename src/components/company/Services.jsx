@@ -175,13 +175,13 @@ const AddServices = () => {
           <table className="table-auto w-full border border-gray-200 bg-white rounded-lg">
             <thead>
               <tr className="bg-gradient-to-r from-blue-600 to-blue-400 text-white">
-                <th className="px-4 dark:bg-slate-900 py-3 text-left font-semibold text-lg border-b border-gray-300">
+                <th className="px-4  py-3 text-left font-semibold text-lg border-b border-gray-300">
                   ID {renderSortIcon("id")}
                 </th>
-                <th className="px-4 dark:bg-slate-900 py-3 text-left font-semibold text-lg border-b border-gray-300">
+                <th className="px-4  py-3 text-left font-semibold text-lg border-b border-gray-300">
                   Name {renderSortIcon("name")}
                 </th>
-                <th className="px-4 dark:bg-slate-900 py-3 text-right font-semibold text-lg border-b border-gray-300">
+                <th className="px-4  py-3 text-right font-semibold text-lg border-b border-gray-300">
                   Actions
                 </th>
               </tr>

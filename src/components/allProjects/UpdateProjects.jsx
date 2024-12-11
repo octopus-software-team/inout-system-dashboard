@@ -247,7 +247,7 @@ const UpdateProject = () => {
   }
 
   return (
-    <div className="container mx-auto p-6 bg-white dark:bg-slate-800 shadow-md rounded-lg max-w-2xl mt-10">
+    <div className="service container mx-auto p-6  dark:bg-slate-800 shadow-md rounded-lg max-w-2xl mt-10">
       <h2 className="text-center font-bold text-3xl mb-6 text-gray-800 dark:text-white">
         Update Project
       </h2>

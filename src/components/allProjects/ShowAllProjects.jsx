@@ -285,7 +285,7 @@ const ShowAllProjects = () => {
 
   return (
     <div className="container mx-auto mt-5 px-4 w-full">
-      <h2 className="text-center font-bold text-xl mb-4">Show All Projects</h2>
+      <h2 className="text-center font-bold text-gray-900 dark:text-white text-xl mb-4">Show All Projects</h2>
 
       <div className="flex flex-col md:flex-row justify-between items-center mb-4 w-full">
         <input
@@ -317,13 +317,13 @@ const ShowAllProjects = () => {
             <thead>
               <tr className="bg-gradient-to-r from-blue-600 to-blue-400 text-white text-xs">
                 <th
-                  className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
+                  className="px-2  dark:text-white py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
                   onClick={() => sorting("id")}
                 >
                   ID {renderSortIcon("id")}
                 </th>
                 <th
-                  className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
+                  className="px-2 dark:text-white py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
                   onClick={() => sorting("name")}
                 >
                   Name {renderSortIcon("name")}
@@ -388,38 +388,38 @@ const ShowAllProjects = () => {
                         : "bg-gray-50 dark:bg-slate-700"
                     }`}
                   >
-                    <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
+                    <td className="tableid px-2 text-gray-900 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
                       {project.id}
                     </td>
-                    <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white break-words">
+                    <td className="tableid px-2 text-gray-900 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white break-words">
                       {project.name}
                     </td>
-                    <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
+                    <td className="tableid px-2 text-gray-900 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
                       {project.inspection_date}
                     </td>
-                    <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
+                    <td className="tableid px-2 text-gray-900 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
                       {project.statusText}
                     </td>
-                    <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
+                    <td className="tableid px-2 text-gray-900 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
                       {project.branchName}
                     </td>
-                    <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
+                    <td className="tableid px-2 text-gray-900 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
                       {project.ownerName}
                     </td>
-                    <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
+                    <td className="tableid px-2 text-gray-900 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
                       {project.customerName}
                     </td>
-                    <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
+                    <td className="tableid px-2 text-gray-900 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
                       {project.engineerName}
                     </td>
-                    <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white break-words">
+                    <td className="tableid px-2 text-gray-900 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white break-words">
                       {project.notes}
                     </td>
-                    <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
+                    <td className="tableid px-2 text-gray-900 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
                       <div className="flex space-x-1">
                         <Link
                           to={`/allprojects/updateprojects/${project.id}`}
-                          className="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 flex items-center text-xs"
+                          className="bg-green-600 text-white  px-2 py-1 rounded hover:bg-green-700 flex items-center text-xs"
                         >
                           <FaEdit className="mr-1" />
                           Edit

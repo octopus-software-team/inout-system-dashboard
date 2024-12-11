@@ -82,16 +82,13 @@ code {
   }
 }
 
-
 .Toastify__toast-container {
   z-index: 9999; /* التأكد أن التوست في الواجهة العلوية */
 }
 
-.project1{
+.project1 {
   color: black;
 }
-
-
 
 @layer base {
   .project1 {
@@ -99,38 +96,86 @@ code {
   }
 }
 
-
-.select1{
+.select1 {
   background-color: white;
 }
 
-td{
-  font-size: 12px
+td {
+  font-size: 12px;
 }
 
-.pic4{
-  width: 500px !important; 
+.pic4 {
+  width: 500px !important;
 }
-
-
 
 @layer base {
   .side {
     @apply dark:bg-slate-900;
   }
 }
-.side{
+.side {
   background-color: white;
 }
 
-
-.total{
+.total {
   color: black;
 }
-
 
 @layer base {
   .total {
     @apply dark:text-white;
   }
+}
+
+.notes {
+  color: white;
+}
+
+@layer base {
+  .notes {
+    @apply dark:bg-slate-900;
+  }
+}
+
+.add {
+  background-color: white;
+}
+
+@layer base {
+  .add {
+    @apply dark:bg-slate-900;
+  }
+}
+
+.name {
+  color: black;
+}
+
+@layer base {
+  .name {
+    @apply dark:text-white;
+  }
+}
+
+.tableid {
+  background-color: white;
+}
+
+@layer base {
+  .tableid {
+    @apply dark:bg-slate-900;
+  }
+}
+
+td,
+th,
+input,
+option,
+select
+ {
+  @apply dark:!bg-slate-900  !bg-white !text-gray-900 dark:!text-white;
+}
+
+h2 {
+  @apply !text-gray-900 dark:!text-white;
 }

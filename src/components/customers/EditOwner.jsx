@@ -75,7 +75,7 @@ const EditOwner = () => {
   };
 
   return (
-    <div className="container mx-auto mt-10 p-6 max-w-lg bg-white shadow-lg rounded-lg">
+    <div className="service container mx-auto mt-10 p-6 max-w-lg shadow-lg rounded-lg">
       <h2 className="text-center text-3xl font-bold text-blue-600 mb-6">
         Edit Owner
       </h2>

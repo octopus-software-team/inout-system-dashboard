@@ -91,7 +91,7 @@ function Loginn() {
               <input
                 type="email"
                 id="email"
-                className="w-full border border-gray-300 dark:bg-slate-900 dark:text-white  rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-300 text-black dark:bg-slate-900 dark:text-white  rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="name@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}

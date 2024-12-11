@@ -99,7 +99,7 @@ const EditConsultive = () => {
         Edit Consultative
       </h2>
 
-      <form onSubmit={handleSubmit} className="max-w-lg mx-auto bg-white p-6 rounded-lg shadow-md">
+      <form onSubmit={handleSubmit} className="service max-w-lg mx-auto  p-6 rounded-lg shadow-md">
         <div className="my-4">
           <label className="block text-lg font-semibold text-gray-700">Name</label>
           <input

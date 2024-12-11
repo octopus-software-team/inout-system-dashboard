@@ -270,7 +270,7 @@ const AddEngineer = () => {
 
   return (
     <div className="mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">Add Employee</h1>
+      <h1 className="text-2xl text-gray-900 font-bold mb-6">Add Employee</h1>
 
       {message && (
         <div className="mb-4 p-3 text-white bg-blue-500 rounded-lg">
@@ -292,7 +292,7 @@ const AddEngineer = () => {
             value={formData.full_name}
             onChange={handleChange}
             placeholder="Engineer Name"
-            className="p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-2  dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.full_name && (
             <span className="text-red-500 text-xs">{errors.full_name}</span>
@@ -309,7 +309,7 @@ const AddEngineer = () => {
             value={formData.email}
             onChange={handleChange}
             placeholder="email@example.com"
-            className="p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-2  dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.email && (
             <span className="text-red-500 text-xs">{errors.email}</span>
@@ -326,7 +326,7 @@ const AddEngineer = () => {
             value={formData.password}
             onChange={handleChange}
             placeholder="password"
-            className="p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-2  dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.password && (
             <span className="text-red-500 text-xs">{errors.password}</span>
@@ -346,7 +346,7 @@ const AddEngineer = () => {
             value={formData.password_confirmation}
             onChange={handleChange}
             placeholder="password_confirmation"
-            className="p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-2  dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.password_confirmation && (
             <span className="text-red-500 text-xs">
@@ -368,7 +368,7 @@ const AddEngineer = () => {
             value={formData.contract_duration}
             onChange={handleChange}
             placeholder="duration"
-            className="p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-2  dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.contract_duration && (
             <span className="text-red-500 text-xs">
@@ -387,7 +387,7 @@ const AddEngineer = () => {
             value={formData.phone}
             onChange={handleChange}
             placeholder="Phone Number"
-            className="p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-2  dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.phone && (
             <span className="text-red-500 text-xs">{errors.phone}</span>
@@ -402,7 +402,7 @@ const AddEngineer = () => {
             id="branch_id"
             value={formData.branch_id}
             onChange={handleChange}
-            className="p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-2  dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Select Branch</option>
             {branches.map((branch) => (
@@ -427,7 +427,7 @@ const AddEngineer = () => {
             id="employee_special_id"
             value={formData.employee_special_id}
             onChange={handleChange}
-            className="p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-2  dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Select Specialty</option>
             {specialties.map((specialty) => (
@@ -455,7 +455,7 @@ const AddEngineer = () => {
             id="date_of_birth"
             value={formData.date_of_birth}
             onChange={handleChange}
-            className="p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-2  dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.date_of_birth && (
             <span className="text-red-500 text-xs">{errors.date_of_birth}</span>
@@ -470,7 +470,7 @@ const AddEngineer = () => {
             id="gender"
             value={formData.gender}
             onChange={handleChange}
-            className="p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-2  dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Select Gender</option>
             <option value="0">male</option>
@@ -494,7 +494,7 @@ const AddEngineer = () => {
             value={formData.experience}
             onChange={handleChange}
             placeholder="Experience"
-            className="p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-2  dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.experience && (
             <span className="text-red-500 text-xs">{errors.experience}</span>
@@ -514,7 +514,7 @@ const AddEngineer = () => {
             value={formData.contract_start_date}
             onChange={handleChange}
             onBlur={() => formatDate(formData.contract_start_date)}
-            className="p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-2  dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.contract_start_date && (
             <span className="text-red-500 text-xs">
@@ -536,7 +536,7 @@ const AddEngineer = () => {
             value={formData.contract_end_date}
             onChange={handleChange}
             onBlur={() => formatDate(formData.contract_end_date)}
-            className="p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-2  dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.contract_end_date && (
             <span className="text-red-500 text-xs">
@@ -553,7 +553,7 @@ const AddEngineer = () => {
             id="type"
             value={formData.type}
             onChange={handleChange}
-            className="w-full dark:bg-slate-900 dark:text-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full  dark:text-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="0">Engineer</option>
             <option value="1">Employee</option>
@@ -563,14 +563,15 @@ const AddEngineer = () => {
         <div className="flex flex-col md:col-span-2">
           <label htmlFor="image" className="mb-2 font-medium text-gray-700">
             Upload Image
+            <input
+              hidden
+              type="file"
+              id="image"
+              ref={imageInputRef}
+              accept="image/*"
+              className="img"
+            />
           </label>
-          <input
-            type="file"
-            id="image"
-            ref={imageInputRef}
-            accept="image/*"
-            className="border rounded-lg"
-          />
         </div>
 
         <div className="mt-20 md:col-span-2">

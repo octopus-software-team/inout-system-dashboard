@@ -25,28 +25,28 @@ const AddReport = () => {
           <h2 className="font-bold text-xl mb-2">General Inspection</h2>
 
           <h3 className="font-semibold text-lg ">Title</h3>
-          <textarea className="border border-gray-300 dark:bg-slate-900 dark:text-white rounded-lg p-3 w-full h-32"></textarea>
+          <textarea className="service border border-gray-300  dark:text-white rounded-lg p-3 w-full h-32"></textarea>
 
           <h3 className="font-semibold text-lg mt-3">Description</h3>
-          <textarea className="border border-gray-300 rounded-lg p-3 w-full h-32 dark:bg-slate-900 dark:text-white"></textarea>
+          <textarea className="service border border-gray-300 rounded-lg p-3 w-full h-32 dark:bg-slate-900 dark:text-white"></textarea>
 
           <h3 className="font-semibold text-lg mt-3">Image</h3>
-          <textarea className="border border-gray-300 rounded-lg p-3 w-full h-32 dark:bg-slate-900 dark:text-white"></textarea>
+          <textarea className="service border border-gray-300 rounded-lg p-3 w-full h-32 dark:bg-slate-900 dark:text-white"></textarea>
         </div>
 
         <div className="border-t py-4">
           <h2 className="font-bold text-xl mb-2">Logistic Inspection</h2>
-          <textarea className="border border-gray-300 rounded-lg p-3 w-full h-32 dark:bg-slate-900 dark:text-white"></textarea>
+          <textarea className="service border border-gray-300 rounded-lg p-3 w-full h-32 dark:bg-slate-900 dark:text-white"></textarea>
         </div>
 
         <div className="border-t py-4">
           <h2 className="font-bold text-xl mb-2">Safety Inspection</h2>
-          <textarea className="border border-gray-300 rounded-lg p-3 w-full h-32 dark:bg-slate-900 dark:text-white"></textarea>
+          <textarea className="service border border-gray-300 rounded-lg p-3 w-full h-32 dark:bg-slate-900 dark:text-white"></textarea>
         </div>
 
         <div className="border-t py-4">
           <h2 className="font-bold text-xl mb-2">Reports</h2>
-          <textarea className="border border-gray-300 rounded-lg p-3 w-full h-32 dark:bg-slate-900 dark:text-white"></textarea>
+          <textarea className="service border border-gray-300 rounded-lg p-3 w-full h-32 dark:bg-slate-900 dark:text-white"></textarea>
         </div>
 
         <div className="border-t py-4">

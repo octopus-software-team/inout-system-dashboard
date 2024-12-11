@@ -656,33 +656,31 @@ const AddNewProject = () => {
   };
 
   return (
-    <div className="container ml-0 p-10 dark:bg-slate-950">
-      <h1 className="text-4xl font-bold mb-3">Add New Project</h1>
+    <div className="container ml-0 p-10">
+      <h1 className="total text-4xl font-bold mb-3">Add New Project</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Project Name */}
         <div className="">
-          <label className="block ml-6 text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
+          <label className="total dark:text-white block ml-6 text-sm font-medium mb-1">
             Project Name
           </label>
           <input
             type="text"
             value={projectName}
             onChange={(e) => setProjectName(e.target.value)}
-            className="border border-gray-300 rounded-md p-2 dark:bg-slate-900 dark:text-white w-full"
+            className="name border border-gray-300  rounded-md p-2 dark:bg-slate-900  w-full"
           />
         </div>
 
-        {/* Project Status */}
         <div className="">
-          <label className="block ml-6 text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
+          <label className=" block ml-6 text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
             Project Status
           </label>
           <select
             name="status"
             value={projectStatus}
             onChange={(e) => setProjectStatus(e.target.value)}
-            className="border border-gray-300 rounded-md p-2 dark:bg-slate-900 dark:text-white w-full"
+            className="add  border border-gray-300 rounded-md p-2 text-gray-700 w-full"
           >
             <option value="">Select status</option>
             <option value="0">Not Started</option>
@@ -726,7 +724,7 @@ const AddNewProject = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Branch */}
         <div className="p-1 mt-4">
-          <label className="block text-sm font-medium text-gray ml-6">
+          <label className="total block text-sm font-medium ml-6">
             Branch
           </label>
           <Select
@@ -741,7 +739,7 @@ const AddNewProject = () => {
 
         {/* Services */}
         <div className="p-1 mt-4">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1 ml-6">
+          <label className="total block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1 ml-6">
             Services
           </label>
           <div className="flex items-center gap-2">
@@ -1084,7 +1082,7 @@ const AddNewProject = () => {
             value={inspectionDate}
             name="inspection_date"
             onChange={(e) => setInspectionDate(e.target.value)}
-            className="mt-1 block w-full border border-gray-300 dark:border-gray-700 rounded-md p-2 dark:bg-slate-950 dark:text-white"
+            className="mt-1 block text-gray-600 w-full border border-gray-300 dark:border-gray-700 rounded-md p-2 dark:bg-slate-950 dark:text-white"
           />
         </div>
 
@@ -1123,17 +1121,17 @@ const AddNewProject = () => {
             placeholder=""
             value={inspectionTime}
             onChange={(e) => setInspectionTime(e.target.value)}
-            className="mt-1 block w-full border border-gray-300 dark:border-gray-700 rounded-md p-2 dark:bg-slate-950 dark:text-white"
+            className="mt-1 block w-full text-gray-700 border border-gray-300 dark:border-gray-700 rounded-md p-2 dark:bg-slate-950 dark:text-white"
           />
         </div>
 
         {/* Notes */}
         <div className="p-1">
-          <label className="block text-sm font-medium text-gray-700 ml-6">
+          <label className=" block text-sm font-medium text-gray-700 ml-6">
             Notes
           </label>
           <textarea
-            className="mt-1 block w-full border border-gray-300 dark:border-gray-700 rounded-md p-2 dark:bg-slate-950 dark:text-white"
+            className="notes mt-1 block w-full text-gray-800 border border-gray-300 dark:border-gray-700 rounded-md p-2 dark:text-white"
             rows="4"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
@@ -1145,12 +1143,12 @@ const AddNewProject = () => {
           <label className="block text-sm font-medium text-gray-700 ml-6">
             Inspection Location
           </label>
-          <div className="mt-1 block w-full border border-gray-300 dark:border-gray-700 rounded-md p-2 dark:bg-slate-950 dark:text-white">
+          <div className="mt-1 block w-full border border-gray-300 dark:border-gray-700 rounded-md p-2  dark:text-white">
             <input
               type="text"
               name="  inspection_location_location"
               placeholder="Inspection Location Description"
-              className="w-full p-2 border border-gray-300 rounded-md dark:bg-slate-900 dark:text-white"
+              className="w-full p-2 text-gray-700 border border-gray-300 rounded-md dark:bg-slate-900 dark:text-white"
             />
           </div>
         </div>
