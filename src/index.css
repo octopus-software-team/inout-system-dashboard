@@ -111,3 +111,26 @@ td{
 .pic4{
   width: 500px !important; 
 }
+
+
+
+@layer base {
+  .side {
+    @apply dark:bg-slate-900;
+  }
+}
+.side{
+  background-color: white;
+}
+
+
+.total{
+  color: black;
+}
+
+
+@layer base {
+  .total {
+    @apply dark:text-white;
+  }
+}
