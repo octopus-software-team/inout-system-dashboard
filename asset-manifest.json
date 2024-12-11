@@ -1,0 +1,25 @@
+{
+  "files": {
+    "main.css": "/inout-system-dashboard/static/css/main.3bac3e17.css",
+    "main.js": "/inout-system-dashboard/static/js/main.bb63a26f.js",
+    "static/js/453.51b20bab.chunk.js": "/inout-system-dashboard/static/js/453.51b20bab.chunk.js",
+    "static/media/logo4.png": "/inout-system-dashboard/static/media/logo4.0a1e2598f8cff7f966ca.png",
+    "static/media/logoo22.png": "/inout-system-dashboard/static/media/logoo22.0a1e2598f8cff7f966ca.png",
+    "static/media/14.png": "/inout-system-dashboard/static/media/14.27b3e3aac06017f3bf22.png",
+    "static/media/15.png": "/inout-system-dashboard/static/media/15.3fa1c83e7ac69e2e4371.png",
+    "static/media/13.png": "/inout-system-dashboard/static/media/13.90ca4bc6a7443d6f210a.png",
+    "static/media/12.png": "/inout-system-dashboard/static/media/12.5096ffcda7baa0b562d3.png",
+    "static/media/dropify.eot": "/inout-system-dashboard/static/media/dropify.533b98a9bdcedcf6e794.eot",
+    "static/media/dropify.ttf": "/inout-system-dashboard/static/media/dropify.fa3ea434d36806e79512.ttf",
+    "static/media/dropify.woff": "/inout-system-dashboard/static/media/dropify.26224e3857435de14aab.woff",
+    "static/media/dropify.svg": "/inout-system-dashboard/static/media/dropify.86d35fae3d79c87952d7.svg",
+    "index.html": "/inout-system-dashboard/index.html",
+    "main.3bac3e17.css.map": "/inout-system-dashboard/static/css/main.3bac3e17.css.map",
+    "main.bb63a26f.js.map": "/inout-system-dashboard/static/js/main.bb63a26f.js.map",
+    "453.51b20bab.chunk.js.map": "/inout-system-dashboard/static/js/453.51b20bab.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.3bac3e17.css",
+    "static/js/main.bb63a26f.js"
+  ]
+}
