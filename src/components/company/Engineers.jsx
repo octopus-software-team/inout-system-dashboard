@@ -1,9 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import $ from "jquery";
+import "dropify/dist/css/dropify.css";
+import "dropify/dist/js/dropify";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const AddEngineer = () => {
   const [formData, setFormData] = useState({
     full_name: "",
     email: "",
+    password: "",
+    password_confirmation: "",
+    contract_duration: "",
     phone: "",
     branch_id: "",
     employee_special_id: "",
@@ -12,7 +20,6 @@ const AddEngineer = () => {
     image: null,
     experience: "",
     contract_start_date: "",
-    contract_duration: "",
     contract_end_date: "",
     type: 0,
   });
@@ -21,9 +28,13 @@ const AddEngineer = () => {
   const [specialties, setSpecialties] = useState([]);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const [imagePreview, setImagePreview] = useState(null);
+
+  // Errors state for validation messages
+  const [errors, setErrors] = useState({});
 
   const token = localStorage.getItem("token");
+
+  const imageInputRef = useRef(null);
 
   const formatDate = (date) => {
     if (date) {
@@ -78,32 +89,103 @@ const AddEngineer = () => {
     fetchSpecialties();
   }, [token]);
 
-  const handleChange = (e) => {
-    const { id, value, type, files } = e.target;
+  useEffect(() => {
+    if (imageInputRef.current) {
+      $(imageInputRef.current).dropify({
+        messages: {
+          default: "Drag and drop a file here or click",
+          replace: "Drag and drop or click to replace",
+          remove: "Remove",
+          error: "Ooops, something wrong happened.",
+        },
+      });
 
-    if (type === "file") {
-      setFormData({ ...formData, [id]: files[0] });
-
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result);
-      };
-      if (files[0]) {
-        reader.readAsDataURL(files[0]);
-      }
-    } else {
-      if (id === "contract_start_date" || id === "contract_end_date") {
-        const formattedDate = value ? value : "";
-        setFormData({ ...formData, [id]: formattedDate });
-      } else {
-        setFormData({ ...formData, [id]: value });
-      }
+      $(imageInputRef.current).on("change", function (event) {
+        const files = event.target.files;
+        if (files && files[0]) {
+          setFormData({ ...formData, image: files[0] });
+        } else {
+          setFormData({ ...formData, image: null });
+        }
+      });
     }
+  }, [formData]);
+
+  const handleChange = (e) => {
+    const { id, value, type } = e.target;
+    if (id === "contract_start_date" || id === "contract_end_date") {
+      const formattedDate = value ? value : "";
+      setFormData({ ...formData, [id]: formattedDate });
+    } else if (type !== "file") {
+      setFormData({ ...formData, [id]: value });
+    }
+
+    // Clear error for this field when user modifies it
+    setErrors((prevErrors) => ({ ...prevErrors, [id]: "" }));
+  };
+
+  const validateForm = () => {
+    let newErrors = {};
+
+    // Required fields check
+    const requiredFields = [
+      "full_name",
+      "email",
+      "password",
+      "password_confirmation",
+      "contract_duration",
+      "phone",
+      "branch_id",
+      "employee_special_id",
+      "date_of_birth",
+      "gender",
+      "experience",
+      "contract_start_date",
+      "contract_end_date",
+    ];
+
+    requiredFields.forEach((field) => {
+      if (!formData[field]) {
+        newErrors[field] = "This field is required.";
+      }
+    });
+
+    // Email validation
+    if (formData.email && !formData.email.includes("@")) {
+      newErrors.email = "Please enter a valid email address.";
+    }
+
+    if (formData.email && !formData.email.includes("@")) {
+      newErrors.email = "Please enter a valid email address.";
+    }
+
+    // Password confirmation validation
+    if (
+      formData.password &&
+      formData.password_confirmation &&
+      formData.password !== formData.password_confirmation
+    ) {
+      newErrors.password_confirmation = "Passwords do not match.";
+    }
+
+    // Contract duration validation
+    if (formData.contract_duration && formData.contract_duration <= 0) {
+      newErrors.contract_duration = "Duration must be a positive number.";
+    }
+
+    // Return true if no errors
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
+    if (!validateForm()) {
+      setLoading(false);
+      return;
+    }
 
     try {
       const formDataToSend = new FormData();
@@ -125,11 +207,15 @@ const AddEngineer = () => {
       const result = await response.json();
 
       if (response.ok && result.status === 200) {
-        setMessage("Engineer added successfully!");
+        toast.success("Employee added successfully");
+
         setFormData({
           full_name: "",
           email: "",
           phone: "",
+          password: "",
+          password_confirmation: "",
+          contract_duration: "",
           branch_id: "",
           employee_special_id: "",
           date_of_birth: "",
@@ -144,6 +230,33 @@ const AddEngineer = () => {
         setTimeout(() => {
           window.location.reload();
         }, 2000);
+      } else if (result.status === 422) {
+        // Backend validation errors
+        // The format from the backend:
+        // {
+        //   "status": 422,
+        //   "msg": "validation error",
+        //   "data": {
+        //       "email": ["The email has already been taken."],
+        //       "phone": ["The phone has already been taken."],
+        //       ...
+        //   }
+        // }
+
+        let newErrors = { ...errors }; // Use current errors so we don't lose client-side validation messages
+        if (result.data) {
+          // If there's an email error from the server
+          if (result.data.email && result.data.email.length > 0) {
+            newErrors.email = result.data.email[0];
+          }
+          // If there's a phone error from the server
+          if (result.data.phone && result.data.phone.length > 0) {
+            newErrors.phone = result.data.phone[0];
+          }
+          // You can add similar checks for other fields if needed
+        }
+
+        setErrors(newErrors);
       } else {
         setMessage("Error adding engineer, please try again.");
       }
@@ -181,6 +294,9 @@ const AddEngineer = () => {
             placeholder="Engineer Name"
             className="p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+          {errors.full_name && (
+            <span className="text-red-500 text-xs">{errors.full_name}</span>
+          )}
         </div>
 
         <div className="flex flex-col">
@@ -195,6 +311,70 @@ const AddEngineer = () => {
             placeholder="email@example.com"
             className="p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+          {errors.email && (
+            <span className="text-red-500 text-xs">{errors.email}</span>
+          )}
+        </div>
+
+        <div className="flex flex-col">
+          <label htmlFor="password" className="mb-2 font-medium text-gray-700">
+            Password
+          </label>
+          <input
+            type="password"
+            id="password"
+            value={formData.password}
+            onChange={handleChange}
+            placeholder="password"
+            className="p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          {errors.password && (
+            <span className="text-red-500 text-xs">{errors.password}</span>
+          )}
+        </div>
+
+        <div className="flex flex-col">
+          <label
+            htmlFor="password_confirmation"
+            className="mb-2 font-medium text-gray-700"
+          >
+            Password Confirmation
+          </label>
+          <input
+            type="password"
+            id="password_confirmation"
+            value={formData.password_confirmation}
+            onChange={handleChange}
+            placeholder="password_confirmation"
+            className="p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          {errors.password_confirmation && (
+            <span className="text-red-500 text-xs">
+              {errors.password_confirmation}
+            </span>
+          )}
+        </div>
+
+        <div className="flex flex-col">
+          <label
+            htmlFor="contract_duration"
+            className="mb-2 font-medium text-gray-700"
+          >
+            Duration (months)
+          </label>
+          <input
+            type="number"
+            id="contract_duration"
+            value={formData.contract_duration}
+            onChange={handleChange}
+            placeholder="duration"
+            className="p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          {errors.contract_duration && (
+            <span className="text-red-500 text-xs">
+              {errors.contract_duration}
+            </span>
+          )}
         </div>
 
         <div className="flex flex-col">
@@ -209,6 +389,9 @@ const AddEngineer = () => {
             placeholder="Phone Number"
             className="p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+          {errors.phone && (
+            <span className="text-red-500 text-xs">{errors.phone}</span>
+          )}
         </div>
 
         <div className="flex flex-col">
@@ -228,6 +411,9 @@ const AddEngineer = () => {
               </option>
             ))}
           </select>
+          {errors.branch_id && (
+            <span className="text-red-500 text-xs">{errors.branch_id}</span>
+          )}
         </div>
 
         <div className="flex flex-col">
@@ -250,6 +436,11 @@ const AddEngineer = () => {
               </option>
             ))}
           </select>
+          {errors.employee_special_id && (
+            <span className="text-red-500 text-xs">
+              {errors.employee_special_id}
+            </span>
+          )}
         </div>
 
         <div className="flex flex-col">
@@ -266,6 +457,9 @@ const AddEngineer = () => {
             onChange={handleChange}
             className="p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+          {errors.date_of_birth && (
+            <span className="text-red-500 text-xs">{errors.date_of_birth}</span>
+          )}
         </div>
 
         <div className="flex flex-col">
@@ -282,26 +476,11 @@ const AddEngineer = () => {
             <option value="0">male</option>
             <option value="1">female</option>
           </select>
+          {errors.gender && (
+            <span className="text-red-500 text-xs">{errors.gender}</span>
+          )}
         </div>
 
-        <div className="flex flex-col">
-          <label htmlFor="image" className="mb-2 font-medium text-gray-700">
-            Upload Image
-          </label>
-          <input
-            type="file"
-            id="image"
-            onChange={handleChange}
-            className="p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            style={{
-              backgroundImage: imagePreview ? `url(${imagePreview})` : "",
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              height: "200px",
-              color: "transparent",
-            }}
-          />
-        </div>
         <div className="flex flex-col">
           <label
             htmlFor="experience"
@@ -310,13 +489,16 @@ const AddEngineer = () => {
             Experience
           </label>
           <input
-            type="textArea"
+            type="text"
             id="experience"
             value={formData.experience}
             onChange={handleChange}
             placeholder="Experience"
             className="p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+          {errors.experience && (
+            <span className="text-red-500 text-xs">{errors.experience}</span>
+          )}
         </div>
 
         <div className="flex flex-col">
@@ -334,12 +516,17 @@ const AddEngineer = () => {
             onBlur={() => formatDate(formData.contract_start_date)}
             className="p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+          {errors.contract_start_date && (
+            <span className="text-red-500 text-xs">
+              {errors.contract_start_date}
+            </span>
+          )}
         </div>
 
         <div className="flex flex-col">
           <label
             htmlFor="contract_end_date"
-            className="mb-2 font-medium text-gray-700"
+            className=" font-medium text-gray-700"
           >
             Contract End Date
           </label>
@@ -351,6 +538,11 @@ const AddEngineer = () => {
             onBlur={() => formatDate(formData.contract_end_date)}
             className="p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+          {errors.contract_end_date && (
+            <span className="text-red-500 text-xs">
+              {errors.contract_end_date}
+            </span>
+          )}
         </div>
 
         <div className="flex flex-col">
@@ -368,16 +560,31 @@ const AddEngineer = () => {
           </select>
         </div>
 
-        <div className="flex justify-end">
+        <div className="flex flex-col md:col-span-2">
+          <label htmlFor="image" className="mb-2 font-medium text-gray-700">
+            Upload Image
+          </label>
+          <input
+            type="file"
+            id="image"
+            ref={imageInputRef}
+            accept="image/*"
+            className="border rounded-lg"
+          />
+        </div>
+
+        <div className="mt-20 md:col-span-2">
           <button
             type="submit"
-            className="bg-blue-500 text-white px-6 py-2 rounded-lg"
+            className="bg-blue-500 w-full text-white px-6 py-2 rounded-lg"
             disabled={loading}
           >
             {loading ? "Saving..." : "Save Engineer"}
           </button>
         </div>
       </form>
+
+      <ToastContainer />
     </div>
   );
 };

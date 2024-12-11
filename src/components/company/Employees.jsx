@@ -3,67 +3,146 @@ import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 
 const Employees = () => {
-  const [data, setData] = useState([]);
+  const [employees, setEmployees] = useState([]);
+  const [branches, setBranches] = useState([]);
+  const [employeeSpecials, setEmployeeSpecials] = useState([]);
   const [order, setOrder] = useState("ASC");
   const [sortedColumn, setSortedColumn] = useState(null);
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
 
-  const sorting = (col) => {
-    let sorted = [];
-    if (order === "ASC") {
-      sorted = [...data].sort((a, b) =>
-        a[col].toString().toLowerCase() > b[col].toString().toLowerCase() ? 1 : -1
+  // Fetch employees
+  const fetchEmployees = async () => {
+    const token = localStorage.getItem("token");
+    try {
+      const response = await fetch(
+        "https://inout-api.octopusteam.net/api/front/getEmployees",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
-      setOrder("DSC");
-    } else {
-      sorted = [...data].sort((a, b) =>
-        a[col].toString().toLowerCase() < b[col].toString().toLowerCase() ? 1 : -1
-      );
-      setOrder("ASC");
+      if (!response.ok) {
+        throw new Error("Failed to fetch employees.");
+      }
+      const data = await response.json();
+      if (data.status === 200) {
+        setEmployees(data.data);
+      } else {
+        console.error("Error fetching employees:", data.msg);
+      }
+    } catch (error) {
+      console.error("Error:", error);
     }
-    setData(sorted);
-    setSortedColumn(col);
+  };
+
+  // Fetch branches
+  const fetchBranches = async () => {
+    const token = localStorage.getItem("token");
+    try {
+      const response = await fetch(
+        "https://inout-api.octopusteam.net/api/front/getBranches",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch branches.");
+      }
+      const data = await response.json();
+      if (data.status === 200) {
+        setBranches(data.data);
+      } else {
+        console.error("Error fetching branches:", data.msg);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  // Fetch employee specials
+  const fetchEmployeeSpecials = async () => {
+    const token = localStorage.getItem("token");
+    try {
+      const response = await fetch(
+        "https://inout-api.octopusteam.net/api/front/getEmployeesSpecials",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch employee specials.");
+      }
+      const data = await response.json();
+      if (data.status === 200) {
+        setEmployeeSpecials(data.data);
+      } else {
+        console.error("Error fetching employee specials:", data.msg);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
   };
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-
-    fetch("https://inout-api.octopusteam.net/api/front/getEmployees", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to fetch employees.");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        if (data.status === 200) {
-          setData(data.data); // تعيين البيانات من الحقل "data"
-        } else {
-          console.error("Error fetching employees:", data.msg);
-        }
-      })
-      .catch((error) => console.error("Error:", error));
+    fetchEmployees();
+    fetchBranches();
+    fetchEmployeeSpecials();
   }, []);
 
+  // Sorting
+  const sorting = (col) => {
+    let sorted = [];
+    if (order === "ASC") {
+      sorted = [...employees].sort((a, b) =>
+        a[col].toString().toLowerCase() > b[col].toString().toLowerCase()
+          ? 1
+          : -1
+      );
+      setOrder("DSC");
+    } else {
+      sorted = [...employees].sort((a, b) =>
+        a[col].toString().toLowerCase() < b[col].toString().toLowerCase()
+          ? 1
+          : -1
+      );
+      setOrder("ASC");
+    }
+    setEmployees(sorted);
+    setSortedColumn(col);
+  };
+
+  // Delete handler
   const handleDelete = (id) => {
-    const confirm = window.confirm("Do you like to delete?");
-    if (confirm) {
-      const token = localStorage.getItem('token');
-      fetch(`https://inout-api.octopusteam.net/api/front/deleteEmployee/${id}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      })
+    const confirmDelete = window.confirm(
+      "Do you want to delete this employee?"
+    );
+    if (confirmDelete) {
+      const token = localStorage.getItem("token");
+      fetch(
+        `https://inout-api.octopusteam.net/api/front/deleteEmployee/${id}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
         .then((response) => {
           if (!response.ok) {
             throw new Error("Failed to delete record.");
@@ -71,8 +150,8 @@ const Employees = () => {
           return response.json();
         })
         .then(() => {
-          alert("Record deleted successfully.");
-          setData(data.filter((employee) => employee.id !== id)); // تحديث البيانات بعد الحذف
+          alert("Employee deleted successfully.");
+          setEmployees(employees.filter((employee) => employee.id !== id));
         })
         .catch((error) => console.error("Error deleting record:", error));
     }
@@ -85,14 +164,31 @@ const Employees = () => {
     return "";
   };
 
-  return (
-    <div className="container mt-5">
-      <h2 className="text-center font-bold text-2xl">Employees</h2>
+  const getBranchName = (id) => {
+    const branch = branches.find((b) => b.id === id);
+    return branch ? branch.name : "N/A";
+  };
 
-      {/* Search Input */}
-      <div className="flex justify-between items-center my-4">
+  const getEmployeeSpecialName = (id) => {
+    const special = employeeSpecials.find((s) => s.id === id);
+    return special ? special.name : "N/A";
+  };
+
+  const getGender = (gender) => {
+    return gender === 0 ? "Male" : "Female";
+  };
+
+  const getType = (type) => {
+    return type === 0 ? "Employee" : "Other";
+  };
+
+  return (
+    <div className="container mx-auto mt-5 px-4 w-full">
+      <h2 className="text-center font-bold text-xl mb-4">Employees</h2>
+
+      <div className="flex flex-col md:flex-row justify-between items-center mb-4 w-full">
         <input
-          className="border border-gray-300 dark:bg-slate-900 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-2/3 shadow-md"
+          className="border border-gray-300 dark:bg-slate-900 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 w-96 md:w-1/2 shadow-sm text-xs"
           type="text"
           placeholder="Search employees by name..."
           value={search}
@@ -100,81 +196,188 @@ const Employees = () => {
         />
         <Link
           to="/company/engineers"
-          className="bg-slate-500 text-white font-semibold py-2 px-4 rounded hover:bg-slate-700 w-80 text-center"
+          className="mt-2  md:mt-0 bg-slate-500 text-white font-semibold py-1 px-3 rounded hover:bg-slate-700 w-96 md:w-1/6 text-center text-xs"
         >
-          Create +
+          +Add Emplyee
         </Link>
       </div>
 
-      {/* Employees Table */}
-      <table className="table-auto w-full border border-gray-200 bg-white rounded-lg">
-        <thead>
-          <tr className="bg-gradient-to-r from-blue-600 to-blue-400 text-white">
-            <th
-              className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300"
-              onClick={() => sorting("id")}
-            >
-              ID {renderSortIcon("id")}
-            </th>
-            <th
-              className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300"
-              onClick={() => sorting("full_name")}
-            >
-              Full Name {renderSortIcon("full_name")}
-            </th>
-            <th
-              className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300"
-              onClick={() => sorting("email")}
-            >
-              Email {renderSortIcon("email")}
-            </th>
-            <th
-              className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300"
-              onClick={() => sorting("phone")}
-            >
-              Phone {renderSortIcon("phone")}
-            </th>
-            <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">
-              Actions
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {data
-            .filter((employee) => {
-              return search.toLowerCase() === ""
-                ? employee
-                : employee.full_name.toLowerCase().includes(search.toLowerCase());
-            })
-            .map((d) => (
-              <tr
-                key={d.id}
-                className="hover:bg-gray-100 dark:hover:bg-slate-500 dark:bg-slate-900 transition duration-200"
+      <div className="w-full overflow-y-auto">
+        <table className="w-full bg-white dark:bg-slate-800 rounded-lg table-auto">
+          <thead>
+            <tr className="bg-gradient-to-r from-blue-600 to-blue-400 text-white text-xs">
+              <th
+                className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
+                onClick={() => sorting("id")}
               >
-                <td className="px-4 py-3 dark:text-white">{d.id}</td>
-                <td className="px-4 py-3 dark:text-white">{d.full_name}</td>
-                <td className="px-4 py-3 dark:text-white">{d.email}</td>
-                <td className="px-4 py-3 dark:text-white">{d.phone}</td>
-                <td className="px-4 py-3 dark:text-white">
-                  <Link
-                    to={`/company/editemp/${d.id}`}
-                    className="bg-green-800 text-white font-semibold py-2 px-4 rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-700 inline-flex items-center"
-                  >
-                    <FaEdit className="mr-2 text-white w-4 h-4" />
-                    Edit
-                  </Link>
-                  <button
-                    onClick={() => handleDelete(d.id)}
-                    className="bg-red-600 text-white font-semibold py-2 px-4 rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-700 ml-2 inline-flex items-center"
-                  >
-                    <FaTrash className="mr-2 text-white w-4 h-4" />
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-        </tbody>
-      </table>
+                ID {renderSortIcon("id")}
+              </th>
+              <th
+                className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
+                onClick={() => sorting("full_name")}
+              >
+                Full Name {renderSortIcon("full_name")}
+              </th>
+              <th
+                className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
+                onClick={() => sorting("email")}
+              >
+                Email {renderSortIcon("email")}
+              </th>
+              <th
+                className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
+                onClick={() => sorting("phone")}
+              >
+                Phone {renderSortIcon("phone")}
+              </th>
+              <th
+                className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
+                onClick={() => sorting("branch_id")}
+              >
+                Branch {renderSortIcon("branch_id")}
+              </th>
+              <th
+                className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
+                onClick={() => sorting("employee_special_id")}
+              >
+                Specialization {renderSortIcon("employee_special_id")}
+              </th>
+              <th
+                className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
+                onClick={() => sorting("date_of_birth")}
+              >
+                Date of Birth {renderSortIcon("date_of_birth")}
+              </th>
+              <th
+                className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
+                onClick={() => sorting("gender")}
+              >
+                Gender {renderSortIcon("gender")}
+              </th>
+              <th
+                className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
+                onClick={() => sorting("image")}
+              >
+                Image {renderSortIcon("image")}
+              </th>
+              <th
+                className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
+                onClick={() => sorting("experience")}
+              >
+                Experience {renderSortIcon("experience")}
+              </th>
+              <th
+                className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
+                onClick={() => sorting("contract_start_date")}
+              >
+                Contract Start {renderSortIcon("contract_start_date")}
+              </th>
+              <th
+                className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
+                onClick={() => sorting("contract_duration")}
+              >
+                Contract Duration {renderSortIcon("contract_duration")}
+              </th>
+              <th
+                className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
+                onClick={() => sorting("contract_end_date")}
+              >
+                Contract End {renderSortIcon("contract_end_date")}
+              </th>
+              <th
+                className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
+                onClick={() => sorting("type")}
+              >
+                Type {renderSortIcon("type")}
+              </th>
+              <th className="px-2 py-1 text-left font-semibold border-b border-gray-300">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {employees
+              .filter((employee) => {
+                return search.toLowerCase() === ""
+                  ? employee
+                  : employee.full_name
+                      .toLowerCase()
+                      .includes(search.toLowerCase());
+              })
+              .map((d) => (
+                <tr
+                  key={d.id}
+                  className="hover:bg-gray-100 dark:hover:bg-slate-700 transition duration-200 text-xs"
+                >
+                  <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
+                    {d.id}
+                  </td>
+                  <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white break-words">
+                    {d.full_name}
+                  </td>
+                  <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white break-words">
+                    {d.email}
+                  </td>
+                  <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
+                    {d.phone}
+                  </td>
+                  <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
+                    {getBranchName(d.branch_id)}
+                  </td>
+                  <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white break-words">
+                    {getEmployeeSpecialName(d.employee_special_id)}
+                  </td>
+                  <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
+                    {d.date_of_birth}
+                  </td>
+                  <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
+                    {getGender(d.gender)}
+                  </td>
+                  <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
+                    <img
+                      src="https://inout-api.octopusteam.net/storage/employees/71751733783168.webp"
+                      alt={d.full_name}
+                      className="w-10 h-10 object-cover rounded"
+                    />
+                  </td>
+                  <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white break-words">
+                    {d.experience}
+                  </td>
+                  <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
+                    {d.contract_start_date}
+                  </td>
+                  <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
+                    {d.contract_duration} months
+                  </td>
+                  <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
+                    {d.contract_end_date}
+                  </td>
+                  <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
+                    {getType(d.type)}
+                  </td>
+                  <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
+                    <div className="flex space-x-1">
+                      <Link
+                        to={`/company/editemp/${d.id}`}
+                        className="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 flex items-center"
+                      >
+                        <FaEdit className="mr-1" />
+                        Edit
+                      </Link>
+                      <button
+                        onClick={() => handleDelete(d.id)}
+                        className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 flex items-center"
+                      >
+                        <FaTrash className="mr-1" />
+                        Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

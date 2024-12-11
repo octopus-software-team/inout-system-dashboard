@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { FaEdit, FaEye, FaProjectDiagram, FaTrash } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const ShowAllProjects = () => {
   const [projects, setProjects] = useState([]);
@@ -182,6 +184,7 @@ const ShowAllProjects = () => {
     navigate(`/allprojects/addrepo`);
   };
 
+  // Sorting
   const sorting = (col) => {
     let sorted = [];
     if (order === "ASC") {
@@ -211,57 +214,95 @@ const ShowAllProjects = () => {
   };
 
   const handleDelete = (id) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this project?"
-    );
-
-    if (confirmDelete) {
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        alert("You are not authenticated. Please log in.");
-        return;
+    // عرض توست التأكيد المخصص
+    toast(
+      ({ closeToast }) => (
+        <div>
+          <p>Are You Sure You want to delete this project</p>
+          <div className="flex space-x-2 mt-2">
+            <button
+              className="bg-red-500 text-white px-3 py-1 rounded"
+              onClick={() => {
+                performDelete(id);
+                closeToast();
+              }}
+            >
+              YES
+            </button>
+            <button
+              className="bg-gray-500 text-white px-3 py-1 rounded"
+              onClick={() => {
+                closeToast();
+              }}
+            >
+              NO
+            </button>
+          </div>
+        </div>
+      ),
+      {
+        position: "top-center",
+        autoClose: false,
+        closeOnClick: false,
+        draggable: false,
       }
+    );
+  };
 
-      fetch(`https://inout-api.octopusteam.net/api/front/deleteProject/${id}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      })
-        .then((response) => response.json())
-        .then((res) => {
-          if (res.status === 200) {
-            alert("Project deleted successfully!");
-            setProjects((prevProjects) =>
-              prevProjects.filter((project) => project.id !== id)
-            );
-          } else {
-            alert(`Failed to delete project: ${res.msg || "Unknown error"}`);
-          }
-        })
-        .catch((err) => {
-          console.error("Error deleting project:", err);
-          alert("Failed to delete project. Please try again.");
-        });
+  const performDelete = async (id) => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      toast.error("You are not authenticated. Please log in.");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `https://inout-api.octopusteam.net/api/front/deleteProject/${id}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const res = await response.json();
+
+      if (res.status === 200) {
+        toast.success(res.msg || "تم حذف المشروع بنجاح.");
+        setProjects((prevProjects) =>
+          prevProjects.filter((project) => project.id !== id)
+        );
+      } else {
+        toast.error(`فشل في حذف المشروع: ${res.msg || "خطأ غير معروف"}`);
+      }
+    } catch (err) {
+      console.error("Error deleting project:", err);
+      toast.error("فشل في حذف المشروع. الرجاء المحاولة مرة أخرى.");
     }
   };
 
   return (
-    <div className="min-h-screen dark:bg-slate-950 bg-gray-50 p-8 flex flex-col items-center">
-      <h2 className="text-center font-bold text-3xl mb-8 text-gray-800">
-        Show All Projects
-      </h2>
+    <div className="container mx-auto mt-5 px-4 w-full">
+      <h2 className="text-center font-bold text-xl mb-4">Show All Projects</h2>
 
-      <div className="w-full flex justify-start mb-6">
+      <div className="flex flex-col md:flex-row justify-between items-center mb-4 w-full">
         <input
-          className="border dark:bg-slate-950 ml-4  border-gray-300  rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 w-4/12 sm:w-1/2 shadow-sm"
+          className="border border-gray-300 dark:bg-slate-900 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 w-96 md:w-1/2 shadow-sm text-xs"
           type="text"
           placeholder="Search projects by name..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
+        <Link
+          to="/allprojects/addproject"
+          className="mt-2 md:mt-0 bg-slate-500 text-white font-semibold py-1 px-3 rounded hover:bg-slate-700 w-96 md:w-1/6 text-center text-xs"
+        >
+          +Add Project
+        </Link>
       </div>
 
       {isLoading ? (
@@ -273,67 +314,67 @@ const ShowAllProjects = () => {
       ) : projects.length === 0 ? (
         <p className="text-center text-gray-600 text-lg">No projects found.</p>
       ) : (
-        <div className="w-full max-w-7xl mx-auto bg-white shadow-sm rounded-lg overflow-x-auto">
-          <table className="min-w-full border border-gray-200 bg-white rounded-lg text-sm">
+        <div className="w-full overflow-x-auto">
+          <table className="w-full bg-white dark:bg-slate-800 rounded-lg table-auto">
             <thead>
-              <tr className="bg-gradient-to-r from-blue-600 to-blue-400 text-white">
+              <tr className="bg-gradient-to-r from-blue-600 to-blue-400 text-white text-xs">
                 <th
-                  className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold border-b border-gray-200 cursor-pointer whitespace-nowrap"
+                  className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
                   onClick={() => sorting("id")}
                 >
                   ID {renderSortIcon("id")}
                 </th>
                 <th
-                  className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold border-b border-gray-200 cursor-pointer whitespace-nowrap"
+                  className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
                   onClick={() => sorting("name")}
                 >
                   Name {renderSortIcon("name")}
                 </th>
                 <th
-                  className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold border-b border-gray-200 cursor-pointer whitespace-nowrap"
+                  className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
                   onClick={() => sorting("inspection_date")}
                 >
                   Inspection Date {renderSortIcon("inspection_date")}
                 </th>
                 <th
-                  className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold border-b border-gray-200 cursor-pointer whitespace-nowrap"
+                  className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
                   onClick={() => sorting("statusText")}
                 >
                   Status {renderSortIcon("statusText")}
                 </th>
                 <th
-                  className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold border-b border-gray-200 cursor-pointer whitespace-nowrap"
+                  className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
                   onClick={() => sorting("branchName")}
                 >
                   Branch {renderSortIcon("branchName")}
                 </th>
                 <th
-                  className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold border-b border-gray-200 cursor-pointer whitespace-nowrap"
+                  className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
                   onClick={() => sorting("ownerName")}
                 >
                   Owner {renderSortIcon("ownerName")}
                 </th>
                 <th
-                  className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold border-b border-gray-200 cursor-pointer whitespace-nowrap"
+                  className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
                   onClick={() => sorting("customerName")}
                 >
                   Customer {renderSortIcon("customerName")}
                 </th>
                 <th
-                  className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold border-b border-gray-200 cursor-pointer whitespace-nowrap"
+                  className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
                   onClick={() => sorting("engineerName")}
                 >
                   Engineer {renderSortIcon("engineerName")}
                 </th>
-                <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold border-b border-gray-200 whitespace-nowrap">
+                <th className="px-2 py-1 text-left font-semibold border-b border-gray-300">
                   Notes
                 </th>
-                <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-right font-semibold border-b border-gray-200 whitespace-nowrap">
+                <th className="px-2 py-1 text-left font-semibold border-b border-gray-300">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody>
               {projects
                 .filter((project) => {
                   return search.toLowerCase() === ""
@@ -343,78 +384,68 @@ const ShowAllProjects = () => {
                 .map((project, index) => (
                   <tr
                     key={project.id}
-                    className={`${
-                      index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                    } hover:bg-gray-100 transition duration-200`}
+                    className={`hover:bg-gray-100 dark:hover:bg-slate-700 transition duration-200 text-xs ${
+                      index % 2 === 0
+                        ? "bg-white dark:bg-slate-800"
+                        : "bg-gray-50 dark:bg-slate-700"
+                    }`}
                   >
-                    <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800 whitespace-nowrap">
+                    <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
                       {project.id}
                     </td>
-                    <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800 whitespace-nowrap">
+                    <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white break-words">
                       {project.name}
                     </td>
-                    <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800 whitespace-nowrap">
+                    <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
                       {project.inspection_date}
                     </td>
-                    <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800 whitespace-nowrap">
+                    <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
                       {project.statusText}
                     </td>
-                    <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800 whitespace-nowrap">
+                    <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
                       {project.branchName}
                     </td>
-                    <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800 whitespace-nowrap">
+                    <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
                       {project.ownerName}
                     </td>
-                    <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800 whitespace-nowrap">
+                    <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
                       {project.customerName}
                     </td>
-                    <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800 whitespace-nowrap">
+                    <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
                       {project.engineerName}
                     </td>
-                    <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800 whitespace-nowrap">
+                    <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white break-words">
                       {project.notes}
                     </td>
-                    <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800 whitespace-nowrap">
-                      <div className="flex items-center justify-end gap-2 overflow-x-auto flex-nowrap max-w-sm">
-                        <button
-                          onClick={() =>
-                            navigate(
-                              `/allprojects/updateprojects/${project.id}`
-                            )
-                          }
-                          className="bg-green-600 text-white font-semibold py-2 px-3 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-200"
+                    <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
+                      <div className="flex space-x-1">
+                        <Link
+                          to={`/allprojects/updateprojects/${project.id}`}
+                          className="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 flex items-center text-xs"
                         >
-                          <div className="flex items-center gap-3">
-                            <FaEdit />
-                            <span>Edit</span>
-                          </div>
-                        </button>
+                          <FaEdit className="mr-1" />
+                          Edit
+                        </Link>
                         <button
                           onClick={() => handleDelete(project.id)}
-                          className="bg-red-600 text-white font-semibold py-2 px-2 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-200"
+                          className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 flex items-center text-xs"
                         >
-                          <div className="flex items-center gap-1">
-                            <FaTrash />
-                            <span>Delete</span>
-                          </div>
+                          <FaTrash className="mr-1" />
+                          Delete
                         </button>
                         <button
                           onClick={() => handleViewClick(project.id)}
-                          className="bg-blue-500 text-white font-semibold py-2 px-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200"
+                          className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 flex items-center text-xs"
                         >
-                          <div className="flex items-center gap-1">
-                            <FaEye />
-                            <span>View</span>
-                          </div>
+                          <FaEye className="mr-1" />
+                          View
                         </button>
                         <button
                           onClick={() => handleReportClick(project.id)}
-                          className="bg-gray-600 text-white font-semibold py-2 px-1 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 transition duration-200"
+                          className="bg-gray-600 text-white px-2 py-1 rounded hover:bg-gray-700 flex items-center text-xs"
                         >
-                          <div className="flex items-center gap-1">
-                            <FaProjectDiagram />
-                            <span>Add Report</span>
-                          </div>
+                          <FaProjectDiagram className="mr-1" />
+                          Add Report
                         </button>
                       </div>
                     </td>
@@ -424,6 +455,7 @@ const ShowAllProjects = () => {
           </table>
         </div>
       )}
+      <ToastContainer />
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Select from "react-select";
 import {
   Dialog,
@@ -7,9 +7,13 @@ import {
   DialogTitle,
 } from "@headlessui/react";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import $ from "jquery";
+import "dropify/dist/css/dropify.min.css";
+import "dropify/dist/js/dropify.min.js";
 
 const AddNewProject = () => {
-  // إدارة الحالات
   const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
   const [isOwnerModalOpen, setIsOwnerModalOpen] = useState(false);
   const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
@@ -23,24 +27,36 @@ const AddNewProject = () => {
   const [consultives, setConsultives] = useState([]);
   const [engineers, setEngineers] = useState([]);
 
-  // إدارة القيم المختارة
   const [selectedOwner, setSelectedOwner] = useState(null);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [selectedConsultives, setSelectedConsultives] = useState([]);
   const [selectedServices, setSelectedServices] = useState([]);
   const [selectedEngineer, setSelectedEngineer] = useState(null);
+  const [selectedBranch, setSelectedBranch] = useState(null);
+
   const [inspectionDate, setInspectionDate] = useState("");
   const [inspectionTime, setInspectionTime] = useState("");
   const [notes, setNotes] = useState("");
   const [inspectionLocation, setInspectionLocation] = useState("");
 
-  // إدارة القيم الجديدة
+  // New Variables
+  const [projectName, setProjectName] = useState("");
+  const [projectStatus, setProjectStatus] = useState("");
+  const [latValue, setLatValue] = useState("");
+  const [longValue, setLongValue] = useState("");
+
   const [newService, setNewService] = useState("");
   const [newOwner, setNewOwner] = useState("");
   const [newCustomerName, setNewCustomerName] = useState("");
   const [newConsultiveName, setNewConsultiveName] = useState("");
 
-  // تعريف نمط الـ Select بناءً على الوضع الليلي أو النهاري
+  // **New Variables to Manage Image Upload**
+  const [projectImage, setProjectImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+
+  // Ref for Dropify input
+  const dropifyRef = useRef(null);
+
   const isDarkMode = () =>
     typeof window !== "undefined" &&
     document.documentElement.classList.contains("dark");
@@ -63,6 +79,7 @@ const AddNewProject = () => {
           : "#aaa",
       },
       color: isDarkMode() ? "#fff" : "#000",
+      minHeight: "2.5rem", // Ensure consistent height
     }),
     menu: (provided) => ({
       ...provided,
@@ -111,276 +128,8 @@ const AddNewProject = () => {
     }),
   };
 
-  // دالة لإضافة مشروع جديد
-  const handleAddProject = async () => {
-    setIsLoading(true);
-
-    try {
-      const selectedServiceIds = selectedServices.map(
-        (service) => service.value
-      );
-      const selectedConsultiveIds = selectedConsultives.map((c) => c.value);
-
-      const projectData = {
-        service_ids: selectedServiceIds,
-        consultive_ids: selectedConsultiveIds,
-        owner_id: selectedOwner ? selectedOwner.value : null,
-        customer_id: selectedCustomer ? selectedCustomer.value : null,
-        engineer_id: selectedEngineer ? selectedEngineer.value : null,
-        inspection_date: inspectionDate,
-        inspection_time: inspectionTime,
-        notes: notes,
-        inspection_location: inspectionLocation,
-      };
-
-      const result = await addProjectData(projectData);
-
-      if (result.status === 200) {
-        alert("Project added successfully!");
-        // إعادة تعيين الحقول إذا رغبت
-        resetForm();
-      } else {
-        alert("Failed to add project: " + result.message);
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Failed to add project.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // دالة لإرسال بيانات المشروع
-  const addProjectData = (projectData) => {
-    const token = localStorage.getItem("token");
-    return fetch("https://inout-api.octopusteam.net/api/front/addProject", {
-      method: "POST", // استخدم POST بدلاً من GET
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`, // استخدم القوالب النصية
-      },
-      body: JSON.stringify(projectData),
-    }).then((res) => res.json());
-  };
-
-  // دوال فتح وإغلاق النوافذ المنبثقة (modals)
-  const handleCancelCustomer = () => {
-    setIsCustomerModalOpen(false);
-    setNewCustomerName("");
-  };
-
-  const handleCancelConsultive = () => {
-    setIsConsultiveModalOpen(false);
-    setNewConsultiveName("");
-  };
-
-  const handleCancelService = () => {
-    setIsServiceModalOpen(false);
-    setNewService("");
-  };
-
-  const handleCancelOwner = () => {
-    setIsOwnerModalOpen(false);
-    setNewOwner("");
-  };
-
-  // دوال حفظ القيم الجديدة
-  const handleSaveCustomer = async () => {
-    if (!newCustomerName.trim()) {
-      alert("Please enter a customer name");
-      return;
-    }
-
-    const customerData = {
-      name: newCustomerName,
-      type: 2, // تأكد من أن النوع صحيح حسب الـ API
-    };
-
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        alert("You need to log in first.");
-        return;
-      }
-
-      const response = await fetch(
-        "https://inout-api.octopusteam.net/api/front/addCustomer",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(customerData),
-        }
-      );
-
-      const result = await response.json();
-      if (response.ok && result.status === 200) {
-        const newOption = { value: result.data.id, label: result.data.name };
-        setCustomers((prevCustomers) => [...prevCustomers, newOption]);
-        setIsCustomerModalOpen(false);
-        setNewCustomerName("");
-        setSelectedCustomer(newOption); // تعيين العميل الجديد كـ selected
-      } else {
-        console.error("Error adding customer", result.message);
-        alert("Failed to add customer: " + result.message);
-      }
-    } catch (error) {
-      console.error("Error saving customer:", error);
-      alert("Error saving customer: " + error.message);
-    }
-  };
-
-  const handleSaveConsultive = async () => {
-    if (!newConsultiveName.trim()) {
-      alert("Please enter a consultive name");
-      return;
-    }
-
-    const consultiveData = {
-      name: newConsultiveName,
-      type: 2, // تأكد من أن النوع صحيح حسب الـ API
-    };
-
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        alert("You need to log in first.");
-        return;
-      }
-
-      const response = await fetch(
-        "https://inout-api.octopusteam.net/api/front/addCustomer",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(consultiveData),
-        }
-      );
-
-      const result = await response.json();
-      if (response.ok && result.status === 200) {
-        const newOption = { value: result.data.id, label: result.data.name };
-        setConsultives((prevConsultives) => [...prevConsultives, newOption]);
-        setIsConsultiveModalOpen(false);
-        setNewConsultiveName("");
-        setSelectedConsultives((prev) => [...prev, newOption]); // تعيين الاستشاري الجديد كمختار
-      } else {
-        console.error("Error adding consultive", result.message);
-        alert("Failed to add consultive: " + result.message);
-      }
-    } catch (error) {
-      console.error("Error saving consultive:", error);
-      alert("Error saving consultive: " + error.message);
-    }
-  };
-
-  const handleSaveService = async () => {
-    if (!newService.trim()) {
-      alert("Please enter a service name");
-      return;
-    }
-
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(
-        "https://inout-api.octopusteam.net/api/front/addService",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: newService,
-          }),
-        }
-      );
-      const result = await response.json();
-
-      if (result.status === 200) {
-        const newOption = { value: result.data.id, label: newService };
-        setServices([...services, newOption]);
-
-        setIsServiceModalOpen(false);
-        setNewService("");
-        setSelectedServices((prev) => [...prev, newOption]); // تعيين الخدمة الجديدة كمختارة
-      } else {
-        console.error("Error adding service", result.message);
-        alert("Failed to add service: " + result.message);
-      }
-    } catch (error) {
-      console.error("Error saving service:", error);
-      alert("Error saving service: " + error.message);
-    }
-  };
-
-  const handleSaveOwner = async () => {
-    if (!newOwner.trim()) {
-      alert("Please enter an owner name");
-      return;
-    }
-
-    const ownerData = {
-      name: newOwner,
-      type: 1, // تأكد من أن النوع صحيح حسب الـ API
-    };
-
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        alert("You need to log in first.");
-        return;
-      }
-
-      const response = await fetch(
-        "https://inout-api.octopusteam.net/api/front/addOwner", // تأكد من صحة الـ endpoint
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(ownerData),
-        }
-      );
-
-      const result = await response.json();
-      if (response.ok && result.status === 200) {
-        const newOption = { value: result.data.id, label: `${result.data.name} (Owner)` };
-        setOwners([...owners, newOption]);
-        setIsOwnerModalOpen(false);
-        setNewOwner("");
-        setSelectedOwner(newOption); // تعيين المالك الجديد كـ selected
-      } else {
-        console.error("Error adding owner", result.message);
-        alert("Failed to add owner: " + result.message);
-      }
-    } catch (error) {
-      console.error("Error saving owner:", error);
-      alert("Error saving owner: " + error.message);
-    }
-  };
-
-  // دالة لإعادة تعيين الحقول بعد إضافة المشروع بنجاح
-  const resetForm = () => {
-    setSelectedOwner(null);
-    setSelectedCustomer(null);
-    setSelectedConsultives([]);
-    setSelectedServices([]);
-    setSelectedEngineer(null);
-    setInspectionDate("");
-    setInspectionTime("");
-    setNotes("");
-    setInspectionLocation("");
-  };
-
-  // جلب البيانات عند التحميل
   useEffect(() => {
+    // Fetch data on load
     const fetchBranches = async () => {
       try {
         const token = localStorage.getItem("token");
@@ -394,7 +143,9 @@ const AddNewProject = () => {
           throw new Error("Failed to fetch branches");
         }
         const data = await res.json();
-        setBranches(data.data.map(branch => ({ value: branch.id, label: branch.name })));
+        setBranches(
+          data.data.map((branch) => ({ value: branch.id, label: branch.name }))
+        );
       } catch (err) {
         console.error("Error fetching branches:", err.message);
       }
@@ -412,7 +163,12 @@ const AddNewProject = () => {
         );
         const result = await response.json();
         if (result.status === 200) {
-          setServices(result.data.map(service => ({ value: service.id, label: service.name })));
+          setServices(
+            result.data.map((service) => ({
+              value: service.id,
+              label: service.name,
+            }))
+          );
         } else {
           console.error("Error fetching services data");
         }
@@ -436,8 +192,7 @@ const AddNewProject = () => {
         );
         const data = await res.json();
         if (data.status === 200) {
-          // تحويل البيانات إلى صيغة react-select
-          const formattedCustomers = data.data.map(customer => ({
+          const formattedCustomers = data.data.map((customer) => ({
             value: customer.id,
             label: customer.name,
             type: customer.type,
@@ -491,7 +246,7 @@ const AddNewProject = () => {
         );
         const data = await res.json();
         if (data.status === 200) {
-          const formattedOwners = data.data.map(owner => ({
+          const formattedOwners = data.data.map((owner) => ({
             value: owner.id,
             label: `${owner.name} ${owner.type === 1 ? "(Owner)" : ""}`,
           }));
@@ -516,46 +271,481 @@ const AddNewProject = () => {
         );
         const data = await res.json();
         if (data.status === 200) {
-          setEngineers(data.data.map(engineer => ({ value: engineer.id, label: engineer.full_name })));
+          setEngineers(
+            data.data.map((engineer) => ({
+              value: engineer.id,
+              label: engineer.full_name,
+            }))
+          );
         }
       } catch (error) {
         console.error("Error fetching engineers:", error);
       }
     };
 
-    // استدعاء جميع الدوال لجلب البيانات
     fetchBranches();
     fetchServices();
     fetchCustomers();
     fetchConsultive();
     fetchOwners();
     fetchEngineers();
+
+    // Initialize Dropify
+    if (dropifyRef.current) {
+      $(dropifyRef.current).dropify({
+        messages: {
+          default: "Drag and drop an image here or click",
+          replace: "Drag and drop or click to replace",
+          remove: "Remove",
+          error: "Sorry, something wrong appended.",
+        },
+        error: {
+          fileSize: "The file size is too big ({{ value }} max).",
+          minWidth: "The image width is too small ({{ value }}px min).",
+          maxWidth: "The image width is too big ({{ value }}px max).",
+          minHeight: "The image height is too small ({{ value }}px min).",
+          maxHeight: "The image height is too big ({{ value }}px max).",
+          imageFormat: "The image format is not allowed ({{ value }} only).",
+        },
+      });
+
+      // Handle Dropify change event
+      $(dropifyRef.current).on("change", function (e, files) {
+        const file = e.target.files[0];
+        if (file) {
+          setProjectImage(file);
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            setImagePreview(reader.result);
+          };
+          reader.readAsDataURL(file);
+        } else {
+          setProjectImage(null);
+          setImagePreview(null);
+        }
+      });
+    }
   }, []);
+
+
+
+  const handleAddProject = async () => {
+    setIsLoading(true);
+
+    try {
+      const selectedBranchId = selectedBranch ? selectedBranch.value : null;
+      const selectedOwnerId = selectedOwner ? selectedOwner.value : null;
+      const selectedCustomerConstructorId = selectedCustomer
+        ? selectedCustomer.value
+        : null;
+      const selectedEngineerId = selectedEngineer
+        ? selectedEngineer.value
+        : null;
+
+      const selectedServiceIds =
+        selectedServices && selectedServices.length > 0
+          ? selectedServices.map((s) => s.value)
+          : [];
+      const selectedConsultiveIds =
+        selectedConsultives && selectedConsultives.length > 0
+          ? selectedConsultives.map((c) => c.value)
+          : [];
+
+      // Use FormData to send data with image
+      const formData = new FormData();
+      formData.append("name", projectName || "");
+      formData.append("branch_id", selectedBranchId || "");
+      formData.append(
+        "customer_constructor_id",
+        selectedCustomerConstructorId || ""
+      );
+      formData.append("inspection_date", inspectionDate || "");
+      formData.append("inspection_engineer_id", selectedEngineerId || "");
+      formData.append("inspection_location_lat", latValue || "");
+      formData.append("inspection_location_long", longValue || "");
+      formData.append("project_owner_id", selectedOwnerId || "");
+      formData.append("status", projectStatus || "");
+      selectedServiceIds.forEach((id) => formData.append("service_ids[]", id));
+      selectedConsultiveIds.forEach((id) =>
+        formData.append("project_consultive_ids[]", id)
+      );
+      formData.append("notes", notes || "");
+      formData.append("inspection_time", inspectionTime || "");
+
+      // **Add image if selected**
+      if (projectImage) {
+        formData.append("project_image", projectImage);
+      }
+
+      console.log("Form Data:", {
+        name: projectName,
+        branch_id: selectedBranchId,
+        customer_constructor_id: selectedCustomerConstructorId,
+        inspection_date: inspectionDate,
+        inspection_engineer_id: selectedEngineerId,
+        inspection_location_lat: latValue,
+        inspection_location_long: longValue,
+        project_owner_id: selectedOwnerId,
+        status: projectStatus,
+        service_ids: selectedServiceIds,
+        project_consultive_ids: selectedConsultiveIds,
+        notes: notes,
+        inspection_time: inspectionTime,
+        project_image: projectImage,
+      });
+
+      const result = await addProjectData(formData);
+
+      if (result.status === 200) {
+        toast.success("Project added successfully");
+        resetForm();
+      } else {
+        toast.error("Failed to add project: " + result.message);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to add project.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const addProjectData = (formData) => {
+    const token = localStorage.getItem("token");
+    return fetch("https://inout-api.octopusteam.net/api/front/addProject", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        // Do not set 'Content-Type' when using FormData
+      },
+      body: formData,
+    }).then((res) => res.json());
+  };
+
+  // Functions to open and close modals
+  const handleCancelCustomer = () => {
+    setIsCustomerModalOpen(false);
+    setNewCustomerName("");
+  };
+
+  const handleCancelConsultive = () => {
+    setIsConsultiveModalOpen(false);
+    setNewConsultiveName("");
+  };
+
+  const handleCancelService = () => {
+    setIsServiceModalOpen(false);
+    setNewService("");
+  };
+
+  const handleCancelOwner = () => {
+    setIsOwnerModalOpen(false);
+    setNewOwner("");
+  };
+
+  // Functions to save new entries
+  const handleSaveCustomer = async () => {
+    if (!newCustomerName.trim()) {
+      toast.error("Please enter a customer name");
+      return;
+    }
+
+    const customerData = {
+      name: newCustomerName,
+      type: 2,
+    };
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast.error("You need to log in first.");
+        return;
+      }
+
+      const response = await fetch(
+        "https://inout-api.octopusteam.net/api/front/addCustomer",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(customerData),
+        }
+      );
+
+      const result = await response.json();
+      if (response.ok && result.status === 200) {
+        const newOption = { value: result.data.id, label: result.data.name };
+        setCustomers((prevCustomers) => [...prevCustomers, newOption]);
+        setIsCustomerModalOpen(false);
+        setNewCustomerName("");
+        setSelectedCustomer(newOption);
+        toast.success("Customer added successfully");
+      } else {
+        console.error("Error adding customer", result.message);
+        toast.error("Failed to add customer: " + result.message);
+      }
+    } catch (error) {
+      console.error("Error saving customer:", error);
+      toast.error("Error saving customer: " + error.message);
+    }
+  };
+
+  const handleSaveConsultive = async () => {
+    if (!newConsultiveName.trim()) {
+      toast.error("Please enter a consultive name");
+      return;
+    }
+
+    const consultiveData = {
+      name: newConsultiveName,
+      type: 2,
+    };
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast.error("You need to log in first.");
+        return;
+      }
+
+      const response = await fetch(
+        "https://inout-api.octopusteam.net/api/front/addCustomer",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(consultiveData),
+        }
+      );
+
+      const result = await response.json();
+      if (response.ok && result.status === 200) {
+        const newOption = { value: result.data.id, label: result.data.name };
+        setConsultives((prevConsultives) => [...prevConsultives, newOption]);
+        setIsConsultiveModalOpen(false);
+        setNewConsultiveName("");
+        setSelectedConsultives((prev) => [...prev, newOption]);
+        toast.success("Consultive added successfully");
+      } else {
+        console.error("Error adding consultive", result.message);
+        toast.error("Failed to add consultive: " + result.message);
+      }
+    } catch (error) {
+      console.error("Error saving consultive:", error);
+      toast.error("Error saving consultive: " + error.message);
+    }
+  };
+
+  const handleSaveService = async () => {
+    if (!newService.trim()) {
+      toast.error("Please enter a service name");
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        "https://inout-api.octopusteam.net/api/front/addService",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: newService,
+          }),
+        }
+      );
+      const result = await response.json();
+
+      if (result.status === 200) {
+        const newOption = { value: result.data.id, label: newService };
+        setServices([...services, newOption]);
+
+        setIsServiceModalOpen(false);
+        setNewService("");
+        setSelectedServices((prev) => [...prev, newOption]);
+        toast.success("Service added successfully");
+      } else {
+        console.error("Error adding service", result.message);
+        toast.error("Failed to add service: " + result.message);
+      }
+    } catch (error) {
+      console.error("Error saving service:", error);
+      toast.error("Error saving service: " + error.message);
+    }
+  };
+
+  const handleSaveOwner = async () => {
+    if (!newOwner.trim()) {
+      toast.error("Please enter an owner name");
+      return;
+    }
+
+    const ownerData = {
+      name: newOwner,
+      type: 1,
+    };
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast.error("You need to log in first.");
+        return;
+      }
+
+      const response = await fetch(
+        "https://inout-api.octopusteam.net/api/front/addOwner",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(ownerData),
+        }
+      );
+
+      const result = await response.json();
+      if (response.ok && result.status === 200) {
+        const newOption = {
+          value: result.data.id,
+          label: `${result.data.name} (Owner)`,
+        };
+        setOwners([...owners, newOption]);
+        setIsOwnerModalOpen(false);
+        setNewOwner("");
+        setSelectedOwner(newOption);
+        toast.success("Owner added successfully");
+      } else {
+        console.error("Error adding owner", result.message);
+        toast.error("Failed to add owner: " + result.message);
+      }
+    } catch (error) {
+      console.error("Error saving owner:", error);
+      toast.error("Error saving owner: " + error.message);
+    }
+  };
+
+  // Function to reset form after successful project addition
+  const resetForm = () => {
+    setSelectedOwner(null);
+    setSelectedCustomer(null);
+    setSelectedConsultives([]);
+    setSelectedServices([]);
+    setSelectedEngineer(null);
+    setInspectionDate("");
+    setInspectionTime("");
+    setNotes("");
+    setInspectionLocation("");
+    setProjectName("");
+    setProjectStatus("");
+    setLatValue("");
+    setLongValue("");
+    setSelectedBranch(null);
+    setProjectImage(null);
+    setImagePreview(null);
+
+    // Reset Dropify
+    if (dropifyRef.current) {
+      $(dropifyRef.current).dropify().data("dropify").resetPreview();
+      $(dropifyRef.current).dropify().val("");
+    }
+  };
 
   return (
     <div className="container ml-0 p-10 dark:bg-slate-950">
-      <h1 className="text-4xl font-bold mb-4">Add New Project</h1>
+      <h1 className="text-4xl font-bold mb-3">Add New Project</h1>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Project Name */}
+        <div className="">
+          <label className="block ml-6 text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
+            Project Name
+          </label>
+          <input
+            type="text"
+            value={projectName}
+            onChange={(e) => setProjectName(e.target.value)}
+            className="border border-gray-300 rounded-md p-2 dark:bg-slate-900 dark:text-white w-full"
+          />
+        </div>
+
+        {/* Project Status */}
+        <div className="">
+          <label className="block ml-6 text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
+            Project Status
+          </label>
+          <select
+            name="status"
+            value={projectStatus}
+            onChange={(e) => setProjectStatus(e.target.value)}
+            className="border border-gray-300 rounded-md p-2 dark:bg-slate-900 dark:text-white w-full"
+          >
+            <option value="">Select status</option>
+            <option value="0">Not Started</option>
+            <option value="2">In Progress</option>
+            <option value="4">Completed</option>
+            <option value="6">Pending</option>
+            <option value="8">Under Review</option>
+            <option value="10">Cancelled</option>
+          </select>
+        </div>
+
+        {/* Latitude */}
+        <div className="">
+          <label className="block ml-6 text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
+            Latitude
+          </label>
+          <input
+            type="text"
+            value={latValue}
+            onChange={(e) => setLatValue(e.target.value)}
+            className="border border-gray-300 rounded-md p-2 dark:bg-slate-900 dark:text-white w-full"
+          />
+        </div>
+
+        {/* Longitude */}
+        <div className="">
+          <label className="block ml-6 text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
+            Longitude
+          </label>
+          <input
+            type="text"
+            value={longValue}
+            onChange={(e) => setLongValue(e.target.value)}
+            className="border border-gray-300 rounded-md p-2 dark:bg-slate-900 dark:text-white w-full"
+          />
+        </div>
+
+        {/* Image Upload Field using Dropify */}
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Branch */}
-        <div className="p-1">
+        <div className="p-1 mt-4">
           <label className="block text-sm font-medium text-gray ml-6">
-            BRANCH
+            Branch
           </label>
           <Select
             options={branches}
+            name="branch_id"
             placeholder="Select branch"
             className="custom-select select1"
             styles={customSelectStyles}
-            onChange={(selected) => {
-              // يمكنك إدارة حالة الفرع المختار هنا إذا لزم الأمر
-            }}
+            onChange={(selected) => setSelectedBranch(selected)}
           />
         </div>
 
         {/* Services */}
-        <div className="p-1">
+        <div className="p-1 mt-4">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1 ml-6">
-            SERVICES
+            Services
           </label>
           <div className="flex items-center gap-2">
             <Select
@@ -564,6 +754,7 @@ const AddNewProject = () => {
               value={selectedServices}
               onChange={(options) => setSelectedServices(options)}
               placeholder="Select Services"
+              name="service_ids[]"
               className="select1 custom-select flex-1"
               styles={customSelectStyles}
             />
@@ -575,7 +766,7 @@ const AddNewProject = () => {
               +
             </button>
 
-            {/* Modal لإضافة خدمة جديدة */}
+            {/* Modal to add a new service */}
             <Dialog
               open={isServiceModalOpen}
               onClose={handleCancelService}
@@ -635,7 +826,7 @@ const AddNewProject = () => {
         {/* Project Owner */}
         <div className="p-1">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1 ml-6">
-            PROJECT OWNER
+            Project Owner
           </label>
           <div className="flex items-center mt-1">
             <Select
@@ -647,6 +838,7 @@ const AddNewProject = () => {
               onChange={(selected) => setSelectedOwner(selected)}
               placeholder="Select or add new owner"
               className="select1 custom-select flex-1"
+              name="project_owner_id"
               styles={customSelectStyles}
             />
 
@@ -657,7 +849,7 @@ const AddNewProject = () => {
               +
             </button>
 
-            {/* Modal لإضافة مالك مشروع جديد */}
+            {/* Modal to add a new project owner */}
             <Dialog
               open={isOwnerModalOpen}
               onClose={handleCancelOwner}
@@ -668,9 +860,9 @@ const AddNewProject = () => {
                 className="fixed inset-0 bg-gray-500/75 transition-opacity"
               />
               <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-                <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-                  <DialogPanel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
-                    <div className="service px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                <div className="flex min-h-full items-end justify-center p-4 text-m sm:items-center sm:p-0">
+                  <DialogPanel className="relative transform overflow-hidden dark:bg-slate-900 rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+                    <div className="owner px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
                       <div className="sm:flex sm:items-start">
                         <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
                           <DialogTitle
@@ -685,13 +877,13 @@ const AddNewProject = () => {
                               placeholder="Enter owner name"
                               value={newOwner}
                               onChange={(e) => setNewOwner(e.target.value)}
-                              className="select1 mt-1 block w-full border border-gray-300 rounded-md p-2 dark:bg-slate-900 dark:text-white"
+                              className="mt-1 w-full border border-gray-300 rounded-md p-2 dark:bg-slate-900 dark:text-white"
                             />
                           </div>
                         </div>
                       </div>
                     </div>
-                    <div className="service px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                    <div className="owner bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
                       <button
                         type="button"
                         onClick={handleSaveOwner}
@@ -702,7 +894,7 @@ const AddNewProject = () => {
                       <button
                         type="button"
                         onClick={handleCancelOwner}
-                        className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
+                        className="mt-3 inline-flex w-full justify-center rounded-md px-3 py-2 bg-white text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
                       >
                         Cancel
                       </button>
@@ -717,7 +909,7 @@ const AddNewProject = () => {
         {/* Customer / Contractor */}
         <div className="p-1">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1 ml-6">
-            CUSTOMER / CONTRACTOR
+            Customer / Contractor
           </label>
 
           <div className="flex items-center gap-2 mt-1">
@@ -731,6 +923,7 @@ const AddNewProject = () => {
               placeholder="Select or add new customer"
               className="select1 custom-select flex-1"
               styles={customSelectStyles}
+              name="customer_constructor_id"
             />
 
             <button
@@ -739,74 +932,70 @@ const AddNewProject = () => {
             >
               +
             </button>
-          </div>
 
-          {/* Modal لإضافة عميل جديد */}
-          <Dialog
-            open={isCustomerModalOpen}
-            onClose={handleCancelCustomer}
-            className="relative z-10"
-          >
-            <DialogBackdrop
-              transition
-              className="fixed inset-0 bg-gray-500/75 transition-opacity"
-            />
-            <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-              <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-                <DialogPanel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
-                  <div className="service px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
-                    <div className="sm:flex sm:items-start">
-                      <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
-                        <DialogTitle
-                          as="h3"
-                          className="text-base font-semibold text-gray-900"
-                        >
-                          Add New Customer
-                        </DialogTitle>
-                        <div className="mt-2">
-                          <input
-                            type="text"
-                            placeholder="Enter customer name"
-                            value={newCustomerName}
-                            onChange={(e) => setNewCustomerName(e.target.value)}
-                            className="mt-1 block w-full border border-gray-300 rounded-md p-2 dark:bg-slate-900 dark:text-white"
-                          />
-                          <input
-                            type="hidden"
-                            id="type"
-                            name="type"
-                            value="0"
-                          />
+            {/* Modal to add a new customer */}
+            <Dialog
+              open={isCustomerModalOpen}
+              onClose={handleCancelCustomer}
+              className="relative z-10"
+            >
+              <DialogBackdrop
+                transition
+                className="fixed inset-0 bg-gray-500/75 transition-opacity"
+              />
+              <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+                <div className="flex min-h-full items-end justify-center p-4 text-m sm:items-center sm:p-0">
+                  <DialogPanel className="relative transform overflow-hidden dark:bg-slate-900 rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+                    <div className="customer px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                      <div className="sm:flex sm:items-start">
+                        <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
+                          <DialogTitle
+                            as="h3"
+                            className="text-base font-semibold text-gray-900"
+                          >
+                            Add New Customer
+                          </DialogTitle>
+                          <div className="mt-2">
+                            <input
+                              type="text"
+                              placeholder="Enter customer name"
+                              value={newCustomerName}
+                              onChange={(e) =>
+                                setNewCustomerName(e.target.value)
+                              }
+                              className="mt-1 w-full border border-gray-300 rounded-md p-2 dark:bg-slate-900 dark:text-white"
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="service px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                    <button
-                      type="button"
-                      onClick={handleSaveCustomer}
-                      className="inline-flex mr-40 mt-3 w-full h-10 justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto"
-                    >
-                      Save Customer
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleCancelCustomer}
-                      className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </DialogPanel>
+                    <div className="customer bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                      <button
+                        type="button"
+                        onClick={handleSaveCustomer}
+                        className="inline-flex mr-60 mt-3 w-full h-10 justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto"
+                      >
+                        Save Customer
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleCancelCustomer}
+                        className="mt-3 inline-flex w-full justify-center rounded-md px-3 py-2 bg-white text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </DialogPanel>
+                </div>
               </div>
-            </div>
-          </Dialog>
+            </Dialog>
+          </div>
         </div>
 
         {/* Consultive/s */}
         <div className="p-1">
           <label className="block text-sm font-medium text-gray-700 ml-6">
-            CONSULTIVE/S
+            Consultive(s)
           </label>
 
           <div className="flex items-center gap-2 mt-1">
@@ -818,6 +1007,7 @@ const AddNewProject = () => {
               placeholder="Select Consultives"
               className="select1 custom-select flex-1"
               styles={customSelectStyles}
+              name="project_consultive_ids[]"
             />
 
             <button
@@ -826,81 +1016,76 @@ const AddNewProject = () => {
             >
               +
             </button>
-          </div>
 
-          {/* Modal لإضافة Consultive جديد */}
-          <Dialog
-            open={isConsultiveModalOpen}
-            onClose={handleCancelConsultive}
-            className="relative z-10"
-          >
-            <DialogBackdrop
-              transition
-              className="fixed inset-0 bg-gray-500/75 transition-opacity"
-            />
-            <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-              <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-                <DialogPanel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
-                  <div className="service px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
-                    <div className="sm:flex sm:items-start">
-                      <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
-                        <DialogTitle
-                          as="h3"
-                          className="text-base font-semibold text-gray-900"
-                        >
-                          Add New Consultive
-                        </DialogTitle>
-                        <div className="mt-2">
-                          <input
-                            type="text"
-                            placeholder="Enter consultive name"
-                            value={newConsultiveName}
-                            onChange={(e) =>
-                              setNewConsultiveName(e.target.value)
-                            }
-                            className="mt-1 block w-full border border-gray-300 rounded-md p-2 dark:bg-slate-900 dark:text-white"
-                          />
-                          <input
-                            type="hidden"
-                            id="type"
-                            name="type"
-                            value="0"
-                          />
+            {/* Modal to add a new consultive */}
+            <Dialog
+              open={isConsultiveModalOpen}
+              onClose={handleCancelConsultive}
+              className="relative z-10"
+            >
+              <DialogBackdrop
+                transition
+                className="fixed inset-0 bg-gray-500/75 transition-opacity"
+              />
+              <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+                <div className="flex min-h-full items-end justify-center p-4 text-m sm:items-center sm:p-0">
+                  <DialogPanel className="relative transform overflow-hidden dark:bg-slate-900 rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+                    <div className="consultive px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                      <div className="sm:flex sm:items-start">
+                        <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
+                          <DialogTitle
+                            as="h3"
+                            className="text-base font-semibold text-gray-900"
+                          >
+                            Add New Consultive
+                          </DialogTitle>
+                          <div className="mt-2">
+                            <input
+                              type="text"
+                              placeholder="Enter consultive name"
+                              value={newConsultiveName}
+                              onChange={(e) =>
+                                setNewConsultiveName(e.target.value)
+                              }
+                              className="mt-1 w-full border border-gray-300 rounded-md p-2 dark:bg-slate-900 dark:text-white"
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="service px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                    <button
-                      type="button"
-                      onClick={handleSaveConsultive}
-                      className="inline-flex mr-56 mt-3 w-full h-10 justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto"
-                    >
-                      Save Consultive
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleCancelConsultive}
-                      className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </DialogPanel>
+                    <div className="consultive bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                      <button
+                        type="button"
+                        onClick={handleSaveConsultive}
+                        className="inline-flex mr-60 mt-3 w-full h-10 justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto"
+                      >
+                        Save Consultive
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleCancelConsultive}
+                        className="mt-3 inline-flex w-full justify-center rounded-md px-3 py-2 bg-white text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </DialogPanel>
+                </div>
               </div>
-            </div>
-          </Dialog>
+            </Dialog>
+          </div>
         </div>
 
         {/* Inspection Date */}
         <div className="p-1">
           <label className="block text-sm font-medium text-gray-700 ml-6">
-            INSPECTION DATE
+            Inspection Date
           </label>
           <input
             type="date"
             placeholder="mm/dd/yyyy"
             value={inspectionDate}
+            name="inspection_date"
             onChange={(e) => setInspectionDate(e.target.value)}
             className="mt-1 block w-full border border-gray-300 dark:border-gray-700 rounded-md p-2 dark:bg-slate-950 dark:text-white"
           />
@@ -909,13 +1094,16 @@ const AddNewProject = () => {
         {/* Engineer */}
         <div className="p-1">
           <label className="block text-sm font-medium text-gray-700 ml-6">
-            ENGINEER
+            Engineer
           </label>
 
           <div className="flex items-center gap-2 mt-1">
             <Select
               options={[
-                { value: null, label: "Select Engineer to assign for inspection" },
+                {
+                  value: null,
+                  label: "Select Engineer to assign for inspection",
+                },
                 ...engineers,
               ]}
               value={selectedEngineer}
@@ -923,6 +1111,7 @@ const AddNewProject = () => {
               placeholder="Select Engineer to assign for inspection"
               className="select1 custom-select flex-1"
               styles={customSelectStyles}
+              name="inspection_engineer_id"
             />
           </div>
         </div>
@@ -930,11 +1119,11 @@ const AddNewProject = () => {
         {/* Inspection Time */}
         <div className="p-1">
           <label className="block text-sm font-medium text-gray-700 ml-6">
-            INSPECTION TIME
+            Inspection Time
           </label>
           <input
-            type="time"
-            placeholder="--:-- --"
+            type="number"
+            placeholder=""
             value={inspectionTime}
             onChange={(e) => setInspectionTime(e.target.value)}
             className="mt-1 block w-full border border-gray-300 dark:border-gray-700 rounded-md p-2 dark:bg-slate-950 dark:text-white"
@@ -944,39 +1133,60 @@ const AddNewProject = () => {
         {/* Notes */}
         <div className="p-1">
           <label className="block text-sm font-medium text-gray-700 ml-6">
-            NOTES
+            Notes
           </label>
           <textarea
             className="mt-1 block w-full border border-gray-300 dark:border-gray-700 rounded-md p-2 dark:bg-slate-950 dark:text-white"
             rows="4"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
+            name="notes"
           ></textarea>
         </div>
 
         {/* Inspection Location */}
         <div className="p-1">
           <label className="block text-sm font-medium text-gray-700 ml-6">
-            INSPECTION LOCATION
+            Inspection Location
           </label>
-          <div className="mt-1 block w-full border border-gray-300 dark:border-gray-700 rounded-md h-48 relative">
-            <div className="map-responsive">
-              <iframe
-                src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d12689.830105309824!2d-122.030189!3d37.3316756!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x808fb5b6c4951d0f%3A0xb651414deb31e9fb!2sApple%20Infinite%20Loop!5e0!3m2!1sen!2seg!4v1730722326603!5m2!1sen!2seg"
-                width="100%"
-                height="100%"
-                allowFullScreen=""
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                title="Responsive Google Map"
-                style={{ border: 0 }}
-              ></iframe>
-            </div>
+          {/* You can use the latValue and longValue coordinates instead of this iframe, or add fields to input the location */}
+          <div className="mt-1 block w-full border border-gray-300 dark:border-gray-700 rounded-md p-2 dark:bg-slate-950 dark:text-white">
+            <input
+              type="text"
+              placeholder="Inspection Location Description"
+              value={inspectionLocation}
+              onChange={(e) => setInspectionLocation(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded-md dark:bg-slate-900 dark:text-white"
+            />
           </div>
         </div>
       </div>
 
-      {/* زر إضافة المشروع */}
+      <div className="flex flex-col md:col-span-2 mt-4">
+        <label
+          htmlFor="project_image"
+          className="mb-2 ml-6 font-medium text-gray-700"
+        >
+          Upload Project Image
+        </label>
+        <input
+          type="file"
+          id="project_image"
+          ref={dropifyRef}
+          className="dropify"
+          data-allowed-file-extensions="jpg jpeg png gif"
+          data-max-file-size="2M"
+        />
+        {/* Display image preview if selected */}
+        {imagePreview && (
+          <img
+            src={imagePreview}
+            alt="Project Preview"
+            className="mt-4 h-40 w-40 object-cover rounded-md"
+          />
+        )}
+      </div>
+
       <button
         type="button"
         className="mt-6 w-full bg-blue-500 text-white font-semibold py-3 px-4 rounded-lg shadow-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 flex items-center justify-center text-sm"
@@ -992,6 +1202,7 @@ const AddNewProject = () => {
           <span className="button-text font-bold">Add Project</span>
         )}
       </button>
+      <ToastContainer />
     </div>
   );
 };
