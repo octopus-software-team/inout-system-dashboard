@@ -22,15 +22,16 @@ export default function DarkModeToggle() {
   }, [isDarkMode]);
 
   return (
-    <button 
-      onClick={() => setIsDarkMode(!isDarkMode)} 
-      className="p-2 rounded-full  text-white"
-    >
-      {isDarkMode ? (
-        <FaMoon className="text-2xl text-gray-400" />
-      ) : (
-        <FaSun className="text-xl text-yellow-300" />
-      )}
-    </button>
+    <h1></h1>
+    // <button 
+    //   onClick={() => setIsDarkMode(!isDarkMode)} 
+    //   className="p-2 rounded-full  text-white"
+    // >
+    //   {isDarkMode ? (
+    //     <FaMoon className="text-2xl text-gray-400" />
+    //   ) : (
+    //     <FaSun className="text-xl text-yellow-300" />
+    //   )}
+    // </button>
   );
 }

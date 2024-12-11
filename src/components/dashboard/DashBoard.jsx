@@ -49,7 +49,7 @@ const DashBoard = () => {
         </div>
         <div className="flex items-center">
           <div className="rounded-full">
-            <img className="w-20" src={pic3} alt="" />
+            <img className="pic4" src={pic3} alt="" />
           </div>
           <div>
             <h3 className="text-2xl font-semibold text-gray-900 dark:text-white">
