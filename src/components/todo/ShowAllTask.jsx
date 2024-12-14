@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 const ShowAllTask = () => {
   const [data, setData] = useState([]);
@@ -11,7 +11,8 @@ const ShowAllTask = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  // Fetch tasks data from API
+  const { id } = useParams();
+
   useEffect(() => {
     const token = localStorage.getItem("token");
 
@@ -22,7 +23,7 @@ const ShowAllTask = () => {
       return;
     }
 
-    fetch("https://inout-api.octopusteam.net/api/front/getTasks", {
+    fetch(`https://inout-api.octopusteam.net/api/front/getTasks`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -82,10 +83,9 @@ const ShowAllTask = () => {
   };
 
   const handleEdit = (id) => {
-    const selectedTask = data.find((task) => task.id === id);
-    navigate(`/todo/updatetask`, { state: selectedTask });
+    navigate(`/todo/updatetask/${id}`);
   };
-
+  
   const handleDelete = (id) => {
     const token = localStorage.getItem("token");
 
@@ -130,12 +130,12 @@ const ShowAllTask = () => {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        <Link
+        {/* <Link
           to="/todo/addnewtask"
           className="bg-gradient-to-r from-blue-500 to-green-500 text-white font-semibold py-2 px-6 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
         >
           + Create Task
-        </Link>
+        </Link> */}
       </div>
 
       {isLoading ? (

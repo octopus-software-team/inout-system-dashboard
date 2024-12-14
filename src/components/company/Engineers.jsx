@@ -6,8 +6,6 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 
-
-
 const AddEngineer = () => {
   const [formData, setFormData] = useState({
     full_name: "",
@@ -209,7 +207,7 @@ const AddEngineer = () => {
 
       const result = await response.json();
 
-      if (response.ok && result.status === 200) {
+      if (result.status === 200) {
         toast.success("Employee added successfully");
         navigate("company/employees");
 
@@ -236,37 +234,7 @@ const AddEngineer = () => {
         }, 2000);
       }
 
-      setErrors(result.data)
-      // } else if (result.status === 422) {
-      //   // Backend validation errors
-      //   // The format from the backend:
-      //   // {
-      //   //   "status": 422,
-      //   //   "msg": "validation error",
-      //   //   "data": {
-      //   //       "email": ["The email has already been taken."],
-      //   //       "phone": ["The phone has already been taken."],
-      //   //       ...
-      //   //   }
-      //   // }
-
-      //   let newErrors = { ...errors }; // Use current errors so we don't lose client-side validation messages
-      //   if (result.data) {
-      //     // If there's an email error from the server
-      //     if (result.data.email && result.data.email.length > 0) {
-      //       newErrors.email = result.data.email[0];
-      //     }
-      //     // If there's a phone error from the server
-      //     if (result.data.phone && result.data.phone.length > 0) {
-      //       newErrors.phone = result.data.phone[0];
-      //     }
-      //     // You can add similar checks for other fields if needed
-      //   }
-
-      //   setErrors(newErrors);
-      // } else {
-      //   setMessage("Error adding engineer, please try again.");
-      // }
+      setErrors(result.data);
     } catch (error) {
       console.error(error);
       setMessage("Error occurred while saving. Please check your input.");
@@ -276,8 +244,8 @@ const AddEngineer = () => {
   };
 
   useEffect(() => {
-    console.log(errors)
-  },[errors])
+    console.log(errors);
+  }, [errors]);
 
   return (
     <div className="mx-auto p-6">

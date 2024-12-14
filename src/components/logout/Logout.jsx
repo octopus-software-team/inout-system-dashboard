@@ -6,6 +6,7 @@ const LogoutButton = () => {
 
   const handleLogout = async () => {
     const token = localStorage.getItem("token");
+    console.log(token);
 
     console.log(token)
 

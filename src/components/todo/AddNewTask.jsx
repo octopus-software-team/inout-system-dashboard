@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const AddNewTask = () => {
   const [taskName, setTaskName] = useState("");
@@ -6,9 +9,9 @@ const AddNewTask = () => {
   const [status, setStatus] = useState(1);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [message, setMessage] = useState(""); 
   const [employees, setEmployees] = useState([]);
   const [type, setType] = useState(1);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchEmployees = async () => {
@@ -26,11 +29,11 @@ const AddNewTask = () => {
         if (data.status === 200) {
           setEmployees(data.data);
         } else {
-          setMessage("Failed to load employees.");
+          toast.error("Failed to load employees.");
         }
       } catch (error) {
         console.error("Error fetching employees:", error);
-        setMessage("Failed to load employees. Please try again.");
+        toast.error("Failed to load employees. Please try again.");
       }
     };
 
@@ -40,13 +43,13 @@ const AddNewTask = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!taskName || !employeeId || !startDate || !endDate) {
-      setMessage("Please fill all fields.");
+      toast.error("Please fill all fields.");
       return;
     }
 
     const token = localStorage.getItem("token");
     if (!token) {
-      setMessage("No token found. Please log in.");
+      toast.error("No token found. Please log in.");
       return;
     }
 
@@ -75,21 +78,16 @@ const AddNewTask = () => {
       const data = await response.json();
 
       if (data.status === 200) {
-        setMessage("Task added successfully.");
-        // Optionally, reset the form fields
-        setTaskName("");
-        setEmployeeId("");
-        setStatus(1);
-        setStartDate("");
-        setEndDate("");
-        setType("")
-      
+        toast.success("Task added successfully.");
+        setTimeout(() => {
+          navigate("/todo/showalltask");
+        }, 2000);
       } else {
-        setMessage(data.msg || "Failed to add task.");
+        toast.error(data.msg || "Failed to add task.");
       }
     } catch (error) {
       console.error("Error adding task:", error);
-      setMessage("Failed to add task. Please try again.");
+      toast.error("Failed to add task. Please try again.");
     }
   };
 
@@ -99,12 +97,6 @@ const AddNewTask = () => {
         <h2 className="text-center text-3xl font-bold text-gray-800 dark:text-white mb-6">
           Add New Task
         </h2>
-
-        {message && (
-          <p className="text-center text-lg mb-4 text-red-500 dark:text-red-400">
-            {message}
-          </p>
-        )}
 
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
@@ -159,8 +151,8 @@ const AddNewTask = () => {
           </div>
 
           <div className="mb-4">
-            <label htmlFor="status" className="block text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
-              type
+            <label htmlFor="type" className="block text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              Type
             </label>
             <select
               id="type"
@@ -169,9 +161,9 @@ const AddNewTask = () => {
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-slate-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             >
-              <option value={0}>urgent</option>
-              <option value={1}>high</option>
-              <option value={2}>low</option>
+              <option value={0}>Urgent</option>
+              <option value={1}>High</option>
+              <option value={2}>Low</option>
             </select>
           </div>
 
@@ -212,6 +204,7 @@ const AddNewTask = () => {
             </button>
           </div>
         </form>
+        <ToastContainer />
       </div>
     </div>
   );

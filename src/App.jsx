@@ -185,11 +185,11 @@ function App() {
               path="/company/projectsecrepo"
               element={<PrivateRoute element={<ProjectSecRepo />} />}
             />
-             <Route
+            <Route
               path="/company/createsecrepo"
               element={<PrivateRoute element={<CreateSecRepo />} />}
             />
-             <Route
+            <Route
               path="/company/editsecrepo/:id"
               element={<PrivateRoute element={<EditSecRepo />} />}
             />

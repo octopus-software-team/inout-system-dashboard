@@ -20,6 +20,8 @@ import L from "leaflet";
 // Fix for missing marker icon
 import icon from "leaflet/dist/images/marker-icon.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
+import { Navigate, useNavigate } from "react-router-dom";
+
 
 
 const AddNewProject = () => {
@@ -48,7 +50,6 @@ const AddNewProject = () => {
   const [notes, setNotes] = useState("");
   const [inspectionLocation, setInspectionLocation] = useState("");
 
-  // New Variables
   const [projectName, setProjectName] = useState("");
   const [projectStatus, setProjectStatus] = useState("");
   const [latValue, setLatValue] = useState("");
@@ -65,13 +66,14 @@ const AddNewProject = () => {
   const [position, setPosition] = useState([23.8859, 45.0792]);
 
   const dropifyRef = useRef(null);
+  
 
 
   const openInGoogleMaps = () => {
       if (position) {
           const [lat, lng] = position;
           const googleMapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
-          window.open(googleMapsUrl, "_blank"); // Open in a new tab
+          window.open(googleMapsUrl, "_blank"); 
       }
   };
 
@@ -365,6 +367,7 @@ const AddNewProject = () => {
 
       if (result.status === 200) {
         toast.success("Project added successfully");
+        Navigate("/allprojects/showallprojects")
         resetForm();
       } else {
         toast.error("Failed to add project: " + result.message);
