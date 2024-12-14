@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const CreateMaterials = () => {
   const [name, setName] = useState("");
@@ -9,22 +10,21 @@ const CreateMaterials = () => {
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
-    const token = localStorage.getItem("token");
-
     e.preventDefault();
-
-    // التحقق إذا كان حقل النوع فارغًا
+  
+    const token = localStorage.getItem("token");
+  
     if (!type) {
-      setErrorMessage("Type is required!"); // تعيين رسالة الخطأ إذا لم يتم إدخال النوع
+      toast.error("Type is required!");
       return;
     }
-
+  
     const newMaterial = {
       name,
       stock: parseInt(stock),
       type: parseInt(type),
     };
-
+  
     fetch("https://inout-api.octopusteam.net/api/front/addMaterial", {
       method: "POST",
       headers: {
@@ -40,25 +40,32 @@ const CreateMaterials = () => {
         return res.json();
       })
       .then((resData) => {
-        alert(resData.msg || "Material added successfully");
-        navigate("/company/assets/addmaterials");
+        toast.success(resData.msg || "Material added successfully!"); 
+        setTimeout(() => {
+          navigate("/company/assets/addmaterials"); 
+        }, 2000);
       })
       .catch((err) => {
         console.error("Error creating material:", err);
-        alert("Failed to add material. Please try again.");
+        toast.error("Failed to add material. Please try again.");
       });
   };
-
+  
   return (
     <div className="container mt-5">
-      <h2 className="text-center font-bold text-2xl text-black">Create Material</h2>
+      <h2 className="text-center font-bold text-2xl text-black">
+        Create Material
+      </h2>
 
       <form
         onSubmit={handleSubmit}
         className="service max-w-lg mx-auto p-8 rounded-lg shadow-lg"
       >
         <div className="mb-4">
-          <label className="block text-gray-700 font-semibold mb-2" htmlFor="name">
+          <label
+            className="block text-gray-700 font-semibold mb-2"
+            htmlFor="name"
+          >
             Material Name
           </label>
           <input
@@ -73,7 +80,10 @@ const CreateMaterials = () => {
         </div>
 
         <div className="mb-4">
-          <label className="block text-gray-700 font-semibold mb-2" htmlFor="stock">
+          <label
+            className="block text-gray-700 font-semibold mb-2"
+            htmlFor="stock"
+          >
             Stock
           </label>
           <input
@@ -88,7 +98,10 @@ const CreateMaterials = () => {
         </div>
 
         <div className="mb-4">
-          <label className="block text-gray-700 font-semibold mb-2" htmlFor="type">
+          <label
+            className="block text-gray-700 font-semibold mb-2"
+            htmlFor="type"
+          >
             Type
           </label>
           <select
@@ -101,13 +114,17 @@ const CreateMaterials = () => {
             className="w-full px-4 dark:bg-slate-900 dark:text-white py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           >
-            <option value="">Select Type</option> {/* إضافة خيار فارغ لاختيار نوع */}
+            <option value="">Select Type</option>{" "}
+            {/* إضافة خيار فارغ لاختيار نوع */}
             <option value="0">kg</option>
             <option value="1">piece</option>
             <option value="2">meter</option>
             <option value="3">liter</option>
           </select>
-          {errorMessage && <p className="text-red-500 text-sm mt-2">{errorMessage}</p>} {/* عرض رسالة الخطأ */}
+          {errorMessage && (
+            <p className="text-red-500 text-sm mt-2">{errorMessage}</p>
+          )}{" "}
+          {/* عرض رسالة الخطأ */}
         </div>
 
         <div className="text-center">

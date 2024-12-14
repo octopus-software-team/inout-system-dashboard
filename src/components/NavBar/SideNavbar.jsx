@@ -48,27 +48,12 @@ const company = [
     icon: <FaHardHat className="mr-2 text-gray-400" />,
   },
 
-  // {
-  //   name: "Project Services",
-  //   path: "/project_services/project_services",
-  //   icon: <FaHardHat className="mr-2 text-gray-400" />,
-  // },
- 
   {
     name: "Employees",
     path: "/company/employees",
     icon: <FaUserTie className="mr-2 text-gray-400" />,
   },
-  // {
-  //   name: "Employee Specialize",
-  //   path: "/company/employeespecialise",
-  //   icon: <FaUserTie className="mr-2 text-gray-400" />,
-  // },
-  // {
-  //   name: "Employee Files",
-  //   path: "/company/employeefiles",
-  //   icon: <FaUserTie className="mr-2 text-gray-400" />,
-  // },
+
   {
     name: "Assets",
     isSubmenu: true,
@@ -83,15 +68,24 @@ const company = [
         path: "/company/assets/addmaterials",
         icon: <FaCubes className="mr-2 text-gray-400" />,
       },
+
+      {
+        name: "Material Category",
+        path: "/company/assets/materialcategory",
+        icon: <FaCubes className="mr-2 text-gray-400" />,
+      },
       {
         name: "assets type",
         path: "/company/assets/assetstype",
         icon: <FaCubes className="mr-2 text-gray-400" />,
       },
+      {
+        name: "project Report",
+        path: "/company/projectsecrepo",
+        icon: <FaCubes className="mr-2 text-gray-400" />,
+      },
     ],
   },
-
-
 ];
 
 const customers = [
@@ -147,7 +141,7 @@ const moderator = [
 ];
 
 const NavItemWithSubMenu = ({ title, icon, items, isOpen, onToggle }) => (
-  <li>
+  <span>
     <button
       type="button"
       onClick={onToggle}
@@ -204,7 +198,7 @@ const NavItemWithSubMenu = ({ title, icon, items, isOpen, onToggle }) => (
         </li>
       ))}
     </ul>
-  </li>
+  </span>
 );
 
 const Navbar = () => {
@@ -231,15 +225,12 @@ const Navbar = () => {
 
   return (
     <div className="dark:bg-slate-900 bg-white transition-colors duration-300">
-      <nav className="nav-item flex items-center justify-between dark:bg-slate-900 h-20 p-4  border-b-2 fixed w-full z-30 top-0 transition-colors duration-300 ">
+      <nav className="nav-item flex items-center justify-between dark:bg-slate-900 h-20 p-4  border-b dark:border-gray-50 fixed w-full z-30 top-0 transition-colors duration-300 ">
         <div className="flex items-center space-x-4">
           <button className="md:hidden text-gray-500" onClick={toggleSidebar}>
             {sidebarOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
           </button>
-          <Link
-            className="flex items-center h-16"
-            to="/dashboard"
-          >
+          <Link className="flex items-center h-16" to="/dashboard">
             <img className="w-16 min-h-3" src={logo22} alt="Logo" />
             <h1 className="text-gray-500  dark:text-white text-3xl font-semibold cursor-pointer">
               INOUT

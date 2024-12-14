@@ -13,6 +13,15 @@ import $ from "jquery";
 import "dropify/dist/css/dropify.min.css";
 import "dropify/dist/js/dropify.min.js";
 
+import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
+
+// Fix for missing marker icon
+import icon from "leaflet/dist/images/marker-icon.png";
+import iconShadow from "leaflet/dist/images/marker-shadow.png";
+
+
 const AddNewProject = () => {
   const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
   const [isOwnerModalOpen, setIsOwnerModalOpen] = useState(false);
@@ -53,78 +62,35 @@ const AddNewProject = () => {
   const [projectImage, setProjectImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
 
+  const [position, setPosition] = useState([23.8859, 45.0792]);
+
   const dropifyRef = useRef(null);
+
+
+  const openInGoogleMaps = () => {
+      if (position) {
+          const [lat, lng] = position;
+          const googleMapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+          window.open(googleMapsUrl, "_blank"); // Open in a new tab
+      }
+  };
+
+  const LocationMarker = () => {
+      useMapEvents({
+          click(e) {
+              const { lat, lng } = e.latlng;
+              setPosition([lat, lng]);
+          },
+      });
+
+      return position ? <Marker position={position} /> : null;
+  };
+
 
   const isDarkMode = () =>
     typeof window !== "undefined" &&
     document.documentElement.classList.contains("dark");
 
-  const customSelectStyles = {
-    control: (provided, state) => ({
-      ...provided,
-      backgroundColor: isDarkMode() ? "#020617" : "",
-      borderColor: state.isFocused
-        ? "#2563EB"
-        : isDarkMode()
-        ? "#334155"
-        : "#ccc",
-      boxShadow: state.isFocused ? "0 0 0 1px #2563EB" : "none",
-      "&:hover": {
-        borderColor: state.isFocused
-          ? "#2563EB"
-          : isDarkMode()
-          ? "#475569"
-          : "#aaa",
-      },
-      color: isDarkMode() ? "#fff" : "#000",
-      minHeight: "2.5rem",
-    }),
-    menu: (provided) => ({
-      ...provided,
-      backgroundColor: isDarkMode() ? "#020617" : "#fff",
-      color: isDarkMode() ? "#fff" : "#000",
-    }),
-    option: (provided, state) => ({
-      ...provided,
-      backgroundColor: state.isFocused
-        ? isDarkMode()
-          ? "#334155"
-          : "#f0f0f0"
-        : isDarkMode()
-        ? "#1E293B"
-        : "#fff",
-      color: isDarkMode() ? "#fff" : "#000",
-      cursor: "pointer",
-      "&:active": {
-        backgroundColor: isDarkMode() ? "#475569" : "#e0e0e0",
-      },
-    }),
-    multiValue: (provided) => ({
-      ...provided,
-      backgroundColor: isDarkMode() ? "#475569" : "#e0e0e0",
-      color: isDarkMode() ? "#fff" : "#000",
-    }),
-    multiValueLabel: (provided) => ({
-      ...provided,
-      color: isDarkMode() ? "#fff" : "#000",
-    }),
-    multiValueRemove: (provided) => ({
-      ...provided,
-      color: isDarkMode() ? "#fff" : "#000",
-      ":hover": {
-        backgroundColor: isDarkMode() ? "#1E293B" : "#ccc",
-        color: isDarkMode() ? "#fff" : "#000",
-      },
-    }),
-    placeholder: (provided) => ({
-      ...provided,
-      color: isDarkMode() ? "#cbd5e1" : "#6b7280",
-    }),
-    singleValue: (provided) => ({
-      ...provided,
-      color: isDarkMode() ? "#fff" : "#000",
-    }),
-  };
 
   useEffect(() => {
     // Fetch data on load
@@ -288,7 +254,6 @@ const AddNewProject = () => {
     fetchOwners();
     fetchEngineers();
 
-    // Initialize Dropify
     if (dropifyRef.current) {
       $(dropifyRef.current).dropify({
         messages: {
@@ -367,6 +332,9 @@ const AddNewProject = () => {
       );
       formData.append("notes", notes || "");
       formData.append("inspection_time", inspectionTime || "");
+      formData.append("lat", position[0] || "");
+      formData.append("long", position[1] || "");
+
 
       // **Add image if selected**
       if (projectImage) {
@@ -388,7 +356,9 @@ const AddNewProject = () => {
         notes: notes,
         inspection_time: inspectionTime,
         project_image: projectImage,
-        inspection_location_location: inspectionLocation,
+        lat: position[0],
+        long: position[1],
+        // inspection_location_location: inspectionLocation,
       });
 
       const result = await addProjectData(formData);
@@ -722,7 +692,6 @@ const AddNewProject = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Branch */}
         <div className="p-1 mt-4">
           <label className="total block text-sm font-medium ml-6">
             Branch
@@ -732,7 +701,7 @@ const AddNewProject = () => {
             name="branch_id"
             placeholder="Select branch"
             className="custom-select select1"
-            styles={customSelectStyles}
+            // styles={customSelectStyles}
             onChange={(selected) => setSelectedBranch(selected)}
           />
         </div>
@@ -751,7 +720,7 @@ const AddNewProject = () => {
               placeholder="Select Services"
               name="service_ids[]"
               className="select1 custom-select flex-1"
-              styles={customSelectStyles}
+              // styles={customSelectStyles}
             />
 
             <button
@@ -761,7 +730,6 @@ const AddNewProject = () => {
               +
             </button>
 
-            {/* Modal to add a new service */}
             <Dialog
               open={isServiceModalOpen}
               onClose={handleCancelService}
@@ -834,7 +802,7 @@ const AddNewProject = () => {
               placeholder="Select or add new owner"
               className="select1 custom-select flex-1"
               name="project_owner_id"
-              styles={customSelectStyles}
+              // styles={customSelectStyles}
             />
 
             <button
@@ -917,7 +885,7 @@ const AddNewProject = () => {
               onChange={(selected) => setSelectedCustomer(selected)}
               placeholder="Select or add new customer"
               className="select1 custom-select flex-1"
-              styles={customSelectStyles}
+              // styles={customSelectStyles}
               name="customer_constructor_id"
             />
 
@@ -1001,7 +969,7 @@ const AddNewProject = () => {
               onChange={(options) => setSelectedConsultives(options)}
               placeholder="Select Consultives"
               className="select1 custom-select flex-1"
-              styles={customSelectStyles}
+              // styles={customSelectStyles}
               name="project_consultive_ids[]"
             />
 
@@ -1105,7 +1073,7 @@ const AddNewProject = () => {
               onChange={(selected) => setSelectedEngineer(selected)}
               placeholder="Select Engineer to assign for inspection"
               className="select1 custom-select flex-1"
-              styles={customSelectStyles}
+              // styles={customSelectStyles}
               name="inspection_engineer_id"
             />
           </div>
@@ -1144,12 +1112,56 @@ const AddNewProject = () => {
             Inspection Location
           </label>
           <div className="mt-1 block w-full border border-gray-300 dark:border-gray-700 rounded-md p-2  dark:text-white">
-            <input
+            
+            {/* <input
               type="text"
-              name="  inspection_location_location"
+              name="inspection_location_location"
               placeholder="Inspection Location Description"
               className="w-full p-2 text-gray-700 border border-gray-300 rounded-md dark:bg-slate-900 dark:text-white"
+            /> */}
+
+
+            <input
+              type="hidden"
+              hidden
+              value={position[0]}
+              name="lat"
             />
+            <input
+              type="hidden"
+              hidden
+              value={position[1]}
+              name="long"
+            />
+              
+
+          <div>
+            <MapContainer
+                center={[23.8859, 45.0792]}
+                zoom={6}
+                style={{ height: "100px", width: "100%" }}
+            >
+                <TileLayer
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                />
+                <LocationMarker />
+            </MapContainer>
+            {/* <button
+                onClick={openInGoogleMaps}
+                style={{
+                    marginTop: "10px",
+                    padding: "10px 20px",
+                    backgroundColor: "#4285F4",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "5px",
+                    cursor: "pointer",
+                }}
+            >
+                Open in Google Maps
+            </button> */}
+        </div>
           </div>
         </div>
       </div>

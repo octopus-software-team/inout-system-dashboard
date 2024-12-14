@@ -33,42 +33,45 @@ const UpdateAssets = () => {
       .catch((error) => console.error("خطأ في تحميل أنواع الأصول:", error));
   }, []);
 
-  // إرسال التحديثات إلى الخادم
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("No token found. Please log in.");
+      return;
+    }
 
-    fetch(
-      `https://inout-api.octopusteam.net/api/front/updateAsset/${state.id}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          name,
-          asset_type_id: assetTypeId,
-        }),
-      }
-    )
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error("فشل التعديل");
+    try {
+      const response = await fetch(
+        `https://inout-api.octopusteam.net/api/front/updateAsset/${state.id}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            name,
+            asset_type_id: assetTypeId,
+          }),
         }
-        return res.json();
-      })
-      .then((resData) => {
-        console.log(resData); // تحقق من استجابة الخادم
-        const successMessage = resData.msg || "تم التعديل بنجاح";
-        toast.success(successMessage); // عرض التوست عند النجاح
-        navigate("/company/assets/addnewassets"); // التنقل بعد النجاح
-      })
-      .catch((err) => {
-        console.error("خطأ في تحديث الأصل:", err.message);
-        toast.error("فشل التعديل. يرجى المحاولة مرة أخرى."); // عرض التوست عند الفشل
-      });
+      );
+
+      const result = await response.json();
+
+      if (response.ok) {
+        toast.success(result.msg || "Asset updated successfully!");
+        setTimeout(() => {
+          navigate("/company/assets/addnewassets");
+        }, 2000); // الانتقال بعد 2 ثانية
+      } else {
+        toast.error(result.msg || "Failed to update the asset.");
+      }
+    } catch (error) {
+      console.error("Error updating asset:", error);
+      toast.error("An error occurred while updating the asset.");
+    }
   };
 
   return (

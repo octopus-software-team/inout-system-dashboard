@@ -1,4 +1,3 @@
-// src/components/Branchs.js
 import React, { useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
@@ -8,9 +7,9 @@ import "react-toastify/dist/ReactToastify.css";
 const Branchs = () => {
   const [data, setData] = useState([]);
   const [search, setSearch] = useState("");
+  const [sortConfig, setSortConfig] = useState({ key: "", direction: "" });
   const navigate = useNavigate();
 
-  // Fetch branches from the API
   useEffect(() => {
     const fetchBranches = async () => {
       const token = localStorage.getItem("token");
@@ -37,6 +36,7 @@ const Branchs = () => {
         const resData = await response.json();
 
         if (resData.status === 200 && resData.data) {
+          console.log(resData);
           setData(resData.data);
         } else {
           toast.error(resData.msg || "No data found.");
@@ -50,10 +50,15 @@ const Branchs = () => {
     fetchBranches();
   }, []);
 
-  // Handle deletion with confirmation toast
+
+  useEffect(() => {
+    console.log(data)
+  },[])
+
+
   const handleDelete = (id) => {
     const token = localStorage.getItem("token");
-
+  
     // Display confirmation toast
     const confirmToast = toast(
       <div>
@@ -76,7 +81,7 @@ const Branchs = () => {
       { autoClose: false, closeButton: false }
     );
   };
-
+  
   const handleConfirmDelete = async (id, token, confirmToast) => {
     try {
       const response = await fetch(
@@ -88,16 +93,16 @@ const Branchs = () => {
           },
         }
       );
-
+  
       if (!response.ok) {
         throw new Error("Failed to delete branch.");
       }
-
+  
       const resData = await response.json();
-
+  
       if (resData.status === 200) {
         toast.success(resData.msg || "Branch deleted successfully.");
-        setData(data.filter((branch) => branch.id !== id));
+        setData((prevData) => prevData.filter((branch) => branch.id !== id));
         toast.dismiss(confirmToast); // Close confirmation toast
       } else {
         toast.error(resData.msg || "Failed to delete branch.");
@@ -108,14 +113,31 @@ const Branchs = () => {
       toast.dismiss(confirmToast); // Close confirmation toast
     }
   };
+  
 
-  // Open the branch location in a new tab
+  // Sorting logic
+  const handleSort = (key) => {
+    let direction = "ascending";
+    if (sortConfig.key === key && sortConfig.direction === "ascending") {
+      direction = "descending";
+    }
+    setSortConfig({ key, direction });
+
+    setData((prevData) =>
+      [...prevData].sort((a, b) => {
+        if (a[key] < b[key]) return direction === "ascending" ? -1 : 1;
+        if (a[key] > b[key]) return direction === "ascending" ? 1 : -1;
+        return 0;
+      })
+    );
+  };
+
   const openMap = (locationUrl) => {
     window.open(locationUrl, "_blank");
   };
 
   return (
-    <div className="container mt-5">
+    <div className="container p-5 mt-5">
       <h2 className="text-center font-bold text-2xl text-black">Branches</h2>
 
       <div className="flex justify-between items-center my-4">
@@ -138,16 +160,22 @@ const Branchs = () => {
         <table className="table-auto w-full border border-gray-200 bg-white rounded-lg">
           <thead>
             <tr className="bg-gradient-to-r from-blue-600 to-blue-400 text-white">
-              <th className="px-4  py-3 text-left font-semibold text-lg border-b border-gray-300">
-                ID
+              <th
+                className="px-4  py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
+                onClick={() => handleSort("id")}
+              >
+                ID {sortConfig.key === "id" ? (sortConfig.direction === "ascending" ? "↑" : "↓") : ""}
+              </th>
+              <th
+                className="px-4 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
+                onClick={() => handleSort("name")}
+              >
+                Name {sortConfig.key === "name" ? (sortConfig.direction === "ascending" ? "↑" : "↓") : ""}
               </th>
               <th className="px-4 text-left font-semibold text-lg border-b border-gray-300">
-                Name
-              </th>
-              <th className="px-4  text-left font-semibold text-lg border-b border-gray-300">
                 Location
               </th>
-              <th className="px-4  text-right font-semibold text-lg border-b border-gray-300">
+              <th className="px-4 text-right font-semibold text-lg border-b border-gray-300">
                 Actions
               </th>
             </tr>
@@ -166,13 +194,13 @@ const Branchs = () => {
                     index % 2 === 0 ? "bg-gray-50" : "bg-white"
                   }`}
                 >
-                  <td className="px-4  dark:bg-slate-900 py-3 dark:text-white  text-gray-800">
+                  <td className="px-4 dark:bg-slate-900 py-3 dark:text-white text-gray-800">
                     {d.id}
                   </td>
-                  <td className="px-4 dark:bg-slate-900 py-3 dark:text-white  text-gray-800">
+                  <td className="px-4 dark:bg-slate-900 py-3 dark:text-white text-gray-800">
                     {d.name}
                   </td>
-                  <td className="px-4 dark:bg-slate-900 py-3 dark:text-white  text-gray-800">
+                  <td className="px-4 dark:bg-slate-900 py-3 dark:text-white text-gray-800">
                     <button
                       onClick={() => openMap(d.location)}
                       className="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:shadow-md transform hover:scale-105 transition duration-300"
@@ -180,7 +208,7 @@ const Branchs = () => {
                       View on Map
                     </button>
                   </td>
-                  <td className="px-4 dark:bg-slate-900   text-right space-x-2">
+                  <td className="px-4 dark:bg-slate-900 text-right space-x-2">
                     <button
                       onClick={() =>
                         navigate(`/company/updatebranch/${d.id}`, { state: d })

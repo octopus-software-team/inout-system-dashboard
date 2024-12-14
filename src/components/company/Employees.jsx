@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import { FaEdit, FaEye, FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -193,7 +193,7 @@ const Employees = () => {
   };
 
   return (
-    <div className="container mx-auto mt-5 px-4 w-full">
+    <div className="container p-5 mx-auto mt-5 px-4 w-full">
       <h2 className="text-center font-bold text-xl mb-4">Employees</h2>
 
       <div className="flex flex-col md:flex-row justify-between items-center mb-4 w-full">
@@ -220,7 +220,7 @@ const Employees = () => {
                 className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
                 onClick={() => sorting("id")}
               >
-                ID {renderSortIcon("id")}
+                # {renderSortIcon("id")}
               </th>
               <th
                 className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
@@ -345,9 +345,9 @@ const Employees = () => {
                   </td>
                   <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
                     <img
-                      src="https://inout-api.octopusteam.net/storage/employees/71751733783168.webp"
+                      src={d.image}
                       alt={d.full_name}
-                      className="w-10 h-10 object-cover rounded"
+                      className="w-12 h-12 object-cover rounded"
                     />
                   </td>
                   <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white break-words">
@@ -367,6 +367,13 @@ const Employees = () => {
                   </td>
                   <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
                     <div className="flex space-x-1">
+                    <Link
+                        to={`/company/view/${d.id}`}
+                        className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-opacity-85 flex items-center"
+                      >
+                        <FaEye className="mr-1" />
+                        View
+                      </Link>
                       <Link
                         to={`/company/editemp/${d.id}`}
                         className="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 flex items-center"

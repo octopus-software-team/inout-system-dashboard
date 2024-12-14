@@ -10,14 +10,12 @@ const AddRepo = () => {
   const [report, setReport] = useState("");
   const { id } = useParams();
 
-
-
   const handleSubmit = (e) => {
     e.preventDefault();
     const token = localStorage.getItem("token");
 
     const payload = {
-      project_id: projectId,
+      project_id: id,
       report_type: reportType,
       is_inspection: isInspection,
     };
@@ -47,25 +45,6 @@ const AddRepo = () => {
         console.error("Error submitting report:", error);
         alert("Failed to submit report. Please try again.");
       });
-
-    const fetchCustomers = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const res = await fetch(
-          `https://inout-api.octopusteam.net/api/front/getProjects/${id}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-    fetchCustomers();
   };
 
   return (
@@ -104,11 +83,11 @@ const AddRepo = () => {
             type="checkbox"
             checked={isInspection === 1}
             onChange={() => setIsInspection(isInspection === 1 ? 0 : 1)}
-            className="toggle-checkbox"
+            className="!bg-blue-400"
           />
         </div>
 
-        {isInspection === 1 && (
+        {isInspection === 1 ? (
           <>
             <div className="mb-4">
               <label
@@ -126,7 +105,25 @@ const AddRepo = () => {
                 rows="3"
               ></textarea>
             </div>
-
+            <div className="mb-4">
+              <label
+                htmlFor="report"
+                className="block text-sm font-medium text-gray-700 dark:text-white"
+              >
+                Report
+              </label>
+              <textarea
+                id="report"
+                value={report}
+                onChange={(e) => setReport(e.target.value)}
+                placeholder="Enter report"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-900  dark:text-white dark:border-gray-600"
+                rows="4"
+              ></textarea>
+            </div>
+          </>
+        ) : (
+          <>
             <div className="mb-4">
               <label
                 htmlFor="report"

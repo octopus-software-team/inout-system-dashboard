@@ -1,136 +1,140 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify"; 
-import "react-toastify/dist/ReactToastify.css"; 
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css"; // التأكد من وجود هذا الاستيراد
 
 const CreateAssets = () => {
   const [name, setName] = useState("");
   const [assetTypeId, setAssetTypeId] = useState("");
   const [assetTypes, setAssetTypes] = useState([]);
-  const [errors, setErrors] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    fetch("https://inout-api.octopusteam.net/api/front/getAssetTypes", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.status === 200) {
+    const fetchAssetTypes = async () => {
+      try {
+        const response = await fetch(
+          "https://inout-api.octopusteam.net/api/front/getAssetTypes",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const data = await response.json();
+
+        if (response.ok && data.status === 200) {
           setAssetTypes(data.data);
         } else {
-          toast.error("Failed to load asset types"); // توست في حالة فشل تحميل الأنواع
+          toast.error(data.msg || "Failed to load asset types");
         }
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error("Error fetching asset types:", error);
-        toast.error("Error fetching asset types"); // توست في حالة وجود مشكلة في الاتصال
-      });
+        toast.error("Error fetching asset types");
+      }
+    };
+
+    fetchAssetTypes();
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!assetTypeId || assetTypeId === "id") {
-      setErrors({ asset_type_id: ["Please select a valid asset type"] });
+      toast.error("Please select a valid asset type");
       return;
     }
 
-    const token = localStorage.getItem("token");
-
-    fetch("https://inout-api.octopusteam.net/api/front/addAsset", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        name,
-        asset_type_id: assetTypeId,
-      }),
-    })
-      .then((res) => res.json())
-      .then((resData) => {
-        if (resData.status === 422) {
-          setErrors(resData.data);
-          toast.error("Validation errors occurred. Please check the form."); // توست عند وجود أخطاء تحقق
-        } else {
-          toast.success(resData.msg || "Asset added successfully!"); // توست عند نجاح إضافة الأسيتم
-          navigate("/company/assets/addnewassets");
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        "https://inout-api.octopusteam.net/api/front/addAsset",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            name,
+            asset_type_id: assetTypeId,
+          }),
         }
-      })
-      .catch((err) => {
-        console.error("Error adding asset:", err.message);
-        toast.error("Failed to add asset. Please try again."); // توست في حالة الفشل
-      });
+      );
+
+      const result = await response.json();
+
+      if (response.ok) {
+        toast.success(result.msg || "Asset added successfully!");
+        setName("");
+        setAssetTypeId("");
+        setTimeout(() => navigate("/company/assets/addnewassets"), 2000);
+      } else {
+        toast.error(result.msg || "Failed to add asset.");
+      }
+    } catch (error) {
+      console.error("Error adding asset:", error);
+      toast.error("Failed to add asset. Please try again.");
+    }
   };
 
   return (
-    <div className="container mx-auto mt-10">
-      <h2 className="text-center font-bold text-2xl mb-5">Create New Asset</h2>
-      <form
-        onSubmit={handleSubmit}
-        className="service max-w-md mx-auto p-6 rounded-lg shadow-md"
-      >
-        <div className="mb-4">
-          <label
-            className="block text-gray-700 font-semibold mb-2"
-            htmlFor="name"
-          >
-            Asset Name
-          </label>
-          <input
-            type="text"
-            id="name"
-            className="border border-gray-300 dark:bg-slate-900 dark:text-white rounded-lg w-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Enter asset name"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label
-            className="block text-gray-700 font-semibold mb-2"
-            htmlFor="assetTypeId"
-          >
-            Asset Type
-          </label>
-          <select
-            id="assetTypeId"
-            className="border dark:bg-slate-900 dark:text-white border-gray-300 rounded-lg w-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={assetTypeId}
-            onChange={(e) => setAssetTypeId(e.target.value)}
-            required
-          >
-            <option value="id" disabled>
-              Select an asset type
-            </option>
-            {assetTypes.map((type) => (
-              <option key={type.id} value={type.id}>
-                {type.name}
+    <div className="flex dark:bg-slate-950 justify-center items-center mt-20 bg-gray-100">
+      <ToastContainer theme="light" />
+      <div className="service dark:bg-slate-800 p-8 rounded shadow-md w-full max-w-md">
+        <h1 className="text-2xl font-bold mb-6 text-center">Create Asset</h1>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Asset Name
+            </label>
+            <input
+              type="text"
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              className="mt-1 dark:bg-slate-800 dark:text-white block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="assetTypeId"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Asset Type
+            </label>
+            <select
+              id="assetTypeId"
+              value={assetTypeId}
+              onChange={(e) => setAssetTypeId(e.target.value)}
+              required
+              className="mt-1 dark:bg-slate-800 dark:text-white block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            >
+              <option value="id" disabled>
+                Select an asset type
               </option>
-            ))}
-          </select>
-          {errors.asset_type_id && (
-            <p className="text-red-500 text-sm mt-1">
-              {errors.asset_type_id[0]}
-            </p>
-          )}
-        </div>
-        <button
-          type="submit"
-          className="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:shadow-md transform hover:scale-105 transition duration-300"
-        >
-          Save
-        </button>
-      </form>
-      <ToastContainer /> 
+              {assetTypes.map((type) => (
+                <option key={type.id} value={type.id}>
+                  {type.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 focus:ring-4 focus:ring-blue-300"
+          >
+            Add Asset
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

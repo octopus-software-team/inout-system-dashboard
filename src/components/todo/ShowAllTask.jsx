@@ -106,7 +106,7 @@ const ShowAllTask = () => {
         .then((data) => {
           if (data.status === 200) {
             alert("Task deleted successfully.");
-            setData(data.filter((task) => task.id !== id)); // Remove the deleted task from the state
+            setData(data.filter((task) => task.id !== id));
           } else {
             alert("Failed to delete task.");
           }

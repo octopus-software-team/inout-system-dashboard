@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+
 
 const UpdateProject = () => {
   const { id } = useParams();
@@ -245,6 +245,8 @@ const UpdateProject = () => {
       </div>
     );
   }
+
+   
 
   return (
     <div className="service container mx-auto p-6  dark:bg-slate-800 shadow-md rounded-lg max-w-2xl mt-10">

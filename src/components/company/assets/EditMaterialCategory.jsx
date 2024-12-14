@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify"; 
 import "react-toastify/dist/ReactToastify.css"; 
 
-const EditService = () => {
+const EditMaterialCategory = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [serviceData, setServiceData] = useState({
@@ -71,11 +71,11 @@ const EditService = () => {
   return (
     <div className="flex dark:bg-slate-800 justify-center items-center h-screen bg-gray-100">
       <div className="service p-8 rounded shadow-md w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-6 text-center">Edit Service</h1>
+        <h1 className="text-2xl font-bold mb-6 text-center">Edit Material Category</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="serviceId" className="block text-sm font-medium text-gray-700">
-              Service ID
+              material ID
             </label>
             <input
               type="text"
@@ -88,7 +88,7 @@ const EditService = () => {
           </div>
           <div>
             <label htmlFor="serviceName" className="block text-sm font-medium text-gray-700">
-              Service Name
+            Edit Material Category
             </label>
             <input
               type="text"
@@ -105,7 +105,7 @@ const EditService = () => {
               type="submit"
               className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 focus:ring-4 focus:ring-blue-300"
             >
-              Update Service
+              EditMaterialCategory
             </button>
           </div>
         </form>
@@ -119,4 +119,4 @@ const EditService = () => {
   );
 };
 
-export default EditService;
+export default EditMaterialCategory;

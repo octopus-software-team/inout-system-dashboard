@@ -3,6 +3,13 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
+import icon from "leaflet/dist/images/marker-icon.png";
+import iconShadow from "leaflet/dist/images/marker-shadow.png";
+
+
 
 const UpdateBranch = () => {
   const { id } = useParams();
@@ -11,21 +18,46 @@ const UpdateBranch = () => {
 
   const [formData, setFormData] = useState({
     name: "",
-    location: "",
+    latitude: "",
+    longitude: "",
   });
 
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState({
     name: "",
-    location: "",
+    latitude: "",
+    longitude: "",
   });
+
+    const openInGoogleMaps = () => {
+      if (formData.longitude && formData.latitude) {
+          const {latitude, longitude} = formData;
+          const googleMapsUrl = `https://www.google.com/maps?q=${latitude},${longitude}`;
+          window.open(googleMapsUrl, "_blank"); // Open in a new tab
+      }
+  };
+
+  const LocationMarker = () => {
+      useMapEvents({
+          click(e) {
+              const { latitude, longitude } = e.latlng;
+              setFormData((prev) => ({...prev, longitude: longitude, latitude: latitude}));
+          },
+      });
+
+      const {latitude, longitude} = formData;
+      return formData.longitude && formData.latitude ? <Marker position={[latitude, longitude]} /> : null;
+  };
+
+
 
   useEffect(() => {
     // استخدام البيانات المرسلة عبر الـ state إذا كانت موجودة
     if (location.state) {
       setFormData({
         name: location.state.name || "",
-        location: location.state.location || "",
+        latitude: location.state.latitude || "",
+        longitude: location.state.longitude || "",
       });
       setLoading(false);
     } else {
@@ -60,7 +92,8 @@ const UpdateBranch = () => {
 
           setFormData({
             name: result.data.name || "",
-            location: result.data.location || "",
+            latitude: result.data.name || "",
+            longitude: result.data.name || "",
           });
         } catch (error) {
           toast.error("Error: " + error.message);
@@ -113,10 +146,10 @@ const UpdateBranch = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!validate()) {
-      toast.error("Please correct the errors in the form.");
-      return;
-    }
+    // if (!validate()) {
+    //   toast.error("Please correct the errors in the form.");
+    //   return;
+    // }
 
     try {
       const token = localStorage.getItem("token");
@@ -126,18 +159,26 @@ const UpdateBranch = () => {
         return;
       }
 
+      const form = new FormData();
+
+      form.append("name", formData.name)
+      form.append("longitude", formData.longitude)
+      form.append("latitude", formData.latitude)
+
+
       const response = await fetch(
         `https://inout-api.octopusteam.net/api/front/updateBranch/${id}`,
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
+            // "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({
-            name: formData.name.trim(),
-            location: formData.location.trim(),
-          }),
+          // body: JSON.stringify({
+          //   name: formData.name.trim(),
+          //   location: formData.location.trim(),
+          // }),
+          body: form
         }
       );
 
@@ -158,6 +199,12 @@ const UpdateBranch = () => {
       console.error("Error updating branch:", error);
     }
   };
+
+
+  useEffect(() => {
+    console.log(formData);
+  },[formData])
+  
 
   if (loading) {
     return (
@@ -193,29 +240,55 @@ const UpdateBranch = () => {
           {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
         </div>
 
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2" htmlFor="location">
-            Location
-          </label>
           <input
-            type="text"
-            id="location"
-            name="location"
-            value={formData.location}
-            onChange={handleInputChange}
-            placeholder="Enter location URL or description"
-            className={`w-full dark:bg-slate-900 dark:text-white px-4 py-2 border ${
-              errors.location ? "border-red-500" : "border-gray-300"
-            } rounded-lg`}
-            required
-          />
-          {errors.location && <p className="text-red-500 text-sm">{errors.location}</p>}
-        </div>
+              type="hidden"
+              hidden
+              value={formData.latitude}
+              onChange={handleInputChange}
+              name="latitude"
+            />
+            <input
+              type="hidden"
+              hidden
+              value={formData.longitude}
+              onChange={handleInputChange}
+              name="longitude"
+            />
+              
+
+          <div>
+            <MapContainer
+                center={[23.8859, 45.0792]}
+                zoom={6}
+                style={{ height: "100px", width: "100%" }}
+            >
+                <TileLayer
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                />
+                <LocationMarker />
+            </MapContainer>
+            {/* <button
+                onClick={openInGoogleMaps}
+                style={{
+                    marginTop: "10px",
+                    padding: "10px 20px",
+                    backgroundColor: "#4285F4",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "5px",
+                    cursor: "pointer",
+                }}
+            >
+                Open in Google Maps
+            </button> */}
+          </div>
+
 
         <div className="text-center">
           <button
             type="submit"
-            className="bg-blue-500 text-white font-semibold py-2 px-6 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
+            className="bg-blue-500 mt-3 w-full text-white font-semibold py-2 px-6 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
           >
             Update Branch
           </button>

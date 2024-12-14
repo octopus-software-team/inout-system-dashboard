@@ -4,6 +4,9 @@ import "dropify/dist/css/dropify.css";
 import "dropify/dist/js/dropify";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useNavigate } from "react-router-dom";
+
+
 
 const AddEngineer = () => {
   const [formData, setFormData] = useState({
@@ -28,8 +31,8 @@ const AddEngineer = () => {
   const [specialties, setSpecialties] = useState([]);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  // Errors state for validation messages
   const [errors, setErrors] = useState({});
 
   const token = localStorage.getItem("token");
@@ -182,10 +185,10 @@ const AddEngineer = () => {
     e.preventDefault();
     setLoading(true);
 
-    if (!validateForm()) {
-      setLoading(false);
-      return;
-    }
+    // if (!validateForm()) {
+    //   setLoading(false);
+    //   return;
+    // }
 
     try {
       const formDataToSend = new FormData();
@@ -208,6 +211,7 @@ const AddEngineer = () => {
 
       if (response.ok && result.status === 200) {
         toast.success("Employee added successfully");
+        navigate("company/employees");
 
         setFormData({
           full_name: "",
@@ -230,36 +234,39 @@ const AddEngineer = () => {
         setTimeout(() => {
           window.location.reload();
         }, 2000);
-      } else if (result.status === 422) {
-        // Backend validation errors
-        // The format from the backend:
-        // {
-        //   "status": 422,
-        //   "msg": "validation error",
-        //   "data": {
-        //       "email": ["The email has already been taken."],
-        //       "phone": ["The phone has already been taken."],
-        //       ...
-        //   }
-        // }
-
-        let newErrors = { ...errors }; // Use current errors so we don't lose client-side validation messages
-        if (result.data) {
-          // If there's an email error from the server
-          if (result.data.email && result.data.email.length > 0) {
-            newErrors.email = result.data.email[0];
-          }
-          // If there's a phone error from the server
-          if (result.data.phone && result.data.phone.length > 0) {
-            newErrors.phone = result.data.phone[0];
-          }
-          // You can add similar checks for other fields if needed
-        }
-
-        setErrors(newErrors);
-      } else {
-        setMessage("Error adding engineer, please try again.");
       }
+
+      setErrors(result.data)
+      // } else if (result.status === 422) {
+      //   // Backend validation errors
+      //   // The format from the backend:
+      //   // {
+      //   //   "status": 422,
+      //   //   "msg": "validation error",
+      //   //   "data": {
+      //   //       "email": ["The email has already been taken."],
+      //   //       "phone": ["The phone has already been taken."],
+      //   //       ...
+      //   //   }
+      //   // }
+
+      //   let newErrors = { ...errors }; // Use current errors so we don't lose client-side validation messages
+      //   if (result.data) {
+      //     // If there's an email error from the server
+      //     if (result.data.email && result.data.email.length > 0) {
+      //       newErrors.email = result.data.email[0];
+      //     }
+      //     // If there's a phone error from the server
+      //     if (result.data.phone && result.data.phone.length > 0) {
+      //       newErrors.phone = result.data.phone[0];
+      //     }
+      //     // You can add similar checks for other fields if needed
+      //   }
+
+      //   setErrors(newErrors);
+      // } else {
+      //   setMessage("Error adding engineer, please try again.");
+      // }
     } catch (error) {
       console.error(error);
       setMessage("Error occurred while saving. Please check your input.");
@@ -267,6 +274,10 @@ const AddEngineer = () => {
 
     setLoading(false);
   };
+
+  useEffect(() => {
+    console.log(errors)
+  },[errors])
 
   return (
     <div className="mx-auto p-6">
@@ -574,7 +585,7 @@ const AddEngineer = () => {
           </label>
         </div>
 
-        <div className="mt-20 md:col-span-2">
+        <div className="mt-4 md:col-span-2">
           <button
             type="submit"
             className="bg-blue-500 w-full text-white px-6 py-2 rounded-lg"

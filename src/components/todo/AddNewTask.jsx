@@ -8,6 +8,7 @@ const AddNewTask = () => {
   const [endDate, setEndDate] = useState("");
   const [message, setMessage] = useState(""); 
   const [employees, setEmployees] = useState([]);
+  const [type, setType] = useState(1);
 
   useEffect(() => {
     const fetchEmployees = async () => {
@@ -55,6 +56,7 @@ const AddNewTask = () => {
       status: status,
       start_date: startDate,
       end_date: endDate,
+      type: type,
     };
 
     try {
@@ -80,6 +82,8 @@ const AddNewTask = () => {
         setStatus(1);
         setStartDate("");
         setEndDate("");
+        setType("")
+      
       } else {
         setMessage(data.msg || "Failed to add task.");
       }
@@ -151,6 +155,23 @@ const AddNewTask = () => {
             >
               <option value={1}>Active</option>
               <option value={0}>Inactive</option>
+            </select>
+          </div>
+
+          <div className="mb-4">
+            <label htmlFor="status" className="block text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              type
+            </label>
+            <select
+              id="type"
+              value={type}
+              onChange={(e) => setType(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-slate-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            >
+              <option value={0}>urgent</option>
+              <option value={1}>high</option>
+              <option value={2}>low</option>
             </select>
           </div>
 

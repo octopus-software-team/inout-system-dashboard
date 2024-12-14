@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const AddServices = () => {
+const MaterialCategory = () => {
   const [data, setData] = useState([]);
   const [order, setOrder] = useState("ASC");
   const [sortedColumn, setSortedColumn] = useState(null);
@@ -84,7 +84,7 @@ const AddServices = () => {
 
   const handleEdit = (id) => {
     const selectedService = data.find((service) => service.id === id);
-    navigate(`/company/editservice`, { state: selectedService });
+    navigate(`/company/assets/editmaterialcategory`, { state: selectedService });
   };
 
   const handleDelete = (id) => {
@@ -144,21 +144,21 @@ const AddServices = () => {
 
   return (
     <div className="container p-6 mt-5">
-      <h2 className="text-center font-bold text-3xl text-black">Services</h2>
+      <h2 className="text-center font-bold text-3xl text-black">Material Category</h2>
 
       <div className="flex justify-between items-center my-4">
         <input
           className="border border-gray-300 dark:bg-slate-900 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-2/3 shadow-md"
           type="text"
-          placeholder="Search services..."
+          placeholder="Search Material Category..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
         <Link
-          to="/company/createservices"
+          to="/company/assets/creatematerialcategory"
           className="bg-gradient-to-r from-blue-500 to-green-500 text-white font-semibold py-2 px-6 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
         >
-          + Create Service
+          + Create material category
         </Link>
       </div>
 
@@ -234,4 +234,4 @@ const AddServices = () => {
   );
 };
 
-export default AddServices;
+export default MaterialCategory;

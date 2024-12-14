@@ -26,11 +26,11 @@
   }
 }
 
-@layer base {
+/* @layer base {
   .select-service {
     @apply dark:border-b-slate-950;
   }
-}
+} */
 
 @layer base {
   .date-input {
@@ -40,7 +40,7 @@
 
 @layer base {
   .select1 {
-    @apply dark:bg-slate-900;
+    @apply dark:!bg-slate-900;
   }
 }
 
@@ -73,35 +73,31 @@ code {
 }
 
 .service {
-  background-color: white;
+  background-color: white !important;
 }
 
 @layer base {
   .service {
-    @apply dark:bg-slate-900;
+    @apply dark:!bg-slate-900;
   }
 }
 
 .Toastify__toast-container {
-  z-index: 9999; /* التأكد أن التوست في الواجهة العلوية */
+  z-index: 9999 !important;
 }
 
 .project1 {
-  color: black;
+  color: black !;
 }
 
 @layer base {
   .project1 {
-    @apply dark:text-white;
+    @apply dark:!text-white;
   }
 }
 
-.select1 {
-  background-color: white;
-}
-
 td {
-  font-size: 12px;
+  font-size: 12px !important;
 }
 
 .pic4 {
@@ -110,7 +106,7 @@ td {
 
 @layer base {
   .side {
-    @apply dark:bg-slate-900;
+    @apply dark:!bg-slate-900;
   }
 }
 .side {
@@ -123,27 +119,27 @@ td {
 
 @layer base {
   .total {
-    @apply dark:text-white;
+    @apply dark:!text-white;
   }
 }
 
 .notes {
-  color: white;
+  color: white !;
 }
 
 @layer base {
   .notes {
-    @apply dark:bg-slate-900;
+    @apply dark:!bg-slate-900;
   }
 }
 
 .add {
-  background-color: white;
+  background-color: white !important;
 }
 
 @layer base {
   .add {
-    @apply dark:bg-slate-900;
+    @apply dark:!bg-slate-900;
   }
 }
 
@@ -153,17 +149,17 @@ td {
 
 @layer base {
   .name {
-    @apply dark:text-white;
+    @apply dark:!text-white;
   }
 }
 
 .tableid {
-  background-color: white;
+  background-color: white !important;
 }
 
 @layer base {
   .tableid {
-    @apply dark:bg-slate-900;
+    @apply dark:!bg-slate-900;
   }
 }
 
@@ -171,11 +167,37 @@ td,
 th,
 input,
 option,
-select
- {
+select {
   @apply dark:!bg-slate-900  !bg-white !text-gray-900 dark:!text-white;
 }
 
 h2 {
   @apply !text-gray-900 dark:!text-white;
+}
+
+.dark {
+  background-color: white;
+}
+
+.css-13cymwt-control {
+  background-color: white !important;
+}
+
+.css-13cymwt-control {
+  @apply dark:!bg-slate-900  !bg-white !text-gray-900 dark:!text-white;
+}
+
+.css-19bb58m:after {
+  display: none !important;
+}
+
+.css-hlgwow, .css-w1w90w-control {
+  @apply dark:!bg-slate-900  !bg-white !text-gray-900 dark:!text-white;
+}
+
+.css-7crn4c-singleValue {
+  @apply !text-gray-900 dark:!text-white;
+}
+.container{
+@apply p-6
 }

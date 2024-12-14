@@ -8,11 +8,11 @@ const Moderator = () => {
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
 
     if (!token) {
-      alert('Please log in first');
-      navigate('/moderation/moderators');
+      alert("Please log in first");
+      navigate("/moderation/moderators");
       return;
     }
 
@@ -49,8 +49,10 @@ const Moderator = () => {
   }, [navigate]);
 
   const handleDelete = (id) => {
-    const token = localStorage.getItem('token'); 
-    const confirmDelete = window.confirm("Do you really want to delete this admin?");
+    const token = localStorage.getItem("token");
+    const confirmDelete = window.confirm(
+      "Do you really want to delete this admin?"
+    );
     if (confirmDelete) {
       fetch(`https://inout-api.octopusteam.net/api/front/deleteAdmin`, {
         method: "POST",
@@ -60,9 +62,9 @@ const Moderator = () => {
         },
       })
         .then(async (res) => {
-          console.log("Response status:", res.status); 
+          console.log("Response status:", res.status);
           const responseText = await res.text();
-          console.log("Response text:", responseText); 
+          console.log("Response text:", responseText);
           if (!res.ok) {
             throw new Error("Failed to delete admin");
           }
@@ -70,6 +72,7 @@ const Moderator = () => {
         })
         .then((resData) => {
           alert(resData.msg || "Admin deleted successfully");
+          localStorage.removeItem("token")
           setData((prevData) => prevData.filter((admin) => admin.id !== id));
         })
         .catch((err) => {
@@ -131,9 +134,15 @@ const Moderator = () => {
                     index % 2 === 0 ? "bg-gray-50" : "bg-white"
                   }`}
                 >
-                  <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">{item.id}</td>
-                  <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">{item.name}</td>
-                  <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">{item.email}</td>
+                  <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">
+                    {item.id}
+                  </td>
+                  <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">
+                    {item.name}
+                  </td>
+                  <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">
+                    {item.email}
+                  </td>
                   <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-right space-x-2">
                     <button
                       onClick={() =>

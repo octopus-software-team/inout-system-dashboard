@@ -6,6 +6,8 @@ import {
   useLocation,
   Navigate,
 } from "react-router-dom";
+import "react-toastify/dist/ReactToastify.css";
+
 import SideNavbar from "./components/NavBar/SideNavbar";
 import Navbar from "./components/NavBar/Navbars";
 import Branchs from "./components/company/Branchs";
@@ -18,8 +20,7 @@ import Home from "./components/HomePage/Home";
 import Clients from "./components/customers/Clients";
 import Owner from "./components/customers/Owner";
 import Consaltative from "./components/customers/Consaltative";
-import Create from "./components/Create/Create";
-import Update from "./components/Create/Update";
+
 import AddNewTask from "./components/todo/AddNewTask";
 import ShowAllTask from "./components/todo/ShowAllTask";
 import AddNewRule from "./components/admin/AddNewRole";
@@ -62,11 +63,15 @@ import AddRepo from "./components/allProjects/AddRepo";
 import CreateOwner from "./components/customers/CreateOwner";
 import EditOwner from "./components/customers/EditOwner";
 import EditConsultive from "./components/customers/EditConsultive";
-
-const PrivateRoute = ({ element: Component }) => {
-  const isLoggedIn = localStorage.getItem("token"); // Check if the user is logged in
-  return isLoggedIn ? Component : <Navigate to="/" />;
-};
+import { IsAuthenticated, PrivateRoute } from "./utilies/ProtectedRoutes";
+import NotFoundPage from "./components/layout/NotFound";
+import MaterialCategory from "./components/company/assets/MaterialCategory";
+import CreateMaterialCategory from "./components/company/assets/CreateMaterialCategory";
+import EditMaterialCategory from "./components/company/assets/EditMaterialCategory";
+import View from "./components/company/View";
+import ProjectSecRepo from "./components/company/ProjectSecRepo";
+import CreateSecRepo from "./components/company/CreateSecRepo";
+import EditSecRepo from "./components/company/EditSecRepo";
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -102,10 +107,11 @@ function App() {
 
         <div className="flex-grow min-h-screen pt-16 md:ml-80">
           <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<Loginn />} />
-
-            {/* Private Routes */}
+            <Route
+              path="/"
+              element={<IsAuthenticated element={<Loginn />} />}
+            />
+            <Route path="*" element={<NotFoundPage />} />
             <Route path="/home" element={<PrivateRoute element={<Home />} />} />
             <Route
               path="/dashboard"
@@ -134,11 +140,11 @@ function App() {
             />
 
             <Route
-              path="/allprojects/addreport"
+              path="/allprojects/addreport/:id"
               element={<PrivateRoute element={<AddReport />} />}
             />
             <Route
-              path="/allprojects/addrepo"
+              path="/allprojects/addrepo/:id"
               element={<PrivateRoute element={<AddRepo />} />}
             />
             <Route
@@ -176,6 +182,18 @@ function App() {
               element={<PrivateRoute element={<AddBranch />} />}
             />
             <Route
+              path="/company/projectsecrepo"
+              element={<PrivateRoute element={<ProjectSecRepo />} />}
+            />
+             <Route
+              path="/company/createsecrepo"
+              element={<PrivateRoute element={<CreateSecRepo />} />}
+            />
+             <Route
+              path="/company/editsecrepo/:id"
+              element={<PrivateRoute element={<EditSecRepo />} />}
+            />
+            <Route
               path="/company/updatebranch/:id"
               element={<PrivateRoute element={<UpdateBranch />} />}
             />
@@ -191,6 +209,20 @@ function App() {
               path="/company/assets/creatematerials"
               element={<PrivateRoute element={<CreateMaterials />} />}
             />
+
+            <Route
+              path="/company/assets/materialcategory"
+              element={<PrivateRoute element={<MaterialCategory />} />}
+            />
+
+            <Route
+              path="/company/assets/creatematerialcategory"
+              element={<PrivateRoute element={<CreateMaterialCategory />} />}
+            />
+            <Route
+              path="/company/assets/editmaterialcategory"
+              element={<PrivateRoute element={<EditMaterialCategory />} />}
+            />
             <Route
               path="/company/assets/updatematerials"
               element={<PrivateRoute element={<UpdateMaterials />} />}
@@ -198,6 +230,10 @@ function App() {
             <Route
               path="/company/assets/updateassets"
               element={<PrivateRoute element={<UpdateAssets />} />}
+            />
+            <Route
+              path="/company/view/:id"
+              element={<PrivateRoute element={<View />} />}
             />
             <Route
               path="/company/assets/createassets"
@@ -286,7 +322,7 @@ function App() {
               element={<PrivateRoute element={<AddNewTask />} />}
             />
             <Route
-              path="/todo/updatetask"
+              path="/todo/updatetask/:id"
               element={<PrivateRoute element={<UpdateTask />} />}
             />
             <Route

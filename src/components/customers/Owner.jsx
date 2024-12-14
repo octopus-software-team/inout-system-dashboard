@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Owner = () => {
   const [data, setData] = useState([]);
@@ -65,29 +67,52 @@ const Owner = () => {
   };
 
   const handleDelete = (id) => {
-    const confirm = window.confirm("Are you sure you want to delete this owner?");
-    if (confirm) {
-      fetch(`https://inout-api.octopusteam.net/api/front/deleteCustomer/${id}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+    const confirmToast = toast(
+      <div>
+        <p>Are you sure you want to delete this owner?</p>
+        <div className="flex space-x-2 justify-end mt-2">
+          <button
+            onClick={() => handleConfirmDelete(id, token, confirmToast)}
+            className="bg-red-600 text-white py-1 px-4 rounded-lg"
+          >
+            Yes
+          </button>
+          <button
+            onClick={() => toast.dismiss(confirmToast)}
+            className="bg-gray-600 text-white py-1 px-4 rounded-lg"
+          >
+            No
+          </button>
+        </div>
+      </div>,
+      { autoClose: false, closeButton: false }
+    );
+  };
+
+  const handleConfirmDelete = (id, token, confirmToast) => {
+    fetch(`https://inout-api.octopusteam.net/api/front/deleteCustomer/${id}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((result) => {
+        if (result.status === 200) {
+          toast.success("Owner deleted successfully");
+          setData(data.filter((item) => item.id !== id));
+          toast.dismiss(confirmToast); // إغلاق توست التأكيد
+        } else {
+          toast.error("Failed to delete owner.");
+          toast.dismiss(confirmToast);
+        }
       })
-        .then((res) => res.json())
-        .then((result) => {
-          if (result.status === 200) {
-            alert("Owner deleted successfully");
-            setData(data.filter((item) => item.id !== id)); // Remove deleted item from the state
-          } else {
-            alert("Failed to delete owner.");
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-          alert("An error occurred while deleting the owner.");
-        });
-    }
+      .catch((err) => {
+        console.log(err);
+        toast.error("An error occurred while deleting the owner.");
+        toast.dismiss(confirmToast);
+      });
   };
 
   return (
@@ -124,28 +149,28 @@ const Owner = () => {
             <thead>
               <tr className="bg-gradient-to-r from-blue-600 to-blue-400 text-white">
                 <th
-                  className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300"
+                  className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
                   onClick={() => sorting("id")}
                   aria-sort={order === "ASC" ? "ascending" : "descending"}
                 >
                   ID {renderSortIcon("id")}
                 </th>
                 <th
-                  className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300"
+                  className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
                   onClick={() => sorting("name")}
                   aria-sort={order === "ASC" ? "ascending" : "descending"}
                 >
                   Name {renderSortIcon("name")}
                 </th>
                 <th
-                  className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300"
+                  className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
                   onClick={() => sorting("email")}
                   aria-sort={order === "ASC" ? "ascending" : "descending"}
                 >
                   Email {renderSortIcon("email")}
                 </th>
                 <th
-                  className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300"
+                  className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
                   onClick={() => sorting("phone")}
                   aria-sort={order === "ASC" ? "ascending" : "descending"}
                 >
@@ -170,10 +195,18 @@ const Owner = () => {
                       index % 2 === 0 ? "bg-gray-50" : "bg-white"
                     }`}
                   >
-                    <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">{d.id}</td>
-                    <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">{d.name}</td>
-                    <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">{d.email}</td>
-                    <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">{d.phone}</td>
+                    <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">
+                      {d.id}
+                    </td>
+                    <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">
+                      {d.name}
+                    </td>
+                    <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">
+                      {d.email}
+                    </td>
+                    <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">
+                      {d.phone}
+                    </td>
                     <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-right space-x-2">
                       <Link
                         to={`/customers/editowner/${d.id}`}
@@ -196,6 +229,17 @@ const Owner = () => {
           </table>
         </div>
       )}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </div>
   );
 };

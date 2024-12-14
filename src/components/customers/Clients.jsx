@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
 
 const Clients = () => {
   const [data, setData] = useState([]);
@@ -25,7 +26,7 @@ const Clients = () => {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `${token}`,
+        Authorization: `Bearer ${token}`,
       },
     })
       .then((res) => {
@@ -82,7 +83,7 @@ const Clients = () => {
 
   const handleEdit = (id) => {
     const selectedClient = data.find((client) => client.id === id);
-    navigate(`/customers/updateclients`, { state: selectedClient });
+    navigate("/customers/updateclients", { state: selectedClient });
   };
 
   const handleDelete = (id) => {
@@ -92,39 +93,58 @@ const Clients = () => {
       return;
     }
 
-    if (window.confirm("Are you sure you want to delete this client?")) {
-      fetch(
-        `https://inout-api.octopusteam.net/api/front/deleteCustomer/${id}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+    // إظهار توست التأكيد
+    const confirmToast = toast(
+      <div>
+        <p>Are you sure you want to delete this client?</p>
+        <div className="flex space-x-2 justify-end mt-2">
+          <button
+            onClick={() => handleConfirmDelete(id, token, confirmToast)}
+            className="bg-red-600 text-white py-1 px-4 rounded-lg"
+          >
+            Yes
+          </button>
+          <button
+            onClick={() => toast.dismiss(confirmToast)}
+            className="bg-gray-600 text-white py-1 px-4 rounded-lg"
+          >
+            No
+          </button>
+        </div>
+      </div>,
+      { autoClose: false, closeButton: false }
+    );
+  };
+
+  const handleConfirmDelete = (id, token, confirmToast) => {
+    fetch(`https://inout-api.octopusteam.net/api/front/deleteCustomer/${id}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to delete client.");
         }
-      )
-        .then((res) => {
-          if (!res.ok) {
-            throw new Error("Failed to delete client.");
-          }
-          return res.json();
-        })
-        .then((response) => {
-          alert(response.msg || "Client deleted successfully.");
-          setData(data.filter((client) => client.id !== id));
-        })
-        .catch((error) => {
-          console.error("Error deleting client:", error);
-          alert("Failed to delete the client. Please try again.");
-        });
-    }
+        return res.json();
+      })
+      .then((response) => {
+        toast.success(response.msg || "Client deleted successfully.");
+        setData(data.filter((client) => client.id !== id));
+        toast.dismiss(confirmToast); // إغلاق توست التأكيد
+      })
+      .catch((error) => {
+        console.error("Error deleting client:", error);
+        toast.error("Failed to delete the client. Please try again.");
+        toast.dismiss(confirmToast);
+      });
   };
 
   return (
-    <div className="container mt-5">
-      <h2 className="text-center font-bold text-3xl dark:text-white">
-        Clients
-      </h2>
+    <div className="container p-6 mt-5">
+      <h2 className="text-center font-bold text-3xl dark:text-white">Clients</h2>
 
       <div className="flex justify-between items-center my-4">
         <input
@@ -136,9 +156,9 @@ const Clients = () => {
         />
         <Link
           to="/customers/createclients"
-          className="bg-gradient-to-r from-blue-500 to-green-500 text-white font-semibold py-2 px-6 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
+          className="text-white bg-blue-500 rounded p-2 transform hover:scale-105 transition duration-300"
         >
-          + Create Client
+          Create Client
         </Link>
       </div>
 
@@ -151,85 +171,103 @@ const Clients = () => {
       ) : data.length === 0 ? (
         <p className="text-center text-gray-600 text-lg">No clients found.</p>
       ) : (
-        <div className="overflow-x-auto shadow-lg rounded-lg w-full mx-auto">
-          <table className="table-auto w-full border border-gray-200 bg-white rounded-lg">
-            <thead>
-              <tr className="bg-gradient-to-r from-blue-600 to-blue-400 text-white">
-                <th
-                  className="px-4 dark:bg-slate-900 text-white py-3 text-left font-semibold text-lg border-b border-gray-300"
-                  onClick={() => sorting("id")}
-                  aria-sort={order === "ASC" ? "ascending" : "descending"}
-                >
-                  ID {renderSortIcon("id")}
-                </th>
-                <th
-                  className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300"
-                  onClick={() => sorting("name")}
-                  aria-sort={order === "ASC" ? "ascending" : "descending"}
-                >
-                  Name {renderSortIcon("name")}
-                </th>
-                <th
-                  className="px-4  py-3 dark:bg-slate-900 text-white text-left font-semibold text-lg border-b border-gray-300"
-                  onClick={() => sorting("email")}
-                  aria-sort={order === "ASC" ? "ascending" : "descending"}
-                >
-                  Email {renderSortIcon("email")}
-                </th>
-                <th
-                  className="px-4 dark:bg-slate-900 text-white py-3 text-left font-semibold text-lg border-b border-gray-300"
-                  onClick={() => sorting("phone")}
-                  aria-sort={order === "ASC" ? "ascending" : "descending"}
-                >
-                  Phone {renderSortIcon("phone")}
-                </th>
-                <th className="px-4 dark:bg-slate-900 text-white py-3 text-right font-semibold text-lg border-b border-gray-300">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {data
-                .filter((i) => {
-                  return search.toLowerCase() === ""
-                    ? i
-                    : i.name.toLowerCase().includes(search.toLowerCase());
-                })
-                .map((d, index) => (
-                  <tr
-                    key={d.id}
-                    className={`hover:bg-gray-100 transition duration-200 ${
-                      index % 2 === 0 ? "bg-gray-50" : "bg-white"
-                    }`}
-                  >
-                    <td className="px-4 dark:bg-slate-900  py-3 ">
-                      {d.id}
-                    </td>
-                    <td className="px-4 py-3 dark:bg-slate-900">{d.name}</td>
-                    <td className="px-4 py-3 dark:bg-slate-900 ">{d.email}</td>
-                    <td className="px-4 py-3 dark:bg-slate-900 ">{d.phone}</td>
-                    <td className="px-4 py-3 text-right space-x-2 dark:bg-slate-900 ">
-                      <button
-                        onClick={() => handleEdit(d.id)}
-                        className="bg-green-600 text-white font-semibold py-2 px-4 rounded-lg hover:shadow-md transform hover:scale-105 transition duration-300"
+        <div className="flex flex-col">
+          <div className="-m-1.5 overflow-x-auto">
+            <div className="p-1.5 min-w-full inline-block align-middle">
+              <div className="overflow-hidden">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead>
+                    <tr className="bg-gradient-to-r from-blue-600 to-blue-400">
+                      <th
+                        className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
+                        onClick={() => sorting("id")}
+                        aria-sort={order === "ASC" ? "ascending" : "descending"}
                       >
-                        <FaEdit className="inline mr-2" />
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(d.id)}
-                        className="bg-red-600 text-white font-semibold py-2 px-4 rounded-lg hover:shadow-md transform hover:scale-105 transition duration-300"
+                        ID {renderSortIcon("id")}
+                      </th>
+                      <th
+                        className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer dark:bg-slate-900 dark:text-white"
+                        onClick={() => sorting("name")}
+                        aria-sort={order === "ASC" ? "ascending" : "descending"}
                       >
-                        <FaTrash className="inline mr-2" />
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
+                        Name {renderSortIcon("name")}
+                      </th>
+                      <th
+                        className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
+                        onClick={() => sorting("email")}
+                        aria-sort={order === "ASC" ? "ascending" : "descending"}
+                      >
+                        Email {renderSortIcon("email")}
+                      </th>
+                      <th
+                        className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
+                        onClick={() => sorting("phone")}
+                        aria-sort={order === "ASC" ? "ascending" : "descending"}
+                      >
+                        Phone {renderSortIcon("phone")}
+                      </th>
+                      <th className="px-4 py-3 text-start font-semibold text-lg border-b border-gray-300">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {data
+                      .filter((i) => {
+                        return search.toLowerCase() === ""
+                          ? i
+                          : i.name.toLowerCase().includes(search.toLowerCase());
+                      })
+                      .map((d, index) => (
+                        <tr key={d.id}>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                            {d.id}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                            {d.name}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                            {d.email}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                            {d.phone}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 flex gap-4">
+                            <button
+                              onClick={() => handleEdit(d.id)}
+                              className="bg-green-600 text-white font-semibold py-2 px-4 rounded-lg hover:shadow-md transform hover:scale-105 transition duration-300"
+                            >
+                              <FaEdit className="inline mr-2" />
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleDelete(d.id)}
+                              className="bg-red-600 text-white font-semibold py-2 px-4 rounded-lg hover:shadow-md transform hover:scale-105 transition duration-300"
+                            >
+                              <FaTrash className="inline mr-2" />
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         </div>
       )}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </div>
   );
 };

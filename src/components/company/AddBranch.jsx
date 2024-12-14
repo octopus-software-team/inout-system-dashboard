@@ -1,28 +1,55 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
+import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
+import icon from "leaflet/dist/images/marker-icon.png";
+import iconShadow from "leaflet/dist/images/marker-shadow.png";
+
+
 
 const AddBranch = () => {
   const [branchName, setBranchName] = useState("");
   const [location, setLocation] = useState("");
   const [branchData, setBranchData] = useState(null);
+  const [position, setPosition] = useState([23.8859, 45.0792]);
+
+
+  const openInGoogleMaps = () => {
+    if (position) {
+        const [lat, lng] = position;
+        const googleMapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+        window.open(googleMapsUrl, "_blank"); // Open in a new tab
+    }
+};
+
+const LocationMarker = () => {
+    useMapEvents({
+        click(e) {
+            const { lat, lng } = e.latlng;
+            setPosition([lat, lng]);
+        },
+    });
+
+    return position ? <Marker position={position} /> : null;
+};
+
 
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault(e);
 
-    if (branchName.trim() === "" || location.trim() === "") {
-      toast.error("يرجى ملء جميع الحقول.");
-      return;
-    }
+   
+    const formData = new FormData();
 
-    const data = {
-      name: branchName.trim(),
-      location: location.trim(),
-    };
+    formData.append("name", branchName)
+    formData.append("latitude", position[0])
+    formData.append("longitude", position[1])
 
+    console.log(formData)
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
@@ -30,24 +57,24 @@ const AddBranch = () => {
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
+            // "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(data),
+          body: formData,
         }
       );
-
+      
       const result = await response.json();
 
       if (!response.ok) {
         console.error("تفاصيل الخطأ:", result);
         throw new Error(result.msg || "فشل في إضافة الفرع");
       }
-
+      
       setBranchData(result.data);
+      console.log(branchData)
       toast.success(result.msg || "تم إضافة الفرع بنجاح!");
 
-      // إعادة التوجيه بعد فترة قصيرة للسماح للمستخدم برؤية التوست
       setTimeout(() => {
         navigate("/company/Branchs");
       }, 2000);
@@ -56,6 +83,11 @@ const AddBranch = () => {
       console.error("خطأ:", error);
     }
   };
+
+  useEffect(() => {
+    console.log(branchName)
+  },[branchName])
+
 
   return (
     <div className="service max-w-lg mt-24 mx-auto p-6 rounded-lg shadow-sm">
@@ -68,35 +100,61 @@ const AddBranch = () => {
           <input
             type="text"
             value={branchName}
+            name="name"
             onChange={(e) => setBranchName(e.target.value)}
             className="mt-2 w-full dark:bg-slate-800 dark:text-white px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-            required
           />
         </div>
-
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">
-            Location
-          </label>
           <input
-            type="text"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-            placeholder="Enter Location"
-            className="mt-2 w-full dark:bg-slate-800 dark:text-white px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-            required
-          />
-        </div>
+              type="hidden"
+              hidden
+              value={position[0]}
+              name="latitude"
+            />
+            <input
+              type="hidden"
+              hidden
+              value={position[1]}
+              name="longitude"
+            />
+              
+
+          <div>
+            <MapContainer
+                center={[23.8859, 45.0792]}
+                zoom={6}
+                style={{ height: "100px", width: "100%" }}
+            >
+                <TileLayer
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                />
+                <LocationMarker />
+            </MapContainer>
+            {/* <button
+                onClick={openInGoogleMaps}
+                style={{
+                    marginTop: "10px",
+                    padding: "10px 20px",
+                    backgroundColor: "#4285F4",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "5px",
+                    cursor: "pointer",
+                }}
+            >
+                Open in Google Maps
+            </button> */}
 
         <button
           type="submit"
-          className="w-full py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
-        >
+          className="w-full mt-5  py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          >
           Add Branch
         </button>
+          </div>
       </form>
 
-      {/* عرض تفاصيل الفرع بعد الإضافة */}
       {branchData && (
         <div className="mt-4 p-4 bg-gray-100 rounded-lg">
           <h3 className="text-lg font-semibold">تفاصيل الفرع:</h3>

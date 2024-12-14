@@ -87,7 +87,7 @@ const ShowAllProjects = () => {
 
         // Fetch Owners
         const ownersResponse = await fetch(
-          "https://inout-api.octopusteam.net/api/front/getOwners",
+          "https://inout-api.octopusteam.net/api/front/getCustomers",
           {
             method: "GET",
             headers: {
@@ -107,6 +107,9 @@ const ShowAllProjects = () => {
           ownersMap[owner.id] = owner.name;
         });
         setOwners(ownersMap);
+
+
+        
 
         // Fetch Customers
         const customersResponse = await fetch(
@@ -167,6 +170,7 @@ const ShowAllProjects = () => {
       } catch (err) {
         console.error(err);
         setError(err.message || "An unexpected error occurred.");
+        toast.error(err.message || "An unexpected error occurred.");
       } finally {
         setIsLoading(false);
       }
@@ -176,11 +180,11 @@ const ShowAllProjects = () => {
   }, []);
 
   const handleViewClick = (projectId) => {
-    navigate(`/allprojects/addreport`);
+    navigate(`/allprojects/addreport/${projectId}`);
   };
 
   const handleReportClick = (projectId) => {
-    navigate(`/allprojects/addrepo`);
+    navigate(`/allprojects/addrepo/${projectId}`);
   };
 
   // Sorting
@@ -216,7 +220,7 @@ const ShowAllProjects = () => {
     toast(
       ({ closeToast }) => (
         <div>
-          <p>Are You Sure You want to delete this project</p>
+          <p>Are You Sure You want to delete this project?</p>
           <div className="flex space-x-2 mt-2">
             <button
               className="bg-red-500 text-white px-3 py-1 rounded"
@@ -285,22 +289,18 @@ const ShowAllProjects = () => {
 
   return (
     <div className="container mx-auto mt-5 px-4 w-full">
-      <h2 className="text-center font-bold text-gray-900 dark:text-white text-xl mb-4">Show All Projects</h2>
+      <h2 className="text-center font-bold text-gray-900 dark:text-white text-xl mb-4">
+        Show All Projects
+      </h2>
 
-      <div className="flex flex-col md:flex-row justify-between items-center mb-4 w-full">
+      <div className="flex flex-col md:flex-row justify-between items-center mb-4">
         <input
-          className="border border-gray-300 dark:bg-slate-900 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 w-96 md:w-1/2 shadow-sm text-xs"
+          className="border border-gray-300 dark:bg-slate-900 rounded-lg p-3 placeholder:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-xs md:w-1/2 w-96 lg:!w-[600px]"
           type="text"
           placeholder="Search projects by name..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        {/* <Link
-          to="/allprojects/addproject"
-          className="mt-2 md:mt-0 bg-slate-500 text-white font-semibold py-1 px-3 rounded hover:bg-slate-700 w-96 md:w-1/6 text-center text-xs"
-        >
-          +Add Project
-        </Link> */}
       </div>
 
       {isLoading ? (
@@ -312,148 +312,164 @@ const ShowAllProjects = () => {
       ) : projects.length === 0 ? (
         <p className="text-center text-gray-600 text-lg">No projects found.</p>
       ) : (
-        <div className="w-full overflow-x-auto">
-          <table className="w-full bg-white dark:bg-slate-800 rounded-lg table-auto">
-            <thead>
-              <tr className="bg-gradient-to-r from-blue-600 to-blue-400 text-white text-xs">
-                <th
-                  className="px-2  dark:text-white py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
-                  onClick={() => sorting("id")}
-                >
-                  ID {renderSortIcon("id")}
-                </th>
-                <th
-                  className="px-2 dark:text-white py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
-                  onClick={() => sorting("name")}
-                >
-                  Name {renderSortIcon("name")}
-                </th>
-                <th
-                  className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
-                  onClick={() => sorting("inspection_date")}
-                >
-                  Inspection Date {renderSortIcon("inspection_date")}
-                </th>
-                <th
-                  className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
-                  onClick={() => sorting("statusText")}
-                >
-                  Status {renderSortIcon("statusText")}
-                </th>
-                <th
-                  className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
-                  onClick={() => sorting("branchName")}
-                >
-                  Branch {renderSortIcon("branchName")}
-                </th>
-                <th
-                  className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
-                  onClick={() => sorting("ownerName")}
-                >
-                  Owner {renderSortIcon("ownerName")}
-                </th>
-                <th
-                  className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
-                  onClick={() => sorting("customerName")}
-                >
-                  Customer {renderSortIcon("customerName")}
-                </th>
-                <th
-                  className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
-                  onClick={() => sorting("engineerName")}
-                >
-                  Engineer {renderSortIcon("engineerName")}
-                </th>
-                <th className="px-2 py-1 text-left font-semibold border-b border-gray-300">
-                  Notes
-                </th>
-                <th className="px-2 py-1 text-left font-semibold border-b border-gray-300">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {projects
-                .filter((project) => {
-                  return search.toLowerCase() === ""
-                    ? true
-                    : project.name.toLowerCase().includes(search.toLowerCase());
-                })
-                .map((project, index) => (
-                  <tr
-                    key={project.id}
-                    className={`hover:bg-gray-100 dark:hover:bg-slate-700 transition duration-200 text-xs ${
-                      index % 2 === 0
-                        ? "bg-white dark:bg-slate-800"
-                        : "bg-gray-50 dark:bg-slate-700"
-                    }`}
-                  >
-                    <td className="tableid px-2 text-gray-900 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
-                      {project.id}
-                    </td>
-                    <td className="tableid px-2 text-gray-900 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white break-words">
-                      {project.name}
-                    </td>
-                    <td className="tableid px-2 text-gray-900 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
-                      {project.inspection_date}
-                    </td>
-                    <td className="tableid px-2 text-gray-900 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
-                      {project.statusText}
-                    </td>
-                    <td className="tableid px-2 text-gray-900 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
-                      {project.branchName}
-                    </td>
-                    <td className="tableid px-2 text-gray-900 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
-                      {project.ownerName}
-                    </td>
-                    <td className="tableid px-2 text-gray-900 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
-                      {project.customerName}
-                    </td>
-                    <td className="tableid px-2 text-gray-900 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
-                      {project.engineerName}
-                    </td>
-                    <td className="tableid px-2 text-gray-900 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white break-words">
-                      {project.notes}
-                    </td>
-                    <td className="tableid px-2 text-gray-900 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
-                      <div className="flex space-x-1">
-                        <Link
-                          to={`/allprojects/updateprojects/${project.id}`}
-                          className="bg-green-600 text-white  px-2 py-1 rounded hover:bg-green-700 flex items-center text-xs"
+        <div className="flex flex-col">
+          <div className="-m-1.5 overflow-x-auto">
+            <div className="p-1.5 min-w-full inline-block align-middle">
+              <div className="overflow-hidden">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead>
+                    <tr className="bg-gradient-to-r from-blue-600 to-blue-400 text-white text-xs">
+                      <th
+                        className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
+                        onClick={() => sorting("id")}
+                      >
+                        ID {renderSortIcon("id")}
+                      </th>
+                      <th
+                        className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
+                        onClick={() => sorting("name")}
+                      >
+                        Name {renderSortIcon("name")}
+                      </th>
+                      <th
+                        className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
+                        onClick={() => sorting("inspection_date")}
+                      >
+                        Inspection Date {renderSortIcon("inspection_date")}
+                      </th>
+                      <th
+                        className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
+                        onClick={() => sorting("statusText")}
+                      >
+                        Status {renderSortIcon("statusText")}
+                      </th>
+                      <th
+                        className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
+                        onClick={() => sorting("branchName")}
+                      >
+                        Branch {renderSortIcon("branchName")}
+                      </th>
+                      <th
+                        className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
+                        onClick={() => sorting("ownerName")}
+                      >
+                        Owner {renderSortIcon("ownerName")}
+                      </th>
+                      <th
+                        className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
+                        onClick={() => sorting("customerName")}
+                      >
+                        Customer {renderSortIcon("customerName")}
+                      </th>
+                      <th
+                        className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
+                        onClick={() => sorting("engineerName")}
+                      >
+                        Engineer {renderSortIcon("engineerName")}
+                      </th>
+                      <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
+                        Notes
+                      </th>
+                      <th className="pe-16 text-center dark:bg-slate-900 dark:text-white py-3 font-semibold text-lg border-b border-gray-300">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {projects
+                      .filter((project) => {
+                        return search.toLowerCase() === ""
+                          ? true
+                          : project.name.toLowerCase().includes(search.toLowerCase());
+                      })
+                      .map((project, index) => (
+                        <tr
+                          key={project.id}
+                          className={`hover:bg-gray-100 dark:hover:bg-slate-700 transition duration-200 text-xs ${
+                            index % 2 === 0
+                              ? "bg-white dark:bg-slate-800"
+                              : "bg-gray-50 dark:bg-slate-700"
+                          }`}
                         >
-                          <FaEdit className="mr-1" />
-                          Edit
-                        </Link>
-                        <button
-                          onClick={() => handleDelete(project.id)}
-                          className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 flex items-center text-xs"
-                        >
-                          <FaTrash className="mr-1" />
-                          Delete
-                        </button>
-                        <button
-                          onClick={() => handleViewClick(project.id)}
-                          className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 flex items-center text-xs"
-                        >
-                          <FaEye className="mr-1" />
-                          View
-                        </button>
-                        <button
-                          onClick={() => handleReportClick(project.id)}
-                          className="bg-gray-600 text-white px-2 py-1 rounded hover:bg-gray-700 flex items-center text-xs"
-                        >
-                          <FaProjectDiagram className="mr-1" />
-                          Add Report
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                            {project.id}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 break-words">
+                            {project.name}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                            {project.inspection_date}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                            {project.statusText}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                            {project.branchName}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                            {project.ownerName}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                            {project.customerName}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                            {project.engineerName}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 break-words">
+                            {project.notes}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                            <div className="flex space-x-1">
+                              <Link
+                                to={`/allprojects/updateprojects/${project.id}`}
+                                className="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 p-2 flex items-center text-xs"
+                              >
+                                <FaEdit className="mr-1" />
+                                Edit
+                              </Link>
+                              <button
+                                onClick={() => handleDelete(project.id)}
+                                className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 p-2 flex items-center text-xs"
+                              >
+                                <FaTrash className="mr-1" />
+                                Delete
+                              </button>
+                              <button
+                                onClick={() => handleViewClick(project.id)}
+                                className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 p-2 flex items-center text-xs"
+                              >
+                                <FaEye className="mr-1" />
+                                View
+                              </button>
+                              {/* <button
+                                onClick={() => handleReportClick(project.id)}
+                                className="bg-gray-600 text-white px-2 py-1 rounded hover:bg-gray-700 p-2 flex items-center text-xs"
+                              >
+                                <FaProjectDiagram className="mr-1" />
+                                Add Report
+                              </button> */}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         </div>
       )}
-      <ToastContainer />
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </div>
   );
 };
