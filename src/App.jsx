@@ -4,7 +4,7 @@ import {
   Routes,
   Route,
   useLocation,
-  Navigate,
+  // Navigate,
 } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -353,6 +353,8 @@ function App() {
           </Routes>
         </div>
       </div>
+
+      
 
       {isSidebarOpen && (
         <div

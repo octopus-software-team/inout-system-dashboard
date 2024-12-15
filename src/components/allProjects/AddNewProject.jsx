@@ -6,7 +6,7 @@ import {
   DialogPanel,
   DialogTitle,
 } from "@headlessui/react";
-import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
+// import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import $ from "jquery";
@@ -15,12 +15,12 @@ import "dropify/dist/js/dropify.min.js";
 
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import L from "leaflet";
+// import L from "leaflet";
 
 // Fix for missing marker icon
-import icon from "leaflet/dist/images/marker-icon.png";
-import iconShadow from "leaflet/dist/images/marker-shadow.png";
-import { Navigate, useNavigate } from "react-router-dom";
+// import icon from "leaflet/dist/images/marker-icon.png";
+// import iconShadow from "leaflet/dist/images/marker-shadow.png";
+import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 
 const AddNewProject = () => {
@@ -29,6 +29,8 @@ const AddNewProject = () => {
   const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
   const [isConsultiveModalOpen, setIsConsultiveModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  const navigate = useNavigate();
 
   const [branches, setBranches] = useState([]);
   const [services, setServices] = useState([]);
@@ -47,7 +49,7 @@ const AddNewProject = () => {
   const [inspectionDate, setInspectionDate] = useState("");
   const [inspectionTime, setInspectionTime] = useState("");
   const [notes, setNotes] = useState("");
-  const [inspectionLocation, setInspectionLocation] = useState("");
+  const [setInspectionLocation] = useState("");
 
   const [projectName, setProjectName] = useState("");
   const [projectStatus, setProjectStatus] = useState("");
@@ -357,17 +359,16 @@ const AddNewProject = () => {
       const data = await addProjectData(formData);
 
       if (data.status === 200) {
-        toast.success("Project added successfully");
-        Navigate("/allprojects/showallprojects");
-        resetForm();
+        toast.success("Task added successfully.");
+        setTimeout(() => {
+          navigate("/allprojects/showallprojects");
+        }, 2000);
       } else {
-        toast.error("Failed to add project: " + data.message);
+        toast.error(data.msg || "Failed to add task.");
       }
-    } catch (err) {
-      console.error(err);
-      // toast.error("Failed to add project.");
-    } finally {
-      setIsLoading(false);
+    } catch (error) {
+      console.error("Error adding task:", error);
+      toast.error("Failed to add task. Please try again.");
     }
   };
 

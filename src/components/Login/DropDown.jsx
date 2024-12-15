@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import ProfileImage from "../../assests/11.jpg"; // Replace with your profile image path
-import { Link } from "react-router-dom";
+// import { Link } from "react-router-dom";
 import Logout from "../logout/Logout";
 import DarkModeToggle from "../../theme/DarkMode";
 
@@ -10,9 +10,9 @@ export default function DropDown() {
 
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
 
-  const handleSignOut = () => {
-    setDropdownOpen(false); // Close the dropdown
-  };
+  // const handleSignOut = () => {
+  //   setDropdownOpen(false); 
+  // };
 
   useEffect(() => {
     const handleClickOutside = (event) => {

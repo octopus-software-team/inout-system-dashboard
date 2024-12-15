@@ -22,7 +22,7 @@ import {
 } from "react-icons/fa";
 import logo22 from "../../assests/logoo22.png";
 import DropDown from "../Login/DropDown";
-import Cookies from 'js-cookie';
+// import Cookies from 'js-cookie';
 
 const projects = [
   {

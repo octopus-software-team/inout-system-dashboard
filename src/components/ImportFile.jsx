@@ -3,7 +3,7 @@ import Cookies from "js-cookie";
 import * as XLSX from "xlsx";
 
 export default function ImportFile({tableName}) {
-  const [excelData, setExcelData] = useState([]);
+  const [setExcelData] = useState([]);
 
   const handleFileUpload = async (event) => {
     event.preventDefault();
