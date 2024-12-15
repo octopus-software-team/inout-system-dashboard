@@ -1,23 +1,48 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import Cookies from 'js-cookie';
 
 const CreateSecRepo = () => {
-  const [projectId, setProjectId] = useState(""); // Holds the entered project ID
-  const [projectName, setProjectName] = useState(""); // Holds the entered project name
+  const [id, setId] = useState(""); // Holds the entered ID
+  const [projectId, setProjectId] = useState(""); // Holds the selected project ID
+  const [projects, setProjects] = useState([]); // Holds the fetched project list
   const [reportType, setReportType] = useState("daily");
   const [reportStock, setReportStock] = useState("");
   const [isInspection, setIsInspection] = useState(1);
   const [report, setReport] = useState("");
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const token = Cookies.get('token');
+    // Fetch project list from API
+    fetch("https://inout-api.octopusteam.net/api/front/getProjects", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.status === 200) {
+          setProjects(data.data); // Set the projects in state
+        } else {
+          alert(`Error fetching projects: ${data.msg || "Unknown error"}`);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching projects:", error);
+        alert("Failed to fetch projects. Please try again.");
+      });
+  }, []);
+
   // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
-    const token = localStorage.getItem("token");
+    const token = Cookies.get('token');
 
     const payload = {
-      project_id: projectId, // Required Project ID
-      project_name: projectName, // Optional Project Name
+      id, // ID input
+      project_id: projectId, // Selected Project ID
       report_type: reportType,
       is_inspection: isInspection,
       report_stock: isInspection ? reportStock : undefined,
@@ -50,35 +75,41 @@ const CreateSecRepo = () => {
   return (
     <div className="mt-10 flex justify-center items-center">
       <form className="w-full max-w-sm" onSubmit={handleSubmit}>
-        {/* Project ID Input */}
+        {/* ID Input */}
         <div className="mb-4">
-          <label htmlFor="projectId" className="block text-sm font-medium text-gray-700 dark:text-white">
-            Project ID
+          <label htmlFor="id" className="block text-sm font-medium text-gray-700 dark:text-white">
+            ID
           </label>
           <input
-            id="projectId"
+            id="id"
             type="text"
-            value={projectId}
-            onChange={(e) => setProjectId(e.target.value)} // Update the state with entered ID
-            placeholder="Enter Project ID"
+            value={id}
+            onChange={(e) => setId(e.target.value)}
+            placeholder="Enter ID"
             required
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-900 dark:text-white"
           />
         </div>
 
-        {/* Project Name Input */}
+        {/* Project Name Dropdown */}
         <div className="mb-4">
-          <label htmlFor="projectName" className="block text-sm font-medium text-gray-700 dark:text-white">
+          <label htmlFor="projectId" className="block text-sm font-medium text-gray-700 dark:text-white">
             Project Name
           </label>
-          <input
-            id="projectName"
-            type="text"
-            value={projectName}
-            onChange={(e) => setProjectName(e.target.value)} // Update the state with entered name
-            placeholder="Enter Project Name"
+          <select
+            id="projectId"
+            value={projectId}
+            onChange={(e) => setProjectId(e.target.value)}
+            required
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-900 dark:text-white"
-          />
+          >
+            <option value="" disabled>Select a project</option>
+            {projects.map((project) => (
+              <option key={project.id} value={project.id}>
+                {project.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* Report Type */}
@@ -120,24 +151,22 @@ const CreateSecRepo = () => {
 
         {/* Report Stock and Report Fields */}
         {isInspection === 1 ? (
-          <>
-            <div className="mb-4">
-              <label
-                htmlFor="reportStock"
-                className="block text-sm font-medium text-gray-700 dark:text-white"
-              >
-                Report Stock
-              </label>
-              <textarea
-                id="reportStock"
-                value={reportStock}
-                onChange={(e) => setReportStock(e.target.value)}
-                placeholder="Enter report stock"
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-900 dark:text-white"
-                rows="3"
-              ></textarea>
-            </div>
-          </>
+          <div className="mb-4">
+            <label
+              htmlFor="reportStock"
+              className="block text-sm font-medium text-gray-700 dark:text-white"
+            >
+              Report Stock
+            </label>
+            <textarea
+              id="reportStock"
+              value={reportStock}
+              onChange={(e) => setReportStock(e.target.value)}
+              placeholder="Enter report stock"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-900 dark:text-white"
+              rows="3"
+            ></textarea>
+          </div>
         ) : null}
         <div className="mb-4">
           <label

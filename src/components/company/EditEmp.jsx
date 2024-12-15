@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Cookies from 'js-cookie';
 
 // Import jQuery and Dropify
 import $ from "jquery";
@@ -36,7 +37,7 @@ const EditEmp = () => {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const token = localStorage.getItem("token");
+  const token = Cookies.get('token');
 
   // Reference to the file input
   const fileInputRef = useRef(null);

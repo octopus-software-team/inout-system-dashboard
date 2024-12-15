@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import Cookies from "js-cookie";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+import ImportFile from "../ImportFile";
+import ExportFile from "../ExportFile";
 
 const ShowAllTask = () => {
   const [data, setData] = useState([]);
@@ -10,11 +15,41 @@ const ShowAllTask = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const [excelData, setExcelData] = useState([]);
+
+  // and this also
+  const [open, setOpen] = useState(false);
 
   const { id } = useParams();
 
+  const handleFileUpload = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    // Read file as binary string
+    reader.onload = (e) => {
+      const data = e.target?.result;
+      if (!data) return;
+
+      // Parse the Excel file
+      const workbook = XLSX.read(data, { type: "binary" });
+
+      // Get the first worksheet
+      const worksheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[worksheetName];
+
+      // Convert worksheet to JSON
+      const jsonData = XLSX.utils.sheet_to_json(worksheet);
+      setExcelData(jsonData);
+    };
+
+    reader.readAsBinaryString(file);
+  };
+
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = Cookies.get("token");
 
     if (!token) {
       console.log("No token found, cannot fetch tasks.");
@@ -85,9 +120,9 @@ const ShowAllTask = () => {
   const handleEdit = (id) => {
     navigate(`/todo/updatetask/${id}`);
   };
-  
+
   const handleDelete = (id) => {
-    const token = localStorage.getItem("token");
+    const token = Cookies.get("token");
 
     if (!token) {
       alert("No token found. Please log in.");
@@ -120,7 +155,9 @@ const ShowAllTask = () => {
 
   return (
     <div className="container mt-5">
-      <h2 className="text-center font-bold text-3xl text-black">Show All Tasks</h2>
+      <h2 className="text-center font-bold text-3xl text-black">
+        Show All Tasks
+      </h2>
 
       <div className="flex justify-between items-center my-4">
         <input
@@ -130,12 +167,36 @@ const ShowAllTask = () => {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        {/* <Link
-          to="/todo/addnewtask"
-          className="bg-gradient-to-r from-blue-500 to-green-500 text-white font-semibold py-2 px-6 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
+
+        {/* From HERE dry Silly */}
+        <button
+          onClick={setOpen}
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
         >
-          + Create Task
-        </Link> */}
+          Import
+        </button>
+
+        {open && (
+          <div
+            className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
+            onClick={() => setOpen(false)}
+          >
+            <div
+              className="w-[350px] h-[350px] bg-white rounded-lg shadow-lg p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h2 className="text-center text-xl font-semibold mb-4">
+                Import File
+              </h2>
+              <div className="flex flex-col items-center space-y-4">
+                <ImportFile tableName="tasks" />
+                <ExportFile tableName="tasks" />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* To HERE dry Silly */}
       </div>
 
       {isLoading ? (

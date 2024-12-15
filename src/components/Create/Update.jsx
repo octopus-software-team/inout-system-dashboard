@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
+import Cookies from 'js-cookie';
+
 
 const Update = () => {
   const location = useLocation();
@@ -20,7 +22,7 @@ const Update = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const token = localStorage.getItem("token");
+    const token = Cookies.get('token');
 
     if (!token) {
       setError("No token found. Please log in.");

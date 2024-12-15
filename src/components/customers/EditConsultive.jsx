@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import Cookies from 'js-cookie';
+
 
 const EditConsultive = () => {
   const { id } = useParams();
@@ -13,7 +15,7 @@ const EditConsultive = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = Cookies.get('token');
     if (!token) {
       alert("No token found. Please log in.");
       return;
@@ -61,7 +63,7 @@ const EditConsultive = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const token = localStorage.getItem("token");
+    const token = Cookies.get('token');
     if (!token) {
       alert("No token found. Please log in.");
       return;

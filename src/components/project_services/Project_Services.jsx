@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import Cookies from 'js-cookie';
 
 const Project_Services = () => {
   const [data, setData] = useState([]);
@@ -11,7 +12,7 @@ const Project_Services = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = Cookies.get('token');
 
     if (!token) {
       setError("No token found. Please log in.");
@@ -86,7 +87,7 @@ const Project_Services = () => {
   };
 
   const handleDelete = (id) => {
-    const token = localStorage.getItem("token");
+    const token = Cookies.get('token');
     if (!token) {
       alert("No token found. Please log in.");
       return;

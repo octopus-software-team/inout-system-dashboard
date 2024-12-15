@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
+import Cookies from 'js-cookie';
 
 const AddRepo = () => {
   const location = useLocation();
@@ -12,7 +13,7 @@ const AddRepo = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const token = localStorage.getItem("token");
+    const token = Cookies.get('token');
 
     const payload = {
       project_id: id,

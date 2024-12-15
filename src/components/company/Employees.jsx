@@ -2,8 +2,10 @@ import React, { useEffect, useState } from "react";
 import { FaEdit, FaEye, FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
+import Cookies from "js-cookie";
 import "react-toastify/dist/ReactToastify.css";
-
+import ImportFile from "../ImportFile";
+import ExportFile from "../ExportFile";
 
 const Employees = () => {
   const [employees, setEmployees] = useState([]);
@@ -13,10 +15,11 @@ const Employees = () => {
   const [sortedColumn, setSortedColumn] = useState(null);
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
 
   // Fetch employees
   const fetchEmployees = async () => {
-    const token = localStorage.getItem("token");
+    const token = Cookies.get("token");
     try {
       const response = await fetch(
         "https://inout-api.octopusteam.net/api/front/getEmployees",
@@ -45,7 +48,7 @@ const Employees = () => {
 
   // Fetch branches
   const fetchBranches = async () => {
-    const token = localStorage.getItem("token");
+    const token = Cookies.get("token");
     try {
       const response = await fetch(
         "https://inout-api.octopusteam.net/api/front/getBranches",
@@ -73,7 +76,7 @@ const Employees = () => {
   };
 
   const fetchEmployeeSpecials = async () => {
-    const token = localStorage.getItem("token");
+    const token = Cookies.get("token");
     try {
       const response = await fetch(
         "https://inout-api.octopusteam.net/api/front/getEmployeesSpecials",
@@ -106,7 +109,6 @@ const Employees = () => {
     fetchEmployeeSpecials();
   }, []);
 
-  
   const sorting = (col) => {
     let sorted = [];
     if (order === "ASC") {
@@ -133,7 +135,7 @@ const Employees = () => {
       "Do you want to delete this employee?"
     );
     if (confirmDelete) {
-      const token = localStorage.getItem("token");
+      const token = Cookies.get("token");
       fetch(
         `https://inout-api.octopusteam.net/api/front/deleteEmployee/${id}`,
         {
@@ -154,9 +156,9 @@ const Employees = () => {
           const toastId = toast.success(
             response.msg || "Employee deleted successfully."
           );
-          setEmployees(employees.filter((employee) => employee.id !== id)); 
+          setEmployees(employees.filter((employee) => employee.id !== id));
           setTimeout(() => {
-            toast.dismiss(toastId); 
+            toast.dismiss(toastId);
           }, 3000);
         })
         .catch((error) => {
@@ -165,7 +167,6 @@ const Employees = () => {
         });
     }
   };
-  
 
   const renderSortIcon = (col) => {
     if (sortedColumn === col) {
@@ -210,6 +211,32 @@ const Employees = () => {
         >
           +Add Emplyee
         </Link>
+        <button
+          onClick={setOpen}
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+        >
+          Import
+        </button>
+
+        {open && (
+          <div
+            className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
+            onClick={() => setOpen(false)}
+          >
+            <div
+              className="w-[350px] h-[350px] bg-white rounded-lg shadow-lg p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h2 className="text-center text-xl font-semibold mb-4">
+                Import File
+              </h2>
+              <div className="flex flex-col items-center space-y-4">
+                <ImportFile tableName="tasks" />
+                <ExportFile tableName="tasks" />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="w-full overflow-y-auto">
@@ -367,7 +394,7 @@ const Employees = () => {
                   </td>
                   <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
                     <div className="flex space-x-1">
-                    <Link
+                      <Link
                         to={`/company/view/${d.id}`}
                         className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-opacity-85 flex items-center"
                       >
@@ -394,7 +421,6 @@ const Employees = () => {
               ))}
           </tbody>
         </table>
-   
       </div>
       <ToastContainer />
     </div>

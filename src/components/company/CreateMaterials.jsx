@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import Cookies from 'js-cookie';
 
 const CreateMaterials = () => {
   const [name, setName] = useState("");
@@ -12,7 +13,7 @@ const CreateMaterials = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
   
-    const token = localStorage.getItem("token");
+    const token = Cookies.get('token');
   
     if (!type) {
       toast.error("Type is required!");

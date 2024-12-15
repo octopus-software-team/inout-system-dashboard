@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
+import Cookies from 'js-cookie';
+
 
 const CreateCustomer = () => {
   const [customerData, setCustomerData] = useState({
@@ -20,7 +22,7 @@ const CreateCustomer = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const token = localStorage.getItem("token");
+    const token = Cookies.get('token');
 
     if (!token) {
       toast.error("No token found. Please log in.");

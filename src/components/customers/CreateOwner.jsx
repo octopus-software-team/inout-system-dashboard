@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Cookies from 'js-cookie';
 
 
 const CreateOwner = () => {
@@ -37,7 +38,7 @@ const CreateOwner = () => {
       return;
     }
 
-    const token = localStorage.getItem("token");
+    const token = Cookies.get('token');
     if (!token) {
       alert("You must be logged in to create an owner.");
       return;

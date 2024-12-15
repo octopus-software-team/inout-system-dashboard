@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css"; 
+import Cookies from 'js-cookie';
 
 const UpdateTask = () => {
   const [task, setTask] = useState({
@@ -16,7 +17,7 @@ const UpdateTask = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = Cookies.get('token');
 
     const fetchTask = async () => {
       try {
@@ -53,7 +54,7 @@ const UpdateTask = () => {
 
   useEffect(() => {
     const fetchEmployees = async () => {
-      const token = localStorage.getItem("token");
+      const token = Cookies.get('token');
 
       try {
         const response = await fetch(
@@ -82,7 +83,7 @@ const UpdateTask = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const token = localStorage.getItem("token");
+    const token = Cookies.get('token');
     if (!token) {
       toast.error("No token found. Please log in.");
       return;

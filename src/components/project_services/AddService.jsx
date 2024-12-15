@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Select from "react-select";
 import { useNavigate } from "react-router-dom";  // استيراد useNavigate
+import Cookies from 'js-cookie';
 
 const AddService = () => {
   const [projects, setProjects] = useState([]);
@@ -11,7 +12,7 @@ const AddService = () => {
   const navigate = useNavigate();  // استخدام useNavigate للتنقل بعد الإضافة
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = Cookies.get('token');
 
     if (!token) {
       alert("No token found. Please log in.");
@@ -41,7 +42,7 @@ const AddService = () => {
   }, []);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = Cookies.get('token');
 
     if (!token) {
       alert("No token found. Please log in.");
@@ -71,7 +72,7 @@ const AddService = () => {
   }, []);
 
   const handleSubmit = () => {
-    const token = localStorage.getItem("token");
+    const token = Cookies.get('token');
 
     if (!token) {
       alert("No token found. Please log in.");

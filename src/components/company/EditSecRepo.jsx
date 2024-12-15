@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import Cookies from 'js-cookie';
+
 
 const EditSecRepo = () => {
   const location = useLocation();
@@ -15,7 +17,7 @@ const EditSecRepo = () => {
   // Fetch existing report data
   useEffect(() => {
     const fetchReport = async () => {
-      const token = localStorage.getItem("token");
+      const token = Cookies.get('token');
       try {
         const response = await fetch(
           `https://inout-api.octopusteam.net/api/front/getProjectReports`,
@@ -52,7 +54,7 @@ const EditSecRepo = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const token = localStorage.getItem("token");
+    const token = Cookies.get('token');
 
     const payload = {
         id,

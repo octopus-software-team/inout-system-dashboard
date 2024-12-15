@@ -1,6 +1,8 @@
+import Cookies from 'js-cookie';
 import React, { useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
+
 
 const EmployeesSpecials = () => {
   const [data, setData] = useState([]);
@@ -10,7 +12,7 @@ const EmployeesSpecials = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = Cookies.get('token');
 
     if (!token) {
       setError("No token found. Please log in.");
@@ -18,7 +20,6 @@ const EmployeesSpecials = () => {
       return;
     }
 
-    // جلب البيانات من API
     fetch("https://inout-api.octopusteam.net/api/front/getEmployeesSpecials", {
       method: "GET",
       headers: {
@@ -55,7 +56,7 @@ const EmployeesSpecials = () => {
 
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this employee?")) {
-      const token = localStorage.getItem("token"); // الحصول على التوكن من التخزين المحلي
+      const token = Cookies.get('token'); // الحصول على التوكن من التخزين المحلي
 
       if (!token) {
         setError("No token found. Please log in.");

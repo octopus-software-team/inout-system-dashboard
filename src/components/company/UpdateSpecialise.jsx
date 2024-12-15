@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import Cookies from 'js-cookie';
 
 const UpdateSpecialise = () => {
   const [employeeData, setEmployeeData] = useState({
@@ -30,7 +31,7 @@ const UpdateSpecialise = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const token = localStorage.getItem("token");
+    const token = Cookies.get('token');
 
     if (!token) {
       setError("No token found. Please log in.");

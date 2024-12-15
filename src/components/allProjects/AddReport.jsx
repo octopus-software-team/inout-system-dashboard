@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import Cookies from 'js-cookie';
 
 const AddReport = () => {
   const [reports, setReports] = useState([]);
@@ -10,7 +11,7 @@ const AddReport = () => {
 
   useEffect(() => {
     const fetchReports = async () => {
-      const token = localStorage.getItem("token");
+      const token = Cookies.get('token');
 
       if (!token) {
         setError("No authentication token found.");

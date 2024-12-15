@@ -38,6 +38,8 @@
   }
 }
 
+
+
 @layer base {
   .select1 {
     @apply dark:!bg-slate-900;
@@ -74,6 +76,7 @@ code {
 
 .service {
   background-color: white !important;
+  
 }
 
 @layer base {
@@ -200,4 +203,9 @@ h2 {
 }
 .container{
 @apply p-6
+}
+
+
+.file-icon>p {
+  font-size: medium;
 }

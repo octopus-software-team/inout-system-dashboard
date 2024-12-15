@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import Cookies from 'js-cookie';
+
 
 const EmployeeFiles = () => {
   const [data, setData] = useState([]);
@@ -12,7 +14,7 @@ const EmployeeFiles = () => {
 
   // Fetch data from API
   useEffect(() => {
-    const token = localStorage.getItem("token"); 
+    const token = Cookies.get('token'); 
 
     const fetchData = async () => {
       try {

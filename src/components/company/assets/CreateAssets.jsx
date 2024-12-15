@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css"; // التأكد من وجود هذا الاستيراد
+import Cookies from 'js-cookie';
 
 const CreateAssets = () => {
   const [name, setName] = useState("");
@@ -10,7 +11,7 @@ const CreateAssets = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = Cookies.get('token');
     const fetchAssetTypes = async () => {
       try {
         const response = await fetch(
@@ -49,7 +50,7 @@ const CreateAssets = () => {
     }
 
     try {
-      const token = localStorage.getItem("token");
+      const token = Cookies.get('token');
       const response = await fetch(
         "https://inout-api.octopusteam.net/api/front/addAsset",
         {

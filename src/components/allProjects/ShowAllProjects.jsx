@@ -3,6 +3,7 @@ import { FaEdit, FaEye, FaProjectDiagram, FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Cookies from 'js-cookie';
 
 const ShowAllProjects = () => {
   const [projects, setProjects] = useState([]);
@@ -36,7 +37,7 @@ const ShowAllProjects = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const token = localStorage.getItem("token");
+      const token = Cookies.get('token');
       if (!token) {
         setError("You are not authenticated. Please log in.");
         setIsLoading(false);
@@ -252,7 +253,7 @@ const ShowAllProjects = () => {
   };
 
   const performDelete = async (id) => {
-    const token = localStorage.getItem("token");
+    const token = Cookies.get('token');
 
     if (!token) {
       toast.error("You are not authenticated. Please log in.");

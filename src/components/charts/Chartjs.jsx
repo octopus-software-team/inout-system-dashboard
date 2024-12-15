@@ -4,6 +4,8 @@ import "react-circular-progressbar/dist/styles.css";
 import { Chart } from "chart.js/auto";
 import ReviewsProvider from "./ReviewsProvider";
 
+
+
 const Chartjs = () => {
   const barChartRef = useRef(null);
   const lineChartRef = useRef(null);

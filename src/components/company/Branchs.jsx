@@ -3,16 +3,20 @@ import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Cookies from "js-cookie";
+import ImportFile from "../ImportFile";
+import ExportFile from "../ExportFile";
 
 const Branchs = () => {
   const [data, setData] = useState([]);
   const [search, setSearch] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: "", direction: "" });
   const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     const fetchBranches = async () => {
-      const token = localStorage.getItem("token");
+      const token = Cookies.get("token");
       if (!token) {
         toast.error("You are not authenticated. Please log in.");
         return;
@@ -50,15 +54,13 @@ const Branchs = () => {
     fetchBranches();
   }, []);
 
-
   useEffect(() => {
-    console.log(data)
-  },[])
-
+    console.log(data);
+  }, []);
 
   const handleDelete = (id) => {
-    const token = localStorage.getItem("token");
-  
+    const token = Cookies.get("token");
+
     // Display confirmation toast
     const confirmToast = toast(
       <div>
@@ -81,7 +83,7 @@ const Branchs = () => {
       { autoClose: false, closeButton: false }
     );
   };
-  
+
   const handleConfirmDelete = async (id, token, confirmToast) => {
     try {
       const response = await fetch(
@@ -93,13 +95,13 @@ const Branchs = () => {
           },
         }
       );
-  
+
       if (!response.ok) {
         throw new Error("Failed to delete branch.");
       }
-  
+
       const resData = await response.json();
-  
+
       if (resData.status === 200) {
         toast.success(resData.msg || "Branch deleted successfully.");
         setData((prevData) => prevData.filter((branch) => branch.id !== id));
@@ -113,7 +115,6 @@ const Branchs = () => {
       toast.dismiss(confirmToast); // Close confirmation toast
     }
   };
-  
 
   // Sorting logic
   const handleSort = (key) => {
@@ -154,6 +155,33 @@ const Branchs = () => {
         >
           + Create Branch
         </Link>
+
+        <button
+          onClick={setOpen}
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+        >
+          Import
+        </button>
+
+        {open && (
+          <div
+            className="fixed top-0 left-0 z-30 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
+            onClick={() => setOpen(false)}
+          >
+            <div
+              className="w-[350px] h-[350px] bg-white rounded-lg shadow-lg p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h2 className="text-center text-xl font-semibold mb-4">
+                Import File
+              </h2>
+              <div className="flex flex-col items-center space-y-4">
+                <ImportFile tableName="tasks" />
+                <ExportFile tableName="tasks" />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="overflow-x-auto shadow-lg rounded-lg w-full mx-auto">
@@ -164,13 +192,23 @@ const Branchs = () => {
                 className="px-4  py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
                 onClick={() => handleSort("id")}
               >
-                ID {sortConfig.key === "id" ? (sortConfig.direction === "ascending" ? "↑" : "↓") : ""}
+                ID{" "}
+                {sortConfig.key === "id"
+                  ? sortConfig.direction === "ascending"
+                    ? "↑"
+                    : "↓"
+                  : ""}
               </th>
               <th
                 className="px-4 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
                 onClick={() => handleSort("name")}
               >
-                Name {sortConfig.key === "name" ? (sortConfig.direction === "ascending" ? "↑" : "↓") : ""}
+                Name{" "}
+                {sortConfig.key === "name"
+                  ? sortConfig.direction === "ascending"
+                    ? "↑"
+                    : "↓"
+                  : ""}
               </th>
               <th className="px-4 text-left font-semibold text-lg border-b border-gray-300">
                 Location

@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
-
+import Cookies from "js-cookie";
+import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
+import icon from "leaflet/dist/images/marker-icon.png";
+import iconShadow from "leaflet/dist/images/marker-shadow.png";
 
 const UpdateProject = () => {
   const { id } = useParams();
@@ -18,7 +23,23 @@ const UpdateProject = () => {
     notes: "",
     status: "",
     inspection_engineer_id: "",
+    latitude: "",
+    longitude: "",
   });
+
+  const LocationMarker = () => {
+    useMapEvents({
+      click(e) {
+        const { lat, lng } = e.latlng;
+        setFormData((prev) => ({ ...prev, latitude: lat, longitude: lng }));
+      },
+    });
+
+    const { latitude, longitude } = formData;
+    return latitude && longitude ? (
+      <Marker position={[latitude, longitude]} />
+    ) : null;
+  };
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -29,7 +50,7 @@ const UpdateProject = () => {
   const [engineers, setEngineers] = useState([]);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = Cookies.get("token");
     if (!token) {
       setError("You are not authenticated. Please log in.");
       setLoading(false);
@@ -131,6 +152,8 @@ const UpdateProject = () => {
           notes,
           status,
           inspection_engineer_id,
+          longitude,
+          latitude,
         } = project;
 
         setFormData({
@@ -144,6 +167,8 @@ const UpdateProject = () => {
           notes: notes || "",
           status: status !== undefined ? status : "",
           inspection_engineer_id: inspection_engineer_id || "",
+          longitude: longitude || "45.0792", // Default longitude
+          latitude: latitude || "23.8859", // Default latitude
         });
       } catch (err) {
         console.error(err);
@@ -162,7 +187,7 @@ const UpdateProject = () => {
   };
 
   const handleSubmit = async (e) => {
-    const token = localStorage.getItem("token");
+    const token = Cookies.get("token");
     e.preventDefault();
 
     if (!formData.name) {
@@ -172,29 +197,47 @@ const UpdateProject = () => {
 
     setLoading(true);
 
-    const {
-      name,
-      branch_id,
-      project_owner_id,
-      customer_constructor_id,
-      inspection_date,
-      inspection_time,
-      notes,
-      status,
-      inspection_engineer_id,
-    } = formData;
+    // const {
+    //   name,
+    //   branch_id,
+    //   project_owner_id,
+    //   customer_constructor_id,
+    //   inspection_date,
+    //   inspection_time,
+    //   notes,
+    //   status,
+    //   inspection_engineer_id,
+    //   longitude,
+    //   latitude,
+    // } = formData;
 
-    const updateBody = {
-      name,
-      branch_id,
-      project_owner_id,
-      customer_constructor_id,
-      inspection_date,
-      inspection_time,
-      notes,
-      status,
-      inspection_engineer_id,
-    };
+    // const updateBody = {
+    //   name,
+    //   branch_id,
+    //   project_owner_id,
+    //   customer_constructor_id,
+    //   inspection_date,
+    //   inspection_time,
+    //   notes,
+    //   status,
+    //   inspection_engineer_id,
+    //   longitude,
+    //   latitude,
+    // };
+
+    const data = new FormData();
+    data.append("id", formData.id);
+    data.append("name", formData.name);
+    data.append("branch_id", formData.branch_id);
+    data.append("project_owner_id", formData.project_owner_id);
+    data.append("customer_constructor_id", formData.customer_constructor_id);
+    data.append("inspection_date", formData.inspection_date);
+    data.append("inspection_time", formData.inspection_time);
+    data.append("notes", formData.notes);
+    data.append("status", formData.status);
+    data.append("inspection_engineer_id", formData.inspection_engineer_id);
+    data.append("longitude", formData.longitude);
+    data.append("latitude", formData.latitude);
 
     try {
       const response = await fetch(
@@ -202,23 +245,23 @@ const UpdateProject = () => {
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
+            // "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(updateBody),
+          // body: JSON.stringify(updateBody),
+          body: data,
         }
       );
 
       const res = await response.json();
 
       if (res.status === 200) {
-        toast.success(res.msg || "Project updated successfully!");
+        alert("Project updated successfully!");
 
-        setTimeout(() => {
-          navigate("/allprojects/showallprojects");
-        }, 1500);
+        navigate("/allprojects/showallprojects");
       } else {
-        toast.error(`Failed to update project: ${res.msg}`);
+        // toast.error("Failed to update project: " + (res.msg || "Unknown error"));
+
       }
     } catch (err) {
       console.error(err);
@@ -245,8 +288,6 @@ const UpdateProject = () => {
       </div>
     );
   }
-
-   
 
   return (
     <div className="service container mx-auto p-6  dark:bg-slate-800 shadow-md rounded-lg max-w-2xl mt-10">
@@ -459,6 +500,55 @@ const UpdateProject = () => {
               </option>
             ))}
           </select>
+        </div>
+
+        <div className="mt-1 block w-full border border-gray-300 dark:border-gray-700 rounded-md p-2  dark:text-white">
+          {/* <input type="hidden" hidden value={position[0]} name="latitude" />
+          <input type="hidden" hidden value={position[1]} name="longitude" /> */}
+
+          <input
+            type="hidden"
+            hidden
+            value={formData.latitude}
+            onChange={handleChange}
+            name="latitude"
+          />
+
+          <input
+            type="hidden"
+            hidden
+            value={formData.longitude}
+            onChange={handleChange}
+            name="longitude"
+          />
+
+          <div>
+            <MapContainer
+              center={[23.8859, 45.0792]}
+              zoom={6}
+              style={{ height: "100px", width: "100%" }}
+            >
+              <TileLayer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              />
+              <LocationMarker />
+            </MapContainer>
+            {/* <button
+                      onClick={openInGoogleMaps}
+                      style={{
+                          marginTop: "10px",
+                          padding: "10px 20px",
+                          backgroundColor: "#4285F4",
+                          color: "#fff",
+                          border: "none",
+                          borderRadius: "5px",
+                          cursor: "pointer",
+                      }}
+                  >
+                      Open in Google Maps
+                  </button> */}
+          </div>
         </div>
 
         <div className="flex justify-center">

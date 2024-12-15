@@ -8,6 +8,8 @@ import "react-toastify/dist/ReactToastify.css";
 import $ from "jquery";
 import "dropify/dist/css/dropify.min.css";
 import "dropify/dist/js/dropify.min.js";
+import Cookies from 'js-cookie';
+
 
 const View = () => {
   const { id } = useParams();
@@ -35,7 +37,7 @@ const View = () => {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const token = localStorage.getItem("token");
+  const token = Cookies.get('token');
 
   // Reference to the file input
   const fileInputRef = useRef(null);

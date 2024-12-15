@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import Cookies from 'js-cookie';
 
 const EditOwner = () => {
   const { id } = useParams();
@@ -11,7 +12,7 @@ const EditOwner = () => {
     type: 1,
   });
 
-  const token = localStorage.getItem("token");
+  const token = Cookies.get('token');
 
   useEffect(() => {
     fetch("https://inout-api.octopusteam.net/api/front/getOwners", {

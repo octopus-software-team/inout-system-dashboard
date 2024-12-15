@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
+import Cookies from 'js-cookie';
+
 
 const Clients = () => {
   const [data, setData] = useState([]);
@@ -13,7 +15,7 @@ const Clients = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = Cookies.get('token');
 
     if (!token) {
       console.log("No token found, cannot fetch clients.");
@@ -87,7 +89,7 @@ const Clients = () => {
   };
 
   const handleDelete = (id) => {
-    const token = localStorage.getItem("token");
+    const token = Cookies.get('token');
     if (!token) {
       alert("No token found. Please log in.");
       return;

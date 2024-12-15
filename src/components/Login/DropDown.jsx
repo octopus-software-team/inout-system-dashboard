@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import ProfileImage from "../../assests/11.jpg"; // Replace with your profile image path
 import { Link } from "react-router-dom";
 import Logout from "../logout/Logout";
@@ -6,6 +6,7 @@ import DarkModeToggle from "../../theme/DarkMode";
 
 export default function DropDown() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null); // Ref for the dropdown
 
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
 
@@ -13,14 +14,27 @@ export default function DropDown() {
     setDropdownOpen(false); // Close the dropdown
   };
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false); // Close the dropdown if clicked outside
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
     <div className="flex gap-3 items-center justify-between">
       <DarkModeToggle />
-      <div className="relative">
+      <div className="relative" ref={dropdownRef}>
         <img
           src={ProfileImage}
           alt="Profile"
-          className="w-10  h-10 rounded-full cursor-pointer"
+          className="w-10 h-10 rounded-full cursor-pointer"
           onClick={toggleDropdown}
         />
 
@@ -49,9 +63,7 @@ export default function DropDown() {
 
               {/* Additional Options */}
               <div className="border-t border-gray-200 my-3"></div>
-             
 
-           
               <Logout />
             </div>
           </>

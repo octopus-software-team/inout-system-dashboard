@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FaUser, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import logo4 from "../../assests/logo4.png";
 import { useNavigate } from "react-router-dom";
+import Cookies from 'js-cookie';
 
 function Loginn() {
   const [showPassword, setShowPassword] = useState(false);
@@ -32,12 +33,13 @@ function Loginn() {
       const data = await response.json();
 
       if (response.ok) {
-        localStorage.setItem("token", data.data.token);
+        // localStorage.setItem("token", data.data.token);
+        // change secure into true before the deploy
+        Cookies.set('token', data.data.token, { expires: 7, secure: false})
+
         setIsLoginSuccessful(true);
         setError(null);
-        setTimeout(() => {
-          navigate("/home");
-        }, 2000);
+        navigate("/home");
       } else {
         if (data.data && data.data.email) {
           setError(data.data.email.join(", "));

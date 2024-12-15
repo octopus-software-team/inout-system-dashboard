@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Cookies from 'js-cookie';
+
 
 const CreateSpecialise = () => {
   const [name, setName] = useState(""); // اسم التخصص
@@ -9,7 +11,7 @@ const CreateSpecialise = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault(); // منع التحديث الافتراضي للنموذج
-    const token = localStorage.getItem("token"); // جلب التوكن المخزن
+    const token = Cookies.get('token'); // جلب التوكن المخزن
 
     if (!token) {
       setMessage("No token found. Please log in.");

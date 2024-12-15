@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
-
+import Cookies from 'js-cookie';
 const AddServices = () => {
   const [data, setData] = useState([]); // بيانات الأصول
   const [search, setSearch] = useState(""); // البحث
@@ -11,7 +11,7 @@ const AddServices = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem("token"); // جلب التوكن من localStorage
+    const token = Cookies.get('token'); // جلب التوكن من localStorage
 
     if (!token) {
       console.log("No token found, cannot fetch asset types.");
@@ -55,7 +55,7 @@ const AddServices = () => {
   };
 
   const handleDelete = (id) => {
-    const token = localStorage.getItem("token"); // جلب التوكن من localStorage
+    const token = Cookies.get('token'); // جلب التوكن من localStorage
 
     if (!token) {
       alert("No token found. Please log in.");

@@ -8,7 +8,7 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import icon from "leaflet/dist/images/marker-icon.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
-
+import Cookies from 'js-cookie';
 
 
 const UpdateBranch = () => {
@@ -64,7 +64,7 @@ const UpdateBranch = () => {
       // إذا لم تكن البيانات موجودة في الـ state، قم بجلبها من الـ API
       const fetchBranchData = async () => {
         try {
-          const token = localStorage.getItem("token");
+          const token = Cookies.get('token');
           if (!token) {
             toast.error("Authentication token not found. Please log in.");
             navigate("/login");
@@ -152,7 +152,7 @@ const UpdateBranch = () => {
     // }
 
     try {
-      const token = localStorage.getItem("token");
+      const token = Cookies.get('token');
       if (!token) {
         toast.error("Authentication token not found. Please log in.");
         navigate("/login");

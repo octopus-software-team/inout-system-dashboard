@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Cookies from 'js-cookie';
+
 
 const UpdateAssets = () => {
   const { state } = useLocation();
@@ -13,7 +15,7 @@ const UpdateAssets = () => {
 
   // تحميل أنواع الأصول عند تحميل المكون
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = Cookies.get('token');
 
     fetch("https://inout-api.octopusteam.net/api/front/getAssetTypes", {
       method: "GET",
@@ -36,7 +38,7 @@ const UpdateAssets = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const token = localStorage.getItem("token");
+    const token = Cookies.get('token');
     if (!token) {
       toast.error("No token found. Please log in.");
       return;

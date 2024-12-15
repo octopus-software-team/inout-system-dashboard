@@ -1,7 +1,8 @@
 import { Navigate, useLocation } from "react-router-dom";
+import Cookies from 'js-cookie';
 
 export const IsAuthenticated = ({ element: Component }) => {
-  const isLoggedIn = localStorage.getItem("token");
+  const isLoggedIn = Cookies.get('token');
   const location = useLocation();
 
   return isLoggedIn ? (
@@ -12,7 +13,7 @@ export const IsAuthenticated = ({ element: Component }) => {
 };
 
 export const PrivateRoute = ({ element: Component }) => {
-  const isLoggedIn = localStorage.getItem("token");
+  const isLoggedIn = Cookies.get('token');
   const location = useLocation();
 
   return isLoggedIn ? Component : <Navigate to="/" />;

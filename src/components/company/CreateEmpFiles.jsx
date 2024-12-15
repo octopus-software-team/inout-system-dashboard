@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import Cookies from 'js-cookie';
+
 
 const CreateEmpFiles = () => {
   const [files, setFiles] = useState([]); // لحفظ الملفات المرفوعة
@@ -10,7 +12,7 @@ const CreateEmpFiles = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem("token");
+        const token = Cookies.get('token');
 
         // Fetch employees data (تأكد من استبدال هذا بالـ API الخاص بك)
         const employeesResponse = await fetch("https://inout-api.octopusteam.net/api/front/getEmployees", {
@@ -52,7 +54,7 @@ const CreateEmpFiles = () => {
     formData.append("employee_id", selectedEmployeeId); // إضافة ID الموظف
 
     try {
-      const token = localStorage.getItem("token");
+      const token = Cookies.get('token');
       const response = await fetch("https://inout-api.octopusteam.net/api/front/addEmployeeFile", {
         method: "POST",
         headers: {

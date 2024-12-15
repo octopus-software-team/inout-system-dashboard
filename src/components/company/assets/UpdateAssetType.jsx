@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import Cookies from 'js-cookie';
+
 
 const UpdateAssetType = () => {
   const location = useLocation(); // لاستقبال البيانات من الجدول
@@ -16,7 +18,7 @@ const UpdateAssetType = () => {
 
   const handleUpdate = (e) => {
     e.preventDefault();
-    const token = localStorage.getItem("token");
+    const token = Cookies.get('token');
 
     // إرسال الطلب لتحديث البيانات
     fetch(

@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import Cookies from 'js-cookie';
+
 
 const EditAdmin = () => {
   const location = useLocation(); // جلب بيانات المشرف من state

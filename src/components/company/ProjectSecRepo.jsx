@@ -3,6 +3,8 @@ import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Cookies from 'js-cookie';
+
 
 const AddSecRepo = () => {
   const [data, setData] = useState([]);
@@ -15,7 +17,7 @@ const AddSecRepo = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = Cookies.get('token');
 
     if (!token) {
       console.log("No token found, cannot fetch services.");
@@ -59,7 +61,7 @@ const AddSecRepo = () => {
   }, []);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = Cookies.get('token');
 
     if (!token) {
       console.log("No token found, cannot fetch projects.");
@@ -128,7 +130,7 @@ const AddSecRepo = () => {
   
 
   const handleDelete = (id) => {
-    const token = localStorage.getItem("token");
+    const token = Cookies.get('token');
     if (!token) {
       alert("No token found. Please log in.");
       return;

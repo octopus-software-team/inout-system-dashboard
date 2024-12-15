@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
+import Cookies from 'js-cookie';
+
 
 const Moderator = () => {
   const [data, setData] = useState([]);
@@ -8,7 +10,7 @@ const Moderator = () => {
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = Cookies.get('token');
 
     if (!token) {
       alert("Please log in first");
@@ -49,7 +51,7 @@ const Moderator = () => {
   }, [navigate]);
 
   const handleDelete = (id) => {
-    const token = localStorage.getItem("token");
+    const token = Cookies.get('token');
     const confirmDelete = window.confirm(
       "Do you really want to delete this admin?"
     );

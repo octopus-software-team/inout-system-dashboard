@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
+import Cookies from 'js-cookie';
+
 
 const Create = () => {
   const [serviceName, setServiceName] = useState(""); // This will handle the name input
@@ -11,7 +13,7 @@ const Create = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const token = localStorage.getItem("token");
+    const token = Cookies.get('token');
 
     if (!token) {
       console.log("No token found, cannot log out.");

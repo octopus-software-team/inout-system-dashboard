@@ -7,7 +7,7 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import icon from "leaflet/dist/images/marker-icon.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
-
+import Cookies from 'js-cookie';
 
 
 const AddBranch = () => {
@@ -51,7 +51,7 @@ const LocationMarker = () => {
 
     console.log(formData)
     try {
-      const token = localStorage.getItem("token");
+      const token = Cookies.get('token');
       const response = await fetch(
         "https://inout-api.octopusteam.net/api/front/addBranch",
         {

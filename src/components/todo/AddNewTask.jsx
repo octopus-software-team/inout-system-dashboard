@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Cookies from 'js-cookie';
 
 const AddNewTask = () => {
   const [taskName, setTaskName] = useState("");
@@ -15,7 +16,7 @@ const AddNewTask = () => {
 
   useEffect(() => {
     const fetchEmployees = async () => {
-      const token = localStorage.getItem("token");
+      const token = Cookies.get('token');
 
       try {
         const response = await fetch("https://inout-api.octopusteam.net/api/front/getEmployees", {
@@ -47,7 +48,7 @@ const AddNewTask = () => {
       return;
     }
 
-    const token = localStorage.getItem("token");
+    const token = Cookies.get('token');
     if (!token) {
       toast.error("No token found. Please log in.");
       return;

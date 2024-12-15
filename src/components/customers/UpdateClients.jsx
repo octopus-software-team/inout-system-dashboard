@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import Cookies from 'js-cookie';
+
 
 const UpdateClients = () => {
   const location = useLocation(); // لجلب البيانات من الـ state
@@ -32,7 +34,7 @@ const UpdateClients = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const token = localStorage.getItem("token");
+    const token = Cookies.get('token');
   
     if (!token) {
       alert("No token found. Please log in.");

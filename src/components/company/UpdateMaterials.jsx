@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify"; // استيراد المكتبة
 import "react-toastify/dist/ReactToastify.css"; // استيراد الأنماط الخاصة بالتوست
+import Cookies from 'js-cookie';
+
 
 const UpdateMaterials = () => {
   const location = useLocation();
@@ -13,7 +15,7 @@ const UpdateMaterials = () => {
   const [type, setType] = useState(material?.type || "");
 
   const handleSubmit = (e) => {
-    const token = localStorage.getItem("token");
+    const token = Cookies.get('token');
     console.log("Token:", token);
 
     e.preventDefault();

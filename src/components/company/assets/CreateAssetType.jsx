@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Cookies from 'js-cookie';
 
 const CreateAssetType = () => {
   const [assetTypes, setAssetTypes] = useState([]); // بيانات الأنواع
@@ -9,7 +10,7 @@ const CreateAssetType = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem("token"); // جلب التوكن
+    const token = Cookies.get('token'); // جلب التوكن
 
     // طلب البيانات من API لجلب الأنواع
     fetch("https://inout-api.octopusteam.net/api/front/getAssetTypes", {
@@ -41,7 +42,7 @@ const CreateAssetType = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault(); // منع التحديث الافتراضي للنموذج
-    const token = localStorage.getItem("token"); // جلب التوكن
+    const token = Cookies.get('token'); // جلب التوكن
 
     // إرسال نوع جديد إلى API
     fetch("https://inout-api.octopusteam.net/api/front/addAssetType", {

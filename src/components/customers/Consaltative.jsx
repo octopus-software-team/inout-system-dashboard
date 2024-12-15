@@ -3,6 +3,8 @@ import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Cookies from 'js-cookie';
+
 
 const Consultative = () => {
   const [data, setData] = useState([]);
@@ -12,7 +14,7 @@ const Consultative = () => {
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = Cookies.get('token');
     if (!token) {
       alert("No token found. Please log in.");
       return;
@@ -43,7 +45,7 @@ const Consultative = () => {
   };
 
   const handleDelete = (id) => {
-    const token = localStorage.getItem("token");
+    const token = Cookies.get('token');
     if (!token) {
       alert("No token found. Please log in.");
       return;

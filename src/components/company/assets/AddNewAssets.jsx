@@ -3,6 +3,7 @@ import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify"; // استيراد مكتبة react-toastify
 import "react-toastify/dist/ReactToastify.css"; // استيراد الأنماط الخاصة بالتوست
+import Cookies from 'js-cookie';
 
 const AddMaterials = () => {
   const [data, setData] = useState([]);
@@ -10,7 +11,7 @@ const AddMaterials = () => {
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = Cookies.get('token');
 
     fetch("https://inout-api.octopusteam.net/api/front/getAssets", {
       method: "GET",
@@ -38,7 +39,7 @@ const AddMaterials = () => {
   }, []);
 
   const handleDelete = (id) => {
-    const token = localStorage.getItem("token");
+    const token = Cookies.get('token');
 
     // إظهار توست مع خيارات "نعم" و "لا"
     toast(

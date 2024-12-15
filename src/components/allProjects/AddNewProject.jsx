@@ -21,8 +21,7 @@ import L from "leaflet";
 import icon from "leaflet/dist/images/marker-icon.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
 import { Navigate, useNavigate } from "react-router-dom";
-
-
+import Cookies from "js-cookie";
 
 const AddNewProject = () => {
   const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
@@ -66,39 +65,35 @@ const AddNewProject = () => {
   const [position, setPosition] = useState([23.8859, 45.0792]);
 
   const dropifyRef = useRef(null);
-  
-
 
   const openInGoogleMaps = () => {
-      if (position) {
-          const [lat, lng] = position;
-          const googleMapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
-          window.open(googleMapsUrl, "_blank"); 
-      }
+    if (position) {
+      const [lat, lng] = position;
+      const googleMapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+      window.open(googleMapsUrl, "_blank");
+    }
   };
 
   const LocationMarker = () => {
-      useMapEvents({
-          click(e) {
-              const { lat, lng } = e.latlng;
-              setPosition([lat, lng]);
-          },
-      });
+    useMapEvents({
+      click(e) {
+        const { lat, lng } = e.latlng;
+        setPosition([lat, lng]);
+      },
+    });
 
-      return position ? <Marker position={position} /> : null;
+    return position ? <Marker position={position} /> : null;
   };
-
 
   const isDarkMode = () =>
     typeof window !== "undefined" &&
     document.documentElement.classList.contains("dark");
 
-
   useEffect(() => {
     // Fetch data on load
     const fetchBranches = async () => {
       try {
-        const token = localStorage.getItem("token");
+        const token = Cookies.get("token");
         const res = await fetch(
           "https://inout-api.octopusteam.net/api/front/getBranches",
           {
@@ -119,7 +114,7 @@ const AddNewProject = () => {
 
     const fetchServices = async () => {
       try {
-        const token = localStorage.getItem("token");
+        const token = Cookies.get("token");
 
         const response = await fetch(
           "https://inout-api.octopusteam.net/api/front/getServices",
@@ -145,7 +140,7 @@ const AddNewProject = () => {
 
     const fetchCustomers = async () => {
       try {
-        const token = localStorage.getItem("token");
+        const token = Cookies.get("token");
         const res = await fetch(
           "https://inout-api.octopusteam.net/api/front/getCustomers",
           {
@@ -172,7 +167,7 @@ const AddNewProject = () => {
 
     const fetchConsultive = async () => {
       try {
-        const token = localStorage.getItem("token");
+        const token = Cookies.get("token");
         const res = await fetch(
           "https://inout-api.octopusteam.net/api/front/getCustomers",
           {
@@ -199,7 +194,7 @@ const AddNewProject = () => {
 
     const fetchOwners = async () => {
       try {
-        const token = localStorage.getItem("token");
+        const token = Cookies.get("token");
         const res = await fetch(
           "https://inout-api.octopusteam.net/api/front/getOwners",
           {
@@ -225,7 +220,7 @@ const AddNewProject = () => {
 
     const fetchEngineers = async () => {
       try {
-        const token = localStorage.getItem("token");
+        const token = Cookies.get("token");
         const res = await fetch(
           "https://inout-api.octopusteam.net/api/front/getEngineers",
           {
@@ -274,7 +269,6 @@ const AddNewProject = () => {
         },
       });
 
-      // Handle Dropify change event
       $(dropifyRef.current).on("change", function (e, files) {
         const file = e.target.files[0];
         if (file) {
@@ -314,7 +308,6 @@ const AddNewProject = () => {
           ? selectedConsultives.map((c) => c.value)
           : [];
 
-      // Use FormData to send data with image
       const formData = new FormData();
       formData.append("name", projectName || "");
       formData.append("branch_id", selectedBranchId || "");
@@ -334,9 +327,8 @@ const AddNewProject = () => {
       );
       formData.append("notes", notes || "");
       formData.append("inspection_time", inspectionTime || "");
-      formData.append("lat", position[0] || "");
-      formData.append("long", position[1] || "");
-
+      formData.append("latitude", position[0] || "");
+      formData.append("longitude", position[1] || "");
 
       // **Add image if selected**
       if (projectImage) {
@@ -360,28 +352,27 @@ const AddNewProject = () => {
         project_image: projectImage,
         lat: position[0],
         long: position[1],
-        // inspection_location_location: inspectionLocation,
       });
 
-      const result = await addProjectData(formData);
+      const data = await addProjectData(formData);
 
-      if (result.status === 200) {
+      if (data.status === 200) {
         toast.success("Project added successfully");
-        Navigate("/allprojects/showallprojects")
+        Navigate("/allprojects/showallprojects");
         resetForm();
       } else {
-        toast.error("Failed to add project: " + result.message);
+        toast.error("Failed to add project: " + data.message);
       }
     } catch (err) {
       console.error(err);
-      toast.error("Failed to add project.");
+      // toast.error("Failed to add project.");
     } finally {
       setIsLoading(false);
     }
   };
 
   const addProjectData = (formData) => {
-    const token = localStorage.getItem("token");
+    const token = Cookies.get("token");
     return fetch("https://inout-api.octopusteam.net/api/front/addProject", {
       method: "POST",
       headers: {
@@ -426,7 +417,7 @@ const AddNewProject = () => {
     };
 
     try {
-      const token = localStorage.getItem("token");
+      const token = Cookies.get("token");
       if (!token) {
         toast.error("You need to log in first.");
         return;
@@ -474,7 +465,7 @@ const AddNewProject = () => {
     };
 
     try {
-      const token = localStorage.getItem("token");
+      const token = Cookies.get("token");
       if (!token) {
         toast.error("You need to log in first.");
         return;
@@ -517,7 +508,7 @@ const AddNewProject = () => {
     }
 
     try {
-      const token = localStorage.getItem("token");
+      const token = Cookies.get("token");
       const response = await fetch(
         "https://inout-api.octopusteam.net/api/front/addService",
         {
@@ -563,7 +554,7 @@ const AddNewProject = () => {
     };
 
     try {
-      const token = localStorage.getItem("token");
+      const token = Cookies.get("token");
       if (!token) {
         toast.error("You need to log in first.");
         return;
@@ -664,41 +655,11 @@ const AddNewProject = () => {
             <option value="10">Cancelled</option>
           </select>
         </div>
-
-        {/* Latitude */}
-        {/* <div className="">
-          <label className="block ml-6 text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
-            Latitude
-          </label>
-          <input
-            type="text"
-            value={latValue}
-            onChange={(e) => setLatValue(e.target.value)}
-            className="border border-gray-300 rounded-md p-2 dark:bg-slate-900 dark:text-white w-full"
-          />
-        </div> */}
-
-        {/* Longitude */}
-        {/* <div className="">
-          <label className="block ml-6 text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
-            Longitude
-          </label>
-          <input
-            type="text"
-            value={longValue}
-            onChange={(e) => setLongValue(e.target.value)}
-            className="border border-gray-300 rounded-md p-2 dark:bg-slate-900 dark:text-white w-full"
-          />
-        </div> */}
-
-        {/* Image Upload Field using Dropify */}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="p-1 mt-4">
-          <label className="total block text-sm font-medium ml-6">
-            Branch
-          </label>
+          <label className="total block text-sm font-medium ml-6">Branch</label>
           <Select
             options={branches}
             name="branch_id"
@@ -766,18 +727,18 @@ const AddNewProject = () => {
                         </div>
                       </div>
                     </div>
-                    <div className="service bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                    <div className="service bg-gray-50 px-5 py-3 sm:flex sm:flex-row-reverse sm:px-6">
                       <button
                         type="button"
                         onClick={handleSaveService}
-                        className="inline-flex mr-60 mt-3 w-full h-10 justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto"
+                        className=" inline-flex mr-60 w-full h-10 justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto"
                       >
                         Save Service
                       </button>
                       <button
                         type="button"
                         onClick={handleCancelService}
-                        className="mt-3 inline-flex w-full justify-center rounded-md px-3 py-2 bg-white text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
+                        className="services mt-3 inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-900 shadow-sm transition duration-200 ease-in-out hover:bg-gray-100 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:mt-0 sm:w-auto"
                       >
                         Cancel
                       </button>
@@ -1115,42 +1076,22 @@ const AddNewProject = () => {
             Inspection Location
           </label>
           <div className="mt-1 block w-full border border-gray-300 dark:border-gray-700 rounded-md p-2  dark:text-white">
-            
-            {/* <input
-              type="text"
-              name="inspection_location_location"
-              placeholder="Inspection Location Description"
-              className="w-full p-2 text-gray-700 border border-gray-300 rounded-md dark:bg-slate-900 dark:text-white"
-            /> */}
+            <input type="hidden" hidden value={position[0]} name="latitude" />
+            <input type="hidden" hidden value={position[1]} name="longitude" />
 
-
-            <input
-              type="hidden"
-              hidden
-              value={position[0]}
-              name="lat"
-            />
-            <input
-              type="hidden"
-              hidden
-              value={position[1]}
-              name="long"
-            />
-              
-
-          <div>
-            <MapContainer
+            <div>
+              <MapContainer
                 center={[23.8859, 45.0792]}
                 zoom={6}
                 style={{ height: "100px", width: "100%" }}
-            >
+              >
                 <TileLayer
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 />
                 <LocationMarker />
-            </MapContainer>
-            {/* <button
+              </MapContainer>
+              {/* <button
                 onClick={openInGoogleMaps}
                 style={{
                     marginTop: "10px",
@@ -1164,7 +1105,7 @@ const AddNewProject = () => {
             >
                 Open in Google Maps
             </button> */}
-        </div>
+            </div>
           </div>
         </div>
       </div>
