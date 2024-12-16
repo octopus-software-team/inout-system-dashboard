@@ -12,7 +12,7 @@ const CreateMaterialCategory = () => {
     e.preventDefault();
 
     try {
-      const token = localStorage.getItem('token');
+    const token = Cookies.get("token");
       const response = await fetch('https://inout-api.octopusteam.net/api/front/addService', {
         method: 'POST',
         headers: {

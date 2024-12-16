@@ -40,7 +40,7 @@ const AddMaterials = () => {
   }, []);
 
   const handleDelete = (id) => {
-    const token = localStorage.getItem('token');
+    const token = Cookies.get("token");
 
     // Show a toast confirmation for deletion
     const confirmToast = toast(

@@ -59,7 +59,7 @@ const EditMaterialCategory = () => {
         setResponseMessage(result.msg);
         toast.success("Service updated successfully!"); 
         setTimeout(() => {
-          navigate("/company/Services");
+          navigate("/company/assets/materialcategory");
         }, 2000);
       } else {
         setResponseMessage(result.msg || "Failed to update the service.");

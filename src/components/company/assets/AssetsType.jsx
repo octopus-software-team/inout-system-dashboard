@@ -55,7 +55,7 @@ const AddServices = () => {
   };
 
   const handleDelete = (id) => {
-    const token = Cookies.get('token'); // جلب التوكن من localStorage
+    const token = Cookies.get('token'); 
 
     if (!token) {
       alert("No token found. Please log in.");
@@ -64,7 +64,7 @@ const AddServices = () => {
 
     if (window.confirm("Are you sure you want to delete this asset type?")) {
       fetch(`https://inout-api.octopusteam.net/api/front/deleteAssetType/${id}`, {
-        method: "DELETE",
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`, // إرسال التوكن في الهيدر
