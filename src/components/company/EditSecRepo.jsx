@@ -66,7 +66,7 @@ const EditSecRepo = () => {
     };
     
 
-    fetch(`https://inout-api.octopusteam.net/api/front/updateProjectReport`, {
+    fetch(`https://inout-api.octopusteam.net/api/front/updateProjectReport{}`, {
         method: "POST",
       headers: {
         "Content-Type": "application/json",
