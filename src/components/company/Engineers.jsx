@@ -209,7 +209,7 @@ const AddEngineer = () => {
       const result = await response.json();
 
       if (result.status === 200) {
-        alert("تم إضافة الموظف بنجاح");
+        alert("Added Successfully");
 
         navigate("/company/employees");
 
