@@ -3,8 +3,8 @@ import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Cookies from 'js-cookie';
-
+import Cookies from "js-cookie";
+import { useFetch } from "../../hooks/useFetch";
 
 const AddSecRepo = () => {
   const [data, setData] = useState([]);
@@ -16,81 +16,65 @@ const AddSecRepo = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
+  // const { data: _data, error: _error } = useFetch("getProjectReports");
+  // if(_data) {
+  //   setIsLoading(false);
+  // }
+
   useEffect(() => {
-    const token = Cookies.get('token');
+    const fetchData = async () => {
+      const token = Cookies.get("token");
 
-    if (!token) {
-      console.log("No token found, cannot fetch services.");
-      setError("No token found. Please log in.");
-      setIsLoading(false);
-      return;
-    }
+      if (!token) {
+        console.error("token expired ");
+        setError("No token found. Please log in.");
+      }
 
-    fetch("https://inout-api.octopusteam.net/api/front/getProjectReports", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return res.json();
-      })
-      .then((resData) => {
-        if (resData && resData.data) {
-          // تحديث البيانات وإضافة العنصر الأخير
-          const updatedData = [
-            ...resData.data,
-            resData.data[resData.data.length - 1],
-          ];
-          setData(updatedData);
-        } else {
-          setError("No data found in the response");
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching services:", error);
-        setError("Failed to fetch services. Please try again later.");
-      })
-      .finally(() => {
-        setIsLoading(false);
+      const BASE_URL = "https://inout-api.octopusteam.net/api/front";
+
+      const response = await fetch(`${BASE_URL}/getProjectReports`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
       });
+
+      const result = await response.json();
+      const apiData = result.data;
+      setData(apiData);
+      setIsLoading(false);
+    };
+    fetchData();
   }, []);
 
   useEffect(() => {
-    const token = Cookies.get('token');
+    const fetchProject = async () => {
+      const token = Cookies.get("token");
 
-    if (!token) {
-      console.log("No token found, cannot fetch projects.");
-      return;
-    }
+      if (!token) {
+        console.log("No token found, cannot fetch projects.");
+        return;
+      }
 
-    fetch("https://inout-api.octopusteam.net/api/front/getProjects", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error("Failed to fetch projects.");
+      const response = await fetch(
+        "https://inout-api.octopusteam.net/api/front/getProjects",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         }
-        return res.json();
-      })
-      .then((resData) => {
-        if (resData && resData.data) {
-          setProjects(resData.data);
-        } else {
-          console.error("No projects found in response.");
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching projects:", error);
-      });
+      );
+
+      const result = await response.json();
+      const data = result.data;
+      console.log(data);
+      setProjects(data);
+    };
+
+    fetchProject();
   }, []);
 
   const sorting = (col) => {
@@ -127,10 +111,9 @@ const AddSecRepo = () => {
     const report = data.find((item) => item.id === id); // العثور على التقرير
     navigate(`/company/editsecrepo/${id}`, { state: { report } }); // تمرير البيانات
   };
-  
 
   const handleDelete = (id) => {
-    const token = Cookies.get('token');
+    const token = Cookies.get("token");
     if (!token) {
       alert("No token found. Please log in.");
       return;
@@ -186,6 +169,11 @@ const AddSecRepo = () => {
         toast.dismiss(confirmToast);
       });
   };
+
+  useEffect(() => {
+    console.log(data);
+    console.log(projects);
+  }, []);
 
   return (
     <div className="container p-6 mt-5">
@@ -256,6 +244,7 @@ const AddSecRepo = () => {
                   const project = projects.find(
                     (project) => project.id === d.project_id
                   );
+
                   return (
                     <tr
                       key={d.id}

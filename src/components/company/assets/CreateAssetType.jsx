@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Cookies from 'js-cookie';
+import Cookies from "js-cookie";
+import { toast } from "sonner";
 
 const CreateAssetType = () => {
   const [assetTypes, setAssetTypes] = useState([]); // بيانات الأنواع
@@ -10,7 +11,7 @@ const CreateAssetType = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = Cookies.get('token'); // جلب التوكن
+    const token = Cookies.get("token"); // جلب التوكن
 
     // طلب البيانات من API لجلب الأنواع
     fetch("https://inout-api.octopusteam.net/api/front/getAssetTypes", {
@@ -28,7 +29,7 @@ const CreateAssetType = () => {
       })
       .then((resData) => {
         if (resData.status === 200) {
-          setAssetTypes(resData.data); // تخزين البيانات
+          setAssetTypes(resData.data);
         } else {
           setMessage("Failed to load asset types.");
         }
@@ -36,13 +37,14 @@ const CreateAssetType = () => {
       .catch((err) => {
         console.error("Error fetching asset types:", err);
         setMessage("Error loading data.");
+        toast.success('My success toast');
         navigate("/company/assets/assetstype");
       });
   }, [navigate]);
 
   const handleSubmit = (e) => {
     e.preventDefault(); // منع التحديث الافتراضي للنموذج
-    const token = Cookies.get('token'); // جلب التوكن
+    const token = Cookies.get("token"); // جلب التوكن
 
     // إرسال نوع جديد إلى API
     fetch("https://inout-api.octopusteam.net/api/front/addAssetType", {
@@ -80,13 +82,12 @@ const CreateAssetType = () => {
   return (
     <div className="container mx-auto mt-10 p-4 flex justify-center">
       <div className="service dark:bg-slate-800 p-8 rounded-lg shadow-lg w-full max-w-xs">
-        <h2 className="text-center font-bold text-2xl mb-5">Create Asset Type</h2>
+        <h2 className="text-center font-bold text-2xl mb-5">
+          Create Asset Type
+        </h2>
 
         {/* الفورم لإضافة نوع جديد */}
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-4"
-        >
+        <form onSubmit={handleSubmit} className="space-y-4">
           {/* حقل إدخال النوع الجديد */}
           <div className="mb-4">
             <label
@@ -117,12 +118,11 @@ const CreateAssetType = () => {
           </div>
         </form>
 
-        {/* رسالة نجاح أو خطأ */}
         {message && (
-          <p className="mt-4 text-center text-green-600 font-semibold">{message}</p>
+          <p className="mt-4 text-center text-green-600 font-semibold">
+            {message}
+          </p>
         )}
-
-        {/* قائمة الأنواع الموجودة */}
       </div>
     </div>
   );

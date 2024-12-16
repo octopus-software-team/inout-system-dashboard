@@ -368,7 +368,7 @@ const AddNewProject = () => {
       }
     } catch (error) {
       console.error("Error adding task:", error);
-     alert("Failed to add task. Please try again.");
+      alert("Failed to add task. Please try again.");
     }
   };
 
@@ -1085,6 +1085,7 @@ const AddNewProject = () => {
                 center={[23.8859, 45.0792]}
                 zoom={6}
                 style={{ height: "100px", width: "100%" }}
+                className="!resize"
               >
                 <TileLayer
                   url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -1092,20 +1093,6 @@ const AddNewProject = () => {
                 />
                 <LocationMarker />
               </MapContainer>
-              {/* <button
-                onClick={openInGoogleMaps}
-                style={{
-                    marginTop: "10px",
-                    padding: "10px 20px",
-                    backgroundColor: "#4285F4",
-                    color: "#fff",
-                    border: "none",
-                    borderRadius: "5px",
-                    cursor: "pointer",
-                }}
-            >
-                Open in Google Maps
-            </button> */}
             </div>
           </div>
         </div>

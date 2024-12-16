@@ -13,6 +13,38 @@ const EditSecRepo = () => {
   const [reportStock, setReportStock] = useState("");
   const [isInspection, setIsInspection] = useState(1);
   const [report, setReport] = useState("");
+  const [projects, setProjects] = useState();
+  const [projectId, setProjectId] = useState("");
+
+
+    useEffect(() => {
+      const token = Cookies.get('token');
+      // Fetch project list from API
+      fetch("https://inout-api.octopusteam.net/api/front/getProjects", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.status === 200) {
+            setProjects(data.data); // Set the projects in state
+          } else {
+            alert(`Error fetching projects: ${data.msg || "Unknown error"}`);
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching projects:", error);
+          alert("Failed to fetch projects. Please try again.");
+        });
+    }, []);
+
+
+      useEffect(() => {
+        console.log(projects)
+      },[projects])
+
 
   // Fetch existing report data
   useEffect(() => {
@@ -64,15 +96,22 @@ const EditSecRepo = () => {
         report_stock: isInspection === 1 ? reportStock : null,
         report,
     };
-    
 
-    fetch(`https://inout-api.octopusteam.net/api/front/updateProjectReport{}`, {
+    const formData = new FormData();
+    formData.append("id", id);
+    formData.append("project_id", projectId);
+    formData.append("report_type", reportType);
+    formData.append("is_inspection", isInspection);
+    formData.append("report_stock", reportStock);
+    formData.append("report", report);
+
+
+    fetch(`https://inout-api.octopusteam.net/api/front/updateProjectReport/${paramId}`, {
         method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+        headers: {
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(payload),
+      body: formData,
     })
       .then((res) => res.json())
       .then((data) => {
@@ -99,15 +138,35 @@ const EditSecRepo = () => {
           </label>
           <input
             id="id"
-            type="text"
+            hidden
+            type="hidden"
             value={id}
             onChange={(e) => setId(e.target.value)}
             placeholder="Enter ID"
             required
             className="mt-1 dark:bg-slate-900 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:text-white dark:border-gray-600"
             readOnly
-            
           />
+        </div>
+
+        <div className="mb-4">
+          <label htmlFor="projectId" className="block text-sm font-medium text-gray-700 dark:text-white">
+            Project Name
+          </label>
+          <select
+            id="projectId"
+            value={projectId}
+            onChange={(e) => setProjectId(e.target.value)}
+            required
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-900 dark:text-white"
+          >
+            <option value="" disabled>Select a project</option>
+            {projects && projects?.map((project) => (
+              <option key={project.id} value={project.id}>
+                {project.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="mb-4">
@@ -119,6 +178,7 @@ const EditSecRepo = () => {
           </label>
           <select
             id="reportType"
+            name="report_type"
             value={reportType}
             onChange={(e) => setReportType(e.target.value)}
             className="mt-1 dark:bg-slate-900 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:text-white dark:border-gray-600"
@@ -139,6 +199,7 @@ const EditSecRepo = () => {
           <input
             id="isInspection"
             type="checkbox"
+            name="is_inspection"
             checked={isInspection === 1}
             onChange={() => setIsInspection(isInspection === 1 ? 0 : 1)}
             className="!bg-blue-400"
@@ -156,6 +217,7 @@ const EditSecRepo = () => {
               </label>
               <textarea
                 id="reportStock"
+                name="report_stock"
                 value={reportStock}
                 onChange={(e) => setReportStock(e.target.value)}
                 placeholder="Enter report stock"
@@ -172,6 +234,7 @@ const EditSecRepo = () => {
               </label>
               <textarea
                 id="report"
+                name="report"
                 value={report}
                 onChange={(e) => setReport(e.target.value)}
                 placeholder="Enter report"
@@ -190,6 +253,7 @@ const EditSecRepo = () => {
             </label>
             <textarea
               id="report"
+              name="report"
               value={report}
               onChange={(e) => setReport(e.target.value)}
               placeholder="Enter report"
