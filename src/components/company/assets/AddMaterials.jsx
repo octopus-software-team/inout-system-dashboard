@@ -12,7 +12,7 @@ const AddMaterials = () => {
 
   // Fetch data from API with headers and token
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = Cookies.get("token");
    
     fetch("https://inout-api.octopusteam.net/api/front/getMaterials", {
       method: "GET",

@@ -328,7 +328,7 @@ const View = () => {
   if (loading) {
     return (
       <div className="container mx-auto p-6">
-        <h1 className="text-2xl font-bold mb-6">Edit Employee</h1>
+        <h1 className="text-2xl font-bold mb-6">View Employee</h1>
         <p>Loading employee data...</p>
       </div>
     );
@@ -336,7 +336,7 @@ const View = () => {
 
   return (
     <div className="mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">Edit Employee</h1>
+      <h1 className="text-2xl font-bold mb-6">View Employee</h1>
 
       <ToastContainer
         position="top-right"
