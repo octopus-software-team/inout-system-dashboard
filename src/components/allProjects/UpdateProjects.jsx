@@ -186,90 +186,64 @@ const UpdateProject = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = async (e) => {
-    const token = Cookies.get("token");
-    e.preventDefault();
+// ... (الكود السابق بدون تغيير)
 
-    if (!formData.name) {
-      toast.error("Please enter the project name");
-      return;
-    }
+const handleSubmit = async (e) => {
+  const token = Cookies.get("token");
+  e.preventDefault();
 
-    setLoading(true);
+  if (!formData.name) {
+    toast.error("Please enter the project name");
+    return;
+  }
 
-    // const {
-    //   name,
-    //   branch_id,
-    //   project_owner_id,
-    //   customer_constructor_id,
-    //   inspection_date,
-    //   inspection_time,
-    //   notes,
-    //   status,
-    //   inspection_engineer_id,
-    //   longitude,
-    //   latitude,
-    // } = formData;
+  setLoading(true);
 
-    // const updateBody = {
-    //   name,
-    //   branch_id,
-    //   project_owner_id,
-    //   customer_constructor_id,
-    //   inspection_date,
-    //   inspection_time,
-    //   notes,
-    //   status,
-    //   inspection_engineer_id,
-    //   longitude,
-    //   latitude,
-    // };
+  const data = new FormData();
+  data.append("id", formData.id);
+  data.append("name", formData.name);
+  data.append("branch_id", formData.branch_id);
+  data.append("project_owner_id", formData.project_owner_id);
+  data.append("customer_constructor_id", formData.customer_constructor_id);
+  data.append("inspection_date", formData.inspection_date);
+  data.append("inspection_time", formData.inspection_time);
+  data.append("notes", formData.notes);
+  data.append("status", formData.status);
+  data.append("inspection_engineer_id", formData.inspection_engineer_id);
+  data.append("longitude", formData.longitude);
+  data.append("latitude", formData.latitude);
 
-    const data = new FormData();
-    data.append("id", formData.id);
-    data.append("name", formData.name);
-    data.append("branch_id", formData.branch_id);
-    data.append("project_owner_id", formData.project_owner_id);
-    data.append("customer_constructor_id", formData.customer_constructor_id);
-    data.append("inspection_date", formData.inspection_date);
-    data.append("inspection_time", formData.inspection_time);
-    data.append("notes", formData.notes);
-    data.append("status", formData.status);
-    data.append("inspection_engineer_id", formData.inspection_engineer_id);
-    data.append("longitude", formData.longitude);
-    data.append("latitude", formData.latitude);
-
-    try {
-      const response = await fetch(
-        `https://inout-api.octopusteam.net/api/front/updateProject/${id}`,
-        {
-          method: "POST",
-          headers: {
-            // "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          // body: JSON.stringify(updateBody),
-          body: data,
-        }
-      );
-
-      const res = await response.json();
-
-      if (res.status === 200) {
-        alert("Project updated successfully!");
-
-        navigate("/allprojects/showallprojects");
-      } else {
-        // toast.error("Failed to update project: " + (res.msg || "Unknown error"));
-
+  try {
+    const response = await fetch(
+      `https://inout-api.octopusteam.net/api/front/updateProject/${id}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: data,
       }
-    } catch (err) {
-      console.error(err);
-      toast.error(`Error updating project: ${err.message}`);
-    } finally {
-      setLoading(false);
+    );
+
+    const res = await response.json();
+
+    if (res.status === 200) {
+      toast.success("Project updated successfully!", {
+        onClose: () => navigate("/allprojects/showallprojects"),
+    
+      });
+    } else {
+      toast.error(res.msg || "Failed to update the project.");
     }
-  };
+  } catch (err) {
+    console.error(err);
+    toast.error(`Error updating project: ${err.message}`);
+  } finally {
+    setLoading(false);
+  }
+};
+
+// ... (بقية الكود بدون تغيير)
 
   if (loading) {
     return (

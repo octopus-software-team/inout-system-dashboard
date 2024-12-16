@@ -79,9 +79,9 @@ const AddNewTask = () => {
       const data = await response.json();
 
       if (data.status === 200) {
-        toast.success("Task added successfully.");
+       alert("project added successfully.");
         setTimeout(() => {
-          navigate("/todo/showalltask");
+          navigate("allprojects/showallprojects");
         }, 2000);
       } else {
         toast.error(data.msg || "Failed to add task.");

@@ -13,7 +13,7 @@ const CreateServices = () => {
     e.preventDefault();
 
     try {
-      const token = localStorage.getItem('token');
+        const token = Cookies.get("token");
       const response = await fetch('https://inout-api.octopusteam.net/api/front/addService', {
         method: 'POST',
         headers: {
@@ -39,7 +39,7 @@ const CreateServices = () => {
   };
 
   return (
-    <div className="flex dark:bg-slate-950 justify-center items-center h-screen bg-gray-100">
+    <div className="flex dark:bg-slate-950 justify-center items-center mt-32 bg-gray-100">
       <ToastContainer />
       <div className="service dark:bg-slate-800 p-8 rounded shadow-md w-full max-w-md">
         <h1 className="text-2xl font-bold mb-6 text-center">Create Service</h1>

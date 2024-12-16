@@ -5,8 +5,7 @@ import "dropify/dist/js/dropify";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
-import Cookies from 'js-cookie';
-
+import Cookies from "js-cookie";
 
 const AddEngineer = () => {
   const [formData, setFormData] = useState({
@@ -35,7 +34,7 @@ const AddEngineer = () => {
 
   const [errors, setErrors] = useState({});
 
-  const token = Cookies.get('token');
+  const token = Cookies.get("token");
 
   const imageInputRef = useRef(null);
 
@@ -210,8 +209,9 @@ const AddEngineer = () => {
       const result = await response.json();
 
       if (result.status === 200) {
-        toast.success("Employee added successfully");
-        navigate("company/employees");
+        alert("تم إضافة الموظف بنجاح");
+
+        navigate("/company/employees");
 
         setFormData({
           full_name: "",
@@ -230,7 +230,6 @@ const AddEngineer = () => {
           contract_duration: "",
           contract_end_date: "",
           type: 0,
-        
         });
         setTimeout(() => {
           window.location.reload();

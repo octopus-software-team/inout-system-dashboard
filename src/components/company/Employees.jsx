@@ -197,26 +197,30 @@ const Employees = () => {
     <div className="container p-5 mx-auto mt-5 px-4 w-full">
       <h2 className="text-center font-bold text-xl mb-4">Employees</h2>
 
-      <div className="flex flex-col md:flex-row justify-between items-center mb-4 w-full">
+      <div className="flex flex-col md:flex-row justify-between items-center mb-4 w-full space-y-4 md:space-y-0">
         <input
-          className="border border-gray-300 dark:bg-slate-900 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 w-96 md:w-1/2 shadow-sm text-xs"
+          className="border  border-gray-300 dark:bg-slate-900 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 w-96 h-10 md:w-1/2 shadow-sm text-xs"
           type="text"
           placeholder="Search employees by name..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        <Link
-          to="/company/engineers"
-          className="mt-2  md:mt-0 bg-slate-500 text-white font-semibold py-1 px-3 rounded hover:bg-slate-700 w-96 md:w-1/6 text-center text-xs"
-        >
-          +Add Emplyee
-        </Link>
-        <button
-          onClick={setOpen}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          Import
-        </button>
+
+        {/* حاوية الأزرار */}
+        <div className="flex space-x-2 w-full md:w-auto">
+          <Link
+            to="/company/engineers"
+            className="bg-slate-500 text-white font-semibold py-2 px-4 rounded hover:bg-slate-700 w-full md:w-52 text-center text-xs"
+          >
+            + Add Employee
+          </Link>
+          <button
+            onClick={() => setOpen(true)}
+            className="bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-700 w-full md:w-52 text-center text-xs"
+          >
+            Import
+          </button>
+        </div>
 
         {open && (
           <div

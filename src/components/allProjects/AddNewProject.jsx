@@ -359,16 +359,16 @@ const AddNewProject = () => {
       const data = await addProjectData(formData);
 
       if (data.status === 200) {
-        toast.success("Task added successfully.");
+        alert("Task added successfully.");
         setTimeout(() => {
           navigate("/allprojects/showallprojects");
-        }, 2000);
+        });
       } else {
-        toast.error(data.msg || "Failed to add task.");
+        alert(data.msg || "Failed to add task.");
       }
     } catch (error) {
       console.error("Error adding task:", error);
-      toast.error("Failed to add task. Please try again.");
+     alert("Failed to add task. Please try again.");
     }
   };
 
