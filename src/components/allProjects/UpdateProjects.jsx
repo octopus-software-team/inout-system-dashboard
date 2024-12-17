@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
 import Cookies from "js-cookie";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import icon from "leaflet/dist/images/marker-icon.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const UpdateProject = () => {
   const { id } = useParams();
@@ -48,6 +49,7 @@ const UpdateProject = () => {
   const [owners, setOwners] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [engineers, setEngineers] = useState([]);
+  const [projectStatus, setProjectStatus] = useState("");
 
   useEffect(() => {
     const token = Cookies.get("token");
@@ -81,9 +83,8 @@ const UpdateProject = () => {
           throw new Error("Project not found");
         }
 
-        // Fetch branches
         const branchesRes = await fetch(
-          "https://inout-api.octopusteam.net/api/front/getBranches",
+          `https://inout-api.octopusteam.net/api/front/getBranches`,
           {
             method: "GET",
             headers: { Authorization: `Bearer ${token}` },
@@ -94,9 +95,8 @@ const UpdateProject = () => {
           throw new Error(branchesData.msg || "Failed to fetch branches.");
         }
 
-        // Fetch owners
         const ownersRes = await fetch(
-          "https://inout-api.octopusteam.net/api/front/getOwners",
+          "https://inout-api.octopusteam.net/api/front/getCustomers",
           {
             method: "GET",
             headers: {
@@ -186,64 +186,64 @@ const UpdateProject = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-// ... (الكود السابق بدون تغيير)
 
-const handleSubmit = async (e) => {
-  const token = Cookies.get("token");
-  e.preventDefault();
-
-  if (!formData.name) {
-    toast.error("Please enter the project name");
-    return;
-  }
-
-  setLoading(true);
-
-  const data = new FormData();
-  data.append("id", formData.id);
-  data.append("name", formData.name);
-  data.append("branch_id", formData.branch_id);
-  data.append("project_owner_id", formData.project_owner_id);
-  data.append("customer_constructor_id", formData.customer_constructor_id);
-  data.append("inspection_date", formData.inspection_date);
-  data.append("inspection_time", formData.inspection_time);
-  data.append("notes", formData.notes);
-  data.append("status", formData.status);
-  data.append("inspection_engineer_id", formData.inspection_engineer_id);
-  data.append("longitude", formData.longitude);
-  data.append("latitude", formData.latitude);
-
-  try {
-    const response = await fetch(
-      `https://inout-api.octopusteam.net/api/front/updateProject/${id}`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: data,
-      }
-    );
-
-    const res = await response.json();
-
-    if (res.status === 200) {
-      toast.success("Project updated successfully!", {
-        onClose: () => navigate("/allprojects/showallprojects"),
-    
-      });
-    } else {
-      toast.error(res.msg || "Failed to update the project.");
+  const handleSubmit = async (e) => {
+    const token = Cookies.get("token");
+    e.preventDefault();
+  
+    if (!formData.name) {
+      toast.error("Please enter the project name");
+      return;
     }
-  } catch (err) {
-    console.error(err);
-    toast.error(`Error updating project: ${err.message}`);
-  } finally {
-    setLoading(false);
-  }
-};
+  
+    setLoading(true);
+  
+    const data = new FormData();
+    data.append("id", formData.id);
+    data.append("name", formData.name);
+    data.append("branch_id", formData.branch_id);
+    data.append("project_owner_id", formData.project_owner_id);
+    data.append("customer_constructor_id", formData.customer_constructor_id);
+    data.append("inspection_date", formData.inspection_date);
+    data.append("inspection_time", formData.inspection_time);
+    data.append("notes", formData.notes);
+    data.append("status", formData.status);
+    data.append("inspection_engineer_id", formData.inspection_engineer_id);
+    data.append("longitude", formData.longitude);
+    data.append("latitude", formData.latitude);
+  
+    try {
+      const response = await fetch(
+        `https://inout-api.octopusteam.net/api/front/updateProject/${id}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: data,
+        }
+      );
+  
+      const res = await response.json(); // Make sure to parse the response to JSON
+  
+      if (res.status === 200) {
+        toast.success("Project updated successfully.");
+        setTimeout(() => {
+          navigate("/allprojects/showallprojects");
+        }, 2000);
+      } else {
+        toast.error(res.msg || "Failed to update Project.");
+      }
+    } catch (error) {
+      console.error("Error updating project:", error);
+      toast.error("Failed to update project. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+  
 
-// ... (بقية الكود بدون تغيير)
+  // ... (بقية الكود بدون تغيير)
 
   if (loading) {
     return (
@@ -269,9 +269,8 @@ const handleSubmit = async (e) => {
         Update Project
       </h2>
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Project ID (read-only) */}
         <div>
-          <label
+          {/* <label
             htmlFor="id"
             className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
           >
@@ -284,7 +283,7 @@ const handleSubmit = async (e) => {
             value={formData.id}
             className="w-full bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2"
             disabled
-          />
+          /> */}
         </div>
 
         {/* Project Name */}
@@ -342,7 +341,6 @@ const handleSubmit = async (e) => {
           />
         </div>
 
-        {/* Notes */}
         <div>
           <label
             htmlFor="notes"
@@ -360,24 +358,35 @@ const handleSubmit = async (e) => {
           />
         </div>
 
-        {/* Status */}
-        <div>
-          <label
-            htmlFor="status"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-          >
-            Status (0-10)
+        <div className="">
+          <label className="block ml-6 text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
+            Project Status
           </label>
-          <input
-            type="number"
-            id="status"
+          <select
             name="status"
             value={formData.status}
             onChange={handleChange}
-            min="0"
-            max="10"
-            className="w-full dark:bg-slate-700 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
-          />
+            className="add border border-gray-300 rounded-md p-2 text-gray-700 w-full"
+          >
+            <option value="0" selected={formData.status === "0"}>
+              Not Started
+            </option>
+            <option value="2" selected={formData.status === "2"}>
+              In Progress
+            </option>
+            <option value="4" selected={formData.status === "4"}>
+              Completed
+            </option>
+            <option value="6" selected={formData.status === "6"}>
+              Pending
+            </option>
+            <option value="8" selected={formData.status === "8"}>
+              Under Review
+            </option>
+            <option value="10" selected={formData.status === "10"}>
+              Cancelled
+            </option>
+          </select>
         </div>
 
         {/* Branch */}
@@ -508,20 +517,6 @@ const handleSubmit = async (e) => {
               />
               <LocationMarker />
             </MapContainer>
-            {/* <button
-                      onClick={openInGoogleMaps}
-                      style={{
-                          marginTop: "10px",
-                          padding: "10px 20px",
-                          backgroundColor: "#4285F4",
-                          color: "#fff",
-                          border: "none",
-                          borderRadius: "5px",
-                          cursor: "pointer",
-                      }}
-                  >
-                      Open in Google Maps
-                  </button> */}
           </div>
         </div>
 

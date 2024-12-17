@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Cookies from 'js-cookie';
+import Cookies from "js-cookie";
 
 const AddNewTask = () => {
   const [taskName, setTaskName] = useState("");
@@ -16,16 +16,19 @@ const AddNewTask = () => {
 
   useEffect(() => {
     const fetchEmployees = async () => {
-      const token = Cookies.get('token');
+      const token = Cookies.get("token");
 
       try {
-        const response = await fetch("https://inout-api.octopusteam.net/api/front/getEmployees", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await fetch(
+          "https://inout-api.octopusteam.net/api/front/getEmployees",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         const data = await response.json();
         if (data.status === 200) {
           setEmployees(data.data);
@@ -48,7 +51,7 @@ const AddNewTask = () => {
       return;
     }
 
-    const token = Cookies.get('token');
+    const token = Cookies.get("token");
     if (!token) {
       toast.error("No token found. Please log in.");
       return;
@@ -64,24 +67,21 @@ const AddNewTask = () => {
     };
 
     try {
-      const response = await fetch(
-        "https://inout-api.octopusteam.net/api/front/addTask",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(taskData),
-        }
-      );
+      const response = await fetch("https://inout-api.octopusteam.net/api/front/addTask", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(taskData),
+      });
 
       const data = await response.json();
 
       if (data.status === 200) {
-       alert("project added successfully.");
+        toast.success("Task added successfully.");
         setTimeout(() => {
-          navigate("allprojects/showallprojects");
+          navigate("/todo/showalltask");
         }, 2000);
       } else {
         toast.error(data.msg || "Failed to add task.");
@@ -205,7 +205,18 @@ const AddNewTask = () => {
             </button>
           </div>
         </form>
-        <ToastContainer />
+        <ToastContainer
+          position="top-center"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="colored"
+        />
       </div>
     </div>
   );

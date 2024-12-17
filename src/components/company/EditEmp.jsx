@@ -1,11 +1,9 @@
-// src/components/EditEmp.js
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import Cookies from 'js-cookie';
+import Cookies from "js-cookie";
+import { ToastContainer, toast } from "react-toastify"; // Updated import
+import "react-toastify/dist/ReactToastify.css"; // Ensure CSS is imported
 
-// Import jQuery and Dropify
 import $ from "jquery";
 import "dropify/dist/css/dropify.min.css";
 import "dropify/dist/js/dropify.min.js";
@@ -14,7 +12,6 @@ const EditEmp = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [responseMessage, setResponseMessage] = useState("");
-
 
   const [formData, setFormData] = useState({
     full_name: "",
@@ -37,7 +34,7 @@ const EditEmp = () => {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const token = Cookies.get('token');
+  const token = Cookies.get("token");
 
   // Reference to the file input
   const fileInputRef = useRef(null);
@@ -98,7 +95,7 @@ const EditEmp = () => {
     };
 
     const fetchEmployeeData = async () => {
-      setLoading(true); // Start loading state
+      setLoading(true);
       try {
         const response = await fetch(
           "https://inout-api.octopusteam.net/api/front/getEmployees",
@@ -153,9 +150,11 @@ const EditEmp = () => {
                   fileSize: "The file size is too big ({{ value }} max).",
                   minWidth: "The image width is too small ({{ value }}px min).",
                   maxWidth: "The image width is too big ({{ value }}px max).",
-                  minHeight: "The image height is too small ({{ value }}px min).",
+                  minHeight:
+                    "The image height is too small ({{ value }}px min).",
                   maxHeight: "The image height is too big ({{ value }}px max).",
-                  imageFormat: "The image format is not allowed ({{ value }} only).",
+                  imageFormat:
+                    "The image format is not allowed ({{ value }} only).",
                 },
               });
             }
@@ -176,16 +175,14 @@ const EditEmp = () => {
 
     fetchBranches();
     fetchSpecialties();
-    fetchEmployeeData(); // Call the modified function
+    fetchEmployeeData();
   }, [token, id, navigate]);
 
   useEffect(() => {
-    // Initialize Dropify when the component mounts
     if (fileInputRef.current) {
       $(fileInputRef.current).dropify();
     }
 
-    // Cleanup Dropify when the component unmounts
     return () => {
       if (fileInputRef.current) {
         const drEvent = $(fileInputRef.current).data("dropify");
@@ -201,7 +198,6 @@ const EditEmp = () => {
 
     if (type === "file") {
       setFormData({ ...formData, [id]: files[0] });
-      // Dropify handles the preview
     } else {
       if (id === "contract_start_date" || id === "contract_end_date") {
         const formattedDate = value ? value : "";
@@ -309,9 +305,7 @@ const EditEmp = () => {
 
       if (response.ok && result.status === 200) {
         toast.success("Employee updated successfully!");
-        setTimeout(() => {
-          navigate("/company/employees");
-        }, 2000);
+        navigate("/company/employees");
       } else {
         toast.error(result.msg || "Error updating employee. Please try again.");
       }
@@ -334,11 +328,10 @@ const EditEmp = () => {
 
   return (
     <div className="mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">Edit Employee</h1>
-
+      {/* ToastContainer for react-toastify */}
       <ToastContainer
-        position="top-right"
-        autoClose={3000}
+        position="top-center"
+        autoClose={5000}
         hideProgressBar={false}
         newestOnTop={false}
         closeOnClick
@@ -346,7 +339,9 @@ const EditEmp = () => {
         pauseOnFocusLoss
         draggable
         pauseOnHover
+        theme="colored"
       />
+      <h1 className="text-2xl font-bold mb-6">Edit Employee</h1>
 
       {message && (
         <div className="mb-4 p-3 text-white bg-blue-500 rounded-lg">
@@ -358,7 +353,6 @@ const EditEmp = () => {
         className="grid grid-cols-1 md:grid-cols-2 gap-6"
         onSubmit={handleSubmit}
       >
-        {/* Employee Name */}
         <div className="flex flex-col">
           <label htmlFor="full_name" className="mb-2 font-medium text-gray-700">
             Name
@@ -556,9 +550,7 @@ const EditEmp = () => {
             }`}
           />
           {errors.contract_start_date && (
-            <p className="text-red-500 text-sm">
-              {errors.contract_start_date}
-            </p>
+            <p className="text-red-500 text-sm">{errors.contract_start_date}</p>
           )}
         </div>
 
@@ -581,12 +573,11 @@ const EditEmp = () => {
             }`}
           />
           {errors.contract_duration && (
-            <p className="text-red-500 text-sm">
-              {errors.contract_duration}
-            </p>
+            <p className="text-red-500 text-sm">{errors.contract_duration}</p>
           )}
         </div>
 
+        {/* Contract End Date */}
         <div className="flex flex-col">
           <label
             htmlFor="contract_end_date"
@@ -604,9 +595,7 @@ const EditEmp = () => {
             }`}
           />
           {errors.contract_end_date && (
-            <p className="text-red-500 text-sm">
-              {errors.contract_end_date}
-            </p>
+            <p className="text-red-500 text-sm">{errors.contract_end_date}</p>
           )}
         </div>
 
@@ -625,10 +614,10 @@ const EditEmp = () => {
           >
             <option value="0">Engineer</option>
             <option value="1">Employee</option>
+            <option value="2">Worker</option>
+
           </select>
-          {errors.type && (
-            <p className="text-red-500 text-sm">{errors.type}</p>
-          )}
+          {errors.type && <p className="text-red-500 text-sm">{errors.type}</p>}
         </div>
 
         {/* Image */}
@@ -661,7 +650,6 @@ const EditEmp = () => {
           </button>
         </div>
       </form>
-      <ToastContainer />
     </div>
   );
 };

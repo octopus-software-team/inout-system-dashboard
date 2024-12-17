@@ -6,6 +6,8 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import ImportFile from "../ImportFile";
 import ExportFile from "../ExportFile";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const ShowAllTask = () => {
   const [data, setData] = useState([]);
@@ -16,10 +18,9 @@ const ShowAllTask = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const [excelData, setExcelData] = useState([]);
-
-  // and this also
   const [open, setOpen] = useState(false);
-
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
   const { id } = useParams();
 
   const handleFileUpload = (event) => {
@@ -28,19 +29,13 @@ const ShowAllTask = () => {
 
     const reader = new FileReader();
 
-    // Read file as binary string
     reader.onload = (e) => {
       const data = e.target?.result;
       if (!data) return;
 
-      // Parse the Excel file
       const workbook = XLSX.read(data, { type: "binary" });
-
-      // Get the first worksheet
       const worksheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[worksheetName];
-
-      // Convert worksheet to JSON
       const jsonData = XLSX.utils.sheet_to_json(worksheet);
       setExcelData(jsonData);
     };
@@ -52,7 +47,7 @@ const ShowAllTask = () => {
     const token = Cookies.get("token");
 
     if (!token) {
-      console.log("No token found, cannot fetch tasks.");
+      toast.error("No token found. Please log in.");
       setError("No token found. Please log in.");
       setIsLoading(false);
       return;
@@ -80,6 +75,7 @@ const ShowAllTask = () => {
       })
       .catch((error) => {
         console.error("Error fetching tasks:", error);
+        toast.error("Failed to fetch tasks. Please try again later.");
         setError("Failed to fetch tasks. Please try again later.");
       })
       .finally(() => {
@@ -121,36 +117,48 @@ const ShowAllTask = () => {
     navigate(`/todo/updatetask/${id}`);
   };
 
-  const handleDelete = (id) => {
+  const openConfirmModal = (id) => {
+    setDeleteId(id);
+    setIsConfirmOpen(true);
+  };
+
+  const closeConfirmModal = () => {
+    setDeleteId(null);
+    setIsConfirmOpen(false);
+  };
+
+  const confirmDelete = () => {
     const token = Cookies.get("token");
 
     if (!token) {
-      alert("No token found. Please log in.");
+      toast.error("No token found. Please log in.");
+      closeConfirmModal();
       return;
     }
 
-    if (window.confirm("Are you sure you want to delete this task?")) {
-      fetch(`https://inout-api.octopusteam.net/api/front/deleteTask/${id}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+    fetch(`https://inout-api.octopusteam.net/api/front/deleteTask/${deleteId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.status === 200) {
+          setData((prevData) => prevData.filter((task) => task.id !== deleteId));
+          toast.success(data.msg || "Task deleted successfully.");
+        } else {
+          toast.error("Failed to delete task.");
+        }
       })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.status === 200) {
-            alert("Task deleted successfully.");
-            setData(data.filter((task) => task.id !== id));
-          } else {
-            alert("Failed to delete task.");
-          }
-        })
-        .catch((error) => {
-          console.error("Error deleting task:", error);
-          alert("Failed to delete task. Please try again.");
-        });
-    }
+      .catch((error) => {
+        console.error("Error deleting task:", error);
+        toast.error("Failed to delete task. Please try again.");
+      })
+      .finally(() => {
+        closeConfirmModal();
+      });
   };
 
   return (
@@ -168,9 +176,8 @@ const ShowAllTask = () => {
           onChange={(e) => setSearch(e.target.value)}
         />
 
-        {/* From HERE dry Silly */}
         <button
-          onClick={setOpen}
+          onClick={() => setOpen(true)}
           className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
         >
           Import
@@ -195,8 +202,6 @@ const ShowAllTask = () => {
             </div>
           </div>
         )}
-
-        {/* To HERE dry Silly */}
       </div>
 
       {isLoading ? (
@@ -213,28 +218,28 @@ const ShowAllTask = () => {
             <thead>
               <tr className="bg-gradient-to-r from-blue-600 to-blue-400 text-white">
                 <th
-                  className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300"
+                  className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
                   onClick={() => sorting("id")}
                   aria-sort={order === "ASC" ? "ascending" : "descending"}
                 >
                   ID {renderSortIcon("id")}
                 </th>
                 <th
-                  className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300"
+                  className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
                   onClick={() => sorting("name")}
                   aria-sort={order === "ASC" ? "ascending" : "descending"}
                 >
                   Task Name {renderSortIcon("name")}
                 </th>
                 <th
-                  className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300"
+                  className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
                   onClick={() => sorting("start_date")}
                   aria-sort={order === "ASC" ? "ascending" : "descending"}
                 >
                   Start Date {renderSortIcon("start_date")}
                 </th>
                 <th
-                  className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300"
+                  className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
                   onClick={() => sorting("end_date")}
                   aria-sort={order === "ASC" ? "ascending" : "descending"}
                 >
@@ -247,11 +252,11 @@ const ShowAllTask = () => {
             </thead>
             <tbody>
               {data
-                .filter((i) => {
-                  return search.toLowerCase() === ""
+                .filter((i) =>
+                  search.toLowerCase() === ""
                     ? i
-                    : i.name.toLowerCase().includes(search.toLowerCase());
-                })
+                    : i.name.toLowerCase().includes(search.toLowerCase())
+                )
                 .map((d, index) => (
                   <tr
                     key={d.id}
@@ -272,7 +277,7 @@ const ShowAllTask = () => {
                         Edit
                       </button>
                       <button
-                        onClick={() => handleDelete(d.id)}
+                        onClick={() => openConfirmModal(d.id)}
                         className="bg-red-600 text-white font-semibold py-2 px-4 rounded-lg hover:shadow-md transform hover:scale-105 transition duration-300"
                       >
                         <FaTrash className="inline mr-2" />
@@ -285,6 +290,42 @@ const ShowAllTask = () => {
           </table>
         </div>
       )}
+
+      {isConfirmOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 w-80">
+            <h3 className="text-xl font-semibold mb-4">Confirm Deletion</h3>
+            <p className="mb-6">Are you sure you want to delete this task?</p>
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={confirmDelete}
+                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition duration-300"
+              >
+                Yes
+              </button>
+              <button
+                onClick={closeConfirmModal}
+                className="bg-gray-300 dark:bg-slate-700 text-gray-800 dark:text-white px-4 py-2 rounded-lg hover:bg-gray-400 dark:hover:bg-slate-600 transition duration-300"
+              >
+                No
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <ToastContainer
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
     </div>
   );
 };

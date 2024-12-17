@@ -12,14 +12,9 @@ import "react-toastify/dist/ReactToastify.css";
 import $ from "jquery";
 import "dropify/dist/css/dropify.min.css";
 import "dropify/dist/js/dropify.min.js";
-
+// import toast, { Toaster } from "react-hot-toast";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-// import L from "leaflet";
-
-// Fix for missing marker icon
-// import icon from "leaflet/dist/images/marker-icon.png";
-// import iconShadow from "leaflet/dist/images/marker-shadow.png";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 
@@ -92,7 +87,6 @@ const AddNewProject = () => {
     document.documentElement.classList.contains("dark");
 
   useEffect(() => {
-    // Fetch data on load
     const fetchBranches = async () => {
       try {
         const token = Cookies.get("token");
@@ -332,7 +326,6 @@ const AddNewProject = () => {
       formData.append("latitude", position[0] || "");
       formData.append("longitude", position[1] || "");
 
-      // **Add image if selected**
       if (projectImage) {
         formData.append("project_image", projectImage);
       }
@@ -359,16 +352,16 @@ const AddNewProject = () => {
       const data = await addProjectData(formData);
 
       if (data.status === 200) {
-        alert("Task added successfully.");
+        toast.success("Project added successfully.");
         setTimeout(() => {
           navigate("/allprojects/showallprojects");
-        });
+        }, 2000);
       } else {
-        alert(data.msg || "Failed to add task.");
+        toast.error(data.msg || "Failed to add Project.");
       }
     } catch (error) {
-      console.error("Error adding task:", error);
-      alert("Failed to add task. Please try again.");
+      console.error("Error adding project:", error);
+      toast.error("Failed to add project. Please try again.");
     }
   };
 
@@ -378,13 +371,11 @@ const AddNewProject = () => {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
-        // Do not set 'Content-Type' when using FormData
       },
       body: formData,
     }).then((res) => res.json());
   };
 
-  // Functions to open and close modals
   const handleCancelCustomer = () => {
     setIsCustomerModalOpen(false);
     setNewCustomerName("");
@@ -405,7 +396,6 @@ const AddNewProject = () => {
     setNewOwner("");
   };
 
-  // Functions to save new entries
   const handleSaveCustomer = async () => {
     if (!newCustomerName.trim()) {
       toast.error("Please enter a customer name");
@@ -594,7 +584,6 @@ const AddNewProject = () => {
     }
   };
 
-  // Function to reset form after successful project addition
   const resetForm = () => {
     setSelectedOwner(null);
     setSelectedCustomer(null);
@@ -613,7 +602,6 @@ const AddNewProject = () => {
     setProjectImage(null);
     setImagePreview(null);
 
-    // Reset Dropify
     if (dropifyRef.current) {
       $(dropifyRef.current).dropify().data("dropify").resetPreview();
       $(dropifyRef.current).dropify().val("");
@@ -622,6 +610,17 @@ const AddNewProject = () => {
 
   return (
     <div className="container ml-0 p-10">
+      {/* <Toaster
+        position="top-center"
+        reverseOrder={false}
+        toastOptions={{
+          style: {
+            width: "350px",
+            height: "80px",
+            fontSize: "1.2rem",
+          },
+        }}
+      /> */}
       <h1 className="total text-4xl font-bold mb-3">Add New Project</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -633,6 +632,7 @@ const AddNewProject = () => {
             type="text"
             value={projectName}
             onChange={(e) => setProjectName(e.target.value)}
+            required
             className="name border border-gray-300  rounded-md p-2 dark:bg-slate-900  w-full"
           />
         </div>
@@ -647,7 +647,10 @@ const AddNewProject = () => {
             onChange={(e) => setProjectStatus(e.target.value)}
             className="add  border border-gray-300 rounded-md p-2 text-gray-700 w-full"
           >
-            <option value="">Select status</option>
+            <option disabled selected>
+              choose
+            </option>
+
             <option value="0">Not Started</option>
             <option value="2">In Progress</option>
             <option value="4">Completed</option>
@@ -666,12 +669,10 @@ const AddNewProject = () => {
             name="branch_id"
             placeholder="Select branch"
             className="custom-select select1"
-            // styles={customSelectStyles}
             onChange={(selected) => setSelectedBranch(selected)}
           />
         </div>
 
-        {/* Services */}
         <div className="p-1 mt-4">
           <label className="total block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1 ml-6">
             Services
@@ -685,17 +686,16 @@ const AddNewProject = () => {
               placeholder="Select Services"
               name="service_ids[]"
               className="select1 custom-select flex-1"
-              // styles={customSelectStyles}
             />
 
-            <button
+            {/* <button
               onClick={() => setIsServiceModalOpen(true)}
               className="ml-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-full w-8 h-8 flex items-center justify-center"
             >
               +
-            </button>
+            </button> */}
 
-            <Dialog
+            {/* <Dialog
               open={isServiceModalOpen}
               onClose={handleCancelService}
               className="relative z-10"
@@ -747,11 +747,10 @@ const AddNewProject = () => {
                   </DialogPanel>
                 </div>
               </div>
-            </Dialog>
+            </Dialog> */}
           </div>
         </div>
 
-        {/* Project Owner */}
         <div className="p-1">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1 ml-6">
             Project Owner
@@ -767,18 +766,16 @@ const AddNewProject = () => {
               placeholder="Select or add new owner"
               className="select1 custom-select flex-1"
               name="project_owner_id"
-              // styles={customSelectStyles}
             />
-
+            {/* 
             <button
               onClick={() => setIsOwnerModalOpen(true)}
               className="ml-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-full w-8 h-8 flex items-center justify-center"
             >
               +
-            </button>
+            </button> */}
 
-            {/* Modal to add a new project owner */}
-            <Dialog
+            {/* <Dialog
               open={isOwnerModalOpen}
               onClose={handleCancelOwner}
               className="relative z-10"
@@ -830,11 +827,10 @@ const AddNewProject = () => {
                   </DialogPanel>
                 </div>
               </div>
-            </Dialog>
+            </Dialog> */}
           </div>
         </div>
 
-        {/* Customer / Contractor */}
         <div className="p-1">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1 ml-6">
             Customer / Contractor
@@ -850,19 +846,17 @@ const AddNewProject = () => {
               onChange={(selected) => setSelectedCustomer(selected)}
               placeholder="Select or add new customer"
               className="select1 custom-select flex-1"
-              // styles={customSelectStyles}
               name="customer_constructor_id"
             />
-
+            {/* 
             <button
               onClick={() => setIsCustomerModalOpen(true)}
               className="ml-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-full w-8 h-8 flex items-center justify-center"
             >
               +
-            </button>
+            </button> */}
 
-            {/* Modal to add a new customer */}
-            <Dialog
+            {/* <Dialog
               open={isCustomerModalOpen}
               onClose={handleCancelCustomer}
               className="relative z-10"
@@ -916,11 +910,10 @@ const AddNewProject = () => {
                   </DialogPanel>
                 </div>
               </div>
-            </Dialog>
+            </Dialog> */}
           </div>
         </div>
 
-        {/* Consultive/s */}
         <div className="p-1">
           <label className="block text-sm font-medium text-gray-700 ml-6">
             Consultive(s)
@@ -934,19 +927,17 @@ const AddNewProject = () => {
               onChange={(options) => setSelectedConsultives(options)}
               placeholder="Select Consultives"
               className="select1 custom-select flex-1"
-              // styles={customSelectStyles}
               name="project_consultive_ids[]"
             />
-
+            {/* 
             <button
               onClick={() => setIsConsultiveModalOpen(true)}
               className="bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-full w-8 h-8 flex items-center justify-center"
             >
               +
-            </button>
+            </button> */}
 
-            {/* Modal to add a new consultive */}
-            <Dialog
+            {/* <Dialog
               open={isConsultiveModalOpen}
               onClose={handleCancelConsultive}
               className="relative z-10"
@@ -1000,11 +991,10 @@ const AddNewProject = () => {
                   </DialogPanel>
                 </div>
               </div>
-            </Dialog>
+            </Dialog> */}
           </div>
         </div>
 
-        {/* Inspection Date */}
         <div className="p-1">
           <label className="block text-sm font-medium text-gray-700 ml-6">
             Inspection Date
@@ -1019,7 +1009,6 @@ const AddNewProject = () => {
           />
         </div>
 
-        {/* Engineer */}
         <div className="p-1">
           <label className="block text-sm font-medium text-gray-700 ml-6">
             Engineer
@@ -1038,13 +1027,11 @@ const AddNewProject = () => {
               onChange={(selected) => setSelectedEngineer(selected)}
               placeholder="Select Engineer to assign for inspection"
               className="select1 custom-select flex-1"
-              // styles={customSelectStyles}
               name="inspection_engineer_id"
             />
           </div>
         </div>
 
-        {/* Inspection Time */}
         <div className="p-1">
           <label className="block text-sm font-medium text-gray-700 ml-6">
             Inspection Time
@@ -1137,7 +1124,18 @@ const AddNewProject = () => {
           <span className="button-text font-bold">Add Project</span>
         )}
       </button>
-      <ToastContainer />
+      <ToastContainer
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
     </div>
   );
 };

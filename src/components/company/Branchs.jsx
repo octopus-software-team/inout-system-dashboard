@@ -4,8 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Cookies from "js-cookie";
-import ImportFile from "../ImportFile";
-import ExportFile from "../ExportFile";
+import ImportFile from "../ImportFile"; // إضافة المكون هنا
 
 const Branchs = () => {
   const [data, setData] = useState([]);
@@ -13,6 +12,8 @@ const Branchs = () => {
   const [sortConfig, setSortConfig] = useState({ key: "", direction: "" });
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+
+  const tableName = "branches"; // تحديد اسم الجدول
 
   useEffect(() => {
     const fetchBranches = async () => {
@@ -40,7 +41,6 @@ const Branchs = () => {
         const resData = await response.json();
 
         if (resData.status === 200 && resData.data) {
-          console.log(resData);
           setData(resData.data);
         } else {
           toast.error(resData.msg || "No data found.");
@@ -54,14 +54,47 @@ const Branchs = () => {
     fetchBranches();
   }, []);
 
-  useEffect(() => {
-    console.log(data);
-  }, []);
+  const handleExportFile = async () => {
+    const formData = new FormData();
+    formData.append("table", tableName);
+
+    const token = Cookies.get("token");
+
+    try {
+      const response = await fetch(
+        "https://inout-api.octopusteam.net/api/front/export",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to export file");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+
+      link.download = `${tableName}.xlsx`;
+      document.body.appendChild(link);
+      link.click();
+
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error exporting file:", error);
+    }
+  };
 
   const handleDelete = (id) => {
     const token = Cookies.get("token");
 
-    // Display confirmation toast
     const confirmToast = toast(
       <div>
         <p>Are you sure you want to delete this branch?</p>
@@ -73,7 +106,7 @@ const Branchs = () => {
             Yes
           </button>
           <button
-            onClick={() => toast.dismiss(confirmToast)} // Close toast if "No" is selected
+            onClick={() => toast.dismiss(confirmToast)}
             className="bg-gray-600 text-white py-1 px-4 rounded-lg"
           >
             No
@@ -105,14 +138,14 @@ const Branchs = () => {
       if (resData.status === 200) {
         toast.success(resData.msg || "Branch deleted successfully.");
         setData((prevData) => prevData.filter((branch) => branch.id !== id));
-        toast.dismiss(confirmToast); // Close confirmation toast
+        toast.dismiss(confirmToast);
       } else {
         toast.error(resData.msg || "Failed to delete branch.");
       }
     } catch (err) {
       console.error("Error deleting branch:", err);
       toast.error("An error occurred while deleting the branch.");
-      toast.dismiss(confirmToast); // Close confirmation toast
+      toast.dismiss(confirmToast);
     }
   };
 
@@ -157,10 +190,17 @@ const Branchs = () => {
         </Link>
 
         <button
-          onClick={setOpen}
+          onClick={() => setOpen(true)}
           className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
         >
           Import
+        </button>
+
+        <button
+          onClick={handleExportFile}
+          className="px-6 py-3 bg-green-500 text-white rounded-lg shadow-md hover:bg-green-600 transition duration-300 ease-in-out transform hover:scale-105"
+        >
+          Export
         </button>
 
         {open && (
@@ -176,8 +216,7 @@ const Branchs = () => {
                 Import File
               </h2>
               <div className="flex flex-col items-center space-y-4">
-                <ImportFile tableName="tasks" />
-                <ExportFile tableName="tasks" />
+                <ImportFile tableName={tableName} /> {/* استدعاء مكون الاستيراد هنا */}
               </div>
             </div>
           </div>
@@ -279,7 +318,7 @@ const Branchs = () => {
         pauseOnFocusLoss
         draggable
         pauseOnHover
-        style={{ zIndex: 9999 }} // Ensure toast appears above other elements
+        style={{ zIndex: 9999 }} 
       />
     </div>
   );

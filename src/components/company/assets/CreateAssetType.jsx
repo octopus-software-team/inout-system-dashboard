@@ -1,24 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
-import { toast } from "sonner";
+import { toast, Toaster } from "sonner";
 
 const CreateAssetType = () => {
-  const [assetTypes, setAssetTypes] = useState([]); // بيانات الأنواع
-  const [newType, setNewType] = useState(""); // نوع جديد يُضاف
-  const [message, setMessage] = useState(""); // رسالة نجاح أو خطأ
+  const [assetTypes, setAssetTypes] = useState([]);
+  const [newType, setNewType] = useState("");
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = Cookies.get("token"); // جلب التوكن
+    const token = Cookies.get("token"); 
 
-    // طلب البيانات من API لجلب الأنواع
     fetch("https://inout-api.octopusteam.net/api/front/getAssetTypes", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`, // التوكن في الهيدر
+        Authorization: `Bearer ${token}`, 
       },
     })
       .then((res) => {
@@ -30,28 +28,27 @@ const CreateAssetType = () => {
       .then((resData) => {
         if (resData.status === 200) {
           setAssetTypes(resData.data);
+          toast.success("Asset types loaded successfully!");
         } else {
-          setMessage("Failed to load asset types.");
+          toast.error("Failed to load asset types.");
         }
       })
       .catch((err) => {
         console.error("Error fetching asset types:", err);
-        setMessage("Error loading data.");
-        toast.success('My success toast');
+        toast.error("An error occurred while loading data.");
         navigate("/company/assets/assetstype");
       });
   }, [navigate]);
 
   const handleSubmit = (e) => {
-    e.preventDefault(); // منع التحديث الافتراضي للنموذج
-    const token = Cookies.get("token"); // جلب التوكن
+    e.preventDefault(); 
+    const token = Cookies.get("token"); // Get token
 
-    // إرسال نوع جديد إلى API
     fetch("https://inout-api.octopusteam.net/api/front/addAssetType", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`, // التوكن في الهيدر
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
         name: newType,
@@ -65,17 +62,17 @@ const CreateAssetType = () => {
       })
       .then((resData) => {
         if (resData.status === 200) {
-          setMessage("Asset type added successfully.");
-          setAssetTypes([...assetTypes, resData.data]); // إضافة النوع الجديد إلى القائمة
-          setNewType(""); // مسح الحقل بعد الإضافة
-          navigate("/company/assets/assetstype"); // التنقل إلى الصفحة المطلوبة
+          toast.success("Asset type added successfully.");
+          setAssetTypes([...assetTypes, resData.data]); // Add new type to list
+          setNewType(""); // Clear input field after addition
+          navigate("/company/assets/assetstype"); // Navigate to desired page
         } else {
-          setMessage("Failed to add asset type.");
+          toast.error("Failed to add asset type.");
         }
       })
       .catch((err) => {
         console.error("Error adding asset type:", err);
-        setMessage("Error adding asset type.");
+        toast.error("An error occurred while adding the asset type.");
       });
   };
 
@@ -86,9 +83,9 @@ const CreateAssetType = () => {
           Create Asset Type
         </h2>
 
-        {/* الفورم لإضافة نوع جديد */}
+        {/* Form to add a new type */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* حقل إدخال النوع الجديد */}
+          {/* Input field for new type */}
           <div className="mb-4">
             <label
               className="block text-gray-700 text-sm font-bold mb-2"
@@ -107,7 +104,7 @@ const CreateAssetType = () => {
             />
           </div>
 
-          {/* زر الإضافة */}
+          {/* Submit button */}
           <div className="flex items-center justify-between">
             <button
               type="submit"
@@ -117,13 +114,19 @@ const CreateAssetType = () => {
             </button>
           </div>
         </form>
-
-        {message && (
-          <p className="mt-4 text-center text-green-600 font-semibold">
-            {message}
-          </p>
-        )}
       </div>
+      {/* Toaster for notifications */}
+      <Toaster
+        position="top-right"
+        richColors={true}
+        closeButton
+        customStyles={{
+          // Custom styles to increase size
+          "--sonner-toast-width": "350px",
+          "--sonner-toast-height": "80px",
+          "--sonner-toast-font-size": "1.2rem",
+        }}
+      />
     </div>
   );
 };

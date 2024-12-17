@@ -28,8 +28,6 @@ const AddEngineer = () => {
 
   const [branches, setBranches] = useState([]);
   const [specialties, setSpecialties] = useState([]);
-  const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const [errors, setErrors] = useState({});
@@ -61,9 +59,12 @@ const AddEngineer = () => {
         const result = await response.json();
         if (result.status === 200) {
           setBranches(result.data);
+        } else {
+          toast.error(result.msg || "Failed to load branches.");
         }
       } catch (error) {
         console.error("Error fetching branches:", error);
+        toast.error("Failed to load branches. Please try again.");
       }
     };
 
@@ -81,9 +82,12 @@ const AddEngineer = () => {
         const result = await response.json();
         if (result.status === 200) {
           setSpecialties(result.data);
+        } else {
+          toast.error(result.msg || "Failed to load specialties.");
         }
       } catch (error) {
         console.error("Error fetching specialties:", error);
+        toast.error("Failed to load specialties. Please try again.");
       }
     };
 
@@ -122,14 +126,12 @@ const AddEngineer = () => {
       setFormData({ ...formData, [id]: value });
     }
 
-    // Clear error for this field when user modifies it
     setErrors((prevErrors) => ({ ...prevErrors, [id]: "" }));
   };
 
   const validateForm = () => {
     let newErrors = {};
 
-    // Required fields check
     const requiredFields = [
       "full_name",
       "email",
@@ -152,16 +154,10 @@ const AddEngineer = () => {
       }
     });
 
-    // Email validation
     if (formData.email && !formData.email.includes("@")) {
       newErrors.email = "Please enter a valid email address.";
     }
 
-    if (formData.email && !formData.email.includes("@")) {
-      newErrors.email = "Please enter a valid email address.";
-    }
-
-    // Password confirmation validation
     if (
       formData.password &&
       formData.password_confirmation &&
@@ -170,31 +166,28 @@ const AddEngineer = () => {
       newErrors.password_confirmation = "Passwords do not match.";
     }
 
-    // Contract duration validation
     if (formData.contract_duration && formData.contract_duration <= 0) {
       newErrors.contract_duration = "Duration must be a positive number.";
     }
 
-    // Return true if no errors
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
 
-    // if (!validateForm()) {
-    //   setLoading(false);
-    //   return;
-    // }
+    if (!validateForm()) {
+      toast.error("Please fix the errors in the form.");
+      return;
+    }
+
+    const formDataToSend = new FormData();
+    Object.entries(formData).forEach(([key, value]) => {
+      formDataToSend.append(key, value);
+    });
 
     try {
-      const formDataToSend = new FormData();
-      Object.entries(formData).forEach(([key, value]) => {
-        formDataToSend.append(key, value);
-      });
-
       const response = await fetch(
         "https://inout-api.octopusteam.net/api/front/addEmployee",
         {
@@ -209,9 +202,11 @@ const AddEngineer = () => {
       const result = await response.json();
 
       if (result.status === 200) {
-        alert("Added Successfully");
+        toast.success("Engineer added successfully.");
 
-        navigate("/company/employees");
+        setTimeout(() => {
+          navigate("/company/employees");
+        }, 2000);
 
         setFormData({
           full_name: "",
@@ -227,22 +222,24 @@ const AddEngineer = () => {
           image: null,
           experience: "",
           contract_start_date: "",
-          contract_duration: "",
           contract_end_date: "",
           type: 0,
         });
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
+      } else {
+        if (result.msg) {
+          toast.error(result.msg);
+        } else if (result.data) {
+          Object.values(result.data).forEach((errorMsg) => {
+            toast.error(errorMsg);
+          });
+        } else {
+          toast.error("Failed to add engineer. Please try again.");
+        }
       }
-
-      setErrors(result.data);
     } catch (error) {
       console.error(error);
-      setMessage("Error occurred while saving. Please check your input.");
+      toast.error("Error occurred while saving. Please check your input.");
     }
-
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -252,12 +249,6 @@ const AddEngineer = () => {
   return (
     <div className="mx-auto p-6">
       <h1 className="text-2xl text-gray-900 font-bold mb-6">Add Employee</h1>
-
-      {message && (
-        <div className="mb-4 p-3 text-white bg-blue-500 rounded-lg">
-          {message}
-        </div>
-      )}
 
       <form
         className="grid grid-cols-1 md:grid-cols-2 gap-6"
@@ -273,7 +264,7 @@ const AddEngineer = () => {
             value={formData.full_name}
             onChange={handleChange}
             placeholder="Engineer Name"
-            className="p-2  dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-2 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.full_name && (
             <span className="text-red-500 text-xs">{errors.full_name}</span>
@@ -290,7 +281,7 @@ const AddEngineer = () => {
             value={formData.email}
             onChange={handleChange}
             placeholder="email@example.com"
-            className="p-2  dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-2 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.email && (
             <span className="text-red-500 text-xs">{errors.email}</span>
@@ -307,7 +298,7 @@ const AddEngineer = () => {
             value={formData.password}
             onChange={handleChange}
             placeholder="password"
-            className="p-2  dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-2 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.password && (
             <span className="text-red-500 text-xs">{errors.password}</span>
@@ -327,7 +318,7 @@ const AddEngineer = () => {
             value={formData.password_confirmation}
             onChange={handleChange}
             placeholder="password_confirmation"
-            className="p-2  dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-2 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.password_confirmation && (
             <span className="text-red-500 text-xs">
@@ -349,7 +340,7 @@ const AddEngineer = () => {
             value={formData.contract_duration}
             onChange={handleChange}
             placeholder="duration"
-            className="p-2  dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-2 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.contract_duration && (
             <span className="text-red-500 text-xs">
@@ -368,7 +359,7 @@ const AddEngineer = () => {
             value={formData.phone}
             onChange={handleChange}
             placeholder="Phone Number"
-            className="p-2  dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-2 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.phone && (
             <span className="text-red-500 text-xs">{errors.phone}</span>
@@ -383,7 +374,7 @@ const AddEngineer = () => {
             id="branch_id"
             value={formData.branch_id}
             onChange={handleChange}
-            className="p-2  dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-2 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Select Branch</option>
             {branches.map((branch) => (
@@ -408,7 +399,7 @@ const AddEngineer = () => {
             id="employee_special_id"
             value={formData.employee_special_id}
             onChange={handleChange}
-            className="p-2  dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-2 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Select Specialty</option>
             {specialties.map((specialty) => (
@@ -436,7 +427,7 @@ const AddEngineer = () => {
             id="date_of_birth"
             value={formData.date_of_birth}
             onChange={handleChange}
-            className="p-2  dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-2 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.date_of_birth && (
             <span className="text-red-500 text-xs">{errors.date_of_birth}</span>
@@ -451,11 +442,11 @@ const AddEngineer = () => {
             id="gender"
             value={formData.gender}
             onChange={handleChange}
-            className="p-2  dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-2 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Select Gender</option>
-            <option value="0">male</option>
-            <option value="1">female</option>
+            <option value="0">Male</option>
+            <option value="1">Female</option>
           </select>
           {errors.gender && (
             <span className="text-red-500 text-xs">{errors.gender}</span>
@@ -475,7 +466,7 @@ const AddEngineer = () => {
             value={formData.experience}
             onChange={handleChange}
             placeholder="Experience"
-            className="p-2  dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-2 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.experience && (
             <span className="text-red-500 text-xs">{errors.experience}</span>
@@ -495,7 +486,7 @@ const AddEngineer = () => {
             value={formData.contract_start_date}
             onChange={handleChange}
             onBlur={() => formatDate(formData.contract_start_date)}
-            className="p-2  dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-2 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.contract_start_date && (
             <span className="text-red-500 text-xs">
@@ -507,7 +498,7 @@ const AddEngineer = () => {
         <div className="flex flex-col">
           <label
             htmlFor="contract_end_date"
-            className=" font-medium text-gray-700"
+            className="font-medium text-gray-700"
           >
             Contract End Date
           </label>
@@ -517,7 +508,7 @@ const AddEngineer = () => {
             value={formData.contract_end_date}
             onChange={handleChange}
             onBlur={() => formatDate(formData.contract_end_date)}
-            className="p-2  dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-2 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.contract_end_date && (
             <span className="text-red-500 text-xs">
@@ -534,10 +525,11 @@ const AddEngineer = () => {
             id="type"
             value={formData.type}
             onChange={handleChange}
-            className="w-full  dark:text-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full dark:text-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="0">Engineer</option>
             <option value="1">Employee</option>
+            <option value="2">Worker</option>
           </select>
         </div>
 
@@ -558,15 +550,26 @@ const AddEngineer = () => {
         <div className="mt-4 md:col-span-2">
           <button
             type="submit"
-            className="bg-blue-500 w-full text-white px-6 py-2 rounded-lg"
-            disabled={loading}
+            className="bg-blue-500 w-full text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition duration-300"
+            disabled={false} 
           >
-            {loading ? "Saving..." : "Save Engineer"}
+            Save 
           </button>
         </div>
       </form>
 
-      <ToastContainer />
+      <ToastContainer
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
     </div>
   );
 };

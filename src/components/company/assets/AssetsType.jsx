@@ -1,20 +1,24 @@
 import React, { useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
-import Cookies from 'js-cookie';
+import Cookies from "js-cookie";
+import { toast, Toaster } from "sonner";
+
 const AddServices = () => {
-  const [data, setData] = useState([]); // بيانات الأصول
-  const [search, setSearch] = useState(""); // البحث
-  const [error, setError] = useState(null); // الخطأ
-  const [isLoading, setIsLoading] = useState(true); // حالة التحميل
+  const [data, setData] = useState([]);
+  const [search, setSearch] = useState("");
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = Cookies.get('token'); // جلب التوكن من localStorage
+    const token = Cookies.get("token");
 
     if (!token) {
-      console.log("No token found, cannot fetch asset types.");
+      toast.error("No token found. Please log in.");
       setError("No token found. Please log in.");
       setIsLoading(false);
       return;
@@ -24,7 +28,7 @@ const AddServices = () => {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`, // التوكن في الهيدر
+        Authorization: `Bearer ${token}`,
       },
     })
       .then((res) => {
@@ -35,17 +39,18 @@ const AddServices = () => {
       })
       .then((resData) => {
         if (resData && resData.status === 200) {
-          setData(resData.data); // حفظ البيانات في الحالة
+          setData(resData.data);
         } else {
           setError("No data found in the response.");
         }
       })
       .catch((err) => {
         console.error("Error fetching asset types:", err);
+        toast.error("Failed to fetch data. Please try again later.");
         setError("Failed to fetch data. Please try again later.");
       })
       .finally(() => {
-        setIsLoading(false); // إنهاء حالة التحميل
+        setIsLoading(false);
       });
   }, []);
 
@@ -54,41 +59,53 @@ const AddServices = () => {
     navigate(`/company/assets/updateassettype`, { state: selectedService });
   };
 
-  const handleDelete = (id) => {
-    const token = Cookies.get('token'); 
+  const openConfirmModal = (id) => {
+    setDeleteId(id);
+    setIsConfirmOpen(true);
+  };
+
+  const closeConfirmModal = () => {
+    setDeleteId(null);
+    setIsConfirmOpen(false);
+  };
+
+  const confirmDelete = () => {
+    const token = Cookies.get("token");
 
     if (!token) {
-      alert("No token found. Please log in.");
+      toast.error("No token found. Please log in.");
+      closeConfirmModal();
       return;
     }
 
-    if (window.confirm("Are you sure you want to delete this asset type?")) {
-      fetch(`https://inout-api.octopusteam.net/api/front/deleteAssetType/${id}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // إرسال التوكن في الهيدر
-        },
+    fetch(`https://inout-api.octopusteam.net/api/front/deleteAssetType/${deleteId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to delete asset type.");
+        }
+        return res.json();
       })
-        .then((res) => {
-          if (!res.ok) {
-            throw new Error("Failed to delete asset type.");
-          }
-          return res.json();
-        })
-        .then((resData) => {
-          if (resData.status === 200) {
-            setData(data.filter((item) => item.id !== id)); // تحديث البيانات المحلية
-            alert(resData.msg || "Asset type deleted successfully.");
-          } else {
-            alert("Failed to delete asset type.");
-          }
-        })
-        .catch((err) => {
-          console.error("Error deleting asset type:", err);
-          alert("Error deleting asset type. Please try again.");
-        });
-    }
+      .then((resData) => {
+        if (resData.status === 200) {
+          setData(data.filter((item) => item.id !== deleteId));
+          toast.success(resData.msg || "Asset type deleted successfully.");
+        } else {
+          toast.error("Failed to delete asset type.");
+        }
+      })
+      .catch((err) => {
+        console.error("Error deleting asset type:", err);
+        toast.error("Error deleting asset type. Please try again.");
+      })
+      .finally(() => {
+        closeConfirmModal();
+      });
   };
 
   return (
@@ -139,11 +156,11 @@ const AddServices = () => {
             </thead>
             <tbody>
               {data
-                .filter((i) => {
-                  return search.toLowerCase() === ""
+                .filter((i) =>
+                  search.toLowerCase() === ""
                     ? i
-                    : i.name.toLowerCase().includes(search.toLowerCase());
-                })
+                    : i.name.toLowerCase().includes(search.toLowerCase())
+                )
                 .map((d, index) => (
                   <tr
                     key={d.id}
@@ -151,8 +168,12 @@ const AddServices = () => {
                       index % 2 === 0 ? "bg-gray-50" : "bg-white"
                     }`}
                   >
-                    <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">{d.id}</td>
-                    <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">{d.name}</td>
+                    <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">
+                      {d.id}
+                    </td>
+                    <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">
+                      {d.name}
+                    </td>
                     <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-right space-x-2">
                       <button
                         onClick={() => handleEdit(d.id)}
@@ -162,7 +183,7 @@ const AddServices = () => {
                         Edit
                       </button>
                       <button
-                        onClick={() => handleDelete(d.id)}
+                        onClick={() => openConfirmModal(d.id)}
                         className="bg-red-600 text-white font-semibold py-2 px-4 rounded-lg hover:shadow-md transform hover:scale-105 transition duration-300"
                       >
                         <FaTrash className="inline mr-2" />
@@ -175,6 +196,40 @@ const AddServices = () => {
           </table>
         </div>
       )}
+
+      {isConfirmOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 w-80">
+            <h3 className="text-xl font-semibold mb-4">Confirm Deletion</h3>
+            <p className="mb-6">Are you sure you want to delete this asset type?</p>
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={confirmDelete}
+                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition duration-300"
+              >
+                Yes
+              </button>
+              <button
+                onClick={closeConfirmModal}
+                className="bg-gray-300 dark:bg-slate-700 text-gray-800 dark:text-white px-4 py-2 rounded-lg hover:bg-gray-400 dark:hover:bg-slate-600 transition duration-300"
+              >
+                No
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <Toaster
+        position="top-right"
+        richColors={true}
+        closeButton
+        customStyles={{
+          "--sonner-toast-width": "350px",
+          "--sonner-toast-height": "80px",
+          "--sonner-toast-font-size": "1.2rem",
+        }}
+      />
     </div>
   );
 };

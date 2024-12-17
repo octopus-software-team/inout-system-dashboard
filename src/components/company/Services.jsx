@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Cookies from 'js-cookie';
+import ImportFile from "../ImportFile"; // إضافة المكون هنا
 
 
 const AddServices = () => {
@@ -14,6 +15,11 @@ const AddServices = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+
+  const tableName = "servicesD"; // تحديد اسم الجدول
+
+
+
 
   useEffect(() => {
     const token = Cookies.get('token');
@@ -83,6 +89,10 @@ const AddServices = () => {
     }
     return "";
   };
+
+
+
+  
 
   const handleEdit = (id) => {
     const selectedService = data.find((service) => service.id === id);

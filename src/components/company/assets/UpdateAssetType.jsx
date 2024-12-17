@@ -1,26 +1,24 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import Cookies from 'js-cookie';
-
+import Cookies from "js-cookie";
+import { toast, Toaster } from "sonner";
 
 const UpdateAssetType = () => {
-  const location = useLocation(); // لاستقبال البيانات من الجدول
-  const navigate = useNavigate(); // للتنقل بعد التحديث
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  const [assetType, setAssetType] = useState({ id: "", name: "" }); // بيانات نوع الأصل
-  const [message, setMessage] = useState(""); // رسالة نجاح أو خطأ
+  const [assetType, setAssetType] = useState({ id: "", name: "" });
 
   useEffect(() => {
     if (location.state) {
-      setAssetType(location.state); // تعبئة البيانات المستلمة في الفورم
+      setAssetType(location.state);
     }
   }, [location.state]);
 
   const handleUpdate = (e) => {
     e.preventDefault();
-    const token = Cookies.get('token');
+    const token = Cookies.get("token");
 
-    // إرسال الطلب لتحديث البيانات
     fetch(
       `https://inout-api.octopusteam.net/api/front/updateAssetType/${assetType.id}`,
       {
@@ -40,17 +38,17 @@ const UpdateAssetType = () => {
       })
       .then((resData) => {
         if (resData.status === 200) {
-          setMessage("Asset type updated successfully.");
+          toast.success("Asset type updated successfully.");
           setTimeout(() => {
-            navigate("/company/assets/assetstype"); // العودة إلى الجدول الأساسي
-          }, 1500); // الانتظار قليلاً قبل العودة
+            navigate("/company/assets/assetstype");
+          }, 1500);
         } else {
-          setMessage("Failed to update asset type.");
+          toast.error("Failed to update asset type.");
         }
       })
       .catch((err) => {
         console.error("Error updating asset type:", err);
-        setMessage("Error updating asset type.");
+        toast.error("Error updating asset type.");
       });
   };
 
@@ -62,7 +60,6 @@ const UpdateAssetType = () => {
         onSubmit={handleUpdate}
         className="service shadow-md rounded-lg px-8 pt-6 pb-8 mb-4"
       >
-        {/* حقل إدخال الاسم */}
         <div className="mb-4">
           <label
             className="block text-gray-700 text-sm font-bold mb-2"
@@ -83,7 +80,6 @@ const UpdateAssetType = () => {
           />
         </div>
 
-        {/* زر التحديث */}
         <div className="flex items-center justify-between">
           <button
             type="submit"
@@ -93,11 +89,16 @@ const UpdateAssetType = () => {
           </button>
         </div>
       </form>
-
-      {/* رسالة نجاح أو خطأ */}
-      {message && (
-        <p className="mt-4 text-center text-green-600 font-semibold">{message}</p>
-      )}
+      <Toaster
+        position="top-right"
+        richColors={true}
+        closeButton
+        customStyles={{
+          "--sonner-toast-width": "350px",
+          "--sonner-toast-height": "80px",
+          "--sonner-toast-font-size": "1.2rem",
+        }}
+      />
     </div>
   );
 };
