@@ -38,12 +38,14 @@
   }
 }
 
-
-
 @layer base {
   .select1 {
     @apply dark:!bg-slate-900;
   }
+}
+
+.select1 {
+  background: white;
 }
 
 @layer base {
@@ -76,7 +78,6 @@ code {
 
 .service {
   background-color: white !important;
-  
 }
 
 @layer base {
@@ -194,18 +195,97 @@ h2 {
   display: none !important;
 }
 
-.css-hlgwow, .css-w1w90w-control {
+.css-hlgwow,
+.css-w1w90w-control,
+.css-1nmdiq5-menu {
   @apply dark:!bg-slate-900  !bg-white !text-gray-900 dark:!text-white;
 }
+
+
 
 .css-7crn4c-singleValue {
   @apply !text-gray-900 dark:!text-white;
 }
-.container{
-@apply p-6
+.container {
+  @apply p-6;
 }
 
-
-.file-icon>p {
+.file-icon > p {
   font-size: medium;
 }
+
+.css-13cymwt-control {
+  @apply dark:!bg-slate-900;
+}
+
+.css-1nmdiq5-menu >* {
+  @apply hover:!bg-[#03071a] hover:!bg-opacity-50 dark:!text-white 
+}
+.css-1nmdiq5-menu >* >* {
+  @apply hover:!bg-[#03071a] hover:!bg-opacity-50 dark:!text-white
+}
+
+/* App.css */
+
+/* Dark Mode Overrides for react-select */
+.dark .react-select__control {
+  background-color: #1e293b !important; /* slate-900 */
+  color: #ffffff !important;
+  border-color: #374151 !important; /* slate-700 */
+}
+
+.dark .react-select__control:hover {
+  border-color: #374151 !important;
+}
+
+.dark .react-select__menu {
+  background-color: #1e293b !important; /* slate-900 */
+  color: #ffffff !important;
+}
+
+.dark .react-select__option {
+  background-color: transparent !important;
+  color: #ffffff !important;
+}
+
+.dark .react-select__option--is-focused {
+  background-color: #374151 !important; /* slate-700 */
+  color: #ffffff !important;
+}
+
+.dark .react-select__option--is-selected {
+  background-color: #475569 !important; /* slate-600 */
+  color: #ffffff !important;
+}
+
+.dark .react-select__single-value {
+  color: #ffffff !important;
+}
+
+.dark .react-select__placeholder {
+  color: #9ca3af !important; /* slate-400 */
+}
+
+.dark .react-select__multi-value {
+  background-color: #374151 !important; /* slate-700 */
+}
+
+.dark .react-select__multi-value__label {
+  color: #ffffff !important;
+}
+
+.dark .react-select__multi-value__remove {
+  color: #9ca3af !important; /* slate-400 */
+}
+
+.dark .react-select__dropdown-indicator {
+  color: #9ca3af !important; /* slate-400 */
+}
+
+.dark .react-select__indicator-separator {
+  background-color: #374151 !important; /* slate-700 */
+}
+
+/* .css-13cymwt-control {
+  @apply 
+} */

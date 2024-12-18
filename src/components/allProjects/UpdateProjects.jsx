@@ -6,12 +6,30 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import icon from "leaflet/dist/images/marker-icon.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+// import { ToastContainer, toast } from "react-toastify";
+// import "react-toastify/dist/ReactToastify.css";
+
+import { Toaster, toast } from "sonner";
+
+// إعداد أيقونات Leaflet إذا لزم الأمر
+let DefaultIcon = L.icon({
+  iconUrl: icon,
+  shadowUrl: iconShadow,
+  iconAnchor: [12, 41],
+});
+L.Marker.prototype.options.icon = DefaultIcon;
 
 const UpdateProject = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const [branches, setBranches] = useState([]);
+  const [owners, setOwners] = useState([]);
+  const [customers, setCustomers] = useState([]);
+  const [engineers, setEngineers] = useState([]);
+  const [projectStatus, setProjectStatus] = useState("");
 
   const [formData, setFormData] = useState({
     id: "",
@@ -42,14 +60,7 @@ const UpdateProject = () => {
     ) : null;
   };
 
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  const [branches, setBranches] = useState([]);
-  const [owners, setOwners] = useState([]);
-  const [customers, setCustomers] = useState([]);
-  const [engineers, setEngineers] = useState([]);
-  const [projectStatus, setProjectStatus] = useState("");
+  // const notify = (msg) => toast(msg);
 
   useEffect(() => {
     const token = Cookies.get("token");
@@ -61,15 +72,13 @@ const UpdateProject = () => {
 
     const fetchData = async () => {
       try {
+        setLoading(true);
         // Fetch project data
         const projectsRes = await fetch(
           "https://inout-api.octopusteam.net/api/front/getProjects",
           {
             method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
+            headers: { Authorization: `Bearer ${token}` },
           }
         );
         const projectsData = await projectsRes.json();
@@ -83,95 +92,47 @@ const UpdateProject = () => {
           throw new Error("Project not found");
         }
 
-        const branchesRes = await fetch(
-          `https://inout-api.octopusteam.net/api/front/getBranches`,
-          {
-            method: "GET",
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        const branchesData = await branchesRes.json();
-        if (branchesData.status !== 200) {
-          throw new Error(branchesData.msg || "Failed to fetch branches.");
-        }
+        // Fetch other necessary data (branches, owners, customers, engineers)
+        const [branchesRes, ownersRes, customersRes, engineersRes] =
+          await Promise.all([
+            fetch("https://inout-api.octopusteam.net/api/front/getBranches", {
+              method: "GET",
+              headers: { Authorization: `Bearer ${token}` },
+            }),
+            fetch("https://inout-api.octopusteam.net/api/front/getCustomers", {
+              method: "GET",
+              headers: { Authorization: `Bearer ${token}` },
+            }),
+            fetch("https://inout-api.octopusteam.net/api/front/getCustomers", {
+              method: "GET",
+              headers: { Authorization: `Bearer ${token}` },
+            }),
+            fetch("https://inout-api.octopusteam.net/api/front/getEngineers", {
+              method: "GET",
+              headers: { Authorization: `Bearer ${token}` },
+            }),
+          ]);
 
-        const ownersRes = await fetch(
-          "https://inout-api.octopusteam.net/api/front/getCustomers",
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        const ownersData = await ownersRes.json();
-        if (ownersData.status !== 200) {
-          throw new Error(ownersData.msg || "Failed to fetch owners.");
-        }
-
-        // Fetch customers
-        const customersRes = await fetch(
-          "https://inout-api.octopusteam.net/api/front/getCustomers",
-          {
-            method: "GET",
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        const customersDataRes = await customersRes.json();
-        if (customersDataRes.status !== 200) {
-          throw new Error(customersDataRes.msg || "Failed to fetch customers.");
-        }
-
-        // Fetch engineers
-        const engineersRes = await fetch(
-          "https://inout-api.octopusteam.net/api/front/getEngineers",
-          {
-            method: "GET",
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        const engineersDataRes = await engineersRes.json();
-        if (engineersDataRes.status !== 200) {
-          throw new Error(engineersDataRes.msg || "Failed to fetch engineers.");
-        }
+        const [branchesData, ownersData, customersData, engineersData] =
+          await Promise.all([
+            branchesRes.json(),
+            ownersRes.json(),
+            customersRes.json(),
+            engineersRes.json(),
+          ]);
 
         setBranches(branchesData.data);
         setOwners(ownersData.data);
-        setCustomers(customersDataRes.data);
-        setEngineers(engineersDataRes.data);
+        setCustomers(customersData.data);
+        setEngineers(engineersData.data);
 
-        const {
-          id: projectId,
-          name,
-          branch_id,
-          project_owner_id,
-          customer_constructor_id,
-          inspection_date,
-          inspection_time,
-          notes,
-          status,
-          inspection_engineer_id,
-          longitude,
-          latitude,
-        } = project;
-
-        setFormData({
-          id: projectId || "",
-          name: name || "",
-          branch_id: branch_id || "",
-          project_owner_id: project_owner_id || "",
-          customer_constructor_id: customer_constructor_id || "",
-          inspection_date: inspection_date || "",
-          inspection_time: inspection_time || "",
-          notes: notes || "",
-          status: status !== undefined ? status : "",
-          inspection_engineer_id: inspection_engineer_id || "",
-          longitude: longitude || "45.0792", // Default longitude
-          latitude: latitude || "23.8859", // Default latitude
-        });
+        setFormData((prev) => ({
+          ...prev,
+          ...project,
+          latitude: project.latitude || "23.8859",
+          longitude: project.longitude || "45.0792",
+        }));
       } catch (err) {
-        console.error(err);
         setError(err.message || "An unexpected error occurred.");
       } finally {
         setLoading(false);
@@ -186,18 +147,22 @@ const UpdateProject = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-
   const handleSubmit = async (e) => {
-    const token = Cookies.get("token");
     e.preventDefault();
-  
+    const token = Cookies.get("token");
+
+    if (!token) {
+      toast.error("No token found. Please log in.");
+      return;
+    }
+
     if (!formData.name) {
       toast.error("Please enter the project name");
       return;
     }
-  
-    setLoading(true);
-  
+
+    // setLoading(true);
+
     const data = new FormData();
     data.append("id", formData.id);
     data.append("name", formData.name);
@@ -211,7 +176,7 @@ const UpdateProject = () => {
     data.append("inspection_engineer_id", formData.inspection_engineer_id);
     data.append("longitude", formData.longitude);
     data.append("latitude", formData.latitude);
-  
+
     try {
       const response = await fetch(
         `https://inout-api.octopusteam.net/api/front/updateProject/${id}`,
@@ -223,16 +188,12 @@ const UpdateProject = () => {
           body: data,
         }
       );
-  
-      const res = await response.json(); // Make sure to parse the response to JSON
-  
-      if (res.status === 200) {
-        toast.success("Project updated successfully.");
-        setTimeout(() => {
-          navigate("/allprojects/showallprojects");
-        }, 2000);
-      } else {
-        toast.error(res.msg || "Failed to update Project.");
+
+      const res = await response.json();
+
+      if (res.ok) {
+        toast.success("Event has been created");
+        navigate("/allprojects/showallprojects");
       }
     } catch (error) {
       console.error("Error updating project:", error);
@@ -241,19 +202,16 @@ const UpdateProject = () => {
       setLoading(false);
     }
   };
-  
 
-  // ... (بقية الكود بدون تغيير)
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-xl font-semibold text-gray-700 dark:text-gray-300">
-          Loading...
-        </div>
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="flex items-center justify-center h-screen">
+  //       <div className="text-xl font-semibold text-gray-700 dark:text-gray-300">
+  //         Loading...
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   if (error) {
     return (
@@ -264,13 +222,23 @@ const UpdateProject = () => {
   }
 
   return (
-    <div className="service container mx-auto p-6  dark:bg-slate-800 shadow-md rounded-lg max-w-2xl mt-10">
-      <h2 className="text-center font-bold text-3xl mb-6 text-gray-800 dark:text-white">
-        Update Project
-      </h2>
-      <form onSubmit={handleSubmit} className="space-y-6">
+    <>
+      {loading ? (
+        <div className="flex items-center justify-center w-full h-full text-xl">
+          <p>loading...</p>
+        </div>
+      ) : (
+        <div className="service container mx-auto p-6 dark:bg-slate-800 shadow-md rounded-lg max-w-2xl mt-10">
+          <Toaster position="top-center" richColors />
+
+          <h2 className="text-center font-bold text-3xl mb-6 text-gray-800 dark:text-white">
+            Update Project
+          </h2>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* يمكنك إظهار الـ ID إذا رغبت */}
+            {/* 
         <div>
-          {/* <label
+          <label
             htmlFor="id"
             className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
           >
@@ -283,257 +251,248 @@ const UpdateProject = () => {
             value={formData.id}
             className="w-full bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2"
             disabled
-          /> */}
-        </div>
-
-        {/* Project Name */}
-        <div>
-          <label
-            htmlFor="name"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-          >
-            Project Name <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            required
-            className="w-full dark:bg-slate-700 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
           />
         </div>
+        */}
 
-        {/* Inspection Date */}
-        <div>
-          <label
-            htmlFor="inspection_date"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-          >
-            Inspection Date
-          </label>
-          <input
-            type="date"
-            id="inspection_date"
-            name="inspection_date"
-            value={formData.inspection_date}
-            onChange={handleChange}
-            className="w-full dark:bg-slate-700 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
-          />
-        </div>
-
-        {/* Inspection Time */}
-        <div>
-          <label
-            htmlFor="inspection_time"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-          >
-            Inspection Time
-          </label>
-          <input
-            type="time"
-            id="inspection_time"
-            name="inspection_time"
-            value={formData.inspection_time}
-            onChange={handleChange}
-            className="w-full dark:bg-slate-700 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
-          />
-        </div>
-
-        <div>
-          <label
-            htmlFor="notes"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-          >
-            Notes
-          </label>
-          <textarea
-            id="notes"
-            name="notes"
-            value={formData.notes}
-            onChange={handleChange}
-            className="w-full dark:bg-slate-700 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
-            rows={4}
-          />
-        </div>
-
-        <div className="">
-          <label className="block ml-6 text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
-            Project Status
-          </label>
-          <select
-            name="status"
-            value={formData.status}
-            onChange={handleChange}
-            className="add border border-gray-300 rounded-md p-2 text-gray-700 w-full"
-          >
-            <option value="0" selected={formData.status === "0"}>
-              Not Started
-            </option>
-            <option value="2" selected={formData.status === "2"}>
-              In Progress
-            </option>
-            <option value="4" selected={formData.status === "4"}>
-              Completed
-            </option>
-            <option value="6" selected={formData.status === "6"}>
-              Pending
-            </option>
-            <option value="8" selected={formData.status === "8"}>
-              Under Review
-            </option>
-            <option value="10" selected={formData.status === "10"}>
-              Cancelled
-            </option>
-          </select>
-        </div>
-
-        {/* Branch */}
-        <div>
-          <label
-            htmlFor="branch_id"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-          >
-            Branch
-          </label>
-          <select
-            id="branch_id"
-            name="branch_id"
-            value={formData.branch_id}
-            onChange={handleChange}
-            className="w-full dark:bg-slate-700 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
-          >
-            <option value="">Select Branch</option>
-            {branches.map((b) => (
-              <option key={b.id} value={b.id}>
-                {b.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Project Owner */}
-        <div>
-          <label
-            htmlFor="project_owner_id"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-          >
-            Project Owner
-          </label>
-          <select
-            id="project_owner_id"
-            name="project_owner_id"
-            value={formData.project_owner_id}
-            onChange={handleChange}
-            className="w-full dark:bg-slate-700 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
-          >
-            <option value="">Select Owner</option>
-            {owners.map((o) => (
-              <option key={o.id} value={o.id}>
-                {o.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Customer */}
-        <div>
-          <label
-            htmlFor="customer_constructor_id"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-          >
-            Customer
-          </label>
-          <select
-            id="customer_constructor_id"
-            name="customer_constructor_id"
-            value={formData.customer_constructor_id}
-            onChange={handleChange}
-            className="w-full dark:bg-slate-700 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
-          >
-            <option value="">Select Customer</option>
-            {customers.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Inspection Engineer */}
-        <div>
-          <label
-            htmlFor="inspection_engineer_id"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-          >
-            Inspection Engineer
-          </label>
-          <select
-            id="inspection_engineer_id"
-            name="inspection_engineer_id"
-            value={formData.inspection_engineer_id}
-            onChange={handleChange}
-            className="w-full dark:bg-slate-700 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
-          >
-            <option value="">Select Engineer</option>
-            {engineers.map((eng) => (
-              <option key={eng.id} value={eng.id}>
-                {eng.full_name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="mt-1 block w-full border border-gray-300 dark:border-gray-700 rounded-md p-2  dark:text-white">
-          {/* <input type="hidden" hidden value={position[0]} name="latitude" />
-          <input type="hidden" hidden value={position[1]} name="longitude" /> */}
-
-          <input
-            type="hidden"
-            hidden
-            value={formData.latitude}
-            onChange={handleChange}
-            name="latitude"
-          />
-
-          <input
-            type="hidden"
-            hidden
-            value={formData.longitude}
-            onChange={handleChange}
-            name="longitude"
-          />
-
-          <div>
-            <MapContainer
-              center={[23.8859, 45.0792]}
-              zoom={6}
-              style={{ height: "100px", width: "100%" }}
-            >
-              <TileLayer
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            {/* Project Name */}
+            <div>
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
+                Project Name <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                required
+                className="w-full dark:bg-slate-700 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
               />
-              <LocationMarker />
-            </MapContainer>
-          </div>
-        </div>
+            </div>
 
-        <div className="flex justify-center">
-          <button
-            type="submit"
-            disabled={loading}
-            className={`w-full sm:w-auto bg-blue-600 text-white font-semibold py-2 px-6 rounded-md shadow hover:bg-blue-700 transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              loading ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-          >
-            {loading ? "Saving..." : "Save Changes"}
-          </button>
+            {/* Inspection Date */}
+            <div>
+              <label
+                htmlFor="inspection_date"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
+                Inspection Date
+              </label>
+              <input
+                type="date"
+                id="inspection_date"
+                name="inspection_date"
+                value={formData.inspection_date}
+                onChange={handleChange}
+                className="w-full dark:bg-slate-700 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
+              />
+            </div>
+
+            {/* Inspection Time */}
+            <div>
+              <label
+                htmlFor="inspection_time"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
+                Inspection Time
+              </label>
+              <input
+                type="time"
+                id="inspection_time"
+                name="inspection_time"
+                value={formData.inspection_time}
+                onChange={handleChange}
+                className="w-full dark:bg-slate-700 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
+              />
+            </div>
+
+            {/* Notes */}
+            <div>
+              <label
+                htmlFor="notes"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
+                Notes
+              </label>
+              <textarea
+                id="notes"
+                name="notes"
+                value={formData.notes}
+                onChange={handleChange}
+                className="w-full dark:bg-slate-700 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
+                rows={4}
+              />
+            </div>
+
+            {/* Project Status */}
+            <div className="">
+              <label className="block ml-6 text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
+                Project Status
+              </label>
+              <select
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+                className="add border border-gray-300 rounded-md p-2 text-gray-700 w-full dark:bg-slate-700 dark:text-white"
+              >
+                <option value="0">Not Started</option>
+                <option value="2">In Progress</option>
+                <option value="4">Completed</option>
+                <option value="6">Pending</option>
+                <option value="8">Under Review</option>
+                <option value="10">Cancelled</option>
+              </select>
+            </div>
+
+            {/* Branch */}
+            <div>
+              <label
+                htmlFor="branch_id"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
+                Branch
+              </label>
+              <select
+                id="branch_id"
+                name="branch_id"
+                value={formData.branch_id}
+                onChange={handleChange}
+                className="w-full dark:bg-slate-700 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
+              >
+                <option value="">Select Branch</option>
+                {branches.map((b) => (
+                  <option key={b.id} value={b.id}>
+                    {b.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Project Owner */}
+            <div>
+              <label
+                htmlFor="project_owner_id"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
+                Project Owner
+              </label>
+              <select
+                id="project_owner_id"
+                name="project_owner_id"
+                value={formData.project_owner_id}
+                onChange={handleChange}
+                className="w-full dark:bg-slate-700 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
+              >
+                <option value="">Select Owner</option>
+                {owners.map((o) => (
+                  <option key={o.id} value={o.id}>
+                    {o.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Customer */}
+            <div>
+              <label
+                htmlFor="customer_constructor_id"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
+                Customer
+              </label>
+              <select
+                id="customer_constructor_id"
+                name="customer_constructor_id"
+                value={formData.customer_constructor_id}
+                onChange={handleChange}
+                className="w-full dark:bg-slate-700 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
+              >
+                <option value="">Select Customer</option>
+                {customers.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Inspection Engineer */}
+            <div>
+              <label
+                htmlFor="inspection_engineer_id"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
+                Inspection Engineer
+              </label>
+              <select
+                id="inspection_engineer_id"
+                name="inspection_engineer_id"
+                value={formData.inspection_engineer_id}
+                onChange={handleChange}
+                className="w-full dark:bg-slate-700 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
+              >
+                <option value="">Select Engineer</option>
+                {engineers.map((eng) => (
+                  <option key={eng.id} value={eng.id}>
+                    {eng.full_name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* الخريطة */}
+            <div className="mt-1 block w-full border border-gray-300 dark:border-gray-700 rounded-md p-2 dark:text-white">
+              <input
+                type="hidden"
+                hidden
+                value={formData.latitude}
+                onChange={handleChange}
+                name="latitude"
+              />
+
+              <input
+                type="hidden"
+                hidden
+                value={formData.longitude}
+                onChange={handleChange}
+                name="longitude"
+              />
+
+              <div>
+                <MapContainer
+                  center={[23.8859, 45.0792]}
+                  zoom={6}
+                  style={{ height: "200px", width: "100%" }}
+                >
+                  <TileLayer
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  />
+                  <LocationMarker />
+                </MapContainer>
+              </div>
+            </div>
+
+            {/* زر الإرسال */}
+            <div className="flex justify-center">
+              <button
+                type="submit"
+                disabled={loading}
+                className={`w-full sm:w-auto bg-blue-600 text-white font-semibold py-2 px-6 rounded-md shadow hover:bg-blue-700 transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  loading ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+              >
+                {loading ? "Saving..." : "Save Changes"}
+              </button>
+            </div>
+          </form>
         </div>
-      </form>
-      <ToastContainer />
-    </div>
+      )}
+    </>
   );
 };
 

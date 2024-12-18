@@ -72,6 +72,7 @@ import View from "./components/company/View";
 import ProjectSecRepo from "./components/company/ProjectSecRepo";
 import CreateSecRepo from "./components/company/CreateSecRepo";
 import EditSecRepo from "./components/company/EditSecRepo";
+import { Toaster, toast } from 'sonner'
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -353,8 +354,6 @@ function App() {
           </Routes>
         </div>
       </div>
-
-      
 
       {isSidebarOpen && (
         <div

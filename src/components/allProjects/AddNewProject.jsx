@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useRef } from "react";
 import Select from "react-select";
 import {
@@ -13,10 +14,11 @@ import $ from "jquery";
 import "dropify/dist/css/dropify.min.css";
 import "dropify/dist/js/dropify.min.js";
 // import toast, { Toaster } from "react-hot-toast";
-import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
+import L from "leaflet";
 
 const AddNewProject = () => {
   const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
@@ -62,6 +64,12 @@ const AddNewProject = () => {
   const [position, setPosition] = useState([23.8859, 45.0792]);
 
   const dropifyRef = useRef(null);
+
+  const [errors, setErrors] = useState({});
+  
+  // State for search input
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchLoading, setSearchLoading] = useState(false);
 
   const openInGoogleMaps = () => {
     if (position) {
@@ -283,6 +291,34 @@ const AddNewProject = () => {
   }, []);
 
   const handleAddProject = async () => {
+    // Reset errors
+    setErrors({});
+
+    // Validation
+    const newErrors = {};
+
+    if (!projectName.trim()) newErrors.projectName = "Project Name is required.";
+    if (!projectStatus) newErrors.projectStatus = "Project Status is required.";
+    if (!selectedBranch) newErrors.selectedBranch = "Branch is required.";
+    if (!selectedServices || selectedServices.length === 0)
+      newErrors.selectedServices = "At least one Service is required.";
+    if (!selectedOwner) newErrors.selectedOwner = "Project Owner is required.";
+    if (!selectedCustomer) newErrors.selectedCustomer = "Customer is required.";
+    if (!selectedConsultives || selectedConsultives.length === 0)
+      newErrors.selectedConsultives = "At least one Consultive is required.";
+    if (!inspectionDate) newErrors.inspectionDate = "Inspection Date is required.";
+    if (!selectedEngineer) newErrors.selectedEngineer = "Engineer is required.";
+    if (!inspectionTime) newErrors.inspectionTime = "Inspection Time is required.";
+    if (!position || position.length !== 2)
+      newErrors.inspectionLocation = "Inspection Location is required.";
+    if (!projectImage) newErrors.projectImage = "Project Image is required.";
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      toast.error("Please fill in all required fields.");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -362,6 +398,8 @@ const AddNewProject = () => {
     } catch (error) {
       console.error("Error adding project:", error);
       toast.error("Failed to add project. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -562,7 +600,6 @@ const AddNewProject = () => {
           body: JSON.stringify(ownerData),
         }
       );
-
       const result = await response.json();
       if (response.ok && result.status === 200) {
         const newOption = {
@@ -601,10 +638,54 @@ const AddNewProject = () => {
     setSelectedBranch(null);
     setProjectImage(null);
     setImagePreview(null);
+    setErrors({});
 
     if (dropifyRef.current) {
       $(dropifyRef.current).dropify().data("dropify").resetPreview();
       $(dropifyRef.current).dropify().val("");
+    }
+  };
+
+  // Component to change map view when position changes
+  const ChangeMapView = ({ center }) => {
+    const map = useMap();
+    map.setView(center, map.getZoom());
+    return null;
+  };
+
+  // Handle search submission
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) {
+      toast.error("Please enter a location to search.");
+      return;
+    }
+
+    setSearchLoading(true);
+
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+          searchQuery
+        )}`
+      );
+      const data = await response.json();
+      if (data && data.length > 0) {
+        const { lat, lon } = data[0];
+        const newPosition = [parseFloat(lat), parseFloat(lon)];
+        setPosition(newPosition);
+        // Optionally, you can update latValue and longValue if needed
+        setLatValue(lat);
+        setLongValue(lon);
+        toast.success(`Location found: ${data[0].display_name}`);
+      } else {
+        toast.error("Location not found. Please try a different query.");
+      }
+    } catch (error) {
+      console.error("Error searching location:", error);
+      toast.error("Error searching location. Please try again.");
+    } finally {
+      setSearchLoading(false);
     }
   };
 
@@ -635,6 +716,11 @@ const AddNewProject = () => {
             required
             className="name border border-gray-300  rounded-md p-2 dark:bg-slate-900  w-full"
           />
+          {errors.projectName && (
+            <p className="text-red-500 text-sm mt-1 ml-6">
+              {errors.projectName}
+            </p>
+          )}
         </div>
 
         <div className="">
@@ -647,7 +733,7 @@ const AddNewProject = () => {
             onChange={(e) => setProjectStatus(e.target.value)}
             className="add  border border-gray-300 rounded-md p-2 text-gray-700 w-full"
           >
-            <option disabled selected>
+            <option disabled value="">
               choose
             </option>
 
@@ -658,6 +744,11 @@ const AddNewProject = () => {
             <option value="8">Under Review</option>
             <option value="10">Cancelled</option>
           </select>
+          {errors.projectStatus && (
+            <p className="text-red-500 text-sm mt-1 ml-6">
+              {errors.projectStatus}
+            </p>
+          )}
         </div>
       </div>
 
@@ -671,6 +762,11 @@ const AddNewProject = () => {
             className="custom-select select1"
             onChange={(selected) => setSelectedBranch(selected)}
           />
+          {errors.selectedBranch && (
+            <p className="text-red-500 text-sm mt-1 ml-6">
+              {errors.selectedBranch}
+            </p>
+          )}
         </div>
 
         <div className="p-1 mt-4">
@@ -749,6 +845,11 @@ const AddNewProject = () => {
               </div>
             </Dialog> */}
           </div>
+          {errors.selectedServices && (
+            <p className="text-red-500 text-sm mt-1 ml-6">
+              {errors.selectedServices}
+            </p>
+          )}
         </div>
 
         <div className="p-1">
@@ -829,6 +930,11 @@ const AddNewProject = () => {
               </div>
             </Dialog> */}
           </div>
+          {errors.selectedOwner && (
+            <p className="text-red-500 text-sm mt-1 ml-6">
+              {errors.selectedOwner}
+            </p>
+          )}
         </div>
 
         <div className="p-1">
@@ -912,6 +1018,11 @@ const AddNewProject = () => {
               </div>
             </Dialog> */}
           </div>
+          {errors.selectedCustomer && (
+            <p className="text-red-500 text-sm mt-1 ml-6">
+              {errors.selectedCustomer}
+            </p>
+          )}
         </div>
 
         <div className="p-1">
@@ -993,6 +1104,11 @@ const AddNewProject = () => {
               </div>
             </Dialog> */}
           </div>
+          {errors.selectedConsultives && (
+            <p className="text-red-500 text-sm mt-1 ml-6">
+              {errors.selectedConsultives}
+            </p>
+          )}
         </div>
 
         <div className="p-1">
@@ -1007,6 +1123,11 @@ const AddNewProject = () => {
             onChange={(e) => setInspectionDate(e.target.value)}
             className="mt-1 block text-gray-600 w-full border border-gray-300 dark:border-gray-700 rounded-md p-2 dark:bg-slate-950 dark:text-white"
           />
+          {errors.inspectionDate && (
+            <p className="text-red-500 text-sm mt-1 ml-6">
+              {errors.inspectionDate}
+            </p>
+          )}
         </div>
 
         <div className="p-1">
@@ -1030,6 +1151,11 @@ const AddNewProject = () => {
               name="inspection_engineer_id"
             />
           </div>
+          {errors.selectedEngineer && (
+            <p className="text-red-500 text-sm mt-1 ml-6">
+              {errors.selectedEngineer}
+            </p>
+          )}
         </div>
 
         <div className="p-1">
@@ -1043,6 +1169,11 @@ const AddNewProject = () => {
             onChange={(e) => setInspectionTime(e.target.value)}
             className="mt-1 block w-full text-gray-700 border border-gray-300 dark:border-gray-700 rounded-md p-2 dark:bg-slate-950 dark:text-white"
           />
+          {errors.inspectionTime && (
+            <p className="text-red-500 text-sm mt-1 ml-6">
+              {errors.inspectionTime}
+            </p>
+          )}
         </div>
 
         {/* Notes */}
@@ -1069,9 +1200,9 @@ const AddNewProject = () => {
 
             <div>
               <MapContainer
-                center={[23.8859, 45.0792]}
+                center={position}
                 zoom={6}
-                style={{ height: "100px", width: "100%" }}
+                style={{ height: "300px", width: "100%" }}
                 className="!resize"
               >
                 <TileLayer
@@ -1079,9 +1210,33 @@ const AddNewProject = () => {
                   attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 />
                 <LocationMarker />
+                <ChangeMapView center={position} />
               </MapContainer>
             </div>
           </div>
+          {errors.inspectionLocation && (
+            <p className="text-red-500 text-sm mt-1 ml-6">
+              {errors.inspectionLocation}
+            </p>
+          )}
+
+          {/* Search Input for Map */}
+          <form onSubmit={handleSearch} className="mt-4 flex">
+            <input
+              type="text"
+              placeholder="Search location..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="flex-1 border border-gray-300 rounded-l-md p-2 dark:bg-slate-900 dark:text-white"
+            />
+            <button
+              type="submit"
+              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-r-md"
+              disabled={searchLoading}
+            >
+              {searchLoading ? "Searching..." : "Search"}
+            </button>
+          </form>
         </div>
       </div>
 
@@ -1100,6 +1255,11 @@ const AddNewProject = () => {
           data-allowed-file-extensions="jpg jpeg png gif"
           data-max-file-size="2M"
         />
+        {errors.projectImage && (
+          <p className="text-red-500 text-sm mt-1 ml-6">
+            {errors.projectImage}
+          </p>
+        )}
         {imagePreview && (
           <img
             src={imagePreview}
