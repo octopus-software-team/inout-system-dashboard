@@ -87,7 +87,7 @@ const UpdateClients = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-slate-800 py-10 px-4">
+    <div className="flex items-center justify-center mt-20 bg-gray-100 dark:bg-slate-800 py-10 px-4">
       <Toaster
         position="top-center"
         reverseOrder={false}
@@ -107,7 +107,7 @@ const UpdateClients = () => {
           Update Client
         </h2>
 
-        <div className="mb-4">
+        {/* <div className="mb-4">
           <label
             htmlFor="id"
             className="block text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2"
@@ -123,7 +123,7 @@ const UpdateClients = () => {
             readOnly
             className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-gray-100 text-gray-600"
           />
-        </div>
+        </div> */}
 
         <div className="mb-4">
           <label

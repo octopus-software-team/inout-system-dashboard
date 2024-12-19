@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Cookies from 'js-cookie';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const CreateSecRepo = () => {
   const [id, setId] = useState(""); // Holds the entered ID
@@ -14,7 +16,6 @@ const CreateSecRepo = () => {
 
   useEffect(() => {
     const token = Cookies.get('token');
-    // Fetch project list from API
     fetch("https://inout-api.octopusteam.net/api/front/getProjects", {
       method: "GET",
       headers: {
@@ -26,12 +27,12 @@ const CreateSecRepo = () => {
         if (data.status === 200) {
           setProjects(data.data); // Set the projects in state
         } else {
-          alert(`Error fetching projects: ${data.msg || "Unknown error"}`);
+          toast.error(`Error fetching projects: ${data.msg || "Unknown error"}`);
         }
       })
       .catch((error) => {
         console.error("Error fetching projects:", error);
-        alert("Failed to fetch projects. Please try again.");
+        toast.error("Failed to fetch projects. Please try again.");
       });
   }, []);
 
@@ -60,32 +61,33 @@ const CreateSecRepo = () => {
       .then((res) => res.json())
       .then((data) => {
         if (data.status === 200) {
-          alert("Report added successfully!");
-          navigate("/company/projectsecrepo");
+          toast.success("Report added successfully!");
+          setTimeout(() => navigate("/company/projectsecrepo"), 2000); // Navigate after 2 seconds
         } else {
-          alert(`Error: ${data.msg || "Unknown error"}`);
+          toast.error(`Error: ${data.msg || "Unknown error"}`);
         }
       })
       .catch((error) => {
         console.error("Error submitting report:", error);
-        alert("Failed to submit report. Please try again.");
+        toast.error("Failed to submit report. Please try again.");
       });
   };
 
   return (
     <div className="mt-10 flex justify-center items-center">
+      <ToastContainer />
       <form className="w-full max-w-sm" onSubmit={handleSubmit}>
         {/* ID Input */}
         <div className="mb-4">
           <label htmlFor="id" className="block text-sm font-medium text-gray-700 dark:text-white">
-            ID
+            Project ID
           </label>
           <input
             id="id"
             type="text"
             value={id}
             onChange={(e) => setId(e.target.value)}
-            placeholder="Enter ID"
+            placeholder=""
             required
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-900 dark:text-white"
           />
@@ -150,7 +152,7 @@ const CreateSecRepo = () => {
         </div>
 
         {/* Report Stock and Report Fields */}
-        {isInspection === 1 ? (
+        {isInspection === 1 && (
           <div className="mb-4">
             <label
               htmlFor="reportStock"
@@ -167,7 +169,8 @@ const CreateSecRepo = () => {
               rows="3"
             ></textarea>
           </div>
-        ) : null}
+        )}
+
         <div className="mb-4">
           <label
             htmlFor="report"

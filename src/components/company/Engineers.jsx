@@ -263,7 +263,7 @@ const AddEngineer = () => {
             id="full_name"
             value={formData.full_name}
             onChange={handleChange}
-            placeholder="Engineer Name"
+            placeholder="Name"
             className="p-2 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.full_name && (

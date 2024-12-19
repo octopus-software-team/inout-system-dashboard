@@ -3,9 +3,8 @@ import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Cookies from 'js-cookie';
+import Cookies from "js-cookie";
 import ImportFile from "../ImportFile"; // إضافة المكون هنا
-
 
 const AddServices = () => {
   const [data, setData] = useState([]);
@@ -15,14 +14,12 @@ const AddServices = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
 
-  const tableName = "servicesD"; // تحديد اسم الجدول
-
-
-
+  const tableName = "services"; // تحديد اسم الجدول
 
   useEffect(() => {
-    const token = Cookies.get('token');
+    const token = Cookies.get("token");
 
     if (!token) {
       console.log("No token found, cannot fetch services.");
@@ -60,6 +57,44 @@ const AddServices = () => {
       });
   }, []);
 
+  const handleExportFile = async () => {
+    const formData = new FormData();
+    formData.append("table", tableName);
+
+    const token = Cookies.get("token");
+
+    try {
+      const response = await fetch(
+        "https://inout-api.octopusteam.net/api/front/export",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to export file");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+
+      link.download = `${tableName}.xlsx`;
+      document.body.appendChild(link);
+      link.click();
+
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error exporting file:", error);
+    }
+  };
+
   const sorting = (col) => {
     let sorted = [];
     if (order === "ASC") {
@@ -90,17 +125,13 @@ const AddServices = () => {
     return "";
   };
 
-
-
-  
-
   const handleEdit = (id) => {
     const selectedService = data.find((service) => service.id === id);
     navigate(`/company/editservice`, { state: selectedService });
   };
 
   const handleDelete = (id) => {
-    const token = Cookies.get('token');
+    const token = Cookies.get("token");
     if (!token) {
       alert("No token found. Please log in.");
       return;
@@ -172,6 +203,40 @@ const AddServices = () => {
         >
           + Create Service
         </Link>
+
+        <button
+          onClick={() => setOpen(true)}
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+        >
+          Import
+        </button>
+
+        <button
+          onClick={handleExportFile}
+          className="px-6 py-3 bg-green-500 text-white rounded-lg shadow-md hover:bg-green-600 transition duration-300 ease-in-out transform hover:scale-105"
+        >
+          Export
+        </button>
+
+        {open && (
+          <div
+            className="fixed top-0 left-0 z-30 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
+            onClick={() => setOpen(false)}
+          >
+            <div
+              className="w-[350px] h-[350px] bg-white rounded-lg shadow-lg p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h2 className="text-center text-xl font-semibold mb-4">
+                Import File
+              </h2>
+              <div className="flex flex-col items-center space-y-4">
+                <ImportFile tableName={tableName} />{" "}
+                {/* استدعاء مكون الاستيراد هنا */}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {isLoading ? (

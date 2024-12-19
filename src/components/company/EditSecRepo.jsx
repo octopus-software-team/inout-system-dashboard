@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import Cookies from 'js-cookie';
-
+import Cookies from "js-cookie";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const EditSecRepo = () => {
   const location = useLocation();
@@ -13,43 +14,40 @@ const EditSecRepo = () => {
   const [reportStock, setReportStock] = useState("");
   const [isInspection, setIsInspection] = useState(1);
   const [report, setReport] = useState("");
-  const [projects, setProjects] = useState();
+  const [projects, setProjects] = useState([]);
   const [projectId, setProjectId] = useState("");
 
-
-    useEffect(() => {
-      const token = Cookies.get('token');
-      // Fetch project list from API
-      fetch("https://inout-api.octopusteam.net/api/front/getProjects", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+  useEffect(() => {
+    const token = Cookies.get("token");
+    // Fetch project list from API
+    fetch("https://inout-api.octopusteam.net/api/front/getProjects", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.status === 200) {
+          setProjects(data.data); // Set the projects in state
+        } else {
+          toast.error(`Error fetching projects: ${data.msg || "Unknown error"}`);
+        }
       })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.status === 200) {
-            setProjects(data.data); // Set the projects in state
-          } else {
-            alert(`Error fetching projects: ${data.msg || "Unknown error"}`);
-          }
-        })
-        .catch((error) => {
-          console.error("Error fetching projects:", error);
-          alert("Failed to fetch projects. Please try again.");
-        });
-    }, []);
+      .catch((error) => {
+        console.error("Error fetching projects:", error);
+        toast.error("Failed to fetch projects. Please try again.");
+      });
+  }, []);
 
-
-      useEffect(() => {
-        console.log(projects)
-      },[projects])
-
+  useEffect(() => {
+    console.log(projects);
+  }, [projects]);
 
   // Fetch existing report data
   useEffect(() => {
     const fetchReport = async () => {
-      const token = Cookies.get('token');
+      const token = Cookies.get("token");
       try {
         const response = await fetch(
           `https://inout-api.octopusteam.net/api/front/getProjectReports`,
@@ -67,34 +65,35 @@ const EditSecRepo = () => {
           setReportStock(data.data.report_stock || "");
           setIsInspection(data.data.is_inspection || 0);
           setReport(data.data.report || "");
+          setProjectId(data.data.project_id || ""); // تأكد من تعيين projectId
         } else {
-          alert("Failed to fetch report data");
+          toast.error("Failed to fetch report data");
         }
       } catch (error) {
         console.error("Error fetching report:", error);
-        alert("An error occurred while fetching the report");
+        toast.error("An error occurred while fetching the report");
       }
     };
 
     if (id) {
       fetchReport();
     } else {
-      alert("No ID provided");
+      toast.error("No ID provided");
       navigate("/company/projectsecrepo");
     }
   }, [id, navigate]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const token = Cookies.get('token');
+    const token = Cookies.get("token");
 
     const payload = {
-        id,
-        project_id: 1, 
-        report_type: reportType,
-        is_inspection: isInspection,
-        report_stock: isInspection === 1 ? reportStock : null,
-        report,
+      id,
+      project_id: projectId,
+      report_type: reportType,
+      is_inspection: isInspection,
+      report_stock: isInspection === 1 ? reportStock : null,
+      report,
     };
 
     const formData = new FormData();
@@ -105,37 +104,41 @@ const EditSecRepo = () => {
     formData.append("report_stock", reportStock);
     formData.append("report", report);
 
-
-    fetch(`https://inout-api.octopusteam.net/api/front/updateProjectReport/${paramId}`, {
+    fetch(
+      `https://inout-api.octopusteam.net/api/front/updateProjectReport/${paramId}`,
+      {
         method: "POST",
         headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: formData,
-    })
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      }
+    )
       .then((res) => res.json())
       .then((data) => {
         if (data.status === 200) {
-            alert("Report updated successfully!");
-            navigate("/company/projectsecrepo");
+          toast.success("Report updated successfully!");
+          setTimeout(() => navigate("/company/projectsecrepo"), 2000); // Navigate after 2 seconds
         } else {
-            console.error(`Error: ${data.msg}`);
-            alert(`Error: ${data.msg || "Unknown error"}`);
+          console.error(`Error: ${data.msg}`);
+          toast.error(`Error: ${data.msg || "Unknown error"}`);
         }
-    })
-    
+      })
+      .catch((error) => {
+        console.error("Error submitting report:", error);
+        toast.error("Failed to submit report. Please try again.");
+      });
   };
 
   return (
     <div className="mt-10 flex justify-center items-center dark:text-white">
+      <ToastContainer />
       <form className="w-full max-w-sm" onSubmit={handleSubmit}>
         <div className="mb-4">
           <label
             htmlFor="id"
             className="block text-sm font-medium text-gray-700 dark:text-white"
-          >
-            ID
-          </label>
+          ></label>
           <input
             id="id"
             hidden
@@ -150,7 +153,10 @@ const EditSecRepo = () => {
         </div>
 
         <div className="mb-4">
-          <label htmlFor="projectId" className="block text-sm font-medium text-gray-700 dark:text-white">
+          <label
+            htmlFor="projectId"
+            className="block text-sm font-medium text-gray-700 dark:text-white"
+          >
             Project Name
           </label>
           <select
@@ -160,12 +166,15 @@ const EditSecRepo = () => {
             required
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-900 dark:text-white"
           >
-            <option value="" disabled>Select a project</option>
-            {projects && projects?.map((project) => (
-              <option key={project.id} value={project.id}>
-                {project.name}
-              </option>
-            ))}
+            <option value="" disabled>
+              Select a project
+            </option>
+            {projects &&
+              projects.map((project) => (
+                <option key={project.id} value={project.id}>
+                  {project.name}
+                </option>
+              ))}
           </select>
         </div>
 

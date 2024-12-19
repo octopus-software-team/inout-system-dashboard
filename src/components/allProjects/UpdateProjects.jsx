@@ -203,16 +203,6 @@ const UpdateProject = () => {
     }
   };
 
-  // if (loading) {
-  //   return (
-  //     <div className="flex items-center justify-center h-screen">
-  //       <div className="text-xl font-semibold text-gray-700 dark:text-gray-300">
-  //         Loading...
-  //       </div>
-  //     </div>
-  //   );
-  // }
-
   if (error) {
     return (
       <div className="container mx-auto mt-10 p-4 bg-red-100 border border-red-400 text-red-700 dark:text-red-300 rounded">
@@ -235,27 +225,6 @@ const UpdateProject = () => {
             Update Project
           </h2>
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* يمكنك إظهار الـ ID إذا رغبت */}
-            {/* 
-        <div>
-          <label
-            htmlFor="id"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-          >
-            Project ID
-          </label>
-          <input
-            type="text"
-            id="id"
-            name="id"
-            value={formData.id}
-            className="w-full bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2"
-            disabled
-          />
-        </div>
-        */}
-
-            {/* Project Name */}
             <div>
               <label
                 htmlFor="name"
@@ -274,7 +243,6 @@ const UpdateProject = () => {
               />
             </div>
 
-            {/* Inspection Date */}
             <div>
               <label
                 htmlFor="inspection_date"
