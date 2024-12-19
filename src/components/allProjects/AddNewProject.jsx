@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useRef } from "react";
 import Select from "react-select";
 import {
@@ -14,7 +13,13 @@ import $ from "jquery";
 import "dropify/dist/css/dropify.min.css";
 import "dropify/dist/js/dropify.min.js";
 // import toast, { Toaster } from "react-hot-toast";
-import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from "react-leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  useMapEvents,
+  useMap,
+} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
@@ -66,7 +71,7 @@ const AddNewProject = () => {
   const dropifyRef = useRef(null);
 
   const [errors, setErrors] = useState({});
-  
+
   // State for search input
   const [searchQuery, setSearchQuery] = useState("");
   const [searchLoading, setSearchLoading] = useState(false);
@@ -297,7 +302,8 @@ const AddNewProject = () => {
     // Validation
     const newErrors = {};
 
-    if (!projectName.trim()) newErrors.projectName = "Project Name is required.";
+    if (!projectName.trim())
+      newErrors.projectName = "Project Name is required.";
     if (!projectStatus) newErrors.projectStatus = "Project Status is required.";
     if (!selectedBranch) newErrors.selectedBranch = "Branch is required.";
     if (!selectedServices || selectedServices.length === 0)
@@ -306,9 +312,11 @@ const AddNewProject = () => {
     if (!selectedCustomer) newErrors.selectedCustomer = "Customer is required.";
     if (!selectedConsultives || selectedConsultives.length === 0)
       newErrors.selectedConsultives = "At least one Consultive is required.";
-    if (!inspectionDate) newErrors.inspectionDate = "Inspection Date is required.";
+    if (!inspectionDate)
+      newErrors.inspectionDate = "Inspection Date is required.";
     if (!selectedEngineer) newErrors.selectedEngineer = "Engineer is required.";
-    if (!inspectionTime) newErrors.inspectionTime = "Inspection Time is required.";
+    if (!inspectionTime)
+      newErrors.inspectionTime = "Inspection Time is required.";
     if (!position || position.length !== 2)
       newErrors.inspectionLocation = "Inspection Location is required.";
     if (!projectImage) newErrors.projectImage = "Project Image is required.";
@@ -353,7 +361,9 @@ const AddNewProject = () => {
       formData.append("inspection_location_long", longValue || "");
       formData.append("project_owner_id", selectedOwnerId || "");
       formData.append("status", projectStatus || "");
-      selectedServiceIds.forEach((id) => formData.append("service_ids[]", id));
+      selectedServiceIds.forEach((id, index) =>
+        formData.append(`service_ids[${index}]`, id)
+      );
       selectedConsultiveIds.forEach((id) =>
         formData.append("project_consultive_ids[]", id)
       );
@@ -365,7 +375,7 @@ const AddNewProject = () => {
       if (projectImage) {
         formData.append("project_image", projectImage);
       }
-
+      console.log(formData);
       console.log("Form Data:", {
         name: projectName,
         branch_id: selectedBranchId,

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import Select from "react-select";
 import { useParams, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
@@ -24,12 +25,77 @@ const UpdateProject = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-
+  const [services, setServices] = useState([]);
   const [branches, setBranches] = useState([]);
   const [owners, setOwners] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [engineers, setEngineers] = useState([]);
+  const [selectedServices, setSelectedServices] = useState([]);
+  const [consultives, setConsultives] = useState([]);
+  const [selectedConsultives, setSelectedConsultives] = useState([]);
   const [projectStatus, setProjectStatus] = useState("");
+  const selectedServiceIds =
+    selectedServices && selectedServices.length > 0
+      ? selectedServices.map((s) => s.value)
+      : [];
+  const selectedConsultiveIds =
+    selectedConsultives && selectedConsultives.length > 0
+      ? selectedConsultives.map((c) => c.value)
+      : [];
+
+  const fetchServices = async () => {
+    try {
+      const token = Cookies.get("token");
+
+      const response = await fetch(
+        "https://inout-api.octopusteam.net/api/front/getServices",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      const result = await response.json();
+      if (result.status === 200) {
+        setServices(
+          result.data.map((service) => ({
+            value: service.id,
+            label: service.name,
+          }))
+        );
+      } else {
+        console.error("Error fetching services data");
+      }
+    } catch (error) {
+      console.error("Error fetching data: ", error);
+    }
+  };
+
+  const fetchConsultive = async () => {
+    try {
+      const token = Cookies.get("token");
+
+      const response = await fetch(
+        "https://inout-api.octopusteam.net/api/front/getCustomers",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      const result = await response.json();
+      if (result.status === 200) {
+        setConsultives(
+          result.data
+            .filter((consultive) => consultive.type === 2)
+            .map((consultive) => ({
+              value: consultive.id,
+              label: consultive.name,
+            }))
+        );
+      } else {
+        console.error("Error fetching services data");
+      }
+    } catch (error) {
+      console.error("Error fetching data: ", error);
+    }
+  };
 
   const [formData, setFormData] = useState({
     id: "",
@@ -142,6 +208,11 @@ const UpdateProject = () => {
     fetchData();
   }, [id]);
 
+  useEffect(() => {
+    fetchServices();
+    fetchConsultive();
+  }, []);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -173,6 +244,12 @@ const UpdateProject = () => {
     data.append("inspection_time", formData.inspection_time);
     data.append("notes", formData.notes);
     data.append("status", formData.status);
+    selectedServiceIds.forEach((id, index) =>
+      data.append(`service_ids[${index}]`, id)
+    );
+    selectedConsultiveIds.forEach((id, index) =>
+      data.append(`project_consultive_ids[${index}]`, id)
+    );
     data.append("inspection_engineer_id", formData.inspection_engineer_id);
     data.append("longitude", formData.longitude);
     data.append("latitude", formData.latitude);
@@ -191,8 +268,10 @@ const UpdateProject = () => {
 
       const res = await response.json();
 
-      if (res.ok) {
-        toast.success("Event has been created");
+      if (res.status == 200) {
+        alert("Event has been updated");
+        // toast.success("Event has been created");
+
         navigate("/allprojects/showallprojects");
       }
     } catch (error) {
@@ -363,6 +442,26 @@ const UpdateProject = () => {
                 ))}
               </select>
             </div>
+
+            <Select
+              isMulti
+              options={services}
+              value={selectedServices}
+              onChange={(options) => setSelectedServices(options)}
+              placeholder="Select Services"
+              name="service_ids[]"
+              className="select1 custom-select flex-1"
+            />
+
+            <Select
+              isMulti
+              options={consultives}
+              value={selectedConsultives}
+              onChange={(options) => setSelectedConsultives(options)}
+              placeholder="Select Consultive"
+              name="consultivve_ids[]"
+              className="select1 custom-select flex-1"
+            />
 
             {/* Customer */}
             <div>
