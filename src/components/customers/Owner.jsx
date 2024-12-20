@@ -130,7 +130,7 @@ const Owner = () => {
         />
         <Link
           to="/customers/createowner"
-          className="bg-gradient-to-r from-blue-500 to-green-500 text-white font-semibold py-2 px-6 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
+          className=" text-white bg-blue-800 font-semibold py-2 px-6 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
         >
           + Create Owner
         </Link>
@@ -154,7 +154,7 @@ const Owner = () => {
                   onClick={() => sorting("id")}
                   aria-sort={order === "ASC" ? "ascending" : "descending"}
                 >
-                  ID {renderSortIcon("id")}
+                  # {renderSortIcon("id")}
                 </th>
                 <th
                   className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"

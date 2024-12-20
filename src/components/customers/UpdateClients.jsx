@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import toast, { Toaster } from "react-hot-toast";
+import { FaSpinner } from "react-icons/fa"; // استيراد أيقونة Spinner
 
 const UpdateClients = () => {
   const location = useLocation();
@@ -13,6 +14,7 @@ const UpdateClients = () => {
     phone: "",
   });
   const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false); // حالة التحميل
 
   useEffect(() => {
     if (location.state) {
@@ -45,6 +47,8 @@ const UpdateClients = () => {
       toast.error("No token found. Please log in.");
       return;
     }
+
+    setIsLoading(true); // بدء حالة التحميل
 
     try {
       const response = await fetch(
@@ -83,6 +87,8 @@ const UpdateClients = () => {
     } catch (error) {
       toast.error("Failed to update the client. Please try again.");
       console.error("Error updating client:", error);
+    } finally {
+      setIsLoading(false); // إنهاء حالة التحميل
     }
   };
 
@@ -107,23 +113,7 @@ const UpdateClients = () => {
           Update Client
         </h2>
 
-        {/* <div className="mb-4">
-          <label
-            htmlFor="id"
-            className="block text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2"
-          >
-            ID
-          </label>
-          <input
-            type="text"
-            id="id"
-            name="id"
-            value={formData.id}
-            onChange={handleInputChange}
-            readOnly
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-gray-100 text-gray-600"
-          />
-        </div> */}
+        {/* الحقول الأخرى تبقى كما هي */}
 
         <div className="mb-4">
           <label
@@ -146,6 +136,8 @@ const UpdateClients = () => {
             <p className="text-red-500 text-sm mt-1">{errors.name}</p>
           )}
         </div>
+
+        {/* الحقول الأخرى (email, phone) تبقى كما هي */}
 
         <div className="mb-4">
           <label
@@ -193,9 +185,19 @@ const UpdateClients = () => {
 
         <button
           type="submit"
-          className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200 transition duration-300"
+          disabled={isLoading}
+          className={`w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200 transition duration-300 ${
+            isLoading ? "opacity-50 cursor-not-allowed flex items-center justify-center" : ""
+          }`}
         >
-          Update Client
+          {isLoading ? (
+            <>
+              <FaSpinner className="animate-spin mr-2" />
+              Updating...
+            </>
+          ) : (
+            "Update Client"
+          )}
         </button>
       </form>
     </div>
@@ -203,4 +205,3 @@ const UpdateClients = () => {
 };
 
 export default UpdateClients;
- 

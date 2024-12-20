@@ -19,6 +19,9 @@ const Employees = () => {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
 
+  const tableName = "employees"; // تحديد اسم الجدول
+
+
   // Fetch employees
   const fetchEmployees = async () => {
     const token = Cookies.get("token");
@@ -222,6 +225,45 @@ const Employees = () => {
   };
   
 
+   const handleExportFile = async () => {
+      const formData = new FormData();
+      formData.append("table", tableName);
+  
+      const token = Cookies.get("token");
+  
+      try {
+        const response = await fetch(
+          "https://inout-api.octopusteam.net/api/front/export",
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            body: formData,
+          }
+        );
+  
+        if (!response.ok) {
+          throw new Error("Failed to export file");
+        }
+  
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+  
+        link.download = `${tableName}.xlsx`;
+        document.body.appendChild(link);
+        link.click();
+  
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      } catch (error) {
+        console.error("Error exporting file:", error);
+      }
+    };
+  
+
 
   return (
     <div className="container p-5 mx-auto mt-5 px-4 w-full">
@@ -240,7 +282,7 @@ const Employees = () => {
         <div className="flex space-x-2 w-full md:w-auto">
           <Link
             to="/company/engineers"
-            className="bg-slate-500 text-white font-semibold py-2 px-4 rounded hover:bg-slate-700 w-full md:w-52 text-center text-xs"
+            className=" text-white bg-blue-800 font-semibold py-2 px-4 rounded hover:bg-slate-700 w-full md:w-52 text-center text-xs"
           >
             + Add Employee
           </Link>
@@ -250,6 +292,13 @@ const Employees = () => {
           >
             Import
           </button>
+
+          <button
+          onClick={handleExportFile}
+          className="px-6 py-3 bg-green-500 text-white rounded-lg shadow-md hover:bg-green-600 transition duration-300 ease-in-out transform hover:scale-105"
+        >
+          Export
+        </button>
         </div>
 
         {open && (

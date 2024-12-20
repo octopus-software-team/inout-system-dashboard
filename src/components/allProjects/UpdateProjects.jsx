@@ -7,12 +7,9 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import icon from "leaflet/dist/images/marker-icon.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
-// import { ToastContainer, toast } from "react-toastify";
-// import "react-toastify/dist/ReactToastify.css";
-
 import { Toaster, toast } from "sonner";
 
-// إعداد أيقونات Leaflet إذا لزم الأمر
+// إعداد أيقونات Leaflet
 let DefaultIcon = L.icon({
   iconUrl: icon,
   shadowUrl: iconShadow,
@@ -20,83 +17,25 @@ let DefaultIcon = L.icon({
 });
 L.Marker.prototype.options.icon = DefaultIcon;
 
+// مكون لتحديد الموقع على الخريطة
+const LocationMarker = ({ setPosition }) => {
+  useMapEvents({
+    click(e) {
+      const { lat, lng } = e.latlng;
+      setPosition([lat, lng]);
+    },
+  });
+
+  return null;
+};
+
 const UpdateProject = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [services, setServices] = useState([]);
-  const [branches, setBranches] = useState([]);
-  const [owners, setOwners] = useState([]);
-  const [customers, setCustomers] = useState([]);
-  const [engineers, setEngineers] = useState([]);
-  const [selectedServices, setSelectedServices] = useState([]);
-  const [consultives, setConsultives] = useState([]);
-  const [selectedConsultives, setSelectedConsultives] = useState([]);
-  const [projectStatus, setProjectStatus] = useState("");
-  const selectedServiceIds =
-    selectedServices && selectedServices.length > 0
-      ? selectedServices.map((s) => s.value)
-      : [];
-  const selectedConsultiveIds =
-    selectedConsultives && selectedConsultives.length > 0
-      ? selectedConsultives.map((c) => c.value)
-      : [];
 
-  const fetchServices = async () => {
-    try {
-      const token = Cookies.get("token");
-
-      const response = await fetch(
-        "https://inout-api.octopusteam.net/api/front/getServices",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      const result = await response.json();
-      if (result.status === 200) {
-        setServices(
-          result.data.map((service) => ({
-            value: service.id,
-            label: service.name,
-          }))
-        );
-      } else {
-        console.error("Error fetching services data");
-      }
-    } catch (error) {
-      console.error("Error fetching data: ", error);
-    }
-  };
-
-  const fetchConsultive = async () => {
-    try {
-      const token = Cookies.get("token");
-
-      const response = await fetch(
-        "https://inout-api.octopusteam.net/api/front/getCustomers",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      const result = await response.json();
-      if (result.status === 200) {
-        setConsultives(
-          result.data
-            .filter((consultive) => consultive.type === 2)
-            .map((consultive) => ({
-              value: consultive.id,
-              label: consultive.name,
-            }))
-        );
-      } else {
-        console.error("Error fetching services data");
-      }
-    } catch (error) {
-      console.error("Error fetching data: ", error);
-    }
-  };
-
+  // البيانات الأساسية للمشروع
   const [formData, setFormData] = useState({
     id: "",
     name: "",
@@ -112,21 +51,20 @@ const UpdateProject = () => {
     longitude: "",
   });
 
-  const LocationMarker = () => {
-    useMapEvents({
-      click(e) {
-        const { lat, lng } = e.latlng;
-        setFormData((prev) => ({ ...prev, latitude: lat, longitude: lng }));
-      },
-    });
+  // خيارات Select
+  const [services, setServices] = useState([]);
+  const [consultives, setConsultives] = useState([]);
+  const [branches, setBranches] = useState([]);
+  const [owners, setOwners] = useState([]);
+  const [customers, setCustomers] = useState([]);
+  const [engineers, setEngineers] = useState([]);
 
-    const { latitude, longitude } = formData;
-    return latitude && longitude ? (
-      <Marker position={[latitude, longitude]} />
-    ) : null;
-  };
+  // الحقول المختارة في Select
+  const [selectedServices, setSelectedServices] = useState([]);
+  const [selectedConsultives, setSelectedConsultives] = useState([]);
 
-  // const notify = (msg) => toast(msg);
+  // الموقع على الخريطة
+  const [position, setPosition] = useState([23.8859, 45.0792]);
 
   useEffect(() => {
     const token = Cookies.get("token");
@@ -139,7 +77,116 @@ const UpdateProject = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        // Fetch project data
+
+        // جلب الخدمات
+        const servicesRes = await fetch(
+          "https://inout-api.octopusteam.net/api/front/getServices",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        const servicesData = await servicesRes.json();
+        if (servicesData.status !== 200) {
+          throw new Error(servicesData.msg || "Failed to fetch services.");
+        }
+        const servicesOptions = servicesData.data.map((service) => ({
+          value: service.id,
+          label: service.name,
+        }));
+        setServices(servicesOptions);
+
+        // جلب الاستشاريين (العملاء من النوع 2)
+        const consultiveRes = await fetch(
+          "https://inout-api.octopusteam.net/api/front/getCustomers",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        const consultiveData = await consultiveRes.json();
+        if (consultiveData.status !== 200) {
+          throw new Error(consultiveData.msg || "Failed to fetch consultives.");
+        }
+        const consultivesOptions = consultiveData.data
+          .filter((c) => c.type === 2)
+          .map((c) => ({
+            value: c.id,
+            label: c.name,
+          }));
+        setConsultives(consultivesOptions);
+
+        // جلب الفروع
+        const branchesRes = await fetch(
+          "https://inout-api.octopusteam.net/api/front/getBranches",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        const branchesData = await branchesRes.json();
+        if (branchesData.status !== 200) {
+          throw new Error(branchesData.msg || "Failed to fetch branches.");
+        }
+        const branchesOptions = branchesData.data.map((branch) => ({
+          value: branch.id,
+          label: branch.name,
+        }));
+        setBranches(branchesOptions);
+
+        // جلب الملاك (العملاء من النوع 1)
+        const ownersRes = await fetch(
+          "https://inout-api.octopusteam.net/api/front/getCustomers",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        const ownersData = await ownersRes.json();
+        if (ownersData.status !== 200) {
+          throw new Error(ownersData.msg || "Failed to fetch owners.");
+        }
+        const ownersOptions = ownersData.data
+          .filter((owner) => owner.type === 1)
+          .map((owner) => ({
+            value: owner.id,
+            label: owner.name,
+          }));
+        setOwners(ownersOptions);
+
+        // جلب العملاء (العملاء من النوع 0)
+        const customersRes = await fetch(
+          "https://inout-api.octopusteam.net/api/front/getCustomers",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        const customersData = await customersRes.json();
+        if (customersData.status !== 200) {
+          throw new Error(customersData.msg || "Failed to fetch customers.");
+        }
+        const customersOptions = customersData.data
+          .filter((customer) => customer.type === 0)
+          .map((customer) => ({
+            value: customer.id,
+            label: customer.name,
+          }));
+        setCustomers(customersOptions);
+
+        // جلب المهندسين
+        const engineersRes = await fetch(
+          "https://inout-api.octopusteam.net/api/front/getEngineers",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        const engineersData = await engineersRes.json();
+        if (engineersData.status !== 200) {
+          throw new Error(engineersData.msg || "Failed to fetch engineers.");
+        }
+        const engineersOptions = engineersData.data.map((engineer) => ({
+          value: engineer.id,
+          label: engineer.full_name,
+        }));
+        setEngineers(engineersOptions);
+
+        // جلب بيانات المشروع المحدد
         const projectsRes = await fetch(
           "https://inout-api.octopusteam.net/api/front/getProjects",
           {
@@ -151,6 +198,7 @@ const UpdateProject = () => {
         if (projectsData.status !== 200) {
           throw new Error(projectsData.msg || "Failed to fetch projects.");
         }
+
         const project = projectsData.data.find(
           (item) => item.id === parseInt(id)
         );
@@ -158,66 +206,62 @@ const UpdateProject = () => {
           throw new Error("Project not found");
         }
 
-        // Fetch other necessary data (branches, owners, customers, engineers)
-        const [branchesRes, ownersRes, customersRes, engineersRes] =
-          await Promise.all([
-            fetch("https://inout-api.octopusteam.net/api/front/getBranches", {
-              method: "GET",
-              headers: { Authorization: `Bearer ${token}` },
-            }),
-            fetch("https://inout-api.octopusteam.net/api/front/getCustomers", {
-              method: "GET",
-              headers: { Authorization: `Bearer ${token}` },
-            }),
-            fetch("https://inout-api.octopusteam.net/api/front/getCustomers", {
-              method: "GET",
-              headers: { Authorization: `Bearer ${token}` },
-            }),
-            fetch("https://inout-api.octopusteam.net/api/front/getEngineers", {
-              method: "GET",
-              headers: { Authorization: `Bearer ${token}` },
-            }),
-          ]);
+        // تعيين بيانات المشروع في النموذج
+        setFormData({
+          id: project.id,
+          name: project.name,
+          branch_id: project.branch_id,
+          project_owner_id: project.project_owner_id,
+          customer_constructor_id: project.customer_constructor_id,
+          inspection_date: project.inspection_date,
+          inspection_time: project.inspection_time,
+          notes: project.notes,
+          status: project.status,
+          inspection_engineer_id: project.inspection_engineer_id,
+          latitude: project.latitude,
+          longitude: project.longitude,
+        });
 
-        const [branchesData, ownersData, customersData, engineersData] =
-          await Promise.all([
-            branchesRes.json(),
-            ownersRes.json(),
-            customersRes.json(),
-            engineersRes.json(),
-          ]);
+        // تعيين الموقع على الخريطة
+        setPosition([project.latitude, project.longitude]);
 
-        setBranches(branchesData.data);
-        setOwners(ownersData.data);
-        setCustomers(customersData.data);
-        setEngineers(engineersData.data);
+        // تعيين الخدمات المختارة
+        const initialSelectedServices = servicesOptions
+          .filter((s) => project.services.some((ps) => ps.service_id === s.value))
+          .map((s) => ({
+            value: s.value,
+            label: s.label,
+          }));
+        setSelectedServices(initialSelectedServices);
 
-        setFormData((prev) => ({
-          ...prev,
-          ...project,
-          latitude: project.latitude || "23.8859",
-          longitude: project.longitude || "45.0792",
-        }));
+        // تعيين الاستشاريين المختارين
+        const initialSelectedConsultives = consultivesOptions
+          .filter((c) =>
+            project.consultive.some((pc) => pc.consultive_id === c.value)
+          )
+          .map((c) => ({
+            value: c.value,
+            label: c.label,
+          }));
+        setSelectedConsultives(initialSelectedConsultives);
       } catch (err) {
         setError(err.message || "An unexpected error occurred.");
+        toast.error(err.message || "An unexpected error occurred.");
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [id]);
+  }, [id, navigate]);
 
-  useEffect(() => {
-    fetchServices();
-    fetchConsultive();
-  }, []);
-
+  // تحديث الحقول في النموذج
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
+  // معالجة الإرسال (التعديل)
   const handleSubmit = async (e) => {
     e.preventDefault();
     const token = Cookies.get("token");
@@ -232,8 +276,17 @@ const UpdateProject = () => {
       return;
     }
 
-    // setLoading(true);
+    // تعريف المتغيرات داخل الدالة
+    const selectedServiceIds =
+      selectedServices && selectedServices.length > 0
+        ? selectedServices.map((s) => s.value)
+        : [];
+    const selectedConsultiveIds =
+      selectedConsultives && selectedConsultives.length > 0
+        ? selectedConsultives.map((c) => c.value)
+        : [];
 
+    // إعداد بيانات الإرسال
     const data = new FormData();
     data.append("id", formData.id);
     data.append("name", formData.name);
@@ -268,17 +321,15 @@ const UpdateProject = () => {
 
       const res = await response.json();
 
-      if (res.status == 200) {
-        alert("Event has been updated");
-        // toast.success("Event has been created");
-
+      if (res.status === 200) {
+        toast.success("Project has been updated successfully!");
         navigate("/allprojects/showallprojects");
+      } else {
+        toast.error(res.msg || "Failed to update project.");
       }
     } catch (error) {
       console.error("Error updating project:", error);
       toast.error("Failed to update project. Please try again.");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -294,7 +345,7 @@ const UpdateProject = () => {
     <>
       {loading ? (
         <div className="flex items-center justify-center w-full h-full text-xl">
-          <p>loading...</p>
+          <p>Loading...</p>
         </div>
       ) : (
         <div className="service container mx-auto p-6 dark:bg-slate-800 shadow-md rounded-lg max-w-2xl mt-10">
@@ -304,6 +355,7 @@ const UpdateProject = () => {
             Update Project
           </h2>
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Project Name */}
             <div>
               <label
                 htmlFor="name"
@@ -322,6 +374,7 @@ const UpdateProject = () => {
               />
             </div>
 
+            {/* Inspection Date */}
             <div>
               <label
                 htmlFor="inspection_date"
@@ -376,16 +429,21 @@ const UpdateProject = () => {
             </div>
 
             {/* Project Status */}
-            <div className="">
-              <label className="block ml-6 text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
+            <div>
+              <label
+                htmlFor="status"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
                 Project Status
               </label>
               <select
                 name="status"
+                id="status"
                 value={formData.status}
                 onChange={handleChange}
-                className="add border border-gray-300 rounded-md p-2 text-gray-700 w-full dark:bg-slate-700 dark:text-white"
+                className="w-full dark:bg-slate-700 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
               >
+                <option value="">Select Status</option>
                 <option value="0">Not Started</option>
                 <option value="2">In Progress</option>
                 <option value="4">Completed</option>
@@ -403,20 +461,16 @@ const UpdateProject = () => {
               >
                 Branch
               </label>
-              <select
-                id="branch_id"
+              <Select
+                options={branches}
                 name="branch_id"
-                value={formData.branch_id}
-                onChange={handleChange}
-                className="w-full dark:bg-slate-700 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
-              >
-                <option value="">Select Branch</option>
-                {branches.map((b) => (
-                  <option key={b.id} value={b.id}>
-                    {b.name}
-                  </option>
-                ))}
-              </select>
+                placeholder="Select Branch"
+                className="dark:bg-slate-700 dark:text-white"
+                value={branches.find((b) => b.value === formData.branch_id) || null}
+                onChange={(selected) =>
+                  setFormData({ ...formData, branch_id: selected ? selected.value : "" })
+                }
+              />
             </div>
 
             {/* Project Owner */}
@@ -427,41 +481,55 @@ const UpdateProject = () => {
               >
                 Project Owner
               </label>
-              <select
-                id="project_owner_id"
+              <Select
+                options={owners}
                 name="project_owner_id"
-                value={formData.project_owner_id}
-                onChange={handleChange}
-                className="w-full dark:bg-slate-700 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
-              >
-                <option value="">Select Owner</option>
-                {owners.map((o) => (
-                  <option key={o.id} value={o.id}>
-                    {o.name}
-                  </option>
-                ))}
-              </select>
+                placeholder="Select Project Owner"
+                className="dark:bg-slate-700 dark:text-white"
+                value={owners.find((o) => o.value === formData.project_owner_id) || null}
+                onChange={(selected) =>
+                  setFormData({ ...formData, project_owner_id: selected ? selected.value : "" })
+                }
+              />
             </div>
 
-            <Select
-              isMulti
-              options={services}
-              value={selectedServices}
-              onChange={(options) => setSelectedServices(options)}
-              placeholder="Select Services"
-              name="service_ids[]"
-              className="select1 custom-select flex-1"
-            />
+            {/* Services */}
+            <div>
+              <label
+                htmlFor="services"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
+                Services
+              </label>
+              <Select
+                isMulti
+                options={services}
+                value={selectedServices}
+                onChange={setSelectedServices}
+                placeholder="Select Services"
+                name="services"
+                className="dark:bg-slate-700 dark:text-white"
+              />
+            </div>
 
-            <Select
-              isMulti
-              options={consultives}
-              value={selectedConsultives}
-              onChange={(options) => setSelectedConsultives(options)}
-              placeholder="Select Consultive"
-              name="consultivve_ids[]"
-              className="select1 custom-select flex-1"
-            />
+            {/* Consultives */}
+            <div>
+              <label
+                htmlFor="consultives"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
+                Consultive(s)
+              </label>
+              <Select
+                isMulti
+                options={consultives}
+                value={selectedConsultives}
+                onChange={setSelectedConsultives}
+                placeholder="Select Consultive(s)"
+                name="consultives"
+                className="dark:bg-slate-700 dark:text-white"
+              />
+            </div>
 
             {/* Customer */}
             <div>
@@ -471,20 +539,22 @@ const UpdateProject = () => {
               >
                 Customer
               </label>
-              <select
-                id="customer_constructor_id"
+              <Select
+                options={customers}
                 name="customer_constructor_id"
-                value={formData.customer_constructor_id}
-                onChange={handleChange}
-                className="w-full dark:bg-slate-700 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
-              >
-                <option value="">Select Customer</option>
-                {customers.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
+                placeholder="Select Customer"
+                className="dark:bg-slate-700 dark:text-white"
+                value={
+                  customers.find((c) => c.value === formData.customer_constructor_id) ||
+                  null
+                }
+                onChange={(selected) =>
+                  setFormData({
+                    ...formData,
+                    customer_constructor_id: selected ? selected.value : "",
+                  })
+                }
+              />
             </div>
 
             {/* Inspection Engineer */}
@@ -495,57 +565,45 @@ const UpdateProject = () => {
               >
                 Inspection Engineer
               </label>
-              <select
-                id="inspection_engineer_id"
+              <Select
+                options={engineers}
                 name="inspection_engineer_id"
-                value={formData.inspection_engineer_id}
-                onChange={handleChange}
-                className="w-full dark:bg-slate-700 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
-              >
-                <option value="">Select Engineer</option>
-                {engineers.map((eng) => (
-                  <option key={eng.id} value={eng.id}>
-                    {eng.full_name}
-                  </option>
-                ))}
-              </select>
+                placeholder="Select Engineer"
+                className="dark:bg-slate-700 dark:text-white"
+                value={
+                  engineers.find((e) => e.value === formData.inspection_engineer_id) ||
+                  null
+                }
+                onChange={(selected) =>
+                  setFormData({
+                    ...formData,
+                    inspection_engineer_id: selected ? selected.value : "",
+                  })
+                }
+              />
             </div>
 
             {/* الخريطة */}
-            <div className="mt-1 block w-full border border-gray-300 dark:border-gray-700 rounded-md p-2 dark:text-white">
-              <input
-                type="hidden"
-                hidden
-                value={formData.latitude}
-                onChange={handleChange}
-                name="latitude"
-              />
-
-              <input
-                type="hidden"
-                hidden
-                value={formData.longitude}
-                onChange={handleChange}
-                name="longitude"
-              />
-
-              <div>
-                <MapContainer
-                  center={[23.8859, 45.0792]}
-                  zoom={6}
-                  style={{ height: "200px", width: "100%" }}
-                >
-                  <TileLayer
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                  />
-                  <LocationMarker />
-                </MapContainer>
-              </div>
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Inspection Location
+              </label>
+              <MapContainer
+                center={position}
+                zoom={6}
+                style={{ height: "200px", width: "100%" }}
+              >
+                <TileLayer
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                />
+                <LocationMarker setPosition={setPosition} />
+                {position && <Marker position={position} />}
+              </MapContainer>
             </div>
 
             {/* زر الإرسال */}
-            <div className="flex justify-center">
+            <div className="flex justify-center mt-6">
               <button
                 type="submit"
                 disabled={loading}

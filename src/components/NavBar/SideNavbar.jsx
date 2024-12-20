@@ -22,7 +22,6 @@ import {
 } from "react-icons/fa";
 import logo22 from "../../assests/logoo22.png";
 import DropDown from "../Login/DropDown";
-// import Cookies from 'js-cookie';
 
 const projects = [
   {
@@ -219,7 +218,6 @@ const Navbar = () => {
 
   const handleToggleSubMenuItem = (submenu) => {
     setSubMenuItems((prevItems) => ({
-      ...prevItems,
       [submenu]: !prevItems[submenu],
     }));
   };
@@ -239,13 +237,13 @@ const Navbar = () => {
           </Link>
         </div>
         <form className="w-4/12 mx-auto hidden sm:block">
-          <label
+          {/* <label
             htmlFor="default-search"
             className="text-sm font-medium text-gray-900 sr-only dark:text-white"
           >
             Search
-          </label>
-          <div className="relative">
+          </label> */}
+          {/* <div className="relative">
             <div className="absolute inset-y-0 left-0 flex items-center pl-6 pointer-events-none">
               <FaSearch className="text-gray-400" />
             </div>
@@ -256,7 +254,7 @@ const Navbar = () => {
               placeholder="Search"
               required
             />
-          </div>
+          </div> */}
         </form>
 
         <div className="flex items-center space-x-4">

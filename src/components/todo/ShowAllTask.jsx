@@ -222,7 +222,7 @@ const ShowAllTask = () => {
                   onClick={() => sorting("id")}
                   aria-sort={order === "ASC" ? "ascending" : "descending"}
                 >
-                  ID {renderSortIcon("id")}
+                  # {renderSortIcon("id")}
                 </th>
                 <th
                   className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"

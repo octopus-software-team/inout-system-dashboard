@@ -124,7 +124,7 @@ const AddServices = () => {
         />
         <Link
           to="/company/assets/createassettype"
-          className="bg-gradient-to-r from-blue-500 to-green-500 text-white font-semibold py-2 px-6 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
+          className=" text-white bg-blue-800 font-semibold py-2 px-6 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
         >
           + Create Asset Type
         </Link>
@@ -144,7 +144,7 @@ const AddServices = () => {
             <thead>
               <tr className="bg-gradient-to-r from-blue-600 to-blue-400 text-white">
                 <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
-                  ID
+                  #
                 </th>
                 <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
                   Name

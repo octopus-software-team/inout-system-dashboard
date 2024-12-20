@@ -171,7 +171,7 @@ const Branchs = () => {
   };
 
   return (
-    <div className="container p-5 mt-5">
+    <div className="container p-5 mt-5 border-collapse">
       <h2 className="text-center font-bold text-2xl text-black">Branches</h2>
 
       <div className="flex justify-between items-center my-4">
@@ -184,7 +184,7 @@ const Branchs = () => {
         />
         <Link
           to="/company/addbranch"
-          className="bg-gradient-to-r from-blue-500 to-green-500 text-white font-semibold py-2 px-6 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
+          className=" text-white bg-blue-800 font-semibold py-2 px-6 rounded-lg transition duration-300"
         >
           + Create Branch
         </Link>
@@ -216,7 +216,7 @@ const Branchs = () => {
                 Import File
               </h2>
               <div className="flex flex-col items-center space-y-4">
-                <ImportFile tableName={tableName} /> {/* استدعاء مكون الاستيراد هنا */}
+                <ImportFile tableName={tableName} />
               </div>
             </div>
           </div>
@@ -231,7 +231,7 @@ const Branchs = () => {
                 className="px-4  py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
                 onClick={() => handleSort("id")}
               >
-                ID{" "}
+                #{" "}
                 {sortConfig.key === "id"
                   ? sortConfig.direction === "ascending"
                     ? "↑"
@@ -252,7 +252,7 @@ const Branchs = () => {
               <th className="px-4 text-left font-semibold text-lg border-b border-gray-300">
                 Location
               </th>
-              <th className="px-4 text-right font-semibold text-lg border-b border-gray-300">
+              <th className="px-4 text-left font-semibold text-lg border-b border-gray-300">
                 Actions
               </th>
             </tr>
@@ -285,7 +285,7 @@ const Branchs = () => {
                       View on Map
                     </button>
                   </td>
-                  <td className="px-4 dark:bg-slate-900 text-right space-x-2">
+                  <td className="px-4 dark:bg-slate-900 text-left space-x-2">
                     <button
                       onClick={() =>
                         navigate(`/company/updatebranch/${d.id}`, { state: d })
@@ -318,7 +318,7 @@ const Branchs = () => {
         pauseOnFocusLoss
         draggable
         pauseOnHover
-        style={{ zIndex: 9999 }} 
+        style={{ zIndex: 9999 }}
       />
     </div>
   );

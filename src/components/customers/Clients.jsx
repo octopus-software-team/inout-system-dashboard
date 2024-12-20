@@ -158,9 +158,9 @@ const Clients = () => {
         />
         <Link
           to="/customers/createclients"
-          className="text-white bg-blue-500 rounded p-2 transform hover:scale-105 transition duration-300"
+          className="text-white bg-blue-800 rounded p-2 transform hover:scale-105 transition duration-300"
         >
-          Create Client
+         + Create Client
         </Link>
       </div>
 
@@ -185,7 +185,7 @@ const Clients = () => {
                         onClick={() => sorting("id")}
                         aria-sort={order === "ASC" ? "ascending" : "descending"}
                       >
-                        ID {renderSortIcon("id")}
+                        # {renderSortIcon("id")}
                       </th>
                       <th
                         className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer dark:bg-slate-900 dark:text-white"

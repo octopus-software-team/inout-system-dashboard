@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { FaEdit, FaEye, FaProjectDiagram, FaTrash } from "react-icons/fa";
+import { FaEdit, FaEye, FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Cookies from 'js-cookie';
+import Cookies from "js-cookie";
 
 const ShowAllProjects = () => {
   const [projects, setProjects] = useState([]);
@@ -19,6 +19,8 @@ const ShowAllProjects = () => {
   const [owners, setOwners] = useState({});
   const [customers, setCustomers] = useState({});
   const [engineers, setEngineers] = useState({});
+  const [servicesMap, setServicesMap] = useState({});
+  const [consultivesMap, setConsultivesMap] = useState({});
 
   // Status Mapping
   const STATUS_MAPPING = {
@@ -37,7 +39,7 @@ const ShowAllProjects = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const token = Cookies.get('token');
+      const token = Cookies.get("token");
       if (!token) {
         setError("You are not authenticated. Please log in.");
         setIsLoading(false);
@@ -45,7 +47,7 @@ const ShowAllProjects = () => {
       }
 
       try {
-        // Fetch Projects
+        // جلب المشاريع
         const projectsResponse = await fetch(
           "https://inout-api.octopusteam.net/api/front/getProjects",
           {
@@ -64,7 +66,7 @@ const ShowAllProjects = () => {
 
         const fetchedProjects = projectsData.data;
 
-        // Fetch Branches
+        // جلب الفروع
         const branchesResponse = await fetch(
           "https://inout-api.octopusteam.net/api/front/getBranches",
           {
@@ -86,7 +88,7 @@ const ShowAllProjects = () => {
         });
         setBranches(branchesMap);
 
-        // Fetch Owners
+        // جلب الملاك
         const ownersResponse = await fetch(
           "https://inout-api.octopusteam.net/api/front/getCustomers",
           {
@@ -109,10 +111,7 @@ const ShowAllProjects = () => {
         });
         setOwners(ownersMap);
 
-
-        
-
-        // Fetch Customers
+        // جلب العملاء
         const customersResponse = await fetch(
           "https://inout-api.octopusteam.net/api/front/getCustomers",
           {
@@ -134,7 +133,7 @@ const ShowAllProjects = () => {
         });
         setCustomers(customersMap);
 
-        // Fetch Engineers
+        // جلب المهندسين
         const engineersResponse = await fetch(
           "https://inout-api.octopusteam.net/api/front/getEngineers",
           {
@@ -156,6 +155,40 @@ const ShowAllProjects = () => {
         });
         setEngineers(engineersMap);
 
+        // جلب الخدمات
+        const servicesResponse = await fetch(
+          "https://inout-api.octopusteam.net/api/front/getServices",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const serviceData = await servicesResponse.json();
+
+        if (serviceData.status !== 200) {
+          throw new Error(serviceData.msg || "Failed to fetch services.");
+        }
+
+        // تحويل الخدمات إلى خريطة
+        const tempServicesMap = {};
+        serviceData.data.forEach((service) => {
+          tempServicesMap[service.id] = service.name;
+        });
+        setServicesMap(tempServicesMap);
+
+        // جلب الاستشاريين (العملاء من النوع 2)
+        const consultivesMapTemp = {};
+        customersData.data
+          .filter((customer) => customer.type === 2)
+          .forEach((consultive) => {
+            consultivesMapTemp[consultive.id] = consultive.name;
+          });
+        setConsultivesMap(consultivesMapTemp);
+
+        // تحويل المشاريع مع الحقول الإضافية
         const mappedProjects = fetchedProjects.map((project) => ({
           ...project,
           branchName: branchesMap[project.branch_id] || "Unknown",
@@ -164,7 +197,19 @@ const ShowAllProjects = () => {
             customersMap[project.customer_constructor_id] || "Unknown",
           engineerName:
             engineersMap[project.inspection_engineer_id] || "Unknown",
+          services: project.services
+            ? project.services
+                .map((s) => tempServicesMap[s.service_id] || "Unknown")
+                .join(", ")
+            : "None",
+          consultives: project.consultive
+            ? project.consultive
+                .map((c) => consultivesMapTemp[c.consultive_id] || "Unknown")
+                .join(", ")
+            : "None",
           statusText: STATUS_MAPPING[project.status] || "Unknown",
+          notes: project.notes || "N/A",
+          inspectionTime: project.inspection_time || "N/A",
         }));
 
         setProjects(mappedProjects);
@@ -221,7 +266,7 @@ const ShowAllProjects = () => {
     toast(
       ({ closeToast }) => (
         <div>
-          <p>Are You Sure You want to delete this project?</p>
+          <p>Are you sure you want to delete this project?</p>
           <div className="flex space-x-2 mt-2">
             <button
               className="bg-red-500 text-white px-3 py-1 rounded"
@@ -253,7 +298,7 @@ const ShowAllProjects = () => {
   };
 
   const performDelete = async (id) => {
-    const token = Cookies.get('token');
+    const token = Cookies.get("token");
 
     if (!token) {
       toast.error("You are not authenticated. Please log in.");
@@ -324,7 +369,7 @@ const ShowAllProjects = () => {
                         className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
                         onClick={() => sorting("id")}
                       >
-                        ID {renderSortIcon("id")}
+                        # {renderSortIcon("id")}
                       </th>
                       <th
                         className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
@@ -368,8 +413,19 @@ const ShowAllProjects = () => {
                       >
                         Engineer {renderSortIcon("engineerName")}
                       </th>
+                      {/* الأعمدة الجديدة */}
                       <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
                         Notes
+                      </th>
+                      <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
+                        Inspection Time
+                      </th>
+                      {/* الأعمدة الحالية */}
+                      <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
+                        Services
+                      </th>
+                      <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
+                        Consultives
                       </th>
                       <th className="pe-16 text-center dark:bg-slate-900 dark:text-white py-3 font-semibold text-lg border-b border-gray-300">
                         Actions
@@ -381,7 +437,9 @@ const ShowAllProjects = () => {
                       .filter((project) => {
                         return search.toLowerCase() === ""
                           ? true
-                          : project.name.toLowerCase().includes(search.toLowerCase());
+                          : project.name
+                              .toLowerCase()
+                              .includes(search.toLowerCase());
                       })
                       .map((project, index) => (
                         <tr
@@ -416,39 +474,41 @@ const ShowAllProjects = () => {
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
                             {project.engineerName}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 break-words">
+                          {/* الأعمدة الجديدة */}
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
                             {project.notes}
                           </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                            {project.inspectionTime}
+                          </td>
+                          {/* الأعمدة الحالية */}
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                            {project.services}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                            {project.consultives}
+                          </td>
+                          {/* عمود الإجراءات */}
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
                             <div className="flex space-x-1">
                               <Link
                                 to={`/allprojects/updateprojects/${project.id}`}
                                 className="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 p-2 flex items-center text-xs"
                               >
-                                <FaEdit className="mr-1" />
-                                Edit
+                                <FaEdit className="mr-1" /> Edit
                               </Link>
                               <button
                                 onClick={() => handleDelete(project.id)}
                                 className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 p-2 flex items-center text-xs"
                               >
-                                <FaTrash className="mr-1" />
-                                Delete
+                                <FaTrash className="mr-1" /> Delete
                               </button>
                               <button
                                 onClick={() => handleViewClick(project.id)}
                                 className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 p-2 flex items-center text-xs"
                               >
-                                <FaEye className="mr-1" />
-                                View
+                                <FaEye className="mr-1" /> View
                               </button>
-                              {/* <button
-                                onClick={() => handleReportClick(project.id)}
-                                className="bg-gray-600 text-white px-2 py-1 rounded hover:bg-gray-700 p-2 flex items-center text-xs"
-                              >
-                                <FaProjectDiagram className="mr-1" />
-                                Add Report
-                              </button> */}
                             </div>
                           </td>
                         </tr>

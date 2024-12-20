@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import toast, { Toaster } from "react-hot-toast";
+import { FaSpinner } from "react-icons/fa"; // استيراد أيقونة Spinner
 
 const EditOwner = () => {
   const { id } = useParams();
@@ -13,6 +14,7 @@ const EditOwner = () => {
     type: 1,
   });
   const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false); // حالة التحميل
   const token = Cookies.get("token");
 
   useEffect(() => {
@@ -75,6 +77,7 @@ const EditOwner = () => {
     e.preventDefault();
     setErrors({});
 
+    // التحقق من الحقول المطلوبة
     if (!formData.name || !formData.email || !formData.phone) {
       toast.error("All fields are required.");
       return;
@@ -85,6 +88,8 @@ const EditOwner = () => {
       toast.error("Please enter a valid phone number.");
       return;
     }
+
+    setIsLoading(true); // بدء حالة التحميل
 
     try {
       const response = await fetch(`https://inout-api.octopusteam.net/api/front/updateCustomer/${id}`, {
@@ -111,6 +116,8 @@ const EditOwner = () => {
     } catch (err) {
       toast.error("An error occurred. Please try again.");
       console.error("Error updating owner:", err);
+    } finally {
+      setIsLoading(false); // إنهاء حالة التحميل
     }
   };
 
@@ -211,9 +218,19 @@ const EditOwner = () => {
 
         <button
           type="submit"
-          className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-200 transition duration-300"
+          disabled={isLoading}
+          className={`w-full bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-200 transition duration-300 ${
+            isLoading ? "opacity-50 cursor-not-allowed flex items-center justify-center" : ""
+          }`}
         >
-          Update
+          {isLoading ? (
+            <>
+              <FaSpinner className="animate-spin mr-2" />
+              Updating...
+            </>
+          ) : (
+            "Update"
+          )}
         </button>
       </form>
     </div>

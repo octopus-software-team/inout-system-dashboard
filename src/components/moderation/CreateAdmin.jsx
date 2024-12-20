@@ -1,28 +1,28 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Cookies from 'js-cookie';
-
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import Cookies from "js-cookie";
 
 const CreateAdmin = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
-    const token = localStorage.getItem('token');
-
+    const token = Cookies.get("token");
     e.preventDefault();
     setIsLoading(true);
+    setErrors({});
 
     const payload = {
       name,
       email,
       password,
     };
-
-    console.log("Payload being sent:", payload);
 
     fetch("https://inout-api.octopusteam.net/api/front/register", {
       method: "POST",
@@ -32,19 +32,21 @@ const CreateAdmin = () => {
       },
       body: JSON.stringify(payload),
     })
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error("Failed to register admin");
-        }
-        return res.json();
-      })
+      .then((res) => res.json())
       .then((data) => {
-        alert(data.msg || "Admin registered successfully!");
-        navigate("/moderators"); 
+        if (data.success) {
+          toast.success("Admin registered successfully!");
+          setTimeout(() => navigate("/moderation/moderator"), 2000);
+        } else if (data.status === 422) {
+          setErrors(data.data);
+          toast.error("Please fix the highlighted errors.");
+        } else {
+          toast.error(data.msg || "Failed to register admin. Please try again.");
+        }
       })
       .catch((err) => {
         console.error("Error registering admin:", err);
-        alert("Failed to register admin. Please try again.");
+        toast.error("An error occurred while registering the admin.");
       })
       .finally(() => {
         setIsLoading(false);
@@ -53,6 +55,7 @@ const CreateAdmin = () => {
 
   return (
     <div className="container mx-auto mt-10 p-5">
+      <ToastContainer />
       <h2 className="text-center text-2xl font-bold mb-5">Create New Admin</h2>
       <form
         onSubmit={handleSubmit}
@@ -74,6 +77,9 @@ const CreateAdmin = () => {
             required
             className="shadow dark:bg-slate-900 dark:text-white appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:ring focus:ring-blue-500"
           />
+          {errors.name && (
+            <p className="text-red-500 text-xs mt-2">{errors.name[0]}</p>
+          )}
         </div>
 
         <div className="mb-4">
@@ -92,6 +98,9 @@ const CreateAdmin = () => {
             required
             className="shadow dark:bg-slate-900 dark:text-white appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:ring focus:ring-blue-500"
           />
+          {errors.email && (
+            <p className="text-red-500 text-xs mt-2">{errors.email[0]}</p>
+          )}
         </div>
 
         <div className="mb-4">
@@ -110,6 +119,9 @@ const CreateAdmin = () => {
             required
             className="shadow dark:bg-slate-900 dark:text-white appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:ring focus:ring-blue-500"
           />
+          {errors.password && (
+            <p className="text-red-500 text-xs mt-2">{errors.password[0]}</p>
+          )}
         </div>
 
         <div className="flex items-center justify-between">

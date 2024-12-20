@@ -1230,7 +1230,6 @@ const AddNewProject = () => {
             </p>
           )}
 
-          {/* Search Input for Map */}
           <form onSubmit={handleSearch} className="mt-4 flex">
             <input
               type="text"
