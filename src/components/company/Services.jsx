@@ -252,13 +252,13 @@ const AddServices = () => {
           <table className="table-auto w-full border border-gray-200 bg-white rounded-lg">
             <thead>
               <tr className="bg-gradient-to-r from-blue-600 to-blue-400 text-white">
-                <th className="px-4  py-3 text-left font-semibold text-lg border-b border-gray-300">
+                <th className="th4 px-4  py-3 text-left font-semibold text-lg border-b border-gray-300">
                   #{renderSortIcon("id")}
                 </th>
-                <th className="px-4  py-3 text-left font-semibold text-lg border-b border-gray-300">
+                <th className="th5 px-4  py-3 text-left font-semibold text-lg border-b border-gray-300">
                   Name {renderSortIcon("name")}
                 </th>
-                <th className="px-4  py-3 text-right font-semibold text-lg border-b border-gray-300">
+                <th className="th6 px-4  py-3 text-right font-semibold text-lg border-b border-gray-300">
                   Actions
                 </th>
               </tr>
@@ -283,7 +283,7 @@ const AddServices = () => {
                     <td className="px-4 py-3 dark:bg-slate-900 dark:text-white text-gray-800">
                       {d.name}
                     </td>
-                    <td className="px-4 py-3 dark:bg-slate-900 dark:text-white text-right space-x-2">
+                    <td className="th6 px-4 py-3 dark:bg-slate-900 dark:text-white text-right space-x-2">
                       <button
                         onClick={() => handleEdit(d.id)}
                         className="bg-green-600 text-white font-semibold py-2 px-4 rounded-lg hover:shadow-md transform hover:scale-105 transition duration-300"

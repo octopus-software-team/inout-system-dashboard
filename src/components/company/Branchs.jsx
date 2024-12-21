@@ -228,7 +228,7 @@ const Branchs = () => {
           <thead>
             <tr className="bg-gradient-to-r from-blue-600 to-blue-400 text-white">
               <th
-                className="px-4  py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
+                className="th2 px-4  py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
                 onClick={() => handleSort("id")}
               >
                 #{" "}
@@ -239,7 +239,7 @@ const Branchs = () => {
                   : ""}
               </th>
               <th
-                className="px-4 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
+                className="th1 px-4 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
                 onClick={() => handleSort("name")}
               >
                 Name{" "}
@@ -249,10 +249,10 @@ const Branchs = () => {
                     : "↓"
                   : ""}
               </th>
-              <th className="px-4 text-left font-semibold text-lg border-b border-gray-300">
+              <th className="th1 px-4 text-left font-semibold text-lg border-b border-gray-300">
                 Location
               </th>
-              <th className="px-4 text-left font-semibold text-lg border-b border-gray-300">
+              <th className="th1 px-4 text-left font-semibold text-lg border-b border-gray-300">
                 Actions
               </th>
             </tr>

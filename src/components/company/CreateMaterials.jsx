@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import toast, { Toaster } from "react-hot-toast";
 import Cookies from 'js-cookie';
 
 const CreateMaterials = () => {
   const [name, setName] = useState("");
   const [stock, setStock] = useState("");
   const [type, setType] = useState("");
-  const [errorMessage, setErrorMessage] = useState(""); // إضافة حالة لتخزين رسالة الخطأ
+  const [errorMessage, setErrorMessage] = useState(""); 
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
@@ -54,6 +54,17 @@ const CreateMaterials = () => {
   
   return (
     <div className="container mt-5">
+       <Toaster
+              position="top-center"
+              reverseOrder={false}
+              toastOptions={{
+                style: {
+                  width: "350px",
+                  height: "80px",
+                  fontSize: "1.2rem",
+                },
+              }}
+            />
       <h2 className="text-center font-bold text-2xl text-black">
         Create Material
       </h2>
@@ -131,7 +142,7 @@ const CreateMaterials = () => {
         <div className="text-center">
           <button
             type="submit"
-            className="bg-gradient-to-r from-blue-500 to-green-500 text-white font-semibold py-2 px-6 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
+            className=" text-white bg-blue-800 font-semibold py-2 px-6 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
           >
             Create Material
           </button>

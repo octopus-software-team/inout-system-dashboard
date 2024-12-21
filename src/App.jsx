@@ -73,6 +73,7 @@ import ProjectSecRepo from "./components/company/ProjectSecRepo";
 import CreateSecRepo from "./components/company/CreateSecRepo";
 import EditSecRepo from "./components/company/EditSecRepo";
 import { Toaster, toast } from 'sonner'
+import AdminDetails from "./components/Login/AdminDetails";
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -121,6 +122,10 @@ function App() {
             <Route
               path="/settingicon/settingicon"
               element={<PrivateRoute element={<SettingsIcon />} />}
+            />
+             <Route
+              path="/dropdown/admindetails"
+              element={<PrivateRoute element={<AdminDetails />} />}
             />
             <Route
               path="/allprojects/addnewproject"

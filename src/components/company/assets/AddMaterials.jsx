@@ -10,7 +10,23 @@ const AddMaterials = () => {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
 
-  // Fetch data from API with headers and token
+  // دالة لتحويل نوع المادة من رقم إلى نص
+  const getTypeName = (type) => {
+    switch (type) {
+      case 0:
+        return "kg";
+      case 1:
+        return "piece";
+      case 2:
+        return "meter";
+      case 3:
+        return "liter";
+      default:
+        return "Unknown";
+    }
+  };
+
+  // جلب البيانات من API مع الرؤوس والتوكن
   useEffect(() => {
     const token = Cookies.get("token");
    
@@ -42,7 +58,7 @@ const AddMaterials = () => {
   const handleDelete = (id) => {
     const token = Cookies.get("token");
 
-    // Show a toast confirmation for deletion
+    // عرض توست تأكيد للحذف
     const confirmToast = toast(
       <div>
         <p>Are you sure you want to delete this material?</p>
@@ -54,7 +70,7 @@ const AddMaterials = () => {
             Yes
           </button>
           <button
-            onClick={() => toast.dismiss(confirmToast)} // Dismiss the toast if "No"
+            onClick={() => toast.dismiss(confirmToast)} // إغلاق التوست إذا تم الضغط على "No"
             className="bg-gray-600 text-white py-1 px-4 rounded-lg"
           >
             No
@@ -81,12 +97,12 @@ const AddMaterials = () => {
       .then((resData) => {
         toast.success(resData.msg || "Material deleted successfully");
         setData((prevData) => prevData.filter((material) => material.id !== id));
-        toast.dismiss(confirmToast); // Dismiss the confirmation toast
+        toast.dismiss(confirmToast); // إغلاق توست التأكيد
       })
       .catch((err) => {
         console.error("Error deleting material:", err);
         toast.error("Failed to delete material. Please try again.");
-        toast.dismiss(confirmToast); // Dismiss the confirmation toast on error
+        toast.dismiss(confirmToast); // إغلاق توست التأكيد عند حدوث خطأ
       });
   };
 
@@ -123,6 +139,9 @@ const AddMaterials = () => {
               <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
                 Stock
               </th>
+              <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
+                Type
+              </th>
               <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-right font-semibold text-lg border-b border-gray-300">
                 Actions
               </th>
@@ -145,6 +164,9 @@ const AddMaterials = () => {
                   <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">{item.id}</td>
                   <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">{item.name}</td>
                   <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">{item.stock}</td>
+                  <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">
+                    {getTypeName(item.type)}
+                  </td>
                   <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-right space-x-2">
                     <button
                       onClick={() =>

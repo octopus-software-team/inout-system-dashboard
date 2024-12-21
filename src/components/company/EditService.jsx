@@ -71,11 +71,11 @@ const EditService = () => {
   };
 
   return (
-    <div className="flex dark:bg-slate-800 justify-center items-center h-screen bg-gray-100">
+    <div className="flex dark:bg-slate-800 justify-center items-center mt-20 bg-gray-100">
       <div className="service p-8 rounded shadow-md w-full max-w-md">
         <h1 className="text-2xl font-bold mb-6 text-center">Edit Service</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
+          {/* <div>
             <label htmlFor="serviceId" className="block text-sm font-medium text-gray-700">
               Service ID
             </label>
@@ -87,7 +87,7 @@ const EditService = () => {
               disabled
               className="mt-1 dark:bg-slate-800 dark:text-white block w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-100 sm:text-sm"
             />
-          </div>
+          </div> */}
           <div>
             <label htmlFor="serviceName" className="block text-sm font-medium text-gray-700">
               Service Name
