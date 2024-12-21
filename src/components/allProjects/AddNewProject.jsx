@@ -6,13 +6,11 @@ import {
   DialogPanel,
   DialogTitle,
 } from "@headlessui/react";
-// import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import $ from "jquery";
 import "dropify/dist/css/dropify.min.css";
 import "dropify/dist/js/dropify.min.js";
-// import toast, { Toaster } from "react-hot-toast";
 import {
   MapContainer,
   TileLayer,
@@ -452,7 +450,7 @@ const AddNewProject = () => {
 
     const customerData = {
       name: newCustomerName,
-      type: 2,
+      type: 0,
     };
 
     try {

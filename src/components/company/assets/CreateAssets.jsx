@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css"; // التأكد من وجود هذا الاستيراد
+import "react-toastify/dist/ReactToastify.css";
 import Cookies from 'js-cookie';
 
 const CreateAssets = () => {
@@ -72,6 +72,7 @@ const CreateAssets = () => {
         toast.success(result.msg || "Asset added successfully!");
         setName("");
         setAssetTypeId("");
+        // يمكنك تغيير المسار أدناه حسب ما يناسبك
         setTimeout(() => navigate("/company/assets/addnewassets"), 2000);
       } else {
         toast.error(result.msg || "Failed to add asset.");

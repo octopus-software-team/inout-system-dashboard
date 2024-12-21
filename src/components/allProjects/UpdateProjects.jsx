@@ -34,6 +34,10 @@ const UpdateProject = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [setInspectionLocation] = useState("");
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchLoading, setSearchLoading] = useState(false);
 
   // البيانات الأساسية للمشروع
   const [formData, setFormData] = useState({
@@ -58,6 +62,9 @@ const UpdateProject = () => {
   const [owners, setOwners] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [engineers, setEngineers] = useState([]);
+  const [latValue, setLatValue] = useState("");
+  const [longValue, setLongValue] = useState("");
+  const [errors, setErrors] = useState({});
 
   // الحقول المختارة في Select
   const [selectedServices, setSelectedServices] = useState([]);
@@ -227,7 +234,9 @@ const UpdateProject = () => {
 
         // تعيين الخدمات المختارة
         const initialSelectedServices = servicesOptions
-          .filter((s) => project.services.some((ps) => ps.service_id === s.value))
+          .filter((s) =>
+            project.services.some((ps) => ps.service_id === s.value)
+          )
           .map((s) => ({
             value: s.value,
             label: s.label,
@@ -340,6 +349,41 @@ const UpdateProject = () => {
       </div>
     );
   }
+
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) {
+      toast.error("Please enter a location to search.");
+      return;
+    }
+
+    setSearchLoading(true);
+
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+          searchQuery
+        )}`
+      );
+      const data = await response.json();
+      if (data && data.length > 0) {
+        const { lat, lon } = data[0];
+        const newPosition = [parseFloat(lat), parseFloat(lon)];
+        setPosition(newPosition);
+        // Optionally, you can update latValue and longValue if needed
+        setLatValue(lat);
+        setLongValue(lon);
+        toast.success(`Location found: ${data[0].display_name}`);
+      } else {
+        toast.error("Location not found. Please try a different query.");
+      }
+    } catch (error) {
+      console.error("Error searching location:", error);
+      toast.error("Error searching location. Please try again.");
+    } finally {
+      setSearchLoading(false);
+    }
+  };
 
   return (
     <>
@@ -466,9 +510,14 @@ const UpdateProject = () => {
                 name="branch_id"
                 placeholder="Select Branch"
                 className="dark:bg-slate-700 dark:text-white"
-                value={branches.find((b) => b.value === formData.branch_id) || null}
+                value={
+                  branches.find((b) => b.value === formData.branch_id) || null
+                }
                 onChange={(selected) =>
-                  setFormData({ ...formData, branch_id: selected ? selected.value : "" })
+                  setFormData({
+                    ...formData,
+                    branch_id: selected ? selected.value : "",
+                  })
                 }
               />
             </div>
@@ -486,9 +535,15 @@ const UpdateProject = () => {
                 name="project_owner_id"
                 placeholder="Select Project Owner"
                 className="dark:bg-slate-700 dark:text-white"
-                value={owners.find((o) => o.value === formData.project_owner_id) || null}
+                value={
+                  owners.find((o) => o.value === formData.project_owner_id) ||
+                  null
+                }
                 onChange={(selected) =>
-                  setFormData({ ...formData, project_owner_id: selected ? selected.value : "" })
+                  setFormData({
+                    ...formData,
+                    project_owner_id: selected ? selected.value : "",
+                  })
                 }
               />
             </div>
@@ -545,8 +600,9 @@ const UpdateProject = () => {
                 placeholder="Select Customer"
                 className="dark:bg-slate-700 dark:text-white"
                 value={
-                  customers.find((c) => c.value === formData.customer_constructor_id) ||
-                  null
+                  customers.find(
+                    (c) => c.value === formData.customer_constructor_id
+                  ) || null
                 }
                 onChange={(selected) =>
                   setFormData({
@@ -571,8 +627,9 @@ const UpdateProject = () => {
                 placeholder="Select Engineer"
                 className="dark:bg-slate-700 dark:text-white"
                 value={
-                  engineers.find((e) => e.value === formData.inspection_engineer_id) ||
-                  null
+                  engineers.find(
+                    (e) => e.value === formData.inspection_engineer_id
+                  ) || null
                 }
                 onChange={(selected) =>
                   setFormData({
@@ -602,7 +659,29 @@ const UpdateProject = () => {
               </MapContainer>
             </div>
 
-            {/* زر الإرسال */}
+            {errors.inspectionLocation && (
+              <p className="text-red-500 text-sm mt-1 ml-6">
+                {errors.inspectionLocation}
+              </p>
+            )}
+
+            <form onSubmit={handleSearch} className="mt-4 flex">
+              <input
+                type="text"
+                placeholder="Search location..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="flex-1 border border-gray-300 rounded-l-md p-2 dark:bg-slate-900 dark:text-white"
+              />
+              <button
+                type="submit"
+                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-r-md"
+                disabled={searchLoading}
+              >
+                {searchLoading ? "Searching..." : "Search"}
+              </button>
+            </form>
+
             <div className="flex justify-center mt-6">
               <button
                 type="submit"

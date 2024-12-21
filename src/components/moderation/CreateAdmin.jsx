@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+// 1) استبدلنا react-toastify بـ react-hot-toast
+import toast, { Toaster } from "react-hot-toast";
 import Cookies from "js-cookie";
 
 const CreateAdmin = () => {
@@ -10,13 +10,20 @@ const CreateAdmin = () => {
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
-    const token = Cookies.get("token");
     e.preventDefault();
     setIsLoading(true);
     setErrors({});
+
+    const token = Cookies.get("token");
+    if (!token) {
+      toast.error("No token found. Please log in.");
+      setIsLoading(false);
+      return;
+    }
 
     const payload = {
       name,
@@ -37,10 +44,12 @@ const CreateAdmin = () => {
         if (data.success) {
           toast.success("Admin registered successfully!");
           setTimeout(() => navigate("/moderation/moderator"), 2000);
-        } else if (data.status === 422) {
+        }
+        else if (data.status === 422) {
           setErrors(data.data);
           toast.error("Please fix the highlighted errors.");
-        } else {
+        }
+        else {
           toast.error(data.msg || "Failed to register admin. Please try again.");
         }
       })
@@ -49,14 +58,26 @@ const CreateAdmin = () => {
         toast.error("An error occurred while registering the admin.");
       })
       .finally(() => {
-        setIsLoading(false);
+        setIsLoading(true);
       });
   };
 
   return (
     <div className="container mx-auto mt-10 p-5">
-      <ToastContainer />
+      <Toaster
+        position="top-center"
+        reverseOrder={true}
+        toastOptions={{
+          style: {
+            width: "350px",
+            height: "80px",
+            fontSize: "1.2rem",
+          },
+        }}
+      />
+
       <h2 className="text-center text-2xl font-bold mb-5">Create New Admin</h2>
+
       <form
         onSubmit={handleSubmit}
         className="service max-w-lg mx-auto shadow-md rounded px-8 pt-6 pb-8"

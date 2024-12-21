@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify"; // استيراد مكتبة react-toastify
-import "react-toastify/dist/ReactToastify.css"; // استيراد الأنماط الخاصة بالتوست
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Cookies from 'js-cookie';
 
+
 const AddMaterials = () => {
-  const [data, setData] = useState([]);
-  const navigate = useNavigate();
+  const [data, setData] = useState([]);    
+  const [assetTypes, setAssetTypes] = useState([]); 
   const [search, setSearch] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const token = Cookies.get('token');
@@ -36,12 +38,45 @@ const AddMaterials = () => {
         console.error("Error fetching assets:", err);
         alert("Failed to fetch assets");
       });
+
+    // جلب الـ Asset Types (لإظهار الاسم بدلًا من الـ id)
+    fetch("https://inout-api.octopusteam.net/api/front/getAssetTypes", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to fetch asset types");
+        }
+        return response.json();
+      })
+      .then((assetTypesData) => {
+        // تحقق من نجاح الاستجابة
+        if (assetTypesData && assetTypesData.status === 200) {
+          setAssetTypes(assetTypesData.data); // [{id:1, name:'Laptop'}, ...]
+        } else {
+          toast.error(assetTypesData.msg || "Failed to load asset types");
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching asset types:", error);
+        toast.error("Error fetching asset types");
+      });
   }, []);
 
+  // 3) دالة مساعدة لإيجاد اسم الـ Asset Type بالاعتماد على الـ ID
+  const getAssetTypeNameById = (typeId) => {
+    const foundType = assetTypes.find((item) => item.id === typeId);
+    return foundType ? foundType.name : "N/A";
+  };
+
+  // 4) دالة الحذف مع تأكيد عبر Toast
   const handleDelete = (id) => {
     const token = Cookies.get('token');
 
-    // إظهار توست مع خيارات "نعم" و "لا"
     toast(
       <div>
         <p>Are you sure you want to delete this asset?</p>
@@ -84,19 +119,22 @@ const AddMaterials = () => {
         return res.json();
       })
       .then((resData) => {
-        toast.success("Asset deleted successfully!"); // توست عند نجاح الحذف
+        toast.success("Asset deleted successfully!");
         setData((prevData) => prevData.filter((asset) => asset.id !== id));
       })
       .catch((err) => {
         console.error("Error deleting asset:", err.message);
-        toast.error("Failed to delete asset. Please try again."); // توست عند فشل الحذف
+        toast.error("Failed to delete asset. Please try again.");
       });
   };
 
+  // 5) واجهة العرض
   return (
     <div className="container mt-5">
+      <ToastContainer />
       <h2 className="text-center font-bold text-2xl text-black">Assets</h2>
 
+      {/* شريط البحث + زر Create Asset */}
       <div className="flex justify-between items-center my-4">
         <input
           className="border border-gray-300 dark:bg-slate-900 dark:text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-2/3 shadow-md"
@@ -107,12 +145,13 @@ const AddMaterials = () => {
         />
         <Link
           to="/company/assets/createassets"
-          className=" text-white bg-blue-800 font-semibold py-2 px-6 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
+          className="text-white bg-blue-800 font-semibold py-2 px-6 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
         >
           + Create Asset
         </Link>
       </div>
 
+      {/* جدول العرض */}
       <div className="overflow-x-auto shadow-lg rounded-lg w-full mx-auto">
         <table className="table-auto w-full border border-gray-200 bg-white rounded-lg">
           <thead>
@@ -133,10 +172,10 @@ const AddMaterials = () => {
           </thead>
           <tbody>
             {data
-              .filter((i) => {
+              .filter((item) => {
                 return search.toLowerCase() === ""
-                  ? i
-                  : i.name.toLowerCase().includes(search.toLowerCase());
+                  ? item
+                  : item.name.toLowerCase().includes(search.toLowerCase());
               })
               .map((d, index) => (
                 <tr
@@ -145,10 +184,15 @@ const AddMaterials = () => {
                     index % 2 === 0 ? "bg-gray-50" : "bg-white"
                   }`}
                 >
-                  <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">{d.id}</td>
-                  <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">{d.name}</td>
                   <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">
-                    {d.asset_type_id || "N/A"}
+                    {d.id}
+                  </td>
+                  <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">
+                    {d.name}
+                  </td>
+                  {/* عرض اسم الـ Asset Type بدلًا من الرقم */}
+                  <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">
+                    {getAssetTypeNameById(d.asset_type_id)}
                   </td>
                   <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-right space-x-2">
                     <button
@@ -173,8 +217,6 @@ const AddMaterials = () => {
           </tbody>
         </table>
       </div>
-
-      <ToastContainer />
     </div>
   );
 };

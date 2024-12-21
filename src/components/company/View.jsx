@@ -1,45 +1,24 @@
-// src/components/EditEmp.js
+// src/components/ViewEmployee.js
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import Cookies from "js-cookie";
 
-// Import jQuery and Dropify
+// استيراد Dropify أو الاستغناء عنه إذا لم نحتاج لرفع الملفات
 import $ from "jquery";
 import "dropify/dist/css/dropify.min.css";
 import "dropify/dist/js/dropify.min.js";
-import Cookies from 'js-cookie';
 
-
-const View = () => {
+const ViewEmployee = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [responseMessage, setResponseMessage] = useState("");
 
-  const [formData, setFormData] = useState({
-    full_name: "",
-    email: "",
-    phone: "",
-    branch_id: "",
-    employee_special_id: "",
-    date_of_birth: "",
-    gender: "",
-    image: null,
-    experience: "",
-    contract_start_date: "",
-    contract_duration: "",
-    contract_end_date: "",
-    type: 0,
-  });
-
+  const [employeeData, setEmployeeData] = useState(null);
   const [branches, setBranches] = useState([]);
   const [specialties, setSpecialties] = useState([]);
-  const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const token = Cookies.get('token');
-
-  // Reference to the file input
+  const token = Cookies.get("token");
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -98,7 +77,7 @@ const View = () => {
     };
 
     const fetchEmployeeData = async () => {
-      setLoading(true); // Start loading state
+      setLoading(true);
       try {
         const response = await fetch(
           "https://inout-api.octopusteam.net/api/front/getEmployees",
@@ -119,48 +98,12 @@ const View = () => {
         console.log("API Response:", result);
 
         if (result.status === 200) {
-          // Find the employee with the matching ID
           const employee = result.data.find(
             (emp) => emp.id === parseInt(id, 10)
           );
+
           if (employee) {
-            setFormData({
-              full_name: employee.full_name || "",
-              email: employee.email || "",
-              phone: employee.phone || "",
-              branch_id: employee.branch_id || "",
-              employee_special_id: employee.employee_special_id || "",
-              date_of_birth: employee.date_of_birth || "",
-              gender: employee.gender === 1 ? "female" : "male",
-              image: null, // Handle image separately
-              experience: employee.experience || "",
-              contract_start_date: employee.contract_start_date || "",
-              contract_duration: employee.contract_duration || "",
-              contract_end_date: employee.contract_end_date || "",
-              type: employee.type || 0,
-            });
-            // Initialize Dropify with the existing image
-            if (fileInputRef.current) {
-              $(fileInputRef.current).dropify({
-                defaultFile: employee.image || "",
-                messages: {
-                  default: "Drag and drop a file here or click",
-                  replace: "Drag and drop or click to replace",
-                  remove: "Remove",
-                  error: "Ooops, something wrong appended.",
-                },
-                error: {
-                  fileSize: "The file size is too big ({{ value }} max).",
-                  minWidth: "The image width is too small ({{ value }}px min).",
-                  maxWidth: "The image width is too big ({{ value }}px max).",
-                  minHeight:
-                    "The image height is too small ({{ value }}px min).",
-                  maxHeight: "The image height is too big ({{ value }}px max).",
-                  imageFormat:
-                    "The image format is not allowed ({{ value }} only).",
-                },
-              });
-            }
+            setEmployeeData(employee);
           } else {
             throw new Error("Requested employee not found.");
           }
@@ -172,22 +115,20 @@ const View = () => {
         console.error("Error fetching employee data:", error);
         toast.error(error.message || "Error fetching employee data.");
       } finally {
-        setLoading(false); // End loading state
+        setLoading(false);
       }
     };
 
     fetchBranches();
     fetchSpecialties();
-    fetchEmployeeData(); // Call the modified function
+    fetchEmployeeData();
   }, [token, id, navigate]);
 
+  // تهيئة Dropify إذا احتجت لعرض صورة الموظف (Avatar) بصيغة مرفوعة
   useEffect(() => {
-    // Initialize Dropify when the component mounts
     if (fileInputRef.current) {
       $(fileInputRef.current).dropify();
     }
-
-    // Cleanup Dropify when the component unmounts
     return () => {
       if (fileInputRef.current) {
         const drEvent = $(fileInputRef.current).data("dropify");
@@ -198,133 +139,6 @@ const View = () => {
     };
   }, []);
 
-  const handleChange = (e) => {
-    const { id, value, type, files } = e.target;
-
-    if (type === "file") {
-      setFormData({ ...formData, [id]: files[0] });
-      // Dropify handles the preview
-    } else {
-      if (id === "contract_start_date" || id === "contract_end_date") {
-        const formattedDate = value ? value : "";
-        setFormData({ ...formData, [id]: formattedDate });
-      } else {
-        setFormData({ ...formData, [id]: value });
-      }
-    }
-  };
-
-  const validate = () => {
-    const newErrors = {};
-
-    if (!formData.full_name.trim()) {
-      newErrors.full_name = "Employee name is required.";
-    }
-
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required.";
-    } else {
-      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailPattern.test(formData.email)) {
-        newErrors.email = "Please enter a valid email address.";
-      }
-    }
-
-    if (!formData.phone.toString().trim()) {
-      newErrors.phone = "Phone number is required.";
-    }
-
-    if (!formData.branch_id) {
-      newErrors.branch_id = "Please select a branch.";
-    }
-
-    if (!formData.employee_special_id) {
-      newErrors.employee_special_id = "Please select a specialty.";
-    }
-
-    if (!formData.date_of_birth) {
-      newErrors.date_of_birth = "Date of birth is required.";
-    }
-
-    if (!formData.gender) {
-      newErrors.gender = "Please select a gender.";
-    }
-
-    if (!formData.experience.trim()) {
-      newErrors.experience = "Experience is required.";
-    }
-
-    if (!formData.contract_start_date) {
-      newErrors.contract_start_date = "Contract start date is required.";
-    }
-
-    if (!formData.contract_duration) {
-      newErrors.contract_duration = "Contract duration is required.";
-    }
-
-    if (!formData.contract_end_date) {
-      newErrors.contract_end_date = "Contract end date is required.";
-    }
-
-    setErrors(newErrors);
-
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const [errors, setErrors] = useState({});
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validate()) {
-      toast.error("Please correct the errors in the form.");
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      const formDataToSend = new FormData();
-      Object.entries(formData).forEach(([key, value]) => {
-        if (key === "gender") {
-          // Convert gender from text to number
-          const genderValue = value === "female" ? 1 : 0;
-          formDataToSend.append(key, genderValue);
-        } else if (key === "image" && value) {
-          formDataToSend.append(key, value);
-        } else {
-          formDataToSend.append(key, value);
-        }
-      });
-
-      const response = await fetch(
-        `https://inout-api.octopusteam.net/api/front/updateEmployee/${id}`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formDataToSend,
-        }
-      );
-
-      const result = await response.json();
-
-      if (response.ok && result.status === 200) {
-        toast.success("Employee updated successfully!");
-        setTimeout(() => {
-          navigate("/company/employees");
-        }, 2000);
-      } else {
-        toast.error(result.msg || "Error updating employee. Please try again.");
-      }
-    } catch (error) {
-      console.error("Error updating employee:", error);
-      toast.error("An error occurred while saving. Please check your input.");
-    }
-
-    setLoading(false);
-  };
-
   if (loading) {
     return (
       <div className="container mx-auto p-6">
@@ -334,343 +148,137 @@ const View = () => {
     );
   }
 
+  if (!employeeData) {
+    return (
+      <div className="container mx-auto p-6">
+        <h1 className="text-2xl font-bold mb-6">View Employee</h1>
+        <p>No data found for this employee.</p>
+      </div>
+    );
+  }
+
+  // تفكيك خصائص الموظف
+  const {
+    full_name,
+    email,
+    phone,
+    branch_id,
+    employee_special_id,
+    date_of_birth,
+    gender,
+    experience,
+    contract_start_date,
+    contract_duration,
+    contract_end_date,
+    type,
+    image,
+  } = employeeData;
+
+  // دوال مساعدة للحصول على أسماء الفرع والتخصص
+  const branchName = branches.find((b) => b.id === branch_id)?.name || "N/A";
+  const specialtyName =
+    specialties.find((s) => s.id === employee_special_id)?.name || "N/A";
+  const typeDisplay = type === 0 ? "Engineer" : "Employee";
+  const genderDisplay = gender === 1 ? "Female" : "Male";
+
   return (
-    <div className="mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">View Employee</h1>
-
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
-
-      {message && (
-        <div className="mb-4 p-3 text-white bg-blue-500 rounded-lg">
-          {message}
-        </div>
-      )}
-
-      <form
-        className="grid grid-cols-1 md:grid-cols-2 gap-6"
-        onSubmit={handleSubmit}
-      >
-        {/* Employee Name */}
-        <div className="flex flex-col">
-          <label htmlFor="full_name" className="mb-2 font-medium text-gray-700">
-            Name
-          </label>
-          <input
-            type="text"
-            id="full_name"
-            value={formData.full_name}
-            onChange={handleChange}
-            placeholder="Employee Name"
-            disabled
-            className={`p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.full_name ? "border-red-500" : "border-gray-300"
-            }`}
-          />
-          {errors.full_name && (
-            <p className="text-red-500 text-sm">{errors.full_name}</p>
-          )}
-        </div>
-
-        {/* Email */}
-        <div className="flex flex-col">
-          <label htmlFor="email" className="mb-2 font-medium text-gray-700">
-            Email
-          </label>
-          <input
-            type="email"
-            id="email"
-            value={formData.email}
-            onChange={handleChange}
-            placeholder="example@domain.com"
-            disabled
-            className={`p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.email ? "border-red-500" : "border-gray-300"
-            }`}
-          />
-          {errors.email && (
-            <p className="text-red-500 text-sm">{errors.email}</p>
-          )}
-        </div>
-
-        {/* Phone Number */}
-        <div className="flex flex-col">
-          <label htmlFor="phone" className="mb-2 font-medium text-gray-700">
-            Phone Number
-          </label>
-          <input
-            type="tel"
-            id="phone"
-            value={formData.phone}
-            onChange={handleChange}
-            placeholder="Phone Number"
-            disabled
-            className={`p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.phone ? "border-red-500" : "border-gray-300"
-            }`}
-          />
-          {errors.phone && (
-            <p className="text-red-500 text-sm">{errors.phone}</p>
-          )}
-        </div>
-
-        {/* Branch */}
-        <div className="flex flex-col">
-          <label htmlFor="branch_id" className="mb-2 font-medium text-gray-700">
-            Branch
-          </label>
-          <select
-            id="branch_id"
-            value={formData.branch_id}
-            onChange={handleChange}
-            disabled
-            className={`p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.branch_id ? "border-red-500" : "border-gray-300"
-            }`}
-          >
-            <option value="">Select Branch</option>
-            {branches.map((branch) => (
-              <option key={branch.id} value={branch.id}>
-                {branch.name}
-              </option>
-            ))}
-          </select>
-          {errors.branch_id && (
-            <p className="text-red-500 text-sm">{errors.branch_id}</p>
-          )}
-        </div>
-
-        {/* Specialty */}
-        <div className="flex flex-col">
-          <label
-            htmlFor="employee_special_id"
-            className="mb-2 font-medium text-gray-700"
-          >
-            Specialty
-          </label>
-          <select
-            id="employee_special_id"
-            value={formData.employee_special_id}
-            onChange={handleChange}
-            disabled
-            className={`p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.employee_special_id ? "border-red-500" : "border-gray-300"
-            }`}
-          >
-            <option value="">Select Specialty</option>
-            {specialties.map((specialty) => (
-              <option key={specialty.id} value={specialty.id}>
-                {specialty.name}
-              </option>
-            ))}
-          </select>
-          {errors.employee_special_id && (
-            <p className="text-red-500 text-sm">{errors.employee_special_id}</p>
-          )}
-        </div>
-
-        {/* Date of Birth */}
-        <div className="flex flex-col">
-          <label
-            htmlFor="date_of_birth"
-            className="mb-2 font-medium text-gray-700"
-          >
-            Date of Birth
-          </label>
-          <input
-            type="date"
-            id="date_of_birth"
-            value={formData.date_of_birth}
-            onChange={handleChange}
-            disabled
-            className={`p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.date_of_birth ? "border-red-500" : "border-gray-300"
-            }`}
-          />
-          {errors.date_of_birth && (
-            <p className="text-red-500 text-sm">{errors.date_of_birth}</p>
-          )}
-        </div>
-
-        {/* Gender */}
-        <div className="flex flex-col">
-          <label htmlFor="gender" className="mb-2 font-medium text-gray-700">
-            Gender
-          </label>
-          <select
-            id="gender"
-            value={formData.gender}
-            onChange={handleChange}
-            disabled
-            className={`p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.gender ? "border-red-500" : "border-gray-300"
-            }`}
-          >
-            <option value="">Select Gender</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-          </select>
-          {errors.gender && (
-            <p className="text-red-500 text-sm">{errors.gender}</p>
-          )}
-        </div>
-
-        {/* Experience */}
-        <div className="flex flex-col">
-          <label
-            htmlFor="experience"
-            className="mb-2 font-medium text-gray-700"
-          >
-            Experience
-          </label>
-          <input
-            type="text"
-            id="experience"
-            value={formData.experience}
-            onChange={handleChange}
-            placeholder="Experience"
-            disabled
-            className={`p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.experience ? "border-red-500" : "border-gray-300"
-            }`}
-          />
-          {errors.experience && (
-            <p className="text-red-500 text-sm">{errors.experience}</p>
-          )}
-        </div>
-
-        {/* Contract Start Date */}
-        <div className="flex flex-col">
-          <label
-            htmlFor="contract_start_date"
-            className="mb-2 font-medium text-gray-700"
-          >
-            Contract Start Date
-          </label>
-          <input
-            type="date"
-            id="contract_start_date"
-            value={formData.contract_start_date}
-            onChange={handleChange}
-            disabled
-            className={`p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.contract_start_date ? "border-red-500" : "border-gray-300"
-            }`}
-          />
-          {errors.contract_start_date && (
-            <p className="text-red-500 text-sm">{errors.contract_start_date}</p>
-          )}
-        </div>
-
-        {/* Contract Duration */}
-        <div className="flex flex-col">
-          <label
-            htmlFor="contract_duration"
-            className="mb-2 font-medium text-gray-700"
-          >
-            Contract Duration (months)
-          </label>
-          <input
-            type="number"
-            id="contract_duration"
-            value={formData.contract_duration}
-            onChange={handleChange}
-            placeholder="Contract Duration"
-            disabled
-            className={`p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.contract_duration ? "border-red-500" : "border-gray-300"
-            }`}
-          />
-          {errors.contract_duration && (
-            <p className="text-red-500 text-sm">{errors.contract_duration}</p>
-          )}
-        </div>
-
-        <div className="flex flex-col">
-          <label
-            htmlFor="contract_end_date"
-            className="mb-2 font-medium text-gray-700"
-          >
-            Contract End Date
-          </label>
-          <input
-            type="date"
-            id="contract_end_date"
-            value={formData.contract_end_date}
-            onChange={handleChange}
-            disabled
-            className={`p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.contract_end_date ? "border-red-500" : "border-gray-300"
-            }`}
-          />
-          {errors.contract_end_date && (
-            <p className="text-red-500 text-sm">{errors.contract_end_date}</p>
-          )}
-        </div>
-
-        {/* Type */}
-        <div className="flex flex-col">
-          <label htmlFor="type" className="font-medium text-gray-700 mb-2">
-            Type
-          </label>
-          <select
-            id="type"
-            value={formData.type}
-            onChange={handleChange}
-            disabled
-            className={`w-full dark:bg-slate-900 dark:text-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.type ? "border-red-500" : "border-gray-300"
-            }`}
-          >
-            <option value="0">Engineer</option>
-            <option value="1">Employee</option>
-          </select>
-          {errors.type && <p className="text-red-500 text-sm">{errors.type}</p>}
-        </div>
-
-        {/* Image */}
-        {/* <div className="flex flex-col md:col-span-2">
-          <label htmlFor="image" className="mb-2 font-medium text-gray-700">
-            Image
-          </label>
-          <input
-            type="file"
-            id="image"
-            ref={fileInputRef}
-            onChange={handleChange}
-            disabled
-            className="dropify"
-            data-default-file={formData.image || ""}
-            data-show-remove="true"
-            data-allowed-file-extensions="jpg jpeg png webp"
-          />
-          {errors.image && (
-            <p className="text-red-500 text-sm">{errors.image}</p>
-          )}
-        </div> */}
-
-        {/* <div className="flex col-span-2">
-          <button
-            type="submit"
-            className="bg-blue-500 w-full text-white px-6 py-2 rounded-lg"
-            disabled={loading}
-          >
-            {loading ? "Saving..." : "Save Changes"}
-          </button>
-        </div> */}
-      </form>
+    <div className="min-h-screen bg-gray-100 py-10 px-4">
       <ToastContainer />
+
+      <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-6">
+        <h1 className="text-3xl font-bold mb-4 text-blue-600">
+          Employee Details
+        </h1>
+
+        {/* صورة المستخدم (أفاتار) مع الاسم */}
+        <div className="flex items-center mb-8">
+          {/* إن كنت تريد إظهار صورة الموظف */}
+          {image ? (
+            <img
+              src={image}
+              alt="Employee Avatar"
+              className="w-24 h-24 rounded-full object-cover mr-6 shadow-md"
+            />
+          ) : (
+            <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center mr-6 shadow-md">
+              <span className="text-gray-500">No Image</span>
+            </div>
+          )}
+          <div>
+            <p className="text-xl font-semibold">{full_name}</p>
+            <p className="text-gray-500">{email}</p>
+          </div>
+        </div>
+
+        {/* عرض المعلومات في جدول أو مجموعة حقول */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="text-gray-600 font-medium">Phone:</label>
+            <p className="text-black">{phone || "N/A"}</p>
+          </div>
+
+          <div>
+            <label className="text-gray-600 font-medium">Branch:</label>
+            <p className="text-black">{branchName}</p>
+          </div>
+
+          <div>
+            <label className="text-gray-600 font-medium">Specialty:</label>
+            <p className="text-black">{specialtyName}</p>
+          </div>
+
+          <div>
+            <label className="text-gray-600 font-medium">Date of Birth:</label>
+            <p className="text-black">{date_of_birth || "N/A"}</p>
+          </div>
+
+          <div>
+            <label className="text-gray-600 font-medium">Gender:</label>
+            <p className="text-black">{genderDisplay}</p>
+          </div>
+
+          <div>
+            <label className="text-gray-600 font-medium">Experience:</label>
+            <p className="text-black">{experience || "N/A"}</p>
+          </div>
+
+          <div>
+            <label className="text-gray-600 font-medium">
+              Contract Start Date:
+            </label>
+            <p className="text-black">{contract_start_date || "N/A"}</p>
+          </div>
+
+          <div>
+            <label className="text-gray-600 font-medium">
+              Contract Duration (months):
+            </label>
+            <p className="text-black">{contract_duration || "N/A"}</p>
+          </div>
+
+          <div>
+            <label className="text-gray-600 font-medium">Contract End Date:</label>
+            <p className="text-black">{contract_end_date || "N/A"}</p>
+          </div>
+
+          <div>
+            <label className="text-gray-600 font-medium">Type:</label>
+            <p className="text-black">{typeDisplay}</p>
+          </div>
+        </div>
+
+        {/* زر العودة إلى قائمة الموظفين */}
+        <div className="mt-8">
+          <button
+            onClick={() => navigate("/company/employees")}
+            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-300"
+          >
+            Back to Employees List
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
 
-export default View;
+export default ViewEmployee;

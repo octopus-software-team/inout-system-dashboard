@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
-import Cookies from 'js-cookie';
-
+import Cookies from "js-cookie";
+import { toast, ToastContainer } from "react-toastify"; // 1) Import react-toastify
+import "react-toastify/dist/ReactToastify.css";         // 2) Import react-toastify CSS
 
 const Moderator = () => {
   const [data, setData] = useState([]);
@@ -10,7 +11,7 @@ const Moderator = () => {
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    const token = Cookies.get('token');
+    const token = Cookies.get("token");
 
     if (!token) {
       alert("Please log in first");
@@ -50,38 +51,67 @@ const Moderator = () => {
       });
   }, [navigate]);
 
-  const handleDelete = (id) => {
-    const token = Cookies.get('token');
-    const confirmDelete = window.confirm(
-      "Do you really want to delete this admin?"
+  // 3) Show the custom toast for delete confirmation
+  const handleDelete = (adminId) => {
+    const token = Cookies.get("token");
+
+    // Create a toast that won't auto-close and has custom buttons
+    const confirmToast = toast(
+      <div>
+        <p>Are you sure you want to delete this admin?</p>
+        <div className="flex space-x-2 justify-end mt-2">
+          <button
+            onClick={() => handleConfirmDelete(adminId, token, confirmToast)}
+            className="bg-red-600 text-white py-1 px-4 rounded-lg"
+          >
+            Yes
+          </button>
+          <button
+            onClick={() => toast.dismiss(confirmToast)}
+            className="bg-gray-600 text-white py-1 px-4 rounded-lg"
+          >
+            No
+          </button>
+        </div>
+      </div>,
+      { 
+        autoClose: false, 
+        closeButton: false 
+      }
     );
-    if (confirmDelete) {
-      fetch(`https://inout-api.octopusteam.net/api/front/deleteAdmin`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+  };
+
+  // 4) If the user confirms, proceed with deleting
+  const handleConfirmDelete = (adminId, token, confirmToast) => {
+    fetch(`https://inout-api.octopusteam.net/api/front/deleteAdmin`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ id: adminId }) // Make sure you send the 'id' in the request body if the endpoint requires it
+    })
+      .then(async (res) => {
+        // We'll parse text first then convert to JSON
+        const responseText = await res.text();
+        if (!res.ok) {
+          throw new Error("Failed to delete admin");
+        }
+        return JSON.parse(responseText);
       })
-        .then(async (res) => {
-          console.log("Response status:", res.status);
-          const responseText = await res.text();
-          console.log("Response text:", responseText);
-          if (!res.ok) {
-            throw new Error("Failed to delete admin");
-          }
-          return JSON.parse(responseText);
-        })
-        .then((resData) => {
-          alert(resData.msg || "Admin deleted successfully");
-          localStorage.removeItem("token")
-          setData((prevData) => prevData.filter((admin) => admin.id !== id));
-        })
-        .catch((err) => {
-          console.error("Error deleting admin:", err);
-          alert("Failed to delete admin. Please try again.");
-        });
-    }
+      .then((resData) => {
+        // Show success toast
+        toast.success(resData.msg || "Admin deleted successfully");
+        // Remove the deleted admin from local state
+        setData((prevData) => prevData.filter((admin) => admin.id !== adminId));
+        // Dismiss the confirmation toast
+        toast.dismiss(confirmToast);
+      })
+      .catch((err) => {
+        console.error("Error deleting admin:", err);
+        toast.error("Failed to delete admin. Please try again.");
+        toast.dismiss(confirmToast);
+      });
   };
 
   return (
@@ -108,16 +138,16 @@ const Moderator = () => {
         <table className="table-auto w-full border border-gray-200 bg-white rounded-lg">
           <thead>
             <tr className="bg-gradient-to-r from-blue-600 to-blue-400 text-white">
-              <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
+              <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">
                 #
               </th>
-              <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
+              <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">
                 Name
               </th>
-              <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
+              <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">
                 Email
               </th>
-              <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-right font-semibold text-lg border-b border-gray-300">
+              <th className="px-4 py-3 text-right font-semibold text-lg border-b border-gray-300">
                 Actions
               </th>
             </tr>
@@ -136,16 +166,10 @@ const Moderator = () => {
                     index % 2 === 0 ? "bg-gray-50" : "bg-white"
                   }`}
                 >
-                  <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">
-                    {item.id}
-                  </td>
-                  <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">
-                    {item.name}
-                  </td>
-                  <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">
-                    {item.email}
-                  </td>
-                  <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-right space-x-2">
+                  <td className="px-4 py-3 text-gray-800">{item.id}</td>
+                  <td className="px-4 py-3 text-gray-800">{item.name}</td>
+                  <td className="px-4 py-3 text-gray-800">{item.email}</td>
+                  <td className="px-4 py-3 text-right space-x-2">
                     <button
                       onClick={() =>
                         navigate(`/moderation/editadmin`, { state: item })
@@ -156,7 +180,7 @@ const Moderator = () => {
                       Edit
                     </button>
                     <button
-                      onClick={() => handleDelete(item.id)}
+                      onClick={() => handleDelete(item.id)} // 5) Use the new handleDelete for the toast
                       className="bg-red-600 text-white font-semibold py-2 px-4 rounded-lg hover:shadow-md transform hover:scale-105 transition duration-300"
                     >
                       <FaTrash className="inline mr-2" />
@@ -168,6 +192,19 @@ const Moderator = () => {
           </tbody>
         </table>
       </div>
+
+      {/* 6) Include the ToastContainer so that the toasts will appear */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </div>
   );
 };

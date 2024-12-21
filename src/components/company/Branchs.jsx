@@ -224,7 +224,7 @@ const Branchs = () => {
       </div>
 
       <div className="overflow-x-auto shadow-lg rounded-lg w-full mx-auto">
-        <table className="table-auto w-full border border-gray-200 bg-white rounded-lg">
+        <table className="table1 table-auto w-full border border-gray-200 bg-white rounded-lg">
           <thead>
             <tr className="bg-gradient-to-r from-blue-600 to-blue-400 text-white">
               <th
