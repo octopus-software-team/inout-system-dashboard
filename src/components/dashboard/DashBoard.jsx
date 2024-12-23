@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { Chart } from "chart.js/auto";
 import Chartjs from "../charts/Chartjs";
 import NewChart from "../newchart/NewChart";
@@ -8,7 +8,34 @@ import pic3 from "../../assests/13.png";
 import pic4 from "../../assests/14.png";
 
 const DashBoard = () => {
-  const chartRef = useRef(null);
+  const [responseData, setResponseData] = useState({
+    pendingProjects: 0,
+    InProgressProjects: 0,
+    completedProjects: 0,
+    cancelledProjects: 0,
+  });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(
+          "https://inout-api.octopusteam.net/api/front/statistics"
+        );
+        const result = await response.json();
+        if (result.status === 200) {
+          setResponseData({
+            pendingProjects: result.data.pendingProjects,
+            InProgressProjects: result.data.InProgressProjects,
+            completedProjects: result.data.completedProjects,
+            cancelledProjects: result.data.cancelledProjects,
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    fetchData();
+  }, []);
 
   return (
     <div className="p-1 dark:text-white">
@@ -32,7 +59,7 @@ const DashBoard = () => {
               Pending
             </h3>
             <p className="text-sm text-gray-500 dark:text-white">
-              Awaiting process
+              {responseData.pendingProjects} Projects
             </p>
           </div>
         </div>
@@ -44,7 +71,9 @@ const DashBoard = () => {
             <h3 className="text-2xl font-semibold text-gray-900 dark:text-white">
               Processing
             </h3>
-            <p className="text-sm text-gray-500 dark:text-white">3 Projects</p>
+            <p className="text-sm text-gray-500 dark:text-white">
+              {responseData.InProgressProjects} Projects
+            </p>
           </div>
         </div>
         <div className="flex items-center">
@@ -56,7 +85,7 @@ const DashBoard = () => {
               Completed
             </h3>
             <p className="text-sm text-gray-500 dark:text-white">
-              Out of stock
+              {responseData.completedProjects} Projects
             </p>
           </div>
         </div>
@@ -69,16 +98,15 @@ const DashBoard = () => {
               Canceled
             </h3>
             <p className="text-sm text-gray-500 dark:text-white">
-              Out of stock
+              {responseData.cancelledProjects} Projects
             </p>
           </div>
         </div>
       </div>
-      <div class="my-1">
-        <hr class="border-t border-gray-300 mx-auto w-11/12" />
+      <div className="my-1">
+        <hr className="border-t border-gray-300 mx-auto w-11/12" />
       </div>
 
-      {/* Chart and Sales Section */}
       <div className="bg-gray-100 p-4 rounded-lg dark:bg-slate-950">
         <div className="flex flex-col ml-5 md:flex-row justify-between items-start md:items-center mb-6">
           <div>
@@ -87,9 +115,6 @@ const DashBoard = () => {
                 <h2 className="total mt-7 text-3xl md:text-3xl font-bold">
                   Statistic
                 </h2>
-                {/* <select className="date-input border  border-gray-300  w-4/12 rounded-md px-4 mt-8 py-2 text-gray-700 focus:outline-none text-lg dark:text-white dark:border-gray-600">
-                  <option className="dark:text-white">Mar 1 - 31, 2022</option>
-                </select> */}
               </div>
               <span className="block text-sm font-normal text-gray-500 dark:text-white">
                 Payment received across all channels
@@ -99,10 +124,6 @@ const DashBoard = () => {
           </div>
         </div>
         <Chartjs />
-        {/* Chart */}
-        {/* <div className="w-full h-64">
-          <canvas ref={chartRef} id="lineChart"></canvas>
-        </div> */}
       </div>
     </div>
   );

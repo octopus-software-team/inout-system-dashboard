@@ -69,6 +69,7 @@ const UpdateProject = () => {
   // الحقول المختارة في Select
   const [selectedServices, setSelectedServices] = useState([]);
   const [selectedConsultives, setSelectedConsultives] = useState([]);
+  const [selectedCustomer, setSelectedCustomer,] = useState([]);
 
   // الموقع على الخريطة
   const [position, setPosition] = useState([23.8859, 45.0792]);
@@ -173,6 +174,7 @@ const UpdateProject = () => {
           .map((customer) => ({
             value: customer.id,
             label: customer.name,
+            
           }));
         setCustomers(customersOptions);
 
@@ -295,7 +297,6 @@ const UpdateProject = () => {
         ? selectedConsultives.map((c) => c.value)
         : [];
 
-    // إعداد بيانات الإرسال
     const data = new FormData();
     data.append("id", formData.id);
     data.append("name", formData.name);
@@ -370,7 +371,6 @@ const UpdateProject = () => {
         const { lat, lon } = data[0];
         const newPosition = [parseFloat(lat), parseFloat(lon)];
         setPosition(newPosition);
-        // Optionally, you can update latValue and longValue if needed
         setLatValue(lat);
         setLongValue(lon);
         toast.success(`Location found: ${data[0].display_name}`);
@@ -586,7 +586,6 @@ const UpdateProject = () => {
               />
             </div>
 
-            {/* Customer */}
             <div>
               <label
                 htmlFor="customer_constructor_id"
@@ -599,11 +598,7 @@ const UpdateProject = () => {
                 name="customer_constructor_id"
                 placeholder="Select Customer"
                 className="dark:bg-slate-700 dark:text-white"
-                value={
-                  customers.find(
-                    (c) => c.value === formData.customer_constructor_id
-                  ) || null
-                }
+                value={setSelectedCustomer}
                 onChange={(selected) =>
                   setFormData({
                     ...formData,

@@ -201,8 +201,6 @@ h2 {
   @apply dark:!bg-slate-900  !bg-white !text-gray-900 dark:!text-white;
 }
 
-
-
 .css-7crn4c-singleValue {
   @apply !text-gray-900 dark:!text-white;
 }
@@ -218,11 +216,11 @@ h2 {
   @apply dark:!bg-slate-900;
 }
 
-.css-1nmdiq5-menu >* {
-  @apply hover:!bg-[#03071a] hover:!bg-opacity-50 dark:!text-white 
+.css-1nmdiq5-menu > * {
+  @apply hover:!bg-[#03071a] hover:!bg-opacity-50 dark:!text-white;
 }
-.css-1nmdiq5-menu >* >* {
-  @apply hover:!bg-[#03071a] hover:!bg-opacity-50 dark:!text-white
+.css-1nmdiq5-menu > * > * {
+  @apply hover:!bg-[#03071a] hover:!bg-opacity-50 dark:!text-white;
 }
 
 /* App.css */
@@ -290,39 +288,33 @@ h2 {
   @apply 
 } */
 
-
 /* 
 .table1{
   width: 90%;
   
 } */
- 
 
-.th1{
+.th1 {
   width: 20%;
 }
 
-
-.th2{
+.th2 {
   width: 10%;
 }
 
-
-
-
-.th4{
+.th4 {
   width: 10%;
 }
 
-
-
-.th5{
+.th5 {
   width: 10%;
 }
 
-
-.th6{
+.th6 {
   width: 20%;
   text-align: left !important;
 }
 
+.cahrt {
+  width: 1400px;
+}

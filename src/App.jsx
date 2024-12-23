@@ -124,7 +124,7 @@ function App() {
               element={<PrivateRoute element={<SettingsIcon />} />}
             />
              <Route
-              path="/dropdown/admindetails"
+              path="/login/admindetails"
               element={<PrivateRoute element={<AdminDetails />} />}
             />
             <Route

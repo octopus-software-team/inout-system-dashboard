@@ -1,67 +1,82 @@
-// import React, { useEffect, useState } from "react";
-// import Cookies from "js-cookie";
+// src/pages/Profile.js
+import React, { useState, useEffect } from "react";
+import Cookies from "js-cookie";
 
-// function AdminDetails() {
-//   const [userData, setUserData] = useState(null);
-//   const [loading, setLoading] = useState(true);
-//   const [error, setError] = useState(null);
+export default function Profile() {
+  const [profileData, setProfileData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-//   useEffect(() => {
-//     const token = Cookies.get("token");
+  const fetchProfileData = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const token = Cookies.get("token");
 
-//     const fetchUserData = async () => {
-//       try {
-//         const response = await fetch("https://inout-api.octopusteam.net/api/front/login", {
-//           method: "POST",
-//           headers: {
-//             "Content-Type": "application/json",
-//             "Authorization": `Bearer ${token}`,
-//           },
-//         });
-//         const data = await response.json();
-//         if (response.ok) {
-//           setUserData(data.data);
-//         } else {
-//           setError(data.msg || "فشل في جلب البيانات");
-//         }
-//       } catch (err) {
-//         setError("حدث خطأ أثناء جلب البيانات");
-//       }
-//       setLoading(false);
-//     };
+      const response = await fetch(
+        "https://inout-api.octopusteam.net/api/front/getMyProfile",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-//     fetchUserData();
-//   }, []);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
-//   if (loading) return <p>جارٍ التحميل...</p>;
-//   if (error) return <p className="text-red-500">{error}</p>;
+      const data = await response.json();
 
-//   return (
-//     <div className="admin-details-page p-6">
-//       <h1 className="text-2xl font-bold mb-4">تفاصيل المدير</h1>
-//       {userData ? (
-//         <div className="bg-white shadow-md rounded p-4">
-//           <p><strong>الاسم:</strong> {userData.name}</p>
-//           <p><strong>البريد الإلكتروني:</strong> {userData.email}</p>
-//         </div>
-//       ) : (
-//         <p>لا توجد بيانات لعرضها.</p>
-//       )}
-//     </div>
-//   );
-// }
+      if (data.status === 200) {
+        setProfileData(data.data);
+      } else {
+        setError("Failed to fetch profile data.");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("An error occurred while fetching profile data.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-// export default AdminDetails;
+  useEffect(() => {
+    fetchProfileData();
+  }, []);
 
-
-import React from 'react'
-
-const AdminDetails = () => {
   return (
-    <div>
-      
+    <div className="service max-w-3xl mx-auto mt-20 p-6  bg-white rounded-lg shadow-md">
+      <h1 className="text-3xl font-bold mb-6">Profile Details</h1>
+      {loading ? (
+        <p>Loading...</p>
+      ) : error ? (
+        <p className="text-red-500">{error}</p>
+      ) : profileData ? (
+        <div className="space-y-4">
+          {/* <div className="flex items-center">
+            <strong className="w-32">ID:</strong>
+            <span>{profileData.id}</span>
+          </div> */}
+          <div className="flex items-center">
+            <strong className="w-32">Name:</strong>
+            <span>{profileData.name}</span>
+          </div>
+          <div className="flex items-center">
+            <strong className="w-32">Email:</strong>
+            <span>{profileData.email}</span>
+          </div>
+          <div className="flex items-center">
+            <strong className="w-32">Created At:</strong>
+            <span>{new Date(profileData.created_at).toLocaleDateString()}</span>
+          </div>
+          {/* Add more fields if necessary */}
+        </div>
+      ) : (
+        <p>No profile data available.</p>
+      )}
     </div>
-  )
+  );
 }
-
-export default AdminDetails

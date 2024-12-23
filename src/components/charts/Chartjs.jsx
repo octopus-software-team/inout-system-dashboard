@@ -93,7 +93,6 @@ const Chartjs = () => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
-      {/* القسم الأول: Total Projects */}
       <div className="nav-item dark:bg-slate-800 shadow-md rounded-lg p-6 w-11/12">
         <div className="flex items-center justify-between">
           <div className="flex">
@@ -132,7 +131,6 @@ const Chartjs = () => {
         </div>
       </div>
 
-      {/* القسم الثاني: New Customer */}
       <div className="nav-item dark:bg-slate-800 shadow-md rounded-lg p-6 w-11/12">
         <div className="flex items-center justify-between">
           <div className="flex">
@@ -155,10 +153,8 @@ const Chartjs = () => {
         <div className="mt-4 h-48 flex justify-center items-center rounded-lg">
           <canvas ref={lineChartRef} width="200" height="100"></canvas>
         </div>
-        {/* إزالة أي تسميات إضافية أسفل المخطط إذا كانت موجودة */}
       </div>
 
-      {/* القسم الثالث: دائرة التقدم */}
       <div className="nav-item dark:bg-slate-800 shadow-md rounded-lg p-6 w-11/12 h-96 flex flex-col">
         <div>
           <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">

@@ -654,14 +654,12 @@ const AddNewProject = () => {
     }
   };
 
-  // Component to change map view when position changes
   const ChangeMapView = ({ center }) => {
     const map = useMap();
     map.setView(center, map.getZoom());
     return null;
   };
 
-  // Handle search submission
   const handleSearch = async (e) => {
     e.preventDefault();
     if (!searchQuery.trim()) {
@@ -682,7 +680,6 @@ const AddNewProject = () => {
         const { lat, lon } = data[0];
         const newPosition = [parseFloat(lat), parseFloat(lon)];
         setPosition(newPosition);
-        // Optionally, you can update latValue and longValue if needed
         setLatValue(lat);
         setLongValue(lon);
         toast.success(`Location found: ${data[0].display_name}`);
