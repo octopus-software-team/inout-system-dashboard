@@ -333,6 +333,46 @@ const ShowAllProjects = () => {
     }
   };
 
+  const tableName = "projects"; // تحديد اسم الجدول
+
+  const handleExportFile = async () => {
+    const formData = new FormData();
+    formData.append("table", tableName);
+
+    const token = Cookies.get("token");
+
+    try {
+      const response = await fetch(
+        "https://inout-api.octopusteam.net/api/front/export",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to export file");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+
+      link.download = `${tableName}.xlsx`;
+      document.body.appendChild(link);
+      link.click();
+
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error exporting file:", error);
+    }
+  };
+
   return (
     <div className="container mx-auto mt-5 px-4 w-full">
       <h2 className="text-center font-bold text-gray-900 dark:text-white text-xl mb-4">
@@ -347,11 +387,17 @@ const ShowAllProjects = () => {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
+        <button
+          onClick={handleExportFile}
+          className="icons bg-blue-500 text-white transition duration-300 ease-in-out transform "
+        >
+          Export
+        </button>
       </div>
 
       {isLoading ? (
         <div className="flex justify-center items-center">
-          <p className="text-blue-600 text-xl font-semibold">Loading...</p>
+          <p className="text-black text-xl font-semibold">Loading...</p>
         </div>
       ) : error ? (
         <p className="text-red-500 text-center">{error}</p>
@@ -474,7 +520,6 @@ const ShowAllProjects = () => {
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
                             {project.engineerName}
                           </td>
-                          {/* الأعمدة الجديدة */}
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
                             {project.notes}
                           </td>
@@ -488,28 +533,31 @@ const ShowAllProjects = () => {
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
                             {project.consultives}
                           </td>
-                          {/* عمود الإجراءات */}
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
-                            <div className="flex space-x-1">
+                           <div className="flex space-x-1">
                               <Link
                                 to={`/allprojects/updateprojects/${project.id}`}
-                                className="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 p-2 flex items-center text-xs"
+                                className="edit flex items-center"
                               >
-                                <FaEdit className="mr-1" /> Edit
+                                <FaEdit className="" />
                               </Link>
                               <button
                                 onClick={() => handleDelete(project.id)}
-                                className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 p-2 flex items-center text-xs"
+                                className="colors flex items-center"
                               >
-                                <FaTrash className="mr-1" /> Delete
+                                <FaTrash className="" />
                               </button>
                               <button
                                 onClick={() => handleViewClick(project.id)}
-                                className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 p-2 flex items-center text-xs"
+                                className="eye flex items-center"
                               >
-                                <FaEye className="mr-1" /> View
+                                <FaEye className="" />
                               </button>
                             </div>
+
+                          
+
+                            
                           </td>
                         </tr>
                       ))}

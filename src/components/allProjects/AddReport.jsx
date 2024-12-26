@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import Cookies from 'js-cookie';
+import Cookies from "js-cookie";
 
-const AddReport = () => {
-  const [reports, setReports] = useState([]);
+const ProjectDetails = () => {
+  const [projectData, setProjectData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { id } = useParams();
-  const [tasks, setTasks] = useState([]);
 
   useEffect(() => {
-    const fetchReports = async () => {
-      const token = Cookies.get('token');
+    const fetchProjectData = async () => {
+      const token = Cookies.get("token");
 
       if (!token) {
         setError("No authentication token found.");
@@ -36,13 +35,7 @@ const AddReport = () => {
         }
 
         const data = await response.json();
-        console.log("Fetched Data:", data);
-
-        // تحديث حالة التقارير
-        setReports(Array.isArray(data.data.reports) ? data.data.reports : []);
-
-        // تحديث حالة المهام
-        setTasks(Array.isArray(data.data.tasks) ? data.data.tasks : []);
+        setProjectData(data.data);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -51,195 +44,192 @@ const AddReport = () => {
     };
 
     if (id) {
-      fetchReports();
+      fetchProjectData();
     } else {
       setError("Invalid project ID.");
       setLoading(false);
     }
   }, [id]);
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-slate-950">
+        <div className="text-xl text-gray-700 dark:text-white">Loading...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-slate-950">
+        <div className="text-red-500 text-xl">{`Error: ${error}`}</div>
+      </div>
+    );
+  }
+
+  if (!projectData) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-slate-950">
+        <div className="text-gray-700 dark:text-white text-xl">
+          No project data available.
+        </div>
+      </div>
+    );
+  }
+
+  // البحث عن قسم General Inspection بناءً على النوع أو أي معيار آخر
+  const generalInspection = projectData.projectDocuments.find(
+    (doc) => doc.section_type === 0 && doc.type === 1
+  );
+
   return (
-    <div className="min-h-screen dark:bg-slate-950 bg-gray-100 flex items-center justify-center py-10">
-      <div className="service rounded-lg shadow-lg p-8 w-11/12 md:w-3/4 lg:w-1/2">
-        <h1 className="text-center font-bold text-3xl mb-5 text-gray-700">
-          Hospital x Project
+    <div className="min-h-screen bg-gray-100 dark:bg-slate-950 py-10 px-4">
+      <div className="max-w-6xl mx-auto p-8 bg-white dark:bg-slate-900 rounded-xl shadow-lg">
+        {/* عنوان المشروع - تم تعديله ليكون في المركز */}
+        <h1 className="text-4xl font-extrabold text-gray-800 dark:text-white mb-8 text-center">
+          {projectData.name}
         </h1>
-        <div className="flex justify-between mb-5 text-sm text-gray-700">
-          <div>
-            <p>
-              <strong>Owner:</strong> co3@co3.com
+
+        {/* معلومات المشروع */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+          <div className="space-y-4">
+            <p className="text-lg">
+              <strong className="text-gray-700 dark:text-gray-300">Owner:</strong> {projectData.project_owner}
             </p>
-            <p>
-              <strong>Consultive:</strong> co3@co3.com
+            <p className="text-lg">
+              <strong className="text-gray-700 dark:text-gray-300">Consultive:</strong> {projectData.consultive}
             </p>
-            <p>
-              <strong>Services:</strong> sss, sss
+            <p className="text-lg">
+              <strong className="text-gray-700 dark:text-gray-300">Services:</strong> {projectData.services}
             </p>
           </div>
-          <div className="text-right">
-            <p>
-              <strong>Customer / Contractor:</strong> co3@co3.com
+          <div className="space-y-4">
+            <p className="text-lg">
+              <strong className="text-gray-700 dark:text-gray-300">Customer / Contractor:</strong> {projectData.customer_constructor}
             </p>
-            <p>
-              <strong>Inspection Engineer:</strong> a@a.com
+            <p className="text-lg">
+              <strong className="text-gray-700 dark:text-gray-300">Inspection Engineer:</strong> {projectData.inspection_engineer}
             </p>
-            <p>
-              <strong>Team Members:</strong> [Dropdown with names]
-            </p>
-          </div>
-        </div>
-        <div className="border-t border-b py-4">
-          <h2 className="font-bold text-xl mb-2">General Inspection</h2>
 
-          <h3 className="font-semibold text-lg ">Title</h3>
-          <p className="service border border-gray-300 dark:text-white rounded-lg p-3 w-full">
-            test name11111
-          </p>
-
-          <h3 className="font-semibold text-lg mt-3">Description</h3>
-          <p className="service border border-gray-300 rounded-lg p-3 w-full dark:bg-slate-900 dark:text-white">
-            test description111111
-          </p>
-
-          <h3 className="font-semibold text-lg mt-3">Image</h3>
-
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-2">
-            {[
-              "https://inout-api.octopusteam.net/storage/project_documents/6171734149431.webp",
-              "https://inout-api.octopusteam.net/storage/project_documents/2441734149431.webp",
-              "https://inout-api.octopusteam.net/storage/project_documents/24781734149431.webp",
-              "https://inout-api.octopusteam.net/storage/project_documents/31991734149431.webp",
-              "https://inout-api.octopusteam.net/storage/project_documents/74371734149431.webp",
-            ].map((fileUrl, index) => (
-              <img
-                key={index}
-                src={fileUrl}
-                alt={`Document Image ${index + 1}`}
-                className="w-full h-auto rounded-lg shadow-sm border border-gray-300"
-              />
-            ))}
-          </div>
-        </div>
-        <div className="border-t py-4">
-          <h2 className="font-bold text-xl mb-2">Logistic Inspection</h2>
-          <h3 className="font-semibold text-lg ">Title</h3>
-          <p className="service border border-gray-300 rounded-lg p-3 w-full dark:bg-slate-900 dark:text-white">
-            test name11111
-          </p>
-        </div>
-        <div className="border-t py-4">
-          <h2 className="font-bold text-xl mb-2">Safety Inspection</h2>
-          <p className="service border border-gray-300 rounded-lg p-3 w-full dark:bg-slate-900 dark:text-white">
-            test description111111
-          </p>
-        </div>
-        {/* قسم التقارير */}
-        <div className="border-t py-4">
-          <h2 className="font-bold text-xl mb-2">Reports</h2>
-
-          {loading && <p className="text-gray-500">Loading reports...</p>}
-          {error && <p className="text-red-500">Error: {error}</p>}
-          {!loading && !error && reports.length === 0 && (
-            <p className="text-gray-500">No reports available.</p>
-          )}
-          {!loading && !error && reports.length > 0 && (
-            <div className="space-y-4">
-              {reports.map((report) => (
-                <p
-                  key={report.id}
-                  className="service border border-gray-300 dark:text-white rounded-lg p-3 w-full"
-                >
-                  {report.report || "No report available"}
-                </p>
-              ))}
+            {/* قسم Team Members المعدل */}
+            <div className="mt-6">
+              <span className="block text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                Team Members:
+              </span>
+              <select className="w-full md:w-1/2 border border-gray-300 dark:border-gray-700 rounded-lg p-3 bg-white dark:bg-slate-800 text-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                {projectData.members.map((member) => (
+                  <option key={member.id} value={member.employee.id}>
+                    {member.employee.full_name}
+                  </option>
+                ))}
+              </select>
+              <div className="flex flex-wrap items-center mt-4 space-x-4">
+                {projectData.members.map((member) => (
+                  <img
+                    key={member.id}
+                    src={member.employee.image}
+                    alt={member.employee.full_name}
+                    className="w-16 h-16 rounded-full border-2 border-gray-300 dark:border-gray-700 shadow-sm object-cover"
+                  />
+                ))}
+              </div>
             </div>
-          )}
+            {/* نهاية قسم Team Members المعدل */}
+          </div>
         </div>
-        <div className="border-t py-4">
-          <h2 className="font-bold text-xl mb-2">Tasks</h2>
 
-          {loading && <p className="text-gray-500">Loading tasks...</p>}
-          {error && <p className="text-red-500">Error: {error}</p>}
+        {/* قسم General Inspection المعدل */}
+        {generalInspection && (
+          <div className="mb-8">
+            <h2 className="text-3xl font-semibold text-gray-800 dark:text-white mb-6">
+              General Inspection
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <p className="text-lg">
+                  <strong className="text-gray-700 dark:text-gray-300">Title:</strong> {generalInspection.name}
+                </p>
+              </div>
+              <div>
+                <p className="text-lg">
+                  <strong className="text-gray-700 dark:text-gray-300">Description:</strong> {generalInspection.description}
+                </p>
+              </div>
+            </div>
+            {/* عرض الملفات المرتبطة */}
+            {generalInspection.file && generalInspection.file.length > 0 && (
+              <div className="mt-6">
+                <h3 className="text-2xl font-medium text-gray-800 dark:text-white mb-4">Documents</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {generalInspection.file.map((url, index) => (
+                    <img
+                      key={index}
+                      src={url}
+                      alt={`Document ${index + 1}`}
+                      className="w-full h-40 object-cover rounded-lg shadow-sm border border-gray-300 dark:border-gray-700"
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+        {/* نهاية قسم General Inspection المعدل */}
 
-          {/* التحقق إذا لم تكن هناك مهام */}
-          {!loading && !error && tasks.length === 0 && (
-            <p className="text-gray-500">No tasks available.</p>
-          )}
+        {/* باقي الأقسام */}
+        {/* Logistic Inspection */}
+        {projectData.projectDocuments[1] && (
+          <div className="mb-8">
+            <h2 className="text-3xl font-semibold text-gray-800 dark:text-white mb-4">
+              Logistic Inspection
+            </h2>
+            <p className="text-lg">
+              <strong className="text-gray-700 dark:text-gray-300">Title:</strong> {projectData.projectDocuments[1].name}
+            </p>
+          </div>
+        )}
 
-          {/* عرض المهام إذا كانت موجودة */}
-          {!loading && !error && tasks.length > 0 && (
-            <ul className="space-y-2">
-              {tasks.map((task) => (
-                <li
-                  key={task.id}
-                  className="flex items-center justify-between p-3 border border-gray-300 rounded-lg shadow-sm dark:bg-slate-900 dark:text-white"
-                >
-                  <span>{task.task}</span>
-                  <span
-                    className={`px-3 py-1 text-sm rounded ${
-                      task.status === 0
-                        ? "bg-red-200 text-red-600"
-                        : "bg-green-200 text-green-600"
-                    }`}
-                  >
-                    {task.status === 0 ? "Pending" : "Completed"}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
+        {/* Reports */}
+        <div className="mb-8">
+          <h2 className="text-3xl font-semibold text-gray-800 dark:text-white mb-6">
+            Reports
+          </h2>
+          {projectData.reports.map((report) => (
+            <div
+              key={report.id}
+              className="p-4 border border-gray-300 dark:border-gray-700 rounded-lg mb-4 bg-gray-50 dark:bg-slate-800"
+            >
+              {report.report}
+            </div>
+          ))}
+        </div>
+
+        {/* Tasks */}
+        <div className="mb-8">
+          <h2 className="text-3xl font-semibold text-gray-800 dark:text-white mb-6">
+            Tasks
+          </h2>
+          <ul className="space-y-4">
+            {projectData.tasks.map((task) => (
+              <li
+                key={task.id}
+                className={`p-4 border rounded-lg shadow-sm flex items-center justify-between ${
+                  task.status === 0
+                    ? "bg-red-100 border-red-200 text-red-600"
+                    : "bg-green-100 border-green-200 text-green-600"
+                }`}
+              >
+                <span>{task.task}</span>
+                <span className="font-semibold">
+                  {task.status === 0 ? "Pending" : "Completed"}
+                </span>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </div>
   );
 };
 
-export default AddReport;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-{
-  /* <div className="border-t py-4">
-<h2 className="font-bold text-xl mb-2">Logistic Inspection</h2>
-<h3 className="font-semibold text-lg ">
-  Title<strong></strong>
-</h3>
-<textarea
-  className="service border border-gray-300 rounded-lg p-3 w-full h-32 dark:bg-slate-900 dark:text-white"
-  defaultValue="test name11111"
-></textarea>
-</div>
-
-<div className="border-t py-4">
-<h2 className="font-bold text-xl mb-2">Safety Inspection</h2>
-<textarea
-  className="service border border-gray-300 rounded-lg p-3 w-full h-32 dark:bg-slate-900 dark:text-white"
-  defaultValue="test description111111"
-></textarea>
-</div>
-
-
-<div className="border-t py-4">
-          <h2 className="font-bold text-xl mb-2">Tasks</h2>
-          <ul className="list-disc pl-5 text-gray-700">
-            <li>Finalize the construction site layout</li>
-            <li>Conduct the initial safety briefing</li>
-            <li>Schedule the next inspection date</li>
-            <li>Update the project risk assessment document</li>
-          </ul>
-        </div> */
-}
+export default ProjectDetails;

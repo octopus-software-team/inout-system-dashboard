@@ -42,6 +42,8 @@
 
     "flowbite-react": "^0.10.2",
 
+    "framer-motion": "^11.15.0",
+
     "jquery": "^3.7.1",
 
     "js-cookie": "^3.0.5",
@@ -66,7 +68,7 @@
 
     "react-hot-toast": "^2.4.1",
 
-    "react-icons": "^5.3.0",
+    "react-icons": "^5.4.0",
 
     "react-leaflet": "^4.2.1",
 

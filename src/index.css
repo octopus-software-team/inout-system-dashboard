@@ -217,11 +217,13 @@ h2 {
 }
 
 .css-1nmdiq5-menu > * {
-  @apply hover:!bg-[#03071a] hover:!bg-opacity-50 dark:!text-white;
+  @apply hover:!bg-opacity-50 dark:!text-white;
 }
 .css-1nmdiq5-menu > * > * {
-  @apply hover:!bg-[#03071a] hover:!bg-opacity-50 dark:!text-white;
+  @apply hover:!bg-opacity-50 dark:!text-white;
 }
+
+
 
 /* App.css */
 
@@ -284,6 +286,8 @@ h2 {
   background-color: #374151 !important; /* slate-700 */
 }
 
+
+
 /* .css-13cymwt-control {
   @apply 
 } */
@@ -317,4 +321,38 @@ h2 {
 
 .cahrt {
   width: 1400px;
+}
+
+.colors{
+  background-color: #ffcccc;
+  color: #ff0000;
+  padding: 10px;
+
+  font-size: 18px;
+}
+
+.edit{
+  background-color:#cef1fd ;
+  color: #07AEE7;
+  padding: 10px;
+
+  font-size: 18px;
+}
+
+.eye{
+  background-color:#e8dcef ;
+  color: #854AA4;
+  padding: 10px;
+
+  font-size: 18px;
+}
+
+.icons{
+  padding: 10px 30px;
+  border-radius: 10px;
+}
+
+.icon{
+  transform: rotate(90deg);
+
 }

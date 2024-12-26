@@ -34,7 +34,6 @@ const UpdateProject = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [setInspectionLocation] = useState("");
 
   const [searchQuery, setSearchQuery] = useState("");
   const [searchLoading, setSearchLoading] = useState(false);
@@ -62,14 +61,10 @@ const UpdateProject = () => {
   const [owners, setOwners] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [engineers, setEngineers] = useState([]);
-  const [latValue, setLatValue] = useState("");
-  const [longValue, setLongValue] = useState("");
-  const [errors, setErrors] = useState({});
 
   // الحقول المختارة في Select
   const [selectedServices, setSelectedServices] = useState([]);
   const [selectedConsultives, setSelectedConsultives] = useState([]);
-  const [selectedCustomer, setSelectedCustomer,] = useState([]);
 
   // الموقع على الخريطة
   const [position, setPosition] = useState([23.8859, 45.0792]);
@@ -174,7 +169,6 @@ const UpdateProject = () => {
           .map((customer) => ({
             value: customer.id,
             label: customer.name,
-            
           }));
         setCustomers(customersOptions);
 
@@ -371,8 +365,11 @@ const UpdateProject = () => {
         const { lat, lon } = data[0];
         const newPosition = [parseFloat(lat), parseFloat(lon)];
         setPosition(newPosition);
-        setLatValue(lat);
-        setLongValue(lon);
+        setFormData({
+          ...formData,
+          latitude: lat,
+          longitude: lon,
+        });
         toast.success(`Location found: ${data[0].display_name}`);
       } else {
         toast.error("Location not found. Please try a different query.");
@@ -453,6 +450,9 @@ const UpdateProject = () => {
                 className="w-full dark:bg-slate-700 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
               />
             </div>
+
+
+            <input type="time" placeholder="sojhaila" />
 
             {/* Notes */}
             <div>
@@ -586,6 +586,7 @@ const UpdateProject = () => {
               />
             </div>
 
+            {/* Customer */}
             <div>
               <label
                 htmlFor="customer_constructor_id"
@@ -598,7 +599,11 @@ const UpdateProject = () => {
                 name="customer_constructor_id"
                 placeholder="Select Customer"
                 className="dark:bg-slate-700 dark:text-white"
-                value={setSelectedCustomer}
+                value={
+                  customers.find(
+                    (c) => c.value === formData.customer_constructor_id
+                  ) || null
+                }
                 onChange={(selected) =>
                   setFormData({
                     ...formData,
@@ -653,12 +658,6 @@ const UpdateProject = () => {
                 {position && <Marker position={position} />}
               </MapContainer>
             </div>
-
-            {errors.inspectionLocation && (
-              <p className="text-red-500 text-sm mt-1 ml-6">
-                {errors.inspectionLocation}
-              </p>
-            )}
 
             <form onSubmit={handleSearch} className="mt-4 flex">
               <input

@@ -21,7 +21,6 @@ const Employees = () => {
 
   const tableName = "employees"; // تحديد اسم الجدول
 
-
   // Fetch employees
   const fetchEmployees = async () => {
     const token = Cookies.get("token");
@@ -166,17 +165,22 @@ const Employees = () => {
       return;
     }
 
-    fetch(`https://inout-api.octopusteam.net/api/front/deleteEmployee/${deleteId}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    fetch(
+      `https://inout-api.octopusteam.net/api/front/deleteEmployee/${deleteId}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
       .then((res) => res.json())
       .then((data) => {
         if (data.status === 200) {
-          setEmployees((prevEmployees) => prevEmployees.filter((emp) => emp.id !== deleteId));
+          setEmployees((prevEmployees) =>
+            prevEmployees.filter((emp) => emp.id !== deleteId)
+          );
           toast.success(data.msg || "Employee deleted successfully.");
         } else {
           toast.error(data.msg || "Failed to delete employee.");
@@ -223,47 +227,44 @@ const Employees = () => {
       return "Other";
     }
   };
-  
 
-   const handleExportFile = async () => {
-      const formData = new FormData();
-      formData.append("table", tableName);
-  
-      const token = Cookies.get("token");
-  
-      try {
-        const response = await fetch(
-          "https://inout-api.octopusteam.net/api/front/export",
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-            body: formData,
-          }
-        );
-  
-        if (!response.ok) {
-          throw new Error("Failed to export file");
+  const handleExportFile = async () => {
+    const formData = new FormData();
+    formData.append("table", tableName);
+
+    const token = Cookies.get("token");
+
+    try {
+      const response = await fetch(
+        "https://inout-api.octopusteam.net/api/front/export",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
         }
-  
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-  
-        link.download = `${tableName}.xlsx`;
-        document.body.appendChild(link);
-        link.click();
-  
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-      } catch (error) {
-        console.error("Error exporting file:", error);
-      }
-    };
-  
+      );
 
+      if (!response.ok) {
+        throw new Error("Failed to export file");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+
+      link.download = `${tableName}.xlsx`;
+      document.body.appendChild(link);
+      link.click();
+
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error exporting file:", error);
+    }
+  };
 
   return (
     <div className="container p-5 mx-auto mt-5 px-4 w-full">
@@ -282,23 +283,23 @@ const Employees = () => {
         <div className="flex space-x-2 w-full md:w-auto">
           <Link
             to="/company/engineers"
-            className=" text-white bg-blue-800 font-semibold py-2 px-4 rounded hover:bg-slate-700 w-full md:w-52 text-center text-xs"
+            className="icons text-white bg-blue-500 font-semibold  text-center "
           >
             + Add Employee
           </Link>
           <button
             onClick={() => setOpen(true)}
-            className="bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-700 w-full md:w-52 text-center text-xs"
+            className="icons bg-blue-500 text-white text-l font-semibold  text-center"
           >
             Import
           </button>
 
           <button
-          onClick={handleExportFile}
-          className="px-6 py-3 bg-green-500 text-white rounded-lg shadow-md hover:bg-green-600 transition duration-300 ease-in-out transform hover:scale-105"
-        >
-          Export
-        </button>
+            onClick={handleExportFile}
+            className="icons  bg-blue-500 text-white shadow-md font-semibold   transition duration-300 ease-in-out transform"
+          >
+            Export
+          </button>
         </div>
 
         {open && (
@@ -329,98 +330,182 @@ const Employees = () => {
               <th
                 className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
                 onClick={() => sorting("id")}
-                aria-sort={sortedColumn === "id" ? (order === "ASC" ? "ascending" : "descending") : "none"}
+                aria-sort={
+                  sortedColumn === "id"
+                    ? order === "ASC"
+                      ? "ascending"
+                      : "descending"
+                    : "none"
+                }
               >
                 # {renderSortIcon("id")}
               </th>
               <th
                 className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
                 onClick={() => sorting("full_name")}
-                aria-sort={sortedColumn === "full_name" ? (order === "ASC" ? "ascending" : "descending") : "none"}
+                aria-sort={
+                  sortedColumn === "full_name"
+                    ? order === "ASC"
+                      ? "ascending"
+                      : "descending"
+                    : "none"
+                }
               >
                 Full Name {renderSortIcon("full_name")}
               </th>
               <th
                 className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
                 onClick={() => sorting("email")}
-                aria-sort={sortedColumn === "email" ? (order === "ASC" ? "ascending" : "descending") : "none"}
+                aria-sort={
+                  sortedColumn === "email"
+                    ? order === "ASC"
+                      ? "ascending"
+                      : "descending"
+                    : "none"
+                }
               >
                 Email {renderSortIcon("email")}
               </th>
               <th
                 className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
                 onClick={() => sorting("phone")}
-                aria-sort={sortedColumn === "phone" ? (order === "ASC" ? "ascending" : "descending") : "none"}
+                aria-sort={
+                  sortedColumn === "phone"
+                    ? order === "ASC"
+                      ? "ascending"
+                      : "descending"
+                    : "none"
+                }
               >
                 Phone {renderSortIcon("phone")}
               </th>
               <th
                 className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
                 onClick={() => sorting("branch_id")}
-                aria-sort={sortedColumn === "branch_id" ? (order === "ASC" ? "ascending" : "descending") : "none"}
+                aria-sort={
+                  sortedColumn === "branch_id"
+                    ? order === "ASC"
+                      ? "ascending"
+                      : "descending"
+                    : "none"
+                }
               >
                 Branch {renderSortIcon("branch_id")}
               </th>
               <th
                 className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
                 onClick={() => sorting("employee_special_id")}
-                aria-sort={sortedColumn === "employee_special_id" ? (order === "ASC" ? "ascending" : "descending") : "none"}
+                aria-sort={
+                  sortedColumn === "employee_special_id"
+                    ? order === "ASC"
+                      ? "ascending"
+                      : "descending"
+                    : "none"
+                }
               >
                 Specialization {renderSortIcon("employee_special_id")}
               </th>
               <th
                 className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
                 onClick={() => sorting("date_of_birth")}
-                aria-sort={sortedColumn === "date_of_birth" ? (order === "ASC" ? "ascending" : "descending") : "none"}
+                aria-sort={
+                  sortedColumn === "date_of_birth"
+                    ? order === "ASC"
+                      ? "ascending"
+                      : "descending"
+                    : "none"
+                }
               >
                 Date of Birth {renderSortIcon("date_of_birth")}
               </th>
               <th
                 className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
                 onClick={() => sorting("gender")}
-                aria-sort={sortedColumn === "gender" ? (order === "ASC" ? "ascending" : "descending") : "none"}
+                aria-sort={
+                  sortedColumn === "gender"
+                    ? order === "ASC"
+                      ? "ascending"
+                      : "descending"
+                    : "none"
+                }
               >
                 Gender {renderSortIcon("gender")}
               </th>
               <th
                 className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
                 onClick={() => sorting("image")}
-                aria-sort={sortedColumn === "image" ? (order === "ASC" ? "ascending" : "descending") : "none"}
+                aria-sort={
+                  sortedColumn === "image"
+                    ? order === "ASC"
+                      ? "ascending"
+                      : "descending"
+                    : "none"
+                }
               >
                 Image {renderSortIcon("image")}
               </th>
               <th
                 className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
                 onClick={() => sorting("experience")}
-                aria-sort={sortedColumn === "experience" ? (order === "ASC" ? "ascending" : "descending") : "none"}
+                aria-sort={
+                  sortedColumn === "experience"
+                    ? order === "ASC"
+                      ? "ascending"
+                      : "descending"
+                    : "none"
+                }
               >
                 Experience {renderSortIcon("experience")}
               </th>
               <th
                 className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
                 onClick={() => sorting("contract_start_date")}
-                aria-sort={sortedColumn === "contract_start_date" ? (order === "ASC" ? "ascending" : "descending") : "none"}
+                aria-sort={
+                  sortedColumn === "contract_start_date"
+                    ? order === "ASC"
+                      ? "ascending"
+                      : "descending"
+                    : "none"
+                }
               >
                 Contract Start {renderSortIcon("contract_start_date")}
               </th>
               <th
                 className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
                 onClick={() => sorting("contract_duration")}
-                aria-sort={sortedColumn === "contract_duration" ? (order === "ASC" ? "ascending" : "descending") : "none"}
+                aria-sort={
+                  sortedColumn === "contract_duration"
+                    ? order === "ASC"
+                      ? "ascending"
+                      : "descending"
+                    : "none"
+                }
               >
                 Contract Duration {renderSortIcon("contract_duration")}
               </th>
               <th
                 className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
                 onClick={() => sorting("contract_end_date")}
-                aria-sort={sortedColumn === "contract_end_date" ? (order === "ASC" ? "ascending" : "descending") : "none"}
+                aria-sort={
+                  sortedColumn === "contract_end_date"
+                    ? order === "ASC"
+                      ? "ascending"
+                      : "descending"
+                    : "none"
+                }
               >
                 Contract End {renderSortIcon("contract_end_date")}
               </th>
               <th
                 className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
                 onClick={() => sorting("type")}
-                aria-sort={sortedColumn === "type" ? (order === "ASC" ? "ascending" : "descending") : "none"}
+                aria-sort={
+                  sortedColumn === "type"
+                    ? order === "ASC"
+                      ? "ascending"
+                      : "descending"
+                    : "none"
+                }
               >
                 Type {renderSortIcon("type")}
               </th>
@@ -493,24 +578,21 @@ const Employees = () => {
                     <div className="flex space-x-1">
                       <Link
                         to={`/company/view/${d.id}`}
-                        className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-opacity-85 flex items-center"
+                        className="eye  rounded  flex items-center"
                       >
-                        <FaEye className="mr-1" />
-                        View
+                        <FaEye className="" />
                       </Link>
                       <Link
                         to={`/company/editemp/${d.id}`}
-                        className="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 flex items-center"
+                        className="edit rounded  flex items-center"
                       >
-                        <FaEdit className="mr-1" />
-                        Edit
+                        <FaEdit className="" />
                       </Link>
                       <button
                         onClick={() => openConfirmModal(d.id)}
-                        className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 flex items-center"
+                        className="colors   rounded  flex items-center"
                       >
-                        <FaTrash className="mr-1" />
-                        Delete
+                        <FaTrash className="" />
                       </button>
                     </div>
                   </td>
@@ -525,7 +607,9 @@ const Employees = () => {
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 w-80">
             <h3 className="text-xl font-semibold mb-4">Confirm Deletion</h3>
-            <p className="mb-6">Are you sure you want to delete this employee?</p>
+            <p className="mb-6">
+              Are you sure you want to delete this employee?
+            </p>
             <div className="flex justify-end space-x-4">
               <button
                 onClick={confirmDelete}

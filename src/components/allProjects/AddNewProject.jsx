@@ -49,6 +49,8 @@ const AddNewProject = () => {
   const [inspectionDate, setInspectionDate] = useState("");
   const [inspectionTime, setInspectionTime] = useState("");
   const [notes, setNotes] = useState("");
+  const divRef = useRef(null);
+
   const [setInspectionLocation] = useState("");
 
   const [projectName, setProjectName] = useState("");
@@ -74,6 +76,9 @@ const AddNewProject = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchLoading, setSearchLoading] = useState(false);
 
+  const handleInput = () => {
+    setNotes(divRef.current.innerText);
+  };
   const openInGoogleMaps = () => {
     if (position) {
       const [lat, lng] = position;
@@ -447,19 +452,22 @@ const AddNewProject = () => {
       toast.error("Please enter a customer name");
       return;
     }
-
+  
+    // تعيين قيم افتراضية لـ Email وPhone
     const customerData = {
       name: newCustomerName,
+      email: "default@example.com", // قيمة افتراضية
+      phone: "0000000000", // قيمة افتراضية
       type: 0,
     };
-
+  
     try {
       const token = Cookies.get("token");
       if (!token) {
         toast.error("You need to log in first.");
         return;
       }
-
+  
       const response = await fetch(
         "https://inout-api.octopusteam.net/api/front/addCustomer",
         {
@@ -471,7 +479,7 @@ const AddNewProject = () => {
           body: JSON.stringify(customerData),
         }
       );
-
+  
       const result = await response.json();
       if (response.ok && result.status === 200) {
         const newOption = { value: result.data.id, label: result.data.name };
@@ -489,25 +497,29 @@ const AddNewProject = () => {
       toast.error("Error saving customer: " + error.message);
     }
   };
+  
 
   const handleSaveConsultive = async () => {
     if (!newConsultiveName.trim()) {
       toast.error("Please enter a consultive name");
       return;
     }
-
+  
+    // تعيين قيم افتراضية لـ Email وPhone
     const consultiveData = {
       name: newConsultiveName,
+      email: "consultant@example.com", // قيمة افتراضية
+      phone: "1111111111", // قيمة افتراضية
       type: 2,
     };
-
+  
     try {
       const token = Cookies.get("token");
       if (!token) {
         toast.error("You need to log in first.");
         return;
       }
-
+  
       const response = await fetch(
         "https://inout-api.octopusteam.net/api/front/addCustomer",
         {
@@ -519,7 +531,7 @@ const AddNewProject = () => {
           body: JSON.stringify(consultiveData),
         }
       );
-
+  
       const result = await response.json();
       if (response.ok && result.status === 200) {
         const newOption = { value: result.data.id, label: result.data.name };
@@ -537,7 +549,7 @@ const AddNewProject = () => {
       toast.error("Error saving consultive: " + error.message);
     }
   };
-
+  
   const handleSaveService = async () => {
     if (!newService.trim()) {
       toast.error("Please enter a service name");
@@ -584,21 +596,24 @@ const AddNewProject = () => {
       toast.error("Please enter an owner name");
       return;
     }
-
+  
+    // تعيين قيم افتراضية لـ Email وPhone
     const ownerData = {
       name: newOwner,
-      type: 1,
+      email: "owner@example.com", // قيمة افتراضية
+      phone: "2222222222", // قيمة افتراضية
+      type: 1, // تأكد من تعيين النوع الصحيح للمالك
     };
-
+  
     try {
       const token = Cookies.get("token");
       if (!token) {
         toast.error("You need to log in first.");
         return;
       }
-
+  
       const response = await fetch(
-        "https://inout-api.octopusteam.net/api/front/addOwner",
+        "https://inout-api.octopusteam.net/api/front/addCustomer",
         {
           method: "POST",
           headers: {
@@ -628,6 +643,8 @@ const AddNewProject = () => {
       toast.error("Error saving owner: " + error.message);
     }
   };
+  
+  
 
   const resetForm = () => {
     setSelectedOwner(null);
@@ -696,17 +713,6 @@ const AddNewProject = () => {
 
   return (
     <div className="container ml-0 p-10">
-      {/* <Toaster
-        position="top-center"
-        reverseOrder={false}
-        toastOptions={{
-          style: {
-            width: "350px",
-            height: "80px",
-            fontSize: "1.2rem",
-          },
-        }}
-      /> */}
       <h1 className="total text-4xl font-bold mb-3">Add New Project</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -789,14 +795,14 @@ const AddNewProject = () => {
               className="select1 custom-select flex-1"
             />
 
-            {/* <button
+            <button
               onClick={() => setIsServiceModalOpen(true)}
               className="ml-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-full w-8 h-8 flex items-center justify-center"
             >
               +
-            </button> */}
+            </button>
 
-            {/* <Dialog
+            <Dialog
               open={isServiceModalOpen}
               onClose={handleCancelService}
               className="relative z-10"
@@ -848,7 +854,7 @@ const AddNewProject = () => {
                   </DialogPanel>
                 </div>
               </div>
-            </Dialog> */}
+            </Dialog>
           </div>
           {errors.selectedServices && (
             <p className="text-red-500 text-sm mt-1 ml-6">
@@ -873,15 +879,15 @@ const AddNewProject = () => {
               className="select1 custom-select flex-1"
               name="project_owner_id"
             />
-            {/* 
+
             <button
               onClick={() => setIsOwnerModalOpen(true)}
               className="ml-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-full w-8 h-8 flex items-center justify-center"
             >
               +
-            </button> */}
+            </button>
 
-            {/* <Dialog
+            <Dialog
               open={isOwnerModalOpen}
               onClose={handleCancelOwner}
               className="relative z-10"
@@ -933,7 +939,7 @@ const AddNewProject = () => {
                   </DialogPanel>
                 </div>
               </div>
-            </Dialog> */}
+            </Dialog>
           </div>
           {errors.selectedOwner && (
             <p className="text-red-500 text-sm mt-1 ml-6">
@@ -959,15 +965,15 @@ const AddNewProject = () => {
               className="select1 custom-select flex-1"
               name="customer_constructor_id"
             />
-            {/* 
+
             <button
               onClick={() => setIsCustomerModalOpen(true)}
               className="ml-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-full w-8 h-8 flex items-center justify-center"
             >
               +
-            </button> */}
+            </button>
 
-            {/* <Dialog
+            <Dialog
               open={isCustomerModalOpen}
               onClose={handleCancelCustomer}
               className="relative z-10"
@@ -1021,7 +1027,7 @@ const AddNewProject = () => {
                   </DialogPanel>
                 </div>
               </div>
-            </Dialog> */}
+            </Dialog>
           </div>
           {errors.selectedCustomer && (
             <p className="text-red-500 text-sm mt-1 ml-6">
@@ -1045,15 +1051,15 @@ const AddNewProject = () => {
               className="select1 custom-select flex-1"
               name="project_consultive_ids[]"
             />
-            {/* 
+
             <button
               onClick={() => setIsConsultiveModalOpen(true)}
               className="bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-full w-8 h-8 flex items-center justify-center"
             >
               +
-            </button> */}
+            </button>
 
-            {/* <Dialog
+            <Dialog
               open={isConsultiveModalOpen}
               onClose={handleCancelConsultive}
               className="relative z-10"
@@ -1107,7 +1113,7 @@ const AddNewProject = () => {
                   </DialogPanel>
                 </div>
               </div>
-            </Dialog> */}
+            </Dialog>
           </div>
           {errors.selectedConsultives && (
             <p className="text-red-500 text-sm mt-1 ml-6">
@@ -1168,7 +1174,7 @@ const AddNewProject = () => {
             Inspection Time
           </label>
           <input
-            type="number"
+            type="time"
             placeholder=""
             value={inspectionTime}
             onChange={(e) => setInspectionTime(e.target.value)}
@@ -1183,16 +1189,35 @@ const AddNewProject = () => {
 
         {/* Notes */}
         <div className="p-1">
-          <label className=" block text-sm font-medium text-gray-700 ml-6">
+          <label className="block text-sm font-medium text-gray-700 ml-6">
             Notes
           </label>
-          <textarea
-            className="notes mt-1 block w-full text-gray-800 border border-gray-300 dark:border-gray-700 rounded-md p-2 dark:text-white"
-            rows="4"
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
+          <div
+            ref={divRef}
+            className="
+          mt-1 
+          bg-white 
+          block 
+          w-full 
+          text-gray-800 
+          dark:border-gray-700 
+          rounded-md 
+          p-2 
+          dark:text-white 
+          focus:outline-none 
+          focus:border-none
+        "
+            contentEditable
+            style={{
+              minHeight: "310px",
+              maxHeight: "500px",
+              overflowY: "auto",
+            }}
+            onInput={handleInput}
             name="notes"
-          ></textarea>
+          >
+            {notes}
+          </div>
         </div>
 
         <div className="p-1">
