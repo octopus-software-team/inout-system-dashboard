@@ -21,7 +21,7 @@ import {
 import "leaflet/dist/leaflet.css";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
-import L from "leaflet";
+// import L from "leaflet";
 
 const AddNewProject = () => {
   const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
@@ -322,7 +322,7 @@ const AddNewProject = () => {
       newErrors.inspectionTime = "Inspection Time is required.";
     if (!position || position.length !== 2)
       newErrors.inspectionLocation = "Inspection Location is required.";
-    if (!projectImage) newErrors.projectImage = "Project Image is required.";
+    // if (!projectImage) newErrors.projectImage = "Project Image is required.";
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -452,7 +452,7 @@ const AddNewProject = () => {
       toast.error("Please enter a customer name");
       return;
     }
-  
+
     // تعيين قيم افتراضية لـ Email وPhone
     const customerData = {
       name: newCustomerName,
@@ -460,14 +460,14 @@ const AddNewProject = () => {
       phone: "0000000000", // قيمة افتراضية
       type: 0,
     };
-  
+
     try {
       const token = Cookies.get("token");
       if (!token) {
         toast.error("You need to log in first.");
         return;
       }
-  
+
       const response = await fetch(
         "https://inout-api.octopusteam.net/api/front/addCustomer",
         {
@@ -479,7 +479,7 @@ const AddNewProject = () => {
           body: JSON.stringify(customerData),
         }
       );
-  
+
       const result = await response.json();
       if (response.ok && result.status === 200) {
         const newOption = { value: result.data.id, label: result.data.name };
@@ -497,14 +497,13 @@ const AddNewProject = () => {
       toast.error("Error saving customer: " + error.message);
     }
   };
-  
 
   const handleSaveConsultive = async () => {
     if (!newConsultiveName.trim()) {
       toast.error("Please enter a consultive name");
       return;
     }
-  
+
     // تعيين قيم افتراضية لـ Email وPhone
     const consultiveData = {
       name: newConsultiveName,
@@ -512,14 +511,14 @@ const AddNewProject = () => {
       phone: "1111111111", // قيمة افتراضية
       type: 2,
     };
-  
+
     try {
       const token = Cookies.get("token");
       if (!token) {
         toast.error("You need to log in first.");
         return;
       }
-  
+
       const response = await fetch(
         "https://inout-api.octopusteam.net/api/front/addCustomer",
         {
@@ -531,7 +530,7 @@ const AddNewProject = () => {
           body: JSON.stringify(consultiveData),
         }
       );
-  
+
       const result = await response.json();
       if (response.ok && result.status === 200) {
         const newOption = { value: result.data.id, label: result.data.name };
@@ -549,7 +548,7 @@ const AddNewProject = () => {
       toast.error("Error saving consultive: " + error.message);
     }
   };
-  
+
   const handleSaveService = async () => {
     if (!newService.trim()) {
       toast.error("Please enter a service name");
@@ -596,7 +595,7 @@ const AddNewProject = () => {
       toast.error("Please enter an owner name");
       return;
     }
-  
+
     // تعيين قيم افتراضية لـ Email وPhone
     const ownerData = {
       name: newOwner,
@@ -604,14 +603,14 @@ const AddNewProject = () => {
       phone: "2222222222", // قيمة افتراضية
       type: 1, // تأكد من تعيين النوع الصحيح للمالك
     };
-  
+
     try {
       const token = Cookies.get("token");
       if (!token) {
         toast.error("You need to log in first.");
         return;
       }
-  
+
       const response = await fetch(
         "https://inout-api.octopusteam.net/api/front/addCustomer",
         {
@@ -643,8 +642,6 @@ const AddNewProject = () => {
       toast.error("Error saving owner: " + error.message);
     }
   };
-  
-  
 
   const resetForm = () => {
     setSelectedOwner(null);
@@ -1218,6 +1215,37 @@ const AddNewProject = () => {
           >
             {notes}
           </div>
+
+          <div className="mb-5">
+          <div className="w-96 h-16 flex flex-col  md:col-span-2 mt-4">
+              <label
+                htmlFor="project_image"
+                className="mb-2 ml-6 font-medium text-gray-700"
+              >
+                Upload Project Image
+              </label>
+              <input
+                type="file"
+                id="project_image"
+                ref={dropifyRef}
+                className="dropify"
+                data-allowed-file-extensions="jpg jpeg png gif"
+                data-max-file-size="2M"
+              />
+              {errors.projectImage && (
+                <p className="text-red-500 text-sm mt-1 ml-6">
+                  {errors.projectImage}
+                </p>
+              )}
+              {imagePreview && (
+                <img
+                  src={imagePreview}
+                  alt="Project Preview"
+                  className="mt-4 h-40 w-40 object-cover rounded-md"
+                />
+              )}
+            </div>
+          </div>
         </div>
 
         <div className="p-1">
@@ -1267,35 +1295,6 @@ const AddNewProject = () => {
             </button>
           </form>
         </div>
-      </div>
-
-      <div className="flex flex-col md:col-span-2 mt-4">
-        <label
-          htmlFor="project_image"
-          className="mb-2 ml-6 font-medium text-gray-700"
-        >
-          Upload Project Image
-        </label>
-        <input
-          type="file"
-          id="project_image"
-          ref={dropifyRef}
-          className="dropify"
-          data-allowed-file-extensions="jpg jpeg png gif"
-          data-max-file-size="2M"
-        />
-        {errors.projectImage && (
-          <p className="text-red-500 text-sm mt-1 ml-6">
-            {errors.projectImage}
-          </p>
-        )}
-        {imagePreview && (
-          <img
-            src={imagePreview}
-            alt="Project Preview"
-            className="mt-4 h-40 w-40 object-cover rounded-md"
-          />
-        )}
       </div>
 
       <button

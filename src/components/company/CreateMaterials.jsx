@@ -1,14 +1,90 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import Cookies from 'js-cookie';
+
+const units = [
+    { label: "Millimeter", value: "mm" },
+    { label: "Centimeter", value: "cm" },
+    { label: "Meter", value: "m" },
+    { label: "Kilometer", value: "km" },
+    { label: "Inch", value: "in" },
+    { label: "Foot", value: "ft" },
+    { label: "Yard", value: "yd" },
+    { label: "Mile", value: "mi" },
+    { label: "Milligram", value: "mg" },
+    { label: "Gram", value: "g" },
+    { label: "Kilogram", value: "kg" },
+    { label: "Tonne", value: "t" },
+    { label: "Ounce", value: "oz" },
+    { label: "Pound", value: "lb" },
+    { label: "Stone", value: "st" },
+    { label: "Milliliter", value: "ml" },
+    { label: "Liter", value: "l" },
+    { label: "Cubic meter", value: "m³" },
+    { label: "Teaspoon", value: "tsp" },
+    { label: "Tablespoon", value: "tbsp" },
+    { label: "Cup", value: "cup" },
+    { label: "Pint", value: "pt" },
+    { label: "Quart", value: "qt" },
+    { label: "Gallon", value: "gal" },
+    { label: "Square meter", value: "m²" },
+    { label: "Hectare", value: "ha" },
+    { label: "Square kilometer", value: "km²" },
+    { label: "Acre", value: "ac" },
+    { label: "Square mile", value: "mi²" },
+    { label: "Celsius", value: "°C" },
+    { label: "Fahrenheit", value: "°F" },
+    { label: "Kelvin", value: "K" },
+    { label: "Joule", value: "J" },
+    { label: "Kilojoule", value: "kJ" },
+    { label: "Calorie", value: "cal" },
+    { label: "Kilocalorie", value: "kcal" },
+    { label: "Watt hour", value: "Wh" },
+    { label: "Kilowatt hour", value: "kWh" },
+    { label: "Pascal", value: "Pa" },
+    { label: "Kilopascal", value: "kPa" },
+    { label: "Bar", value: "bar" },
+    { label: "Psi", value: "psi" },
+    { label: "Piece", value: "piece" }
+];
 
 const CreateMaterials = () => {
   const [name, setName] = useState("");
   const [stock, setStock] = useState("");
   const [type, setType] = useState("");
+  const [branchId, setBranchId] = useState(""); // حالة لتخزين اختيار الفرع
+  const [branches, setBranches] = useState([]); // حالة لتخزين بيانات الفروع
   const [errorMessage, setErrorMessage] = useState(""); 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = Cookies.get("token");
+
+    fetch("https://inout-api.octopusteam.net/api/front/getBranches", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to fetch branches");
+        }
+        return res.json();
+      })
+      .then((resData) => {
+        if (resData && resData.data) {
+          setBranches(resData.data);
+        } else {
+          toast.error("No branches found");
+        }
+      })
+      .catch((err) => {
+        console.error("Error fetching branches:", err);
+        toast.error("Failed to fetch branches");
+      });
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -19,11 +95,17 @@ const CreateMaterials = () => {
       toast.error("Type is required!");
       return;
     }
+
+    if (!branchId) {
+      toast.error("Branch is required!");
+      return;
+    }
   
     const newMaterial = {
       name,
       stock: parseInt(stock),
-      type: parseInt(type),
+      type: type, // إرسال النوع كنص كما هو في الـ API
+      branch_id: parseInt(branchId),
     };
   
     fetch("https://inout-api.octopusteam.net/api/front/addMaterial", {
@@ -36,7 +118,9 @@ const CreateMaterials = () => {
     })
       .then((res) => {
         if (!res.ok) {
-          throw new Error("Failed to create material");
+          return res.json().then((data) => {
+            throw data;
+          });
         }
         return res.json();
       })
@@ -48,7 +132,11 @@ const CreateMaterials = () => {
       })
       .catch((err) => {
         console.error("Error creating material:", err);
-        toast.error("Failed to add material. Please try again.");
+        if (err.data && err.data.type) {
+          toast.error(`Type Error: ${err.data.type.join(", ")}`);
+        } else {
+          toast.error("Failed to add material. Please try again.");
+        }
       });
   };
   
@@ -126,17 +214,39 @@ const CreateMaterials = () => {
             className="w-full px-4 dark:bg-slate-900 dark:text-white py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           >
-            <option value="">Select Type</option>{" "}
-            {/* إضافة خيار فارغ لاختيار نوع */}
-            <option value="0">kg</option>
-            <option value="1">piece</option>
-            <option value="2">meter</option>
-            <option value="3">liter</option>
+            <option value="">Select Type</option> {/* إضافة خيار فارغ لاختيار نوع */}
+            {units.map((unit) => (
+              <option key={unit.value} value={unit.value}>
+                {unit.label}
+              </option>
+            ))}
           </select>
           {errorMessage && (
             <p className="text-red-500 text-sm mt-2">{errorMessage}</p>
-          )}{" "}
-          {/* عرض رسالة الخطأ */}
+          )} {/* عرض رسالة الخطأ */}
+        </div>
+
+        <div className="mb-4">
+          <label
+            className="block text-gray-700 font-semibold mb-2"
+            htmlFor="branch"
+          >
+            Branch
+          </label>
+          <select
+            id="branch"
+            value={branchId}
+            onChange={(e) => setBranchId(e.target.value)}
+            className="w-full px-4 dark:bg-slate-900 dark:text-white py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          >
+            <option value="">Select Branch</option> {/* خيار فارغ */}
+            {branches.map((branch) => (
+              <option key={branch.id} value={branch.id}>
+                {branch.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="text-center">

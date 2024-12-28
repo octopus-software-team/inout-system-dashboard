@@ -3,24 +3,24 @@ import Cookies from "js-cookie";
 import $ from "jquery";
 import "datatables.net";
 
-import projectIcon from '../../assests/logo4.png';
+import projectIcon from "../../assests/logo4.png";
 
 const statusStyles = {
-  "0": "text-gray-600 bg-gray-100", // Not Started
-  "2": "text-blue-600 bg-blue-100", // In Progress
-  "4": "text-green-600 bg-green-100", // Completed
-  "6": "text-yellow-600 bg-yellow-100", // Pending
-  "8": "text-orange-600 bg-orange-100", // Under Review
-  "10": "text-red-600 bg-red-100", // Cancelled
+  0: "text-gray-600 bg-gray-100", // Not Started
+  2: "text-blue-600 bg-blue-100", // In Progress
+  4: "text-green-600 bg-green-100", // Completed
+  6: "text-yellow-600 bg-yellow-100", // Pending
+  8: "text-orange-600 bg-orange-100", // Under Review
+  10: "text-red-600 bg-red-100", // Cancelled
 };
 
 const statusLabels = {
-  "0": "Not Started",
-  "2": "In Progress",
-  "4": "Completed",
-  "6": "Pending",
-  "8": "Under Review",
-  "10": "Cancelled",
+  0: "Not Started",
+  2: "In Progress",
+  4: "Completed",
+  6: "Pending",
+  8: "Under Review",
+  10: "Cancelled",
 };
 
 const LatestProject = () => {
@@ -80,7 +80,6 @@ const LatestProject = () => {
         order: [[4, "desc"]], // ترتيب حسب TIME تنازليًا
         pageLength: 10, // عدد الصفوف في الصفحة
         lengthMenu: [5, 10, 25, 50, 100], // خيارات عدد الصفوف
-        // يمكنك إضافة خيارات أخرى حسب الحاجة
       });
     }
 
@@ -108,7 +107,7 @@ const LatestProject = () => {
             <tr>
               <th>PROJECTS</th>
               <th>CUSTOMER</th>
-              <th>BRANCH</th> {/* إضافة رأس عمود البرانش */}
+              <th>BRANCH</th>
               <th>DETAILS</th>
               <th>STATUS</th>
               <th>TIME</th>
@@ -118,7 +117,6 @@ const LatestProject = () => {
             {projects.map((row) => (
               <tr key={row.id} className="border-t hover:bg-gray-50">
                 <td className="px-4 py-3 font-medium flex items-center">
-                  {/* تعديل حجم الصورة وإضافة مسافة */}
                   <img
                     src={row.project_image || projectIcon} // استخدام صورة المشروع إذا كانت متاحة
                     alt="Project Icon"
@@ -131,7 +129,9 @@ const LatestProject = () => {
                 <td className="px-4 py-3 text-gray-600">{row.details}</td>
                 <td className="px-4 py-3 flex items-center">
                   <span
-                    className={`px-2 py-1 rounded-lg text-sm font-semibold ${statusStyles[row.status]}`}
+                    className={`px-2 py-1 rounded-lg text-sm font-semibold ${
+                      statusStyles[row.status]
+                    }`}
                   >
                     {statusLabels[row.status]}
                   </span>

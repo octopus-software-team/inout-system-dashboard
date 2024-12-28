@@ -84,7 +84,7 @@ const ProjectDetails = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-slate-950 py-10 px-4">
-      <div className="max-w-6xl mx-auto p-8 bg-white dark:bg-slate-900 rounded-xl shadow-lg">
+      <div className=" mx-auto p-8 bg-white dark:bg-slate-900 rounded-xl shadow-lg">
         {/* عنوان المشروع - تم تعديله ليكون في المركز */}
         <h1 className="text-4xl font-extrabold text-gray-800 dark:text-white mb-8 text-center">
           {projectData.name}
@@ -147,7 +147,7 @@ const ProjectDetails = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <p className="text-lg">
-                  <strong className="text-gray-700 dark:text-gray-300">Title:</strong> {generalInspection.name}
+                  <strong className="text-gray-700 dark:text-gray-300">Section:</strong> {generalInspection.name}
                 </p>
               </div>
               <div>

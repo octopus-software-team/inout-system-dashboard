@@ -208,7 +208,7 @@ const ShowAllTask = () => {
 
       {isLoading ? (
         <div className="flex justify-center items-center">
-          <p className="text-blue-600 text-xl font-semibold">Loading...</p>
+          <p className="text-gray-700 -mt-56 text-xl font-semibold">Loading...</p>
         </div>
       ) : error ? (
         <p className="text-red-500 text-center">{error}</p>

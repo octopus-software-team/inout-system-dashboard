@@ -1,118 +1,112 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
+import Cookies from 'js-cookie';
+import $ from "jquery";
+import "datatables.net";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Cookies from 'js-cookie';
 
 const AddMaterials = () => {
   const [data, setData] = useState([]);
-  const navigate = useNavigate();
+  const [branches, setBranches] = useState([]);
   const [search, setSearch] = useState("");
+  const [materialToDelete, setMaterialToDelete] = useState(null); // Material to delete
+  const navigate = useNavigate();
+  const tableRef = useRef(null);
+  const dataTable = useRef(null);
 
-  // دالة لتحويل نوع المادة من رقم إلى نص
-  const getTypeName = (type) => {
-    switch (type) {
-      case 0:
-        return "kg";
-      case 1:
-        return "piece";
-      case 2:
-        return "meter";
-      case 3:
-        return "liter";
-      default:
-        return "Unknown";
-    }
-  };
-
-  // جلب البيانات من API مع الرؤوس والتوكن
   useEffect(() => {
     const token = Cookies.get("token");
-   
-    fetch("https://inout-api.octopusteam.net/api/front/getMaterials", {
+
+    const fetchBranches = fetch("https://inout-api.octopusteam.net/api/front/getBranches", {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
       },
     })
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error("Failed to fetch materials");
-        }
-        return res.json();
-      })
-      .then((resData) => {
-        if (resData && resData.data) {
-          setData(resData.data);
-        } else {
-          alert("No materials found");
-        }
-      })
-      .catch((err) => {
-        console.error("Error fetching materials:", err);
-        alert("Failed to fetch materials");
-      });
-  }, []);
+      .then((res) => res.json())
+      .then((resData) => setBranches(resData.data || []))
+      .catch((err) => toast.error("Failed to fetch branches"));
 
-  const handleDelete = (id) => {
-    const token = Cookies.get("token");
-
-    // عرض توست تأكيد للحذف
-    const confirmToast = toast(
-      <div>
-        <p>Are you sure you want to delete this material?</p>
-        <div className="flex space-x-2 justify-end">
-          <button
-            onClick={() => handleConfirmDelete(id, token, confirmToast)}
-            className="bg-red-600 text-white py-1 px-4 rounded-lg"
-          >
-            Yes
-          </button>
-          <button
-            onClick={() => toast.dismiss(confirmToast)} // إغلاق التوست إذا تم الضغط على "No"
-            className="bg-gray-600 text-white py-1 px-4 rounded-lg"
-          >
-            No
-          </button>
-        </div>
-      </div>,
-      { autoClose: false, closeButton: false }
-    );
-  };
-
-  const handleConfirmDelete = (id, token, confirmToast) => {
-    fetch(`https://inout-api.octopusteam.net/api/front/deleteMaterial/${id}`, {
-      method: "POST",
+    const fetchMaterials = fetch("https://inout-api.octopusteam.net/api/front/getMaterials", {
+      method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
       },
     })
+      .then((res) => res.json())
+      .then((resData) => setData(resData.data || []))
+      .catch((err) => toast.error("Failed to fetch materials"));
+
+    Promise.all([fetchBranches, fetchMaterials]);
+  }, []);
+
+  useEffect(() => {
+    if (data.length > 0) {
+      if (!dataTable.current) {
+        dataTable.current = $(tableRef.current).DataTable({
+          paging: true,
+          searching: false,
+          info: false,
+          language: {
+            search: "Search:",
+            lengthMenu: "Show _MENU_ entries",
+            info: "Showing _START_ to _END_ of _TOTAL_ entries",
+            paginate: {
+              first: "First",
+              last: "Last",
+              next: "Next",
+              previous: "Previous"
+            }
+          }
+        });
+      } else {
+        dataTable.current.clear();
+        dataTable.current.rows.add(data);
+        dataTable.current.draw();
+      }
+    }
+
+    return () => {
+      if (dataTable.current) {
+        dataTable.current.destroy();
+        dataTable.current = null;
+      }
+    };
+  }, [data]);
+
+  const confirmDelete = () => {
+    const token = Cookies.get("token");
+    fetch(`https://inout-api.octopusteam.net/api/front/deleteMaterial/${materialToDelete}`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+    })
       .then((res) => {
-        if (!res.ok) {
-          throw new Error("Failed to delete material");
-        }
+        if (!res.ok) throw new Error("Failed to delete material");
         return res.json();
       })
-      .then((resData) => {
-        toast.success(resData.msg || "Material deleted successfully");
-        setData((prevData) => prevData.filter((material) => material.id !== id));
-        toast.dismiss(confirmToast); // إغلاق توست التأكيد
+      .then(() => {
+        setData((prevData) => prevData.filter((material) => material.id !== materialToDelete));
+        toast.success("Material deleted successfully");
+        setMaterialToDelete(null);
       })
-      .catch((err) => {
-        console.error("Error deleting material:", err);
-        toast.error("Failed to delete material. Please try again.");
-        toast.dismiss(confirmToast); // إغلاق توست التأكيد عند حدوث خطأ
-      });
+      .catch(() => toast.error("Failed to delete material"));
+  };
+
+  const getBranchName = (branch_id) => {
+    const branch = branches.find((b) => b.id === branch_id);
+    return branch ? branch.name : "Unknown";
   };
 
   return (
     <div className="container mt-5">
+      <ToastContainer />
       <h2 className="text-center font-bold text-2xl text-black">Materials</h2>
 
       <div className="flex justify-between items-center my-4">
         <input
-          className="border dark:bg-slate-900 dark:text-white border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-2/3 shadow-md"
+          className="border border-gray-300 rounded-lg px-4 py-2 w-96"
           type="text"
           placeholder="Search materials..."
           value={search}
@@ -120,66 +114,55 @@ const AddMaterials = () => {
         />
         <Link
           to="/company/assets/creatematerials"
-          className=" text-white bg-blue-800 font-semibold py-2 px-6 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
+          className="icons bg-blue-800 text-white py-2 px-6 rounded-lg"
         >
           + Create Material
         </Link>
       </div>
 
-      <div className="overflow-x-auto shadow-lg rounded-lg w-full mx-auto">
-        <table className="table-auto w-full border border-gray-200 bg-white rounded-lg">
+      <div className="overflow-x-auto shadow-lg rounded-lg">
+        <table
+          ref={tableRef}
+          className="display table-auto w-full border border-gray-200 bg-white rounded-lg"
+        >
           <thead>
             <tr className="bg-gradient-to-r from-blue-600 to-blue-400 text-white">
-              <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
-                #
-              </th>
-              <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
-                Name
-              </th>
-              <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
-                Stock
-              </th>
-              <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
-                Type
-              </th>
-              <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-right font-semibold text-lg border-b border-gray-300">
-                Actions
-              </th>
+              <th className="px-4 py-3">#</th>
+              <th className="px-4 py-3">Name</th>
+              <th className="px-4 py-3">Stock</th>
+              <th className="px-4 py-3">Type</th>
+              <th className="px-4 py-3">Branch</th>
+              <th className="px-4 py-3">Actions</th>
             </tr>
           </thead>
           <tbody>
             {data
-              .filter((item) => {
-                return search.toLowerCase() === ""
+              .filter((item) =>
+                search === ""
                   ? item
-                  : item.name.toLowerCase().includes(search.toLowerCase());
-              })
+                  : item.name.toLowerCase().includes(search.toLowerCase())
+              )
               .map((item, index) => (
                 <tr
                   key={item.id}
-                  className={`hover:bg-gray-100 transition duration-200 ${
-                    index % 2 === 0 ? "bg-gray-50" : "bg-white"
-                  }`}
+                  className={`hover:bg-gray-100 ${index % 2 === 0 ? "bg-gray-50" : "bg-white"}`}
                 >
-                  <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">{item.id}</td>
-                  <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">{item.name}</td>
-                  <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">{item.stock}</td>
-                  <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">
-                    {getTypeName(item.type)}
-                  </td>
-                  <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-right space-x-2">
+                  <td className="px-4 py-3">{item.id}</td>
+                  <td className="px-4 py-3">{item.name}</td>
+                  <td className="px-4 py-3">{item.stock}</td>
+                  <td className="px-4 py-3">{item.type_label}</td>
+                  <td className="px-4 py-3">{getBranchName(item.branch_id)}</td>
+                  <td className="px-4 py-3  space-x-2">
                     <button
-                      onClick={() =>
-                        navigate(`/company/assets/updatematerials`, { state: item })
-                      }
-                      className="bg-green-600 text-white font-semibold py-2 px-4 rounded-lg hover:shadow-md transform hover:scale-105 transition duration-300"
+                      onClick={() => navigate(`/company/assets/updatematerials`, { state: item })}
+                      className="edit rounded-lg"
                     >
                       <FaEdit className="inline mr-2" />
                       Edit
                     </button>
                     <button
-                      onClick={() => handleDelete(item.id)}
-                      className="bg-red-600 text-white font-semibold py-2 px-4 rounded-lg hover:shadow-md transform hover:scale-105 transition duration-300"
+                      onClick={() => setMaterialToDelete(item.id)}
+                      className="colors rounded-lg"
                     >
                       <FaTrash className="inline mr-2" />
                       Delete
@@ -191,7 +174,28 @@ const AddMaterials = () => {
         </table>
       </div>
 
-      <ToastContainer />
+      {/* Confirmation Modal */}
+      {materialToDelete && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg">
+            <p>Are you sure you want to delete this material?</p>
+            <div className="flex justify-end space-x-4 mt-4">
+              <button
+                onClick={confirmDelete}
+                className="bg-red-500 text-white py-2 px-4 rounded-lg"
+              >
+                Yes
+              </button>
+              <button
+                onClick={() => setMaterialToDelete(null)}
+                className="bg-gray-500 text-white py-2 px-4 rounded-lg"
+              >
+                No
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

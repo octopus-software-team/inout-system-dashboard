@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { FaEdit, FaEye, FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
@@ -6,6 +6,8 @@ import Cookies from "js-cookie";
 import "react-toastify/dist/ReactToastify.css";
 import ImportFile from "../ImportFile";
 import ExportFile from "../ExportFile";
+import $ from "jquery";
+import "datatables.net";
 
 const Employees = () => {
   const [employees, setEmployees] = useState([]);
@@ -20,6 +22,9 @@ const Employees = () => {
   const [deleteId, setDeleteId] = useState(null);
 
   const tableName = "employees"; // تحديد اسم الجدول
+
+  const tableRef = useRef(null); // Reference to the table
+  const dataTable = useRef(null); // Reference to DataTable instance
 
   // Fetch employees
   const fetchEmployees = async () => {
@@ -120,6 +125,46 @@ const Employees = () => {
     fetchEmployeeSpecials();
   }, []);
 
+  // Initialize DataTable
+  useEffect(() => {
+    // Initialize only if employees data is present
+    if (employees.length > 0) {
+      // If DataTable is already initialized, destroy it before re-initializing
+      if ($.fn.DataTable.isDataTable(tableRef.current)) {
+        dataTable.current.destroy();
+      }
+
+      dataTable.current = $(tableRef.current).DataTable({
+        responsive: true,
+        searching: false, // Disable default search to use custom search
+        ordering: false, // Disable default ordering to use custom sorting
+        language: {
+          search: "Filter records:",
+          emptyTable: "No employees found.",
+          paginate: {
+            previous: "Previous",
+            next: "Next",
+          },
+        },
+        // Customize other DataTable options as needed
+      });
+    }
+
+    // Cleanup on unmount
+    return () => {
+      if (dataTable.current) {
+        dataTable.current.destroy();
+      }
+    };
+  }, [employees]);
+
+  // Integrate custom search with DataTables
+  useEffect(() => {
+    if (dataTable.current) {
+      dataTable.current.search(search).draw();
+    }
+  }, [search]);
+
   const sorting = (col) => {
     let sorted = [];
     if (order === "ASC") {
@@ -217,11 +262,11 @@ const Employees = () => {
   };
 
   const getType = (type) => {
-    if (type == 0) {
+    if (type === 0) {
       return "Engineer";
-    } else if (type == 1) {
+    } else if (type === 1) {
       return "Employee";
-    } else if (type == 2) {
+    } else if (type === 2) {
       return "Worker";
     } else {
       return "Other";
@@ -263,6 +308,7 @@ const Employees = () => {
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Error exporting file:", error);
+      toast.error("Failed to export file.");
     }
   };
 
@@ -271,8 +317,9 @@ const Employees = () => {
       <h2 className="text-center font-bold text-3xl mb-4">Employees</h2>
 
       <div className="flex flex-col md:flex-row justify-between items-center mb-4 w-full space-y-4 md:space-y-0">
+        {/* Search Input */}
         <input
-          className="border border-gray-300 dark:bg-slate-900 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 w-96 h-10 md:w-1/2 shadow-sm text-xs"
+          className="border border-gray-300 dark:bg-slate-900 h-10 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 w-96 sm:w-1/2 shadow-sm text-xs"
           type="text"
           placeholder="Search employees by name..."
           value={search}
@@ -283,25 +330,25 @@ const Employees = () => {
         <div className="flex space-x-2 w-full md:w-auto">
           <Link
             to="/company/engineers"
-            className="icons text-white bg-blue-500 font-semibold  text-center "
+            className="icons bg-blue-800 text-white font-semibold  rounded-lg transition duration-300 flex items-center"
           >
             + Add Employee
           </Link>
           <button
             onClick={() => setOpen(true)}
-            className="icons bg-blue-500 text-white text-l font-semibold  text-center"
+            className="icons bg-blue-800 text-white  rounded-lg transition duration-300 flex items-center"
           >
             Import
           </button>
-
           <button
             onClick={handleExportFile}
-            className="icons  bg-blue-500 text-white shadow-md font-semibold   transition duration-300 ease-in-out transform"
+            className="icons bg-blue-800 text-white  rounded-lg flex items-center"
           >
             Export
           </button>
         </div>
 
+        {/* Import & Export Modal */}
         {open && (
           <div
             className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
@@ -323,8 +370,11 @@ const Employees = () => {
         )}
       </div>
 
-      <div className="w-full overflow-y-auto">
-        <table className="w-full bg-white dark:bg-slate-800 rounded-lg table-auto">
+      <div className="w-full overflow-x-auto">
+        <table
+          ref={tableRef}
+          className="w-full bg-white dark:bg-slate-800 rounded-lg table-auto"
+        >
           <thead>
             <tr className="bg-gradient-to-r from-blue-600 to-blue-400 text-white text-xs">
               <th
@@ -432,17 +482,9 @@ const Employees = () => {
                 Gender {renderSortIcon("gender")}
               </th>
               <th
-                className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
-                onClick={() => sorting("image")}
-                aria-sort={
-                  sortedColumn === "image"
-                    ? order === "ASC"
-                      ? "ascending"
-                      : "descending"
-                    : "none"
-                }
+                className="px-2 py-1 text-left font-semibold border-b border-gray-300"
               >
-                Image {renderSortIcon("image")}
+                Image
               </th>
               <th
                 className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
@@ -578,21 +620,21 @@ const Employees = () => {
                     <div className="flex space-x-1">
                       <Link
                         to={`/company/view/${d.id}`}
-                        className="eye  rounded  flex items-center"
+                        className="eye"
                       >
-                        <FaEye className="" />
+                        <FaEye />
                       </Link>
                       <Link
                         to={`/company/editemp/${d.id}`}
-                        className="edit rounded  flex items-center"
+                        className="edit"
                       >
-                        <FaEdit className="" />
+                        <FaEdit />
                       </Link>
                       <button
                         onClick={() => openConfirmModal(d.id)}
-                        className="colors   rounded  flex items-center"
+                        className="colors"
                       >
-                        <FaTrash className="" />
+                        <FaTrash />
                       </button>
                     </div>
                   </td>

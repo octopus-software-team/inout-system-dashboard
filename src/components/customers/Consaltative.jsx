@@ -1,17 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Cookies from 'js-cookie';
-
+import $ from "jquery";
+import "datatables.net"; // Import DataTables CSS if needed
 
 const Consultative = () => {
   const [data, setData] = useState([]);
-  const [order, setOrder] = useState("ASC");
-  const [sortedColumn, setSortedColumn] = useState(null);
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
+  const tableRef = useRef(null);
+  const dataTable = useRef(null);
 
   useEffect(() => {
     const token = Cookies.get('token');
@@ -37,12 +38,47 @@ const Consultative = () => {
       .catch((err) => console.error("Error fetching consultative data:", err));
   }, []);
 
-  const renderSortIcon = (col) => {
-    if (sortedColumn === col) {
-      return order === "ASC" ? <span>&#9650;</span> : <span>&#9660;</span>;
+  // Initialize DataTable
+  useEffect(() => {
+    if (data.length > 0) {
+      // Initialize DataTable
+      if (!dataTable.current) {
+        dataTable.current = $(tableRef.current).DataTable({
+          paging: true,
+          searching: true,
+          info: true,
+          ordering: true,
+          language: {
+            search: "Search:",
+            lengthMenu: "Show _MENU_ entries",
+            info: "Showing _START_ to _END_ of _TOTAL_ entries",
+            paginate: {
+              first: "First",
+              last: "Last",
+              next: "Next",
+              previous: "Previous",
+            },
+          },
+          // Prevent ordering on the Actions column
+          columnDefs: [
+            { orderable: false, targets: -1 },
+          ],
+        });
+      } else {
+        // If DataTable already initialized, just update the data
+        dataTable.current.clear();
+        dataTable.current.rows.add(data);
+        dataTable.current.draw();
+      }
     }
-    return "";
-  };
+
+    return () => {
+      if (dataTable.current) {
+        dataTable.current.destroy();
+        dataTable.current = null;
+      }
+    };
+  }, [data]);
 
   const handleDelete = (id) => {
     const token = Cookies.get('token');
@@ -51,7 +87,7 @@ const Consultative = () => {
       return;
     }
 
-    // هنا نستخدم Toast للتأكيد بدلاً من confirm
+    // Using Toast for confirmation
     const confirmToast = toast(
       <div>
         <p>Do you like to delete?</p>
@@ -102,35 +138,27 @@ const Consultative = () => {
         Consultatives
       </h2>
 
-      <div className="flex justify-between items-center my-4">
-        <input
-          className="border border-gray-300 dark:bg-slate-900 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-2/3 shadow-md"
-          type="text"
-          placeholder="Search clients..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+      <div className="flex justify-end items-center my-4">
+        {/* Search input can be handled by DataTables, so it's optional to keep it */}
         <Link
           to="/customers/createconsultive"
-          className=" text-white bg-blue-800 font-semibold py-2 px-6 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
+          className="icons  text-white bg-blue-800 font-semibold py-2 px-6 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
         >
           + Create Consultive
         </Link>
       </div>
 
       <div className="overflow-x-auto shadow-lg rounded-lg w-full mx-auto">
-        <table className="table-auto w-full border-collapse border border-gray-200 rounded-lg">
+        <table ref={tableRef} className="display table-auto w-full border border-gray-200 rounded-lg">
           <thead>
             <tr className="text-white bg-gradient-to-r from-blue-600 to-blue-400">
-              <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer">
+              <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
                 #
               </th>
-              <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer">
+              <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
                 Name
               </th>
-              <th
-                className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
-              >
+              <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
                 Phone Number
               </th>
               <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-center font-semibold text-lg border-b border-gray-300">
@@ -162,14 +190,14 @@ const Consultative = () => {
                   <td className="px-4 py-3 dark:text-white text-center">
                     <Link
                       to={`/customers/editconsultive/${item.id}`}
-                      className="bg-green-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-500 transform hover:scale-105 transition duration-300"
+                      className="edit rounded-lg "
                     >
                       <FaEdit className="inline mr-2" />
                       Edit
                     </Link>
                     <button
                       onClick={() => handleDelete(item.id)}
-                      className="bg-red-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-red-500 ml-2 transform hover:scale-105 transition duration-300"
+                      className="colors rounded-lg ml-2 "
                     >
                       <FaTrash className="inline mr-2" />
                       Delete

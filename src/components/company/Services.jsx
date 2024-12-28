@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Cookies from "js-cookie";
-import ImportFile from "../ImportFile"; // إضافة المكون هنا
-
+import ImportFile from "../ImportFile"; // Ensure this path is correct
+import $ from "jquery";
+import "datatables.net";
 
 const AddServices = () => {
   const [data, setData] = useState([]);
@@ -16,6 +17,8 @@ const AddServices = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const tableRef = useRef(null); // Reference to the table
+  const dataTable = useRef(null); // Reference to DataTable instance
 
   const tableName = "services"; // تحديد اسم الجدول
 
@@ -58,6 +61,51 @@ const AddServices = () => {
       });
   }, []);
 
+  // Initialize DataTable
+  useEffect(() => {
+    // Initialize only if data is present
+    if (data.length > 0) {
+      // If DataTable is already initialized, destroy it before re-initializing
+      if ($.fn.DataTable.isDataTable(tableRef.current)) {
+        dataTable.current.destroy();
+      }
+
+      dataTable.current = $(tableRef.current).DataTable({
+        // DataTable options can be added here
+        responsive: true,
+        // Disable default search if you want to use custom search
+        searching: false,
+        // To specify initial sorting
+        order: sortedColumn ? [[getColumnIndex(sortedColumn), order === "ASC" ? 'asc' : 'desc']] : [],
+      });
+    }
+
+    // Cleanup on unmount
+    return () => {
+      if (dataTable.current) {
+        dataTable.current.destroy();
+      }
+    };
+  }, [data]);
+
+  // Integrate custom search with DataTables
+  useEffect(() => {
+    if (dataTable.current) {
+      dataTable.current.search(search).draw();
+    }
+  }, [search]);
+
+  const getColumnIndex = (col) => {
+    switch (col) {
+      case "id":
+        return 0;
+      case "name":
+        return 1;
+      default:
+        return 0;
+    }
+  };
+
   const handleExportFile = async () => {
     const formData = new FormData();
     formData.append("table", tableName);
@@ -93,6 +141,7 @@ const AddServices = () => {
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Error exporting file:", error);
+      toast.error("Failed to export file.");
     }
   };
 
@@ -190,35 +239,37 @@ const AddServices = () => {
     <div className="container p-6 mt-5">
       <h2 className="text-center font-bold text-3xl text-black">Services</h2>
 
-      <div className="flex justify-between items-center my-4">
+      <div className="flex justify-between items-center my-4 space-x-2 flex-wrap">
         <input
-          className="border border-gray-300 dark:bg-slate-900 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-2/3 shadow-md"
+          className="border border-gray-300 dark:bg-slate-900 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-96 sm:w-2/3 shadow-md"
           type="text"
           placeholder="Search services..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        <Link
+        
+      <div className="flex">
+      <Link
           to="/company/createservices"
-          className=" text-white bg-blue-800 font-semibold py-2 px-6 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
+          className="icons bg-blue-800 text-white ml-3  font-semibold py-2 px-6 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
         >
           + Create Service
         </Link>
 
         <button
           onClick={() => setOpen(true)}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+          className="icons bg-blue-800 ml-3 text-white px-4 py-2 rounded "
         >
           Import
         </button>
 
         <button
           onClick={handleExportFile}
-          className="px-6 py-3 bg-green-500 text-white rounded-lg shadow-md hover:bg-green-600 transition duration-300 ease-in-out transform hover:scale-105"
+          className="icons bg-blue-800 px-6 py-3 ml-3  text-white rounded-lg shadow-md "
         >
           Export
         </button>
-
+      </div>
         {open && (
           <div
             className="fixed top-0 left-0 z-30 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
@@ -250,16 +301,19 @@ const AddServices = () => {
         <p className="text-center text-gray-600 text-lg">No services found.</p>
       ) : (
         <div className="overflow-x-auto shadow-lg rounded-lg w-full mx-auto">
-          <table className="table-auto w-full border border-gray-200 bg-white rounded-lg">
+          <table
+            ref={tableRef}
+            className="min-w-full bg-white border border-gray-200 rounded-lg shadow-md display"
+          >
             <thead>
               <tr className="bg-gradient-to-r from-blue-600 to-blue-400 text-white">
-                <th className="th4 px-4  py-3 text-left font-semibold text-lg border-b border-gray-300">
-                  #{renderSortIcon("id")}
+                <th className="th4 px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">
+                  # {renderSortIcon("id")}
                 </th>
-                <th className="th5 px-4  py-3 text-left font-semibold text-lg border-b border-gray-300">
+                <th className="th5 px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">
                   Name {renderSortIcon("name")}
                 </th>
-                <th className="th6 px-4  py-3 text-right font-semibold text-lg border-b border-gray-300">
+                <th className="th6 px-4 py-3 text-right font-semibold text-lg border-b border-gray-300">
                   Actions
                 </th>
               </tr>
@@ -287,14 +341,14 @@ const AddServices = () => {
                     <td className="th6 px-4 py-3 dark:bg-slate-900 dark:text-white text-right space-x-2">
                       <button
                         onClick={() => handleEdit(d.id)}
-                        className="bg-green-600 text-white font-semibold py-2 px-4 rounded-lg hover:shadow-md transform hover:scale-105 transition duration-300"
+                      className="edit py-2 px-4 rounded-lg "
                       >
                         <FaEdit className="inline mr-2" />
                         Edit
                       </button>
                       <button
                         onClick={() => handleDelete(d.id)}
-                        className="bg-red-600 text-white font-semibold py-2 px-4 rounded-lg hover:shadow-md transform hover:scale-105 transition duration-300"
+                        className="colors font-semibold py-2 px-4 rounded-lg "
                       >
                         <FaTrash className="inline mr-2" />
                         Delete
@@ -307,7 +361,18 @@ const AddServices = () => {
         </div>
       )}
 
-      <ToastContainer />
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        style={{ zIndex: 9999 }}
+      />
     </div>
   );
 };

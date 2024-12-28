@@ -246,7 +246,7 @@ const UpdateBranch = () => {
           </select>
         </div>
 
-        <MapContainer
+        {/* <MapContainer
           center={[formData.latitude || 23.8859, formData.longitude || 45.0792]}
           zoom={6}
           style={{ height: "200px", width: "100%" }}
@@ -258,7 +258,7 @@ const UpdateBranch = () => {
           <Marker
             position={[formData.latitude || 23.8859, formData.longitude || 45.0792]}
           />
-        </MapContainer>
+        </MapContainer> */}
 
         <div className="text-center">
           <button

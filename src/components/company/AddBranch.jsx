@@ -222,7 +222,7 @@ const AddBranch = () => {
           </select>
         </div>
 
-        <MapContainer
+        {/* <MapContainer
           center={[23.8859, 45.0792]}
           zoom={6}
           style={{ height: "200px", width: "100%" }}
@@ -232,7 +232,7 @@ const AddBranch = () => {
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           />
           <LocationMarker />
-        </MapContainer>
+        </MapContainer> */}
 
         <button
           type="submit"

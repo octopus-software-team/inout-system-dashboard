@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { FaEdit, FaEye, FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Cookies from "js-cookie";
+import $ from "jquery";
+import "datatables.net"; // DataTables JS
 
 const ShowAllProjects = () => {
   const [projects, setProjects] = useState([]);
@@ -37,6 +39,9 @@ const ShowAllProjects = () => {
     10: "Cancelled",
   };
 
+  const tableRef = useRef(null);
+  const dataTable = useRef(null);
+
   useEffect(() => {
     const fetchData = async () => {
       const token = Cookies.get("token");
@@ -47,7 +52,7 @@ const ShowAllProjects = () => {
       }
 
       try {
-        // جلب المشاريع
+        // Fetch Projects
         const projectsResponse = await fetch(
           "https://inout-api.octopusteam.net/api/front/getProjects",
           {
@@ -66,7 +71,7 @@ const ShowAllProjects = () => {
 
         const fetchedProjects = projectsData.data;
 
-        // جلب الفروع
+        // Fetch Branches
         const branchesResponse = await fetch(
           "https://inout-api.octopusteam.net/api/front/getBranches",
           {
@@ -88,7 +93,7 @@ const ShowAllProjects = () => {
         });
         setBranches(branchesMap);
 
-        // جلب الملاك
+        // Fetch Owners
         const ownersResponse = await fetch(
           "https://inout-api.octopusteam.net/api/front/getCustomers",
           {
@@ -111,7 +116,7 @@ const ShowAllProjects = () => {
         });
         setOwners(ownersMap);
 
-        // جلب العملاء
+        // Fetch Customers
         const customersResponse = await fetch(
           "https://inout-api.octopusteam.net/api/front/getCustomers",
           {
@@ -133,7 +138,7 @@ const ShowAllProjects = () => {
         });
         setCustomers(customersMap);
 
-        // جلب المهندسين
+        // Fetch Engineers
         const engineersResponse = await fetch(
           "https://inout-api.octopusteam.net/api/front/getEngineers",
           {
@@ -155,7 +160,7 @@ const ShowAllProjects = () => {
         });
         setEngineers(engineersMap);
 
-        // جلب الخدمات
+        // Fetch Services
         const servicesResponse = await fetch(
           "https://inout-api.octopusteam.net/api/front/getServices",
           {
@@ -172,14 +177,14 @@ const ShowAllProjects = () => {
           throw new Error(serviceData.msg || "Failed to fetch services.");
         }
 
-        // تحويل الخدمات إلى خريطة
+        // Convert Services to Map
         const tempServicesMap = {};
         serviceData.data.forEach((service) => {
           tempServicesMap[service.id] = service.name;
         });
         setServicesMap(tempServicesMap);
 
-        // جلب الاستشاريين (العملاء من النوع 2)
+        // Fetch Consultives (Customers of type 2)
         const consultivesMapTemp = {};
         customersData.data
           .filter((customer) => customer.type === 2)
@@ -188,7 +193,7 @@ const ShowAllProjects = () => {
           });
         setConsultivesMap(consultivesMapTemp);
 
-        // تحويل المشاريع مع الحقول الإضافية
+        // Map Projects with Additional Fields
         const mappedProjects = fetchedProjects.map((project) => ({
           ...project,
           branchName: branchesMap[project.branch_id] || "Unknown",
@@ -225,6 +230,48 @@ const ShowAllProjects = () => {
     fetchData();
   }, []);
 
+  // Initialize DataTable
+  useEffect(() => {
+    if (!isLoading && projects.length > 0) {
+      // Initialize DataTable
+      if (!dataTable.current) {
+        dataTable.current = $(tableRef.current).DataTable({
+          paging: true,
+          searching: true,
+          info: true,
+          ordering: true,
+          language: {
+            search: "Search:",
+            lengthMenu: "Show _MENU_ entries",
+            info: "Showing _START_ to _END_ of _TOTAL_ entries",
+            paginate: {
+              first: "First",
+              last: "Last",
+              next: "Next",
+              previous: "Previous",
+            },
+          },
+          // Prevent ordering on the Actions column
+          columnDefs: [
+            { orderable: false, targets: -1 },
+          ],
+        });
+      } else {
+        // If DataTable already initialized, just update the data
+        dataTable.current.clear();
+        dataTable.current.rows.add(projects);
+        dataTable.current.draw();
+      }
+    }
+
+    return () => {
+      if (dataTable.current) {
+        dataTable.current.destroy();
+        dataTable.current = null;
+      }
+    };
+  }, [projects, isLoading]);
+
   const handleViewClick = (projectId) => {
     navigate(`/allprojects/addreport/${projectId}`);
   };
@@ -233,7 +280,7 @@ const ShowAllProjects = () => {
     navigate(`/allprojects/addrepo/${projectId}`);
   };
 
-  // Sorting
+  // Sorting - This can be handled by DataTables, so you might consider removing this logic to avoid conflicts
   const sorting = (col) => {
     let sorted = [];
     if (order === "ASC") {
@@ -324,6 +371,13 @@ const ShowAllProjects = () => {
         setProjects((prevProjects) =>
           prevProjects.filter((project) => project.id !== id)
         );
+        // Remove the deleted row from DataTable
+        if (dataTable.current) {
+          dataTable.current
+            .row(`#project-${id}`)
+            .remove()
+            .draw();
+        }
       } else {
         toast.error(`فشل في حذف المشروع: ${res.msg || "خطأ غير معروف"}`);
       }
@@ -370,6 +424,7 @@ const ShowAllProjects = () => {
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Error exporting file:", error);
+      toast.error("فشل في تصدير الملف. الرجاء المحاولة مرة أخرى.");
     }
   };
 
@@ -379,17 +434,18 @@ const ShowAllProjects = () => {
         Show All Projects
       </h2>
 
-      <div className="flex flex-col md:flex-row justify-between items-center mb-4">
-        <input
+      <div className="flex flex-col md:flex-row justify-end items-center mb-4">
+        
+        {/* <input
           className="border border-gray-300 dark:bg-slate-900 rounded-lg p-3 placeholder:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-xs md:w-1/2 w-96 lg:!w-[600px]"
           type="text"
           placeholder="Search projects by name..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-        />
+        /> */}
         <button
           onClick={handleExportFile}
-          className="icons bg-blue-500 text-white transition duration-300 ease-in-out transform "
+          className="icons bg-blue-500 text-white transition duration-300 ease-in-out transform px-4 py-2 rounded-lg hover:bg-blue-600"
         >
           Export
         </button>
@@ -410,7 +466,11 @@ const ShowAllProjects = () => {
           <div className="-m-1.5 overflow-x-auto">
             <div className="p-1.5 min-w-full inline-block align-middle">
               <div className="overflow-hidden">
-                <table className="min-w-full divide-y divide-gray-200">
+                <table
+                  ref={tableRef}
+                  id="projectsTable"
+                  className="min-w-full divide-y divide-gray-200"
+                >
                   <thead>
                     <tr className="bg-gradient-to-r from-blue-600 to-blue-400 text-white text-xs">
                       <th
@@ -461,14 +521,14 @@ const ShowAllProjects = () => {
                       >
                         Engineer {renderSortIcon("engineerName")}
                       </th>
-                      {/* الأعمدة الجديدة */}
+                      {/* New Columns */}
                       <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
                         Notes
                       </th>
                       <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
                         Inspection Time
                       </th>
-                      {/* الأعمدة الحالية */}
+                      {/* Existing Columns */}
                       <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
                         Services
                       </th>
@@ -492,6 +552,7 @@ const ShowAllProjects = () => {
                       .map((project, index) => (
                         <tr
                           key={project.id}
+                          id={`project-${project.id}`}
                           className={`hover:bg-gray-100 dark:hover:bg-slate-700 transition duration-200 text-xs ${
                             index % 2 === 0
                               ? "bg-white dark:bg-slate-800"
@@ -528,7 +589,7 @@ const ShowAllProjects = () => {
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
                             {project.inspectionTime}
                           </td>
-                          {/* الأعمدة الحالية */}
+                          {/* Existing Columns */}
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
                             {project.services}
                           </td>
@@ -539,21 +600,21 @@ const ShowAllProjects = () => {
                             <div className="flex space-x-1">
                               <Link
                                 to={`/allprojects/updateprojects/${project.id}`}
-                                className="edit flex items-center"
+                                className="edit flex items-center text-blue-600 hover:text-blue-800"
                               >
-                                <FaEdit className="" />
+                                <FaEdit />
                               </Link>
                               <button
                                 onClick={() => handleDelete(project.id)}
-                                className="colors flex items-center"
+                                className="colors flex items-center text-red-600 hover:text-red-800"
                               >
-                                <FaTrash className="" />
+                                <FaTrash />
                               </button>
                               <button
                                 onClick={() => handleViewClick(project.id)}
-                                className="eye flex items-center"
+                                className="eye flex items-center text-green-600 hover:text-green-800"
                               >
-                                <FaEye className="" />
+                                <FaEye />
                               </button>
                             </div>
                           </td>

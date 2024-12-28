@@ -389,291 +389,307 @@ const UpdateProject = () => {
           <p>Loading...</p>
         </div>
       ) : (
-        <div className="service container mx-auto p-6 dark:bg-slate-800 shadow-md rounded-lg max-w-2xl mt-10">
+        <div className="container ml-0 p-10">
           <Toaster position="top-center" richColors />
 
-          <h2 className="text-center font-bold text-3xl mb-6 text-gray-800 dark:text-white">
+          <h2 className="total text-center  text-4xl font-bold mb-6">
             Update Project
           </h2>
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Project Name */}
-            <div>
-              <label
-                htmlFor="name"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >
-                Project Name <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-                className="w-full dark:bg-slate-700 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
-              />
-            </div>
-
-            {/* Inspection Date */}
-            <div>
-              <label
-                htmlFor="inspection_date"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >
-                Inspection Date
-              </label>
-              <input
-                type="date"
-                id="inspection_date"
-                name="inspection_date"
-                value={formData.inspection_date}
-                onChange={handleChange}
-                className="w-full dark:bg-slate-700 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
-              />
-            </div>
-
-            {/* Inspection Time */}
-            <div>
-              <label
-                htmlFor="inspection_time"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >
-                Inspection Time
-              </label>
-              <input
-                type="time"
-                id="inspection_time"
-                name="inspection_time"
-                value={formData.inspection_time}
-                onChange={handleChange}
-                className="w-full dark:bg-slate-700 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
-              />
-            </div>
-
-
-            {/* Notes */}
-            <div>
-              <label
-                htmlFor="notes"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >
-                Notes
-              </label>
-              <textarea
-                id="notes"
-                name="notes"
-                value={formData.notes}
-                onChange={handleChange}
-                className="w-full dark:bg-slate-700 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
-                rows={4}
-              />
-            </div>
-
-            {/* Project Status */}
-            <div>
-              <label
-                htmlFor="status"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >
-                Project Status
-              </label>
-              <select
-                name="status"
-                id="status"
-                value={formData.status}
-                onChange={handleChange}
-                className="w-full dark:bg-slate-700 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
-              >
-                <option value="">Select Status</option>
-                <option value="0">Not Started</option>
-                <option value="2">In Progress</option>
-                <option value="4">Completed</option>
-                <option value="6">Pending</option>
-                <option value="8">Under Review</option>
-                <option value="10">Cancelled</option>
-              </select>
-            </div>
-
-            {/* Branch */}
-            <div>
-              <label
-                htmlFor="branch_id"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >
-                Branch
-              </label>
-              <Select
-                options={branches}
-                name="branch_id"
-                placeholder="Select Branch"
-                className="dark:bg-slate-700 dark:text-white"
-                value={
-                  branches.find((b) => b.value === formData.branch_id) || null
-                }
-                onChange={(selected) =>
-                  setFormData({
-                    ...formData,
-                    branch_id: selected ? selected.value : "",
-                  })
-                }
-              />
-            </div>
-
-            {/* Project Owner */}
-            <div>
-              <label
-                htmlFor="project_owner_id"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >
-                Project Owner
-              </label>
-              <Select
-                options={owners}
-                name="project_owner_id"
-                placeholder="Select Project Owner"
-                className="dark:bg-slate-700 dark:text-white"
-                value={
-                  owners.find((o) => o.value === formData.project_owner_id) ||
-                  null
-                }
-                onChange={(selected) =>
-                  setFormData({
-                    ...formData,
-                    project_owner_id: selected ? selected.value : "",
-                  })
-                }
-              />
-            </div>
-
-            {/* Services */}
-            <div>
-              <label
-                htmlFor="services"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >
-                Services
-              </label>
-              <Select
-                isMulti
-                options={services}
-                value={selectedServices}
-                onChange={setSelectedServices}
-                placeholder="Select Services"
-                name="services"
-                className="dark:bg-slate-700 dark:text-white"
-              />
-            </div>
-
-            {/* Consultives */}
-            <div>
-              <label
-                htmlFor="consultives"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >
-                Consultive(s)
-              </label>
-              <Select
-                isMulti
-                options={consultives}
-                value={selectedConsultives}
-                onChange={setSelectedConsultives}
-                placeholder="Select Consultive(s)"
-                name="consultives"
-                className="dark:bg-slate-700 dark:text-white"
-              />
-            </div>
-
-            {/* Customer */}
-            <div>
-              <label
-                htmlFor="customer_constructor_id"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >
-                Customer
-              </label>
-              <Select
-                options={customers}
-                name="customer_constructor_id"
-                placeholder="Select Customer"
-                className="dark:bg-slate-700 dark:text-white"
-                value={
-                  customers.find(
-                    (c) => c.value === formData.customer_constructor_id
-                  ) || null
-                }
-                onChange={(selected) =>
-                  setFormData({
-                    ...formData,
-                    customer_constructor_id: selected ? selected.value : "",
-                  })
-                }
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="inspection_engineer_id"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >
-                Inspection Engineer
-              </label>
-              <Select
-                options={engineers}
-                name="inspection_engineer_id"
-                placeholder="Select Engineer"
-                className="dark:bg-slate-700 dark:text-white"
-                value={
-                  engineers.find(
-                    (e) => e.value === formData.inspection_engineer_id
-                  ) || null
-                }
-                onChange={(selected) =>
-                  setFormData({
-                    ...formData,
-                    inspection_engineer_id: selected ? selected.value : "",
-                  })
-                }
-              />
-            </div>
-
-            {/* الخريطة */}
-            <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Inspection Location
-              </label>
-              <MapContainer
-                center={position}
-                zoom={6}
-                style={{ height: "200px", width: "100%" }}
-              >
-                <TileLayer
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                >
+                  Project Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
+                  className="w-full dark:bg-slate-700 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
                 />
-                <LocationMarker setPosition={setPosition} />
-                {position && <Marker position={position} />}
-              </MapContainer>
+              </div>
+
+              {/* Project Status */}
+              <div>
+                <label
+                  htmlFor="status"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                >
+                  Project Status
+                </label>
+                <select
+                  name="status"
+                  id="status"
+                  value={formData.status}
+                  onChange={handleChange}
+                  className="w-full dark:bg-slate-700 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
+                >
+                  <option value="">Select Status</option>
+                  <option value="0">Not Started</option>
+                  <option value="2">In Progress</option>
+                  <option value="4">Completed</option>
+                  <option value="6">Pending</option>
+                  <option value="8">Under Review</option>
+                  <option value="10">Cancelled</option>
+                </select>
+              </div>
+
+              {/* Branch */}
+              <div>
+                <label
+                  htmlFor="branch_id"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                >
+                  Branch
+                </label>
+                <Select
+                  options={branches}
+                  name="branch_id"
+                  placeholder="Select Branch"
+                  className="dark:bg-slate-700 dark:text-white"
+                  value={
+                    branches.find((b) => b.value === formData.branch_id) || null
+                  }
+                  onChange={(selected) =>
+                    setFormData({
+                      ...formData,
+                      branch_id: selected ? selected.value : "",
+                    })
+                  }
+                />
+              </div>
+
+              {/* Services */}
+              <div>
+                <label
+                  htmlFor="services"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                >
+                  Services
+                </label>
+                <Select
+                  isMulti
+                  options={services}
+                  value={selectedServices}
+                  onChange={setSelectedServices}
+                  placeholder="Select Services"
+                  name="services"
+                  className="dark:bg-slate-700 dark:text-white"
+                />
+              </div>
+
+              {/* Project Owner */}
+              <div>
+                <label
+                  htmlFor="project_owner_id"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                >
+                  Project Owner
+                </label>
+                <Select
+                  options={owners}
+                  name="project_owner_id"
+                  placeholder="Select Project Owner"
+                  className="dark:bg-slate-700 dark:text-white"
+                  value={
+                    owners.find((o) => o.value === formData.project_owner_id) ||
+                    null
+                  }
+                  onChange={(selected) =>
+                    setFormData({
+                      ...formData,
+                      project_owner_id: selected ? selected.value : "",
+                    })
+                  }
+                />
+              </div>
+
+              {/* Customer */}
+              <div>
+                <label
+                  htmlFor="customer_constructor_id"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                >
+                  Customer
+                </label>
+                <Select
+                  options={customers}
+                  name="customer_constructor_id"
+                  placeholder="Select Customer"
+                  className="dark:bg-slate-700 dark:text-white"
+                  value={
+                    customers.find(
+                      (c) => c.value === formData.customer_constructor_id
+                    ) || null
+                  }
+                  onChange={(selected) =>
+                    setFormData({
+                      ...formData,
+                      customer_constructor_id: selected ? selected.value : "",
+                    })
+                  }
+                />
+              </div>
+
+              {/* Consultives */}
+              <div>
+                <label
+                  htmlFor="consultives"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                >
+                  Consultive(s)
+                </label>
+                <Select
+                  isMulti
+                  options={consultives}
+                  value={selectedConsultives}
+                  onChange={setSelectedConsultives}
+                  placeholder="Select Consultive(s)"
+                  name="consultives"
+                  className="dark:bg-slate-700 dark:text-white"
+                />
+              </div>
+
+              {/* Inspection Date */}
+              <div>
+                <label
+                  htmlFor="inspection_date"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                >
+                  Inspection Date
+                </label>
+                <input
+                  type="date"
+                  id="inspection_date"
+                  name="inspection_date"
+                  value={formData.inspection_date}
+                  onChange={handleChange}
+                  className="w-full dark:bg-slate-700 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="inspection_engineer_id"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                >
+                  Engineer
+                </label>
+                <Select
+                  options={engineers}
+                  name="inspection_engineer_id"
+                  placeholder="Select Engineer"
+                  className="dark:bg-slate-700 dark:text-white"
+                  value={
+                    engineers.find(
+                      (e) => e.value === formData.inspection_engineer_id
+                    ) || null
+                  }
+                  onChange={(selected) =>
+                    setFormData({
+                      ...formData,
+                      inspection_engineer_id: selected ? selected.value : "",
+                    })
+                  }
+                />
+              </div>
+
+              {/* Inspection Time */}
+              <div>
+                <label
+                  htmlFor="inspection_time"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                >
+                  Inspection Time
+                </label>
+                <input
+                  type="time"
+                  id="inspection_time"
+                  name="inspection_time"
+                  value={formData.inspection_time}
+                  onChange={handleChange}
+                  className="w-full dark:bg-slate-700 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
+                />
+              </div>
+
+              {/* Notes */}
+              <div>
+                <label
+                  htmlFor="notes"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                >
+                  Notes
+                </label>
+                <div
+                  id="notes"
+                  name="notes"
+                  // value={formData.notes}
+                  onChange={handleChange}
+                  className="mt-1 
+          bg-white 
+          block 
+          w-full 
+          text-gray-800 
+          dark:border-gray-700 
+          rounded-md 
+          p-2 
+          dark:text-white 
+          focus:outline-none 
+          focus:border-none"
+                  contentEditable
+                  style={{
+                    minHeight: "205px",
+                    maxHeight: "500px",
+                    overflowY: "auto",
+                  }}
+                ></div>
+              </div>
+
+              {/* الخريطة */}
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Inspection Location
+                </label>
+                <MapContainer
+                  center={position}
+                  zoom={6}
+                  style={{ height: "200px", width: "100%" }}
+                >
+                  <TileLayer
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  />
+                  <LocationMarker setPosition={setPosition} />
+                  {position && <Marker position={position} />}
+                </MapContainer>
+                <form onSubmit={handleSearch} className="mt-4 flex justify-end">
+                <input
+                  type="text"
+                  placeholder="Search location..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="flex-1 w-10 border border-gray-300 rounded-l-md p-2 dark:bg-slate-900 dark:text-white"
+                />
+                <button
+                  type="submit"
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-r-md"
+                  disabled={searchLoading}
+                >
+                  {searchLoading ? "Searching..." : "Search"}
+                </button>
+              </form>
+              </div>
+
+              
             </div>
 
-            <form onSubmit={handleSearch} className="mt-4 flex">
-              <input
-                type="text"
-                placeholder="Search location..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="flex-1 border border-gray-300 rounded-l-md p-2 dark:bg-slate-900 dark:text-white"
-              />
-              <button
-                type="submit"
-                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-r-md"
-                disabled={searchLoading}
-              >
-                {searchLoading ? "Searching..." : "Search"}
-              </button>
-            </form>
-
-            <div className="flex justify-center mt-6">
+            <div className="w-full mt-6">
               <button
                 type="submit"
                 disabled={loading}
@@ -681,7 +697,7 @@ const UpdateProject = () => {
                   loading ? "opacity-50 cursor-not-allowed" : ""
                 }`}
               >
-                {loading ? "Saving..." : "Save Changes"}
+                {loading ? "Saving..." : "Save"}
               </button>
             </div>
           </form>
