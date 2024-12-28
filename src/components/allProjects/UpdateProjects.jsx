@@ -452,8 +452,6 @@ const UpdateProject = () => {
             </div>
 
 
-            <input type="time" placeholder="sojhaila" />
-
             {/* Notes */}
             <div>
               <label
@@ -613,7 +611,6 @@ const UpdateProject = () => {
               />
             </div>
 
-            {/* Inspection Engineer */}
             <div>
               <label
                 htmlFor="inspection_engineer_id"

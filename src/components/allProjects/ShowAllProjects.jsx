@@ -397,7 +397,9 @@ const ShowAllProjects = () => {
 
       {isLoading ? (
         <div className="flex justify-center items-center">
-          <p className="text-black text-xl font-semibold">Loading...</p>
+          <p className="w-full text-center mt-56 h-full text-gray-700 text-xl font-semibold">
+            Loading...
+          </p>
         </div>
       ) : error ? (
         <p className="text-red-500 text-center">{error}</p>
@@ -534,7 +536,7 @@ const ShowAllProjects = () => {
                             {project.consultives}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
-                           <div className="flex space-x-1">
+                            <div className="flex space-x-1">
                               <Link
                                 to={`/allprojects/updateprojects/${project.id}`}
                                 className="edit flex items-center"
@@ -554,10 +556,6 @@ const ShowAllProjects = () => {
                                 <FaEye className="" />
                               </button>
                             </div>
-
-                          
-
-                            
                           </td>
                         </tr>
                       ))}

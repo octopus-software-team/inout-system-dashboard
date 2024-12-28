@@ -1,15 +1,10 @@
-// src/components/UpdateBranch.js
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import L from "leaflet";
-import icon from "leaflet/dist/images/marker-icon.png";
-import iconShadow from "leaflet/dist/images/marker-shadow.png";
 import Cookies from 'js-cookie';
-
 
 const UpdateBranch = () => {
   const { id } = useParams();
@@ -20,48 +15,66 @@ const UpdateBranch = () => {
     name: "",
     latitude: "",
     longitude: "",
+    country_id: "",
+    city_id: "",
   });
 
+  const [countries, setCountries] = useState([]);
+  const [cities, setCities] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [errors, setErrors] = useState({
-    name: "",
-    latitude: "",
-    longitude: "",
-  });
 
-    const openInGoogleMaps = () => {
-      if (formData.longitude && formData.latitude) {
-          const {latitude, longitude} = formData;
-          const googleMapsUrl = `https://www.google.com/maps?q=${latitude},${longitude}`;
-          window.open(googleMapsUrl, "_blank"); // Open in a new tab
-      }
-  };
-
-  const LocationMarker = () => {
-      useMapEvents({
-          click(e) {
-              const { latitude, longitude } = e.latlng;
-              setFormData((prev) => ({...prev, longitude: longitude, latitude: latitude}));
+  const fetchCountries = async () => {
+    try {
+      const token = Cookies.get('token');
+      const response = await fetch(
+        "https://inout-api.octopusteam.net/api/front/getCountries",
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
-      });
-
-      const {latitude, longitude} = formData;
-      return formData.longitude && formData.latitude ? <Marker position={[latitude, longitude]} /> : null;
+        }
+      );
+      const data = await response.json();
+      setCountries(data.data || []);
+    } catch (error) {
+      console.error("Error fetching countries:", error);
+    }
   };
 
-
+  const fetchCities = async () => {
+    try {
+      const token = Cookies.get('token');
+      const response = await fetch(
+        "https://inout-api.octopusteam.net/api/front/getCities",
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const data = await response.json();
+      setCities(data.data || []);
+    } catch (error) {
+      console.error("Error fetching cities:", error);
+    }
+  };
 
   useEffect(() => {
-    // استخدام البيانات المرسلة عبر الـ state إذا كانت موجودة
+    fetchCountries();
+    fetchCities();
+
     if (location.state) {
       setFormData({
         name: location.state.name || "",
         latitude: location.state.latitude || "",
         longitude: location.state.longitude || "",
+        country_id: location.state.country_id || "",
+        city_id: location.state.city_id || "",
       });
       setLoading(false);
     } else {
-      // إذا لم تكن البيانات موجودة في الـ state، قم بجلبها من الـ API
       const fetchBranchData = async () => {
         try {
           const token = Cookies.get('token');
@@ -76,28 +89,26 @@ const UpdateBranch = () => {
             {
               method: "GET",
               headers: {
-                "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`,
               },
             }
           );
 
           const result = await response.json();
-          console.log("API Response:", result); // تحقق من الاستجابة
 
           if (!response.ok) {
-            console.error("Error details:", result);
             throw new Error(result.msg || "Failed to fetch branch data");
           }
 
           setFormData({
             name: result.data.name || "",
-            latitude: result.data.name || "",
-            longitude: result.data.name || "",
+            latitude: result.data.latitude || "",
+            longitude: result.data.longitude || "",
+            country_id: result.data.country_id || "",
+            city_id: result.data.city_id || "",
           });
         } catch (error) {
           toast.error("Error: " + error.message);
-          console.error("Error fetching branch data:", error);
         } finally {
           setLoading(false);
         }
@@ -115,41 +126,8 @@ const UpdateBranch = () => {
     }));
   };
 
-  const validate = () => {
-    const newErrors = {};
-
-    if (!formData.name.trim()) {
-      newErrors.name = "Branch name is required.";
-    }
-
-    if (!formData.location.trim()) {
-      newErrors.location = "Location is required.";
-    } else {
-      const urlPattern = new RegExp(
-        "^(https?:\\/\\/)?" + // protocol
-          "((([a-zA-Z0-9\\-\\.]+)\\.([a-zA-Z]{2,5}))|" + // domain
-          "localhost|" + // or localhost
-          "\\d{1,3}(\\.\\d{1,3}){3})" + // or IP
-          "(\\:\\d+)?(\\/[-a-zA-Z0-9%_\\+.~#?&//=]*)?$",
-        "i"
-      );
-      if (!urlPattern.test(formData.location)) {
-        newErrors.location = "Please enter a valid location URL.";
-      }
-    }
-
-    setErrors(newErrors);
-
-    return Object.keys(newErrors).length === 0;
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // if (!validate()) {
-    //   toast.error("Please correct the errors in the form.");
-    //   return;
-    // }
 
     try {
       const token = Cookies.get('token');
@@ -160,32 +138,26 @@ const UpdateBranch = () => {
       }
 
       const form = new FormData();
-
-      form.append("name", formData.name)
-      form.append("longitude", formData.longitude)
-      form.append("latitude", formData.latitude)
-
+      form.append("name", formData.name);
+      form.append("longitude", formData.longitude);
+      form.append("latitude", formData.latitude);
+      form.append("country_id", formData.country_id);
+      form.append("city_id", formData.city_id);
 
       const response = await fetch(
         `https://inout-api.octopusteam.net/api/front/updateBranch/${id}`,
         {
           method: "POST",
           headers: {
-            // "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          // body: JSON.stringify({
-          //   name: formData.name.trim(),
-          //   location: formData.location.trim(),
-          // }),
-          body: form
+          body: form,
         }
       );
 
       const result = await response.json();
 
       if (!response.ok) {
-        console.error("Error details:", result);
         throw new Error(result.msg || "Failed to update branch");
       }
 
@@ -196,15 +168,8 @@ const UpdateBranch = () => {
       }, 2000);
     } catch (error) {
       toast.error("Error: " + error.message);
-      console.error("Error updating branch:", error);
     }
   };
-
-
-  useEffect(() => {
-    console.log(formData);
-  },[formData])
-  
 
   if (loading) {
     return (
@@ -232,58 +197,68 @@ const UpdateBranch = () => {
             name="name"
             value={formData.name}
             onChange={handleInputChange}
-            className={`w-full dark:bg-slate-900 dark:text-white px-4 py-2 border ${
-              errors.name ? "border-red-500" : "border-gray-300"
-            } rounded-lg`}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg"
             required
           />
-          {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
         </div>
 
-          <input
-              type="hidden"
-              hidden
-              value={formData.latitude}
-              onChange={handleInputChange}
-              name="latitude"
-            />
-            <input
-              type="hidden"
-              hidden
-              value={formData.longitude}
-              onChange={handleInputChange}
-              name="longitude"
-            />
-              
+        <div className="mb-4">
+          <label className="block text-gray-700 font-medium mb-2" htmlFor="country_id">
+            Country
+          </label>
+          <select
+            id="country_id"
+            name="country_id"
+            value={formData.country_id}
+            onChange={handleInputChange}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+            required
+          >
+            <option value="">Select a Country</option>
+            {countries.map((country) => (
+              <option key={country.id} value={country.id}>
+                {country.name}
+              </option>
+            ))}
+          </select>
+        </div>
 
-          <div>
-            <MapContainer
-                center={[23.8859, 45.0792]}
-                zoom={6}
-                style={{ height: "100px", width: "100%" }}
-            >
-                <TileLayer
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                />
-                <LocationMarker />
-            </MapContainer>
-            {/* <button
-                onClick={openInGoogleMaps}
-                style={{
-                    marginTop: "10px",
-                    padding: "10px 20px",
-                    backgroundColor: "#4285F4",
-                    color: "#fff",
-                    border: "none",
-                    borderRadius: "5px",
-                    cursor: "pointer",
-                }}
-            >
-                Open in Google Maps
-            </button> */}
-          </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 font-medium mb-2" htmlFor="city_id">
+            City
+          </label>
+          <select
+            id="city_id"
+            name="city_id"
+            value={formData.city_id}
+            onChange={handleInputChange}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+            required
+          >
+            <option value="">Select a City</option>
+            {cities
+              .filter((city) => city.country_id === parseInt(formData.country_id))
+              .map((city) => (
+                <option key={city.id} value={city.id}>
+                  {city.name}
+                </option>
+              ))}
+          </select>
+        </div>
 
+        <MapContainer
+          center={[formData.latitude || 23.8859, formData.longitude || 45.0792]}
+          zoom={6}
+          style={{ height: "200px", width: "100%" }}
+        >
+          <TileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          />
+          <Marker
+            position={[formData.latitude || 23.8859, formData.longitude || 45.0792]}
+          />
+        </MapContainer>
 
         <div className="text-center">
           <button

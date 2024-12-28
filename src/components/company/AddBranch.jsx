@@ -1,195 +1,246 @@
 import React, { useState, useEffect } from "react";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast, Toaster } from "react-hot-toast"; // Updated import
 import { useNavigate } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import L from "leaflet";
-import icon from "leaflet/dist/images/marker-icon.png";
-import iconShadow from "leaflet/dist/images/marker-shadow.png";
-import Cookies from 'js-cookie';
-
+import Cookies from "js-cookie";
 
 const AddBranch = () => {
   const [branchName, setBranchName] = useState("");
-  const [location, setLocation] = useState("");
-  const [branchData, setBranchData] = useState(null);
   const [position, setPosition] = useState([23.8859, 45.0792]);
-
-
-  const openInGoogleMaps = () => {
-    if (position) {
-        const [lat, lng] = position;
-        const googleMapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
-        window.open(googleMapsUrl, "_blank"); // Open in a new tab
-    }
-};
-
-const LocationMarker = () => {
-    useMapEvents({
-        click(e) {
-            const { lat, lng } = e.latlng;
-            setPosition([lat, lng]);
-        },
-    });
-
-    return position ? <Marker position={position} /> : null;
-};
-
+  const [countries, setCountries] = useState([]);
+  const [cities, setCities] = useState([]);
+  const [selectedCountry, setSelectedCountry] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
 
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault(e);
+  const fetchCountries = async () => {
+    const token = Cookies.get("token");
 
-   
-    const formData = new FormData();
+    if (!token) {
+      toast.error("No token found. Please log in.");
+      return;
+    }
 
-    formData.append("name", branchName)
-    formData.append("latitude", position[0])
-    formData.append("longitude", position[1])
-
-    console.log(formData)
     try {
-      const token = Cookies.get('token');
+      const response = await fetch(
+        "https://inout-api.octopusteam.net/api/front/getCountries",
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const data = await response.json();
+      setCountries(data.data || []);
+      console.log("Fetched Countries:", data.data); // Debugging
+    } catch (error) {
+      console.error("Error fetching countries:", error);
+      toast.error("Failed to fetch countries.");
+    }
+  };
+
+  const fetchCities = async () => {
+    const token = Cookies.get("token");
+
+    if (!token) {
+      toast.error("No token found. Please log in.");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        "https://inout-api.octopusteam.net/api/front/getCities",
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const data = await response.json();
+      setCities(data.data || []);
+      console.log("Fetched Cities:", data.data); // Debugging
+    } catch (error) {
+      console.error("Error fetching cities:", error);
+      toast.error("Failed to fetch cities.");
+    }
+  };
+
+  useEffect(() => {
+    fetchCountries();
+    fetchCities();
+  }, []);
+
+  const LocationMarker = () => {
+    useMapEvents({
+      click(e) {
+        const { lat, lng } = e.latlng;
+        setPosition([lat, lng]);
+      },
+    });
+
+    return position ? <Marker position={position} /> : null;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!branchName || !selectedCountry || !selectedCity) {
+      toast.error("Please fill in all fields.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("name", branchName);
+    formData.append("latitude", position[0]);
+    formData.append("longitude", position[1]);
+    formData.append("country_id", Number(selectedCountry)); // Convert to number
+    formData.append("city_id", Number(selectedCity)); // Convert to number
+
+    console.log("Submitting Branch:", {
+      name: branchName,
+      latitude: position[0],
+      longitude: position[1],
+      country_id: Number(selectedCountry),
+      city_id: Number(selectedCity),
+    }); // Debugging
+
+    try {
+      const token = Cookies.get("token");
+
+      if (!token) {
+        toast.error("No token found. Please log in.");
+        return;
+      }
+
       const response = await fetch(
         "https://inout-api.octopusteam.net/api/front/addBranch",
         {
           method: "POST",
           headers: {
-            // "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
           body: formData,
         }
       );
-      
+
       const result = await response.json();
 
-      if (!response.ok) {
-        console.error("تفاصيل الخطأ:", result);
-        throw new Error(result.msg || "فشل في إضافة الفرع");
+      if (response.status==200) {
+        toast.success("Branch added successfully!");
+        setTimeout(() => {
+          navigate("/company/Branchs");
+        }, 2000);
+      } else if (response.status === 422) {
+        // Handle validation errors if your API returns them
+        const validationErrors = result.data;
+        if (validationErrors) {
+          Object.keys(validationErrors).forEach((field) => {
+            toast.error(`${field}: ${validationErrors[field].join(" ")}`);
+          });
+        } else {
+          toast.error(result.msg || "Failed to add branch.");
+        }
+      } else {
+        toast.error(result.msg || "Failed to add branch.");
       }
-      
-      setBranchData(result.data);
-      console.log(branchData)
-      toast.success(result.msg || "تم إضافة الفرع بنجاح!");
-
-      setTimeout(() => {
-        navigate("/company/Branchs");
-      }, 2000);
     } catch (error) {
-      toast.error("خطأ: " + error.message);
-      console.error("خطأ:", error);
+      toast.error("An error occurred. Please try again.");
+      console.error("Error:", error);
     }
   };
 
-  useEffect(() => {
-    console.log(branchName)
-  },[branchName])
-
-
   return (
     <div className="service max-w-lg mt-24 mx-auto p-6 rounded-lg shadow-sm">
+      <Toaster
+        position="top-center"
+        reverseOrder={false}
+        toastOptions={{
+          style: {
+            width: "350px",
+            // Adjust height if necessary or remove
+            // height: "80px",
+            fontSize: "1.2rem",
+          },
+        }}
+      />
       <h2 className="text-2xl font-semibold text-center mb-4">Add Branch</h2>
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">
-            Branch Name 
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            Branch Name
           </label>
           <input
             type="text"
             value={branchName}
-            name="name"
             onChange={(e) => setBranchName(e.target.value)}
-            className="mt-2 w-full dark:bg-slate-800 dark:text-white px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="mt-2 w-full dark:bg-slate-800 dark:text-white px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            required
           />
         </div>
-          <input
-              type="hidden"
-              hidden
-              value={position[0]}
-              name="latitude"
-            />
-            <input
-              type="hidden"
-              hidden
-              value={position[1]}
-              name="longitude"
-            />
-              
 
-          <div>
-            <MapContainer
-                center={[23.8859, 45.0792]}
-                zoom={6}
-                style={{ height: "100px", width: "100%" }}
-            >
-                <TileLayer
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                />
-                <LocationMarker />
-            </MapContainer>
-            {/* <button
-                onClick={openInGoogleMaps}
-                style={{
-                    marginTop: "10px",
-                    padding: "10px 20px",
-                    backgroundColor: "#4285F4",
-                    color: "#fff",
-                    border: "none",
-                    borderRadius: "5px",
-                    cursor: "pointer",
-                }}
-            >
-                Open in Google Maps
-            </button> */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            Country
+          </label>
+          <select
+            value={selectedCountry}
+            onChange={(e) => setSelectedCountry(e.target.value)}
+            className="mt-2 w-full dark:bg-slate-800 dark:text-white px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            required
+          >
+            <option value="">Select a Country</option>
+            {countries.map((country) => (
+              <option key={country.id} value={country.id}>
+                {country.name}
+              </option>
+            ))}
+            {/* Removed the empty option as it's unnecessary */}
+          </select>
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            City
+          </label>
+          <select
+            value={selectedCity}
+            onChange={(e) => setSelectedCity(e.target.value)}
+            className="mt-2 w-full dark:bg-slate-800 dark:text-white px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            required
+          >
+            <option value="">Select a City</option>
+            {cities.map((city) => (
+              <option key={city.id} value={city.id}>
+                {city.name}
+              </option>
+            ))}
+            {/* Removed the "غير محدد" option or you can keep it if necessary */}
+          </select>
+        </div>
+
+        <MapContainer
+          center={[23.8859, 45.0792]}
+          zoom={6}
+          style={{ height: "200px", width: "100%" }}
+        >
+          <TileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          />
+          <LocationMarker />
+        </MapContainer>
 
         <button
           type="submit"
-          className="w-full mt-5  py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
-          >
+          className="w-full mt-5 py-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition duration-300"
+        >
           Add Branch
         </button>
-          </div>
       </form>
-
-      {branchData && (
-        <div className="mt-4 p-4 bg-gray-100 rounded-lg">
-          <h3 className="text-lg font-semibold">تفاصيل الفرع:</h3>
-          <p>
-            <strong>ID:</strong> {branchData.id}
-          </p>
-          <p>
-            <strong>Name:</strong> {branchData.name}
-          </p>
-          <p>
-            <strong>Location:</strong>{" "}
-            <a
-              href={branchData.location}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-500 underline"
-            >
-              Show on map
-            </a>
-          </p>
-        </div>
-      )}
-
-      {/* مكون التوست */}
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={true} // لضبط اتجاه النصوص للعربية
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
     </div>
   );
 };

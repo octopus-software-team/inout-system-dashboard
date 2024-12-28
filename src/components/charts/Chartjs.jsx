@@ -4,6 +4,7 @@ import "react-circular-progressbar/dist/styles.css";
 import { Chart } from "chart.js/auto";
 import ReviewsProvider from "./ReviewsProvider";
 import Cookies from "js-cookie";
+import LatestProject from "./LatestProject";
 
 const Chartjs = () => {
   // تعريف المراجع لكل شارت
@@ -459,6 +460,7 @@ const Chartjs = () => {
           <span className="text-gray-600 dark:text-gray-300">30%</span>
         </div>
       </div>
+      <LatestProject/>
     </div>
   );
 };

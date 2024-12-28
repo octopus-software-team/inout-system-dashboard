@@ -6,6 +6,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Cookies from "js-cookie";
 import ImportFile from "../ImportFile"; // إضافة المكون هنا
 
+
 const AddServices = () => {
   const [data, setData] = useState([]);
   const [order, setOrder] = useState("ASC");
@@ -241,7 +242,7 @@ const AddServices = () => {
 
       {isLoading ? (
         <div className="flex justify-center items-center">
-          <p className="text-blue-600 text-xl font-semibold">Loading...</p>
+          <p className="w-full text-center mt-56 h-full text-gray-700 text-xl font-semibold">Loading...</p>
         </div>
       ) : error ? (
         <p className="text-red-500 text-center">{error}</p>

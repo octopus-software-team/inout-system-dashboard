@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Cookies from "js-cookie";
@@ -8,51 +8,104 @@ import ImportFile from "../ImportFile"; // إضافة المكون هنا
 
 const Branchs = () => {
   const [data, setData] = useState([]);
+  const [countries, setCountries] = useState([]);
+  const [cities, setCities] = useState([]);
   const [search, setSearch] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: "", direction: "" });
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const location = useLocation(); // إضافة useLocation
 
   const tableName = "branches"; // تحديد اسم الجدول
 
+  // جلب قائمة الدول
+  const fetchCountries = async () => {
+    const token = Cookies.get("token");
+
+    try {
+      const response = await fetch(
+        "https://inout-api.octopusteam.net/api/front/getCountries",
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const resData = await response.json();
+      setCountries(resData.data || []);
+      console.log("Fetched Countries:", resData.data); // تحقق من البيانات
+    } catch (error) {
+      console.error("Error fetching countries:", error);
+      toast.error("Failed to fetch countries.");
+    }
+  };
+
+  // جلب قائمة المدن
+  const fetchCities = async () => {
+    const token = Cookies.get("token");
+
+    try {
+      const response = await fetch(
+        "https://inout-api.octopusteam.net/api/front/getCities",
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const resData = await response.json();
+      setCities(resData.data || []);
+      console.log("Fetched Cities:", resData.data); // تحقق من البيانات
+    } catch (error) {
+      console.error("Error fetching cities:", error);
+      toast.error("Failed to fetch cities.");
+    }
+  };
+
+  // جلب بيانات الفروع
+  const fetchBranches = async () => {
+    const token = Cookies.get("token");
+    if (!token) {
+      toast.error("You are not authenticated. Please log in.");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        "https://inout-api.octopusteam.net/api/front/getBranches",
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch branches.");
+      }
+
+      const resData = await response.json();
+      console.log("Fetched Branches:", resData.data); // تحقق من البيانات
+
+      if (resData.status === 200 && resData.data) {
+        setData(resData.data);
+      } else {
+        toast.error(resData.msg || "No data found.");
+      }
+    } catch (err) {
+      console.error("Error fetching branches:", err);
+      toast.error("Failed to fetch branches.");
+    }
+  };
+
   useEffect(() => {
-    const fetchBranches = async () => {
-      const token = Cookies.get("token");
-      if (!token) {
-        toast.error("You are not authenticated. Please log in.");
-        return;
-      }
-
-      try {
-        const response = await fetch(
-          "https://inout-api.octopusteam.net/api/front/getBranches",
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch branches.");
-        }
-
-        const resData = await response.json();
-
-        if (resData.status === 200 && resData.data) {
-          setData(resData.data);
-        } else {
-          toast.error(resData.msg || "No data found.");
-        }
-      } catch (err) {
-        console.error("Error fetching branches:", err);
-        toast.error("Failed to fetch branches.");
-      }
-    };
-
     fetchBranches();
-  }, []);
+    fetchCountries();
+    fetchCities();
+  }, [location]); // إضافة location كاعتماد
 
   const handleExportFile = async () => {
     const formData = new FormData();
@@ -89,6 +142,7 @@ const Branchs = () => {
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Error exporting file:", error);
+      toast.error("Failed to export file.");
     }
   };
 
@@ -159,8 +213,21 @@ const Branchs = () => {
 
     setData((prevData) =>
       [...prevData].sort((a, b) => {
-        if (a[key] < b[key]) return direction === "ascending" ? -1 : 1;
-        if (a[key] > b[key]) return direction === "ascending" ? 1 : -1;
+        let aField = a[key];
+        let bField = b[key];
+
+        // في حال كانت الحقول هي أسماء الدول أو المدن
+        if (key === "country") {
+          aField = a.country_id ? countries.find(c => c.id === a.country_id)?.name : "";
+          bField = b.country_id ? countries.find(c => c.id === b.country_id)?.name : "";
+        }
+        if (key === "city") {
+          aField = a.city_id ? cities.find(c => c.id === a.city_id)?.name : "";
+          bField = b.city_id ? cities.find(c => c.id === b.city_id)?.name : "";
+        }
+
+        if (aField < bField) return direction === "ascending" ? -1 : 1;
+        if (aField > bField) return direction === "ascending" ? 1 : -1;
         return 0;
       })
     );
@@ -228,7 +295,7 @@ const Branchs = () => {
           <thead>
             <tr className="bg-gradient-to-r from-blue-600 to-blue-400 text-white">
               <th
-                className="th2 px-4  py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
+                className="th2 px-4 py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
                 onClick={() => handleSort("id")}
               >
                 #{" "}
@@ -249,8 +316,29 @@ const Branchs = () => {
                     : "↓"
                   : ""}
               </th>
-              <th className="th1 px-4 text-left font-semibold text-lg border-b border-gray-300">
-                Location
+              {/* عمود Country */}
+              <th
+                className="th1 px-4 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
+                onClick={() => handleSort("country")}
+              >
+                Country{" "}
+                {sortConfig.key === "country"
+                  ? sortConfig.direction === "ascending"
+                    ? "↑"
+                    : "↓"
+                  : ""}
+              </th>
+              {/* عمود City */}
+              <th
+                className="th1 px-4 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
+                onClick={() => handleSort("city")}
+              >
+                City{" "}
+                {sortConfig.key === "city"
+                  ? sortConfig.direction === "ascending"
+                    ? "↑"
+                    : "↓"
+                  : ""}
               </th>
               <th className="th1 px-4 text-left font-semibold text-lg border-b border-gray-300">
                 Actions
@@ -264,47 +352,53 @@ const Branchs = () => {
                   ? i
                   : i.name.toLowerCase().includes(search.toLowerCase());
               })
-              .map((d, index) => (
-                <tr
-                  key={d.id}
-                  className={`hover:bg-gray-100 transition dark:bg-slate-900 duration-200 ${
-                    index % 2 === 0 ? "bg-gray-50" : "bg-white"
-                  }`}
-                >
-                  <td className="px-4 dark:bg-slate-900 py-3 dark:text-white text-gray-800">
-                    {d.id}
-                  </td>
-                  <td className="px-4 dark:bg-slate-900 py-3 dark:text-white text-gray-800">
-                    {d.name}
-                  </td>
-                  <td className="px-4 dark:bg-slate-900 py-3 dark:text-white text-gray-800">
-                    <button
-                      onClick={() => openMap(d.location)}
-                      className="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:shadow-md transform hover:scale-105 transition duration-300"
-                    >
-                      View on Map
-                    </button>
-                  </td>
-                  <td className="px-4 dark:bg-slate-900 text-left space-x-2">
-                    <button
-                      onClick={() =>
-                        navigate(`/company/updatebranch/${d.id}`, { state: d })
-                      }
-                      className="bg-green-600 text-white font-semibold py-2 px-4 rounded-lg hover:shadow-md transform hover:scale-105 transition duration-300"
-                    >
-                      <FaEdit className="inline mr-2" />
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(d.id)}
-                      className="bg-red-600 text-white font-semibold py-2 px-4 rounded-lg hover:shadow-md transform hover:scale-105 transition duration-300"
-                    >
-                      <FaTrash className="inline mr-2" />
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              .map((d, index) => {
+                // تحويل الـ IDs إلى أرقام
+                const country = countries.find((c) => c.id === Number(d.country_id));
+                const city = cities.find((c) => c.id === Number(d.city_id));
+
+                return (
+                  <tr
+                    key={d.id}
+                    className={`hover:bg-gray-100 transition dark:bg-slate-900 duration-200 ${
+                      index % 2 === 0 ? "bg-gray-50" : "bg-white"
+                    }`}
+                  >
+                    <td className="px-4 dark:bg-slate-900 py-3 dark:text-white text-gray-800">
+                      {d.id}
+                    </td>
+                    <td className="px-4 dark:bg-slate-900 py-3 dark:text-white text-gray-800">
+                      {d.name}
+                    </td>
+                    {/* عرض Country */}
+                    <td className="px-4 dark:bg-slate-900 py-3 dark:text-white text-gray-800">
+                      {country ? country.name : "N/A"}
+                    </td>
+                    {/* عرض City */}
+                    <td className="px-4 dark:bg-slate-900 py-3 dark:text-white text-gray-800">
+                      {city ? city.name : "N/A"}
+                    </td>
+                    <td className="px-4 dark:bg-slate-900 text-left space-x-2">
+                      <button
+                        onClick={() =>
+                          navigate(`/company/updatebranch/${d.id}`, { state: d })
+                        }
+                        className="bg-green-600 text-white font-semibold py-2 px-4 rounded-lg hover:shadow-md transform hover:scale-105 transition duration-300"
+                      >
+                        <FaEdit className="inline mr-2" />
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(d.id)}
+                        className="bg-red-600 text-white font-semibold py-2 px-4 rounded-lg hover:shadow-md transform hover:scale-105 transition duration-300"
+                      >
+                        <FaTrash className="inline mr-2" />
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
           </tbody>
         </table>
       </div>

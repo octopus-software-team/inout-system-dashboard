@@ -55,16 +55,22 @@ const company = [
   },
 
   {
+    name: "Employee Specialize",
+    path: "/company/employeespecialise",
+    icon: <FaUserTie className="mr-2 text-gray-400" />,
+  },
+
+  {
     name: "Assets",
     isSubmenu: true,
     items: [
       {
-        name: "Add New Assets",
+        name: "Assets",
         path: "/company/assets/addnewassets",
         icon: <FaFileAlt className="mr-2 text-gray-400" />,
       },
       {
-        name: "Add Materials",
+        name: "Materials",
         path: "/company/assets/addmaterials",
         icon: <FaCubes className="mr-2 text-gray-400" />,
       },

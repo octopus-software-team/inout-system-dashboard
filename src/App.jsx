@@ -72,8 +72,9 @@ import View from "./components/company/View";
 import ProjectSecRepo from "./components/company/ProjectSecRepo";
 import CreateSecRepo from "./components/company/CreateSecRepo";
 import EditSecRepo from "./components/company/EditSecRepo";
-import { Toaster, toast } from 'sonner'
+import { Toaster, toast } from "sonner";
 import AdminDetails from "./components/Login/AdminDetails";
+import LatestProject from "./components/charts/LatestProject";
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -123,7 +124,7 @@ function App() {
               path="/settingicon/settingicon"
               element={<PrivateRoute element={<SettingsIcon />} />}
             />
-             <Route
+            <Route
               path="/login/admindetails"
               element={<PrivateRoute element={<AdminDetails />} />}
             />
@@ -134,6 +135,10 @@ function App() {
             <Route
               path="/allprojects/showallprojects"
               element={<PrivateRoute element={<ShowAllProjects />} />}
+            />
+            <Route
+              path="/chartjs/latestproject"
+              element={<PrivateRoute element={<LatestProject />} />}
             />
 
             <Route
