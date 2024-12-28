@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import Cookies from "js-cookie";
@@ -9,9 +9,38 @@ const CreateCustomer = () => {
     email: "",
     phone: "",
     type: 0,
+    branch_id: "",
   });
+  const [branches, setBranches] = useState([]);
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchBranches = async () => {
+      const token = Cookies.get("token");
+      try {
+        const response = await fetch(
+          "https://inout-api.octopusteam.net/api/front/getBranches",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const data = await response.json();
+        if (response.ok) {
+          setBranches(data.data);
+        } else {
+          console.error("Failed to fetch branches.");
+        }
+      } catch (error) {
+        console.error("Error fetching branches:", error);
+      }
+    };
+    fetchBranches();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -49,6 +78,9 @@ const CreateCustomer = () => {
 
       if (response.ok) {
         toast.success(`Customer ${data.data.name} added successfully!`);
+        // Notify Clients table
+        window.dispatchEvent(new Event("customerAdded"));
+
         setTimeout(() => {
           navigate("/customers/clients");
         }, 2000);
@@ -167,7 +199,37 @@ const CreateCustomer = () => {
           )}
         </div>
 
-        <input type="hidden" id="type" name="type" value="0" />
+        <div className="mb-4">
+          <label
+            htmlFor="branch"
+            className="block text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2"
+          >
+            Branch
+          </label>
+          <select
+            id="branch"
+            name="branch_id"
+            value={customerData.branch_id}
+            onChange={handleChange}
+            className={`w-full px-3 py-2 border rounded-md bg-gray-50 dark:bg-slate-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 ${
+              errors.branch_id
+                ? "border-red-500"
+                : "border-gray-300 dark:border-gray-700"
+            }`}
+          >
+            <option value="" disabled>
+              Select Branch
+            </option>
+            {branches.map((branch) => (
+              <option key={branch.id} value={branch.id}>
+                {branch.name}
+              </option>
+            ))}
+          </select>
+          {errors.branch_id && (
+            <p className="text-red-500 text-sm mt-1">{errors.branch_id}</p>
+          )}
+        </div>
 
         <button
           type="submit"

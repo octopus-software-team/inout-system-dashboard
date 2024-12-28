@@ -4,19 +4,21 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Cookies from 'js-cookie';
 
-
 const UpdateAssets = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
 
   const [assetTypes, setAssetTypes] = useState([]);
+  const [branches, setBranches] = useState([]);
   const [name, setName] = useState(state?.name || "");
   const [assetTypeId, setAssetTypeId] = useState(state?.asset_type_id || "");
+  const [branchId, setBranchId] = useState(state?.branch_id || "");
+  const [count, setCount] = useState(state?.count || "");
 
-  // تحميل أنواع الأصول عند تحميل المكون
   useEffect(() => {
     const token = Cookies.get('token');
 
+    // Fetch asset types
     fetch("https://inout-api.octopusteam.net/api/front/getAssetTypes", {
       method: "GET",
       headers: {
@@ -27,12 +29,30 @@ const UpdateAssets = () => {
       .then((res) => res.json())
       .then((data) => {
         if (data.status === 200) {
-          setAssetTypes(data.data); // حفظ بيانات أنواع الأصول
+          setAssetTypes(data.data);
         } else {
-          console.error("فشل تحميل أنواع الأصول");
+          toast.error("Failed to load asset types");
         }
       })
-      .catch((error) => console.error("خطأ في تحميل أنواع الأصول:", error));
+      .catch((error) => toast.error("Error fetching asset types"));
+
+    // Fetch branches
+    fetch("https://inout-api.octopusteam.net/api/front/getBranches", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.status === 200) {
+          setBranches(data.data);
+        } else {
+          toast.error("Failed to load branches");
+        }
+      })
+      .catch((error) => toast.error("Error fetching branches"));
   }, []);
 
   const handleSubmit = async (e) => {
@@ -56,6 +76,8 @@ const UpdateAssets = () => {
           body: JSON.stringify({
             name,
             asset_type_id: assetTypeId,
+            branch_id: branchId,
+            count: Number(count),
           }),
         }
       );
@@ -66,7 +88,7 @@ const UpdateAssets = () => {
         toast.success(result.msg || "Asset updated successfully!");
         setTimeout(() => {
           navigate("/company/assets/addnewassets");
-        }, 2000); // الانتقال بعد 2 ثانية
+        }, 2000);
       } else {
         toast.error(result.msg || "Failed to update the asset.");
       }
@@ -118,18 +140,56 @@ const UpdateAssets = () => {
             <option value="" disabled>
               Select an asset type
             </option>
-            {assetTypes.length > 0 ? (
-              assetTypes.map((type) => (
-                <option key={type.id} value={type.id}>
-                  {type.name}
-                </option>
-              ))
-            ) : (
-              <option value="" disabled>
-                Loading asset types...
+            {assetTypes.map((type) => (
+              <option key={type.id} value={type.id}>
+                {type.name}
               </option>
-            )}
+            ))}
           </select>
+        </div>
+
+        <div className="mb-4">
+          <label
+            className="block text-gray-700 font-semibold mb-2"
+            htmlFor="branchId"
+          >
+            Branch
+          </label>
+          <select
+            id="branchId"
+            className="border dark:bg-slate-900 dark:text-white border-gray-300 rounded-lg w-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={branchId}
+            onChange={(e) => setBranchId(e.target.value)}
+            required
+          >
+            <option value="" disabled>
+              Select a branch
+            </option>
+            {branches.map((branch) => (
+              <option key={branch.id} value={branch.id}>
+                {branch.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="mb-4">
+          <label
+            className="block text-gray-700 font-semibold mb-2"
+            htmlFor="count"
+          >
+            Count
+          </label>
+          <input
+            type="number"
+            id="count"
+            className="border border-gray-300 dark:bg-slate-900 dark:text-white rounded-lg w-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={count}
+            onChange={(e) => setCount(e.target.value)}
+            placeholder="Enter asset count"
+            required
+            min="1"
+          />
         </div>
 
         <button
@@ -140,7 +200,6 @@ const UpdateAssets = () => {
         </button>
       </form>
 
-      {/* ToastContainer لعرض التوست */}
       <ToastContainer />
     </div>
   );

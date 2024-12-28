@@ -223,8 +223,6 @@ h2 {
   @apply hover:!bg-opacity-50 dark:!text-white;
 }
 
-
-
 /* App.css */
 
 /* Dark Mode Overrides for react-select */
@@ -286,8 +284,6 @@ h2 {
   background-color: #374151 !important; /* slate-700 */
 }
 
-
-
 /* .css-13cymwt-control {
   @apply 
 } */
@@ -323,7 +319,7 @@ h2 {
   width: 1400px;
 }
 
-.colors{
+.colors {
   background-color: #ffcccc;
   color: #ff0000;
   padding: 10px;
@@ -331,64 +327,64 @@ h2 {
   font-size: 18px;
 }
 
-.edit{
-  background-color:#cef1fd ;
-  color: #07AEE7;
+.edit {
+  background-color: #cef1fd;
+  color: #07aee7;
   padding: 10px;
 
   font-size: 18px;
 }
 
-.eye{
-  background-color:#e8dcef ;
-  color: #854AA4;
+.eye {
+  background-color: #e8dcef;
+  color: #854aa4;
   padding: 10px;
 
   font-size: 18px;
 }
 
-.icons{
+.icons {
   padding: 10px 30px;
   border-radius: 10px;
 }
 
-.icon{
+.icon {
   transform: rotate(90deg);
-
 }
 
-.t1{
+.t1 {
   width: 1500px;
-
 }
 
-
-  
-table.dataTable.stripe > tbody > tr:nth-child(odd) > *, table.dataTable.display > tbody > tr:nth-child(odd) > * {
-    box-shadow: inset 0 0 0 0 transparent;
-    box-shadow: inset 0 0 0 0 rgba(var(--dt-row-stripe), 0);
-    
-}
-
-
-table.dataTable.display > tbody > tr:nth-child(odd) > .sorting_1, table.dataTable.order-column.stripe > tbody > tr:nth-child(odd) > .sorting_1 {
+table.dataTable.stripe > tbody > tr:nth-child(odd) > *,
+table.dataTable.display > tbody > tr:nth-child(odd) > * {
   box-shadow: inset 0 0 0 0 transparent;
   box-shadow: inset 0 0 0 0 rgba(var(--dt-row-stripe), 0);
 }
 
-table.dataTable.order-column > tbody tr > .sorting_1, table.dataTable.order-column > tbody tr > .sorting_2, table.dataTable.order-column > tbody tr > .sorting_3, table.dataTable.display > tbody tr > .sorting_1, table.dataTable.display > tbody tr > .sorting_2, table.dataTable.display > tbody tr > .sorting_3 {
-  box-shadow: inset 0 0 0 0 transparent;  
+table.dataTable.display > tbody > tr:nth-child(odd) > .sorting_1,
+table.dataTable.order-column.stripe > tbody > tr:nth-child(odd) > .sorting_1 {
+  box-shadow: inset 0 0 0 0 transparent;
   box-shadow: inset 0 0 0 0 rgba(var(--dt-row-stripe), 0);
 }
 
+table.dataTable.order-column > tbody tr > .sorting_1,
+table.dataTable.order-column > tbody tr > .sorting_2,
+table.dataTable.order-column > tbody tr > .sorting_3,
+table.dataTable.display > tbody tr > .sorting_1,
+table.dataTable.display > tbody tr > .sorting_2,
+table.dataTable.display > tbody tr > .sorting_3 {
+  box-shadow: inset 0 0 0 0 transparent;
+  box-shadow: inset 0 0 0 0 rgba(var(--dt-row-stripe), 0);
+}
 
-
-
-
-table.dataTable th.dt-type-numeric, table.dataTable th.dt-type-date, table.dataTable td.dt-type-numeric, table.dataTable td.dt-type-date {
+table.dataTable th.dt-type-numeric,
+table.dataTable th.dt-type-date,
+table.dataTable td.dt-type-numeric,
+table.dataTable td.dt-type-date {
   text-align: left;
 }
 
-.w-30{
+.w-30 {
   width: 30%;
 }

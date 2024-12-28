@@ -24,14 +24,35 @@ import Cookies from "js-cookie";
 // import L from "leaflet";
 
 const AddNewProject = () => {
+  // Modal State
   const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
   const [isOwnerModalOpen, setIsOwnerModalOpen] = useState(false);
   const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
   const [isConsultiveModalOpen, setIsConsultiveModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  // New Entry States
+  // Customer
+  const [newCustomerName, setNewCustomerName] = useState("");
+  const [newCustomerEmail, setNewCustomerEmail] = useState("");
+  const [newCustomerPhone, setNewCustomerPhone] = useState("");
+ 
+  const [newService, setNewService] = useState("");
+
+  
+  // Consultive
+  const [newConsultiveName, setNewConsultiveName] = useState("");
+  const [newConsultiveEmail, setNewConsultiveEmail] = useState("");
+  const [newConsultivePhone, setNewConsultivePhone] = useState("");
+
+  // Owner
+  const [newOwnerName, setNewOwnerName] = useState("");
+  const [newOwnerEmail, setNewOwnerEmail] = useState("");
+  const [newOwnerPhone, setNewOwnerPhone] = useState("");
+
   const navigate = useNavigate();
 
+  // Data States
   const [branches, setBranches] = useState([]);
   const [services, setServices] = useState([]);
   const [owners, setOwners] = useState([]);
@@ -39,6 +60,7 @@ const AddNewProject = () => {
   const [consultives, setConsultives] = useState([]);
   const [engineers, setEngineers] = useState([]);
 
+  // Selected States
   const [selectedOwner, setSelectedOwner] = useState(null);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [selectedConsultives, setSelectedConsultives] = useState([]);
@@ -46,23 +68,14 @@ const AddNewProject = () => {
   const [selectedEngineer, setSelectedEngineer] = useState(null);
   const [selectedBranch, setSelectedBranch] = useState(null);
 
+  // Project Details
   const [inspectionDate, setInspectionDate] = useState("");
   const [inspectionTime, setInspectionTime] = useState("");
   const [notes, setNotes] = useState("");
   const divRef = useRef(null);
 
-  const [setInspectionLocation] = useState("");
-
   const [projectName, setProjectName] = useState("");
   const [projectStatus, setProjectStatus] = useState("");
-  const [latValue, setLatValue] = useState("");
-  const [longValue, setLongValue] = useState("");
-
-  const [newService, setNewService] = useState("");
-  const [newOwner, setNewOwner] = useState("");
-  const [newCustomerName, setNewCustomerName] = useState("");
-  const [newConsultiveName, setNewConsultiveName] = useState("");
-
   const [projectImage, setProjectImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
 
@@ -79,6 +92,7 @@ const AddNewProject = () => {
   const handleInput = () => {
     setNotes(divRef.current.innerText);
   };
+
   const openInGoogleMaps = () => {
     if (position) {
       const [lat, lng] = position;
@@ -96,6 +110,12 @@ const AddNewProject = () => {
     });
 
     return position ? <Marker position={position} /> : null;
+  };
+
+  const ChangeMapView = ({ center }) => {
+    const map = useMap();
+    map.setView(center, map.getZoom());
+    return null;
   };
 
   const isDarkMode = () =>
@@ -263,6 +283,7 @@ const AddNewProject = () => {
     fetchOwners();
     fetchEngineers();
 
+    // Initialize Dropify
     if (dropifyRef.current) {
       $(dropifyRef.current).dropify({
         messages: {
@@ -312,12 +333,14 @@ const AddNewProject = () => {
     if (!selectedServices || selectedServices.length === 0)
       newErrors.selectedServices = "At least one Service is required.";
     if (!selectedOwner) newErrors.selectedOwner = "Project Owner is required.";
-    if (!selectedCustomer) newErrors.selectedCustomer = "Customer is required.";
+    if (!selectedCustomer)
+      newErrors.selectedCustomer = "Customer is required.";
     if (!selectedConsultives || selectedConsultives.length === 0)
       newErrors.selectedConsultives = "At least one Consultive is required.";
     if (!inspectionDate)
       newErrors.inspectionDate = "Inspection Date is required.";
-    if (!selectedEngineer) newErrors.selectedEngineer = "Engineer is required.";
+    if (!selectedEngineer)
+      newErrors.selectedEngineer = "Engineer is required.";
     if (!inspectionTime)
       newErrors.inspectionTime = "Inspection Time is required.";
     if (!position || position.length !== 2)
@@ -360,8 +383,6 @@ const AddNewProject = () => {
       );
       formData.append("inspection_date", inspectionDate || "");
       formData.append("inspection_engineer_id", selectedEngineerId || "");
-      formData.append("inspection_location_lat", latValue || "");
-      formData.append("inspection_location_long", longValue || "");
       formData.append("project_owner_id", selectedOwnerId || "");
       formData.append("status", projectStatus || "");
       selectedServiceIds.forEach((id, index) =>
@@ -378,15 +399,13 @@ const AddNewProject = () => {
       if (projectImage) {
         formData.append("project_image", projectImage);
       }
-      console.log(formData);
+
       console.log("Form Data:", {
         name: projectName,
         branch_id: selectedBranchId,
         customer_constructor_id: selectedCustomerConstructorId,
         inspection_date: inspectionDate,
         inspection_engineer_id: selectedEngineerId,
-        inspection_location_lat: latValue,
-        inspection_location_long: longValue,
         project_owner_id: selectedOwnerId,
         status: projectStatus,
         service_ids: selectedServiceIds,
@@ -394,8 +413,8 @@ const AddNewProject = () => {
         notes: notes,
         inspection_time: inspectionTime,
         project_image: projectImage,
-        lat: position[0],
-        long: position[1],
+        latitude: position[0],
+        longitude: position[1],
       });
 
       const data = await addProjectData(formData);
@@ -427,14 +446,26 @@ const AddNewProject = () => {
     }).then((res) => res.json());
   };
 
+  // Cancel Handlers
   const handleCancelCustomer = () => {
     setIsCustomerModalOpen(false);
     setNewCustomerName("");
+    setNewCustomerEmail("");
+    setNewCustomerPhone("");
   };
 
   const handleCancelConsultive = () => {
     setIsConsultiveModalOpen(false);
     setNewConsultiveName("");
+    setNewConsultiveEmail("");
+    setNewConsultivePhone("");
+  };
+
+  const handleCancelOwner = () => {
+    setIsOwnerModalOpen(false);
+    setNewOwnerName("");
+    setNewOwnerEmail("");
+    setNewOwnerPhone("");
   };
 
   const handleCancelService = () => {
@@ -442,22 +473,25 @@ const AddNewProject = () => {
     setNewService("");
   };
 
-  const handleCancelOwner = () => {
-    setIsOwnerModalOpen(false);
-    setNewOwner("");
-  };
-
+  // Save Handlers
   const handleSaveCustomer = async () => {
     if (!newCustomerName.trim()) {
       toast.error("Please enter a customer name");
       return;
     }
+    if (!newCustomerEmail.trim()) {
+      toast.error("Please enter a customer email");
+      return;
+    }
+    if (!newCustomerPhone.trim()) {
+      toast.error("Please enter a customer phone");
+      return;
+    }
 
-    // تعيين قيم افتراضية لـ Email وPhone
     const customerData = {
       name: newCustomerName,
-      email: "default@example.com", // قيمة افتراضية
-      phone: "0000000000", // قيمة افتراضية
+      email: newCustomerEmail,
+      phone: newCustomerPhone,
       type: 0,
     };
 
@@ -486,6 +520,8 @@ const AddNewProject = () => {
         setCustomers((prevCustomers) => [...prevCustomers, newOption]);
         setIsCustomerModalOpen(false);
         setNewCustomerName("");
+        setNewCustomerEmail("");
+        setNewCustomerPhone("");
         setSelectedCustomer(newOption);
         toast.success("Customer added successfully");
       } else {
@@ -503,12 +539,19 @@ const AddNewProject = () => {
       toast.error("Please enter a consultive name");
       return;
     }
+    if (!newConsultiveEmail.trim()) {
+      toast.error("Please enter a consultive email");
+      return;
+    }
+    if (!newConsultivePhone.trim()) {
+      toast.error("Please enter a consultive phone");
+      return;
+    }
 
-    // تعيين قيم افتراضية لـ Email وPhone
     const consultiveData = {
       name: newConsultiveName,
-      email: "consultant@example.com", // قيمة افتراضية
-      phone: "1111111111", // قيمة افتراضية
+      email: newConsultiveEmail,
+      phone: newConsultivePhone,
       type: 2,
     };
 
@@ -537,6 +580,8 @@ const AddNewProject = () => {
         setConsultives((prevConsultives) => [...prevConsultives, newOption]);
         setIsConsultiveModalOpen(false);
         setNewConsultiveName("");
+        setNewConsultiveEmail("");
+        setNewConsultivePhone("");
         setSelectedConsultives((prev) => [...prev, newOption]);
         toast.success("Consultive added successfully");
       } else {
@@ -546,6 +591,68 @@ const AddNewProject = () => {
     } catch (error) {
       console.error("Error saving consultive:", error);
       toast.error("Error saving consultive: " + error.message);
+    }
+  };
+
+  const handleSaveOwner = async () => {
+    if (!newOwnerName.trim()) {
+      toast.error("Please enter an owner name");
+      return;
+    }
+    if (!newOwnerEmail.trim()) {
+      toast.error("Please enter an owner email");
+      return;
+    }
+    if (!newOwnerPhone.trim()) {
+      toast.error("Please enter an owner phone");
+      return;
+    }
+
+    const ownerData = {
+      name: newOwnerName,
+      email: newOwnerEmail,
+      phone: newOwnerPhone,
+      type: 1,
+    };
+
+    try {
+      const token = Cookies.get("token");
+      if (!token) {
+        toast.error("You need to log in first.");
+        return;
+      }
+
+      const response = await fetch(
+        "https://inout-api.octopusteam.net/api/front/addCustomer",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(ownerData),
+        }
+      );
+      const result = await response.json();
+      if (response.ok && result.status === 200) {
+        const newOption = {
+          value: result.data.id,
+          label: `${result.data.name} (Owner)`,
+        };
+        setOwners((prevOwners) => [...prevOwners, newOption]);
+        setIsOwnerModalOpen(false);
+        setNewOwnerName("");
+        setNewOwnerEmail("");
+        setNewOwnerPhone("");
+        setSelectedOwner(newOption);
+        toast.success("Owner added successfully");
+      } else {
+        console.error("Error adding owner", result.message);
+        toast.error("Failed to add owner: " + result.message);
+      }
+    } catch (error) {
+      console.error("Error saving owner:", error);
+      toast.error("Error saving owner: " + error.message);
     }
   };
 
@@ -574,7 +681,7 @@ const AddNewProject = () => {
 
       if (result.status === 200) {
         const newOption = { value: result.data.id, label: newService };
-        setServices([...services, newOption]);
+        setServices((prevServices) => [...prevServices, newOption]);
 
         setIsServiceModalOpen(false);
         setNewService("");
@@ -590,59 +697,6 @@ const AddNewProject = () => {
     }
   };
 
-  const handleSaveOwner = async () => {
-    if (!newOwner.trim()) {
-      toast.error("Please enter an owner name");
-      return;
-    }
-
-    // تعيين قيم افتراضية لـ Email وPhone
-    const ownerData = {
-      name: newOwner,
-      email: "owner@example.com", // قيمة افتراضية
-      phone: "2222222222", // قيمة افتراضية
-      type: 1, // تأكد من تعيين النوع الصحيح للمالك
-    };
-
-    try {
-      const token = Cookies.get("token");
-      if (!token) {
-        toast.error("You need to log in first.");
-        return;
-      }
-
-      const response = await fetch(
-        "https://inout-api.octopusteam.net/api/front/addCustomer",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(ownerData),
-        }
-      );
-      const result = await response.json();
-      if (response.ok && result.status === 200) {
-        const newOption = {
-          value: result.data.id,
-          label: `${result.data.name} (Owner)`,
-        };
-        setOwners([...owners, newOption]);
-        setIsOwnerModalOpen(false);
-        setNewOwner("");
-        setSelectedOwner(newOption);
-        toast.success("Owner added successfully");
-      } else {
-        console.error("Error adding owner", result.message);
-        toast.error("Failed to add owner: " + result.message);
-      }
-    } catch (error) {
-      console.error("Error saving owner:", error);
-      toast.error("Error saving owner: " + error.message);
-    }
-  };
-
   const resetForm = () => {
     setSelectedOwner(null);
     setSelectedCustomer(null);
@@ -652,12 +706,9 @@ const AddNewProject = () => {
     setInspectionDate("");
     setInspectionTime("");
     setNotes("");
-    setInspectionLocation("");
     setProjectName("");
     setProjectStatus("");
-    setLatValue("");
-    setLongValue("");
-    setSelectedBranch(null);
+    setPosition([23.8859, 45.0792]);
     setProjectImage(null);
     setImagePreview(null);
     setErrors({});
@@ -666,12 +717,6 @@ const AddNewProject = () => {
       $(dropifyRef.current).dropify().data("dropify").resetPreview();
       $(dropifyRef.current).dropify().val("");
     }
-  };
-
-  const ChangeMapView = ({ center }) => {
-    const map = useMap();
-    map.setView(center, map.getZoom());
-    return null;
   };
 
   const handleSearch = async (e) => {
@@ -694,8 +739,6 @@ const AddNewProject = () => {
         const { lat, lon } = data[0];
         const newPosition = [parseFloat(lat), parseFloat(lon)];
         setPosition(newPosition);
-        setLatValue(lat);
-        setLongValue(lon);
         toast.success(`Location found: ${data[0].display_name}`);
       } else {
         toast.error("Location not found. Please try a different query.");
@@ -713,7 +756,8 @@ const AddNewProject = () => {
       <h1 className="total text-4xl font-bold mb-3">Add New Project</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="">
+        {/* Project Name */}
+        <div>
           <label className="total dark:text-white block ml-6 text-sm font-medium mb-1">
             Project Name
           </label>
@@ -722,7 +766,7 @@ const AddNewProject = () => {
             value={projectName}
             onChange={(e) => setProjectName(e.target.value)}
             required
-            className="name border border-gray-300  rounded-md p-2 dark:bg-slate-900  w-full"
+            className="name border border-gray-300 rounded-md p-2 dark:bg-slate-900 w-full"
           />
           {errors.projectName && (
             <p className="text-red-500 text-sm mt-1 ml-6">
@@ -731,18 +775,19 @@ const AddNewProject = () => {
           )}
         </div>
 
-        <div className="">
-          <label className=" block ml-6 text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
+        {/* Project Status */}
+        <div>
+          <label className="block ml-6 text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
             Project Status
           </label>
           <select
             name="status"
             value={projectStatus}
             onChange={(e) => setProjectStatus(e.target.value)}
-            className="add  border border-gray-300 rounded-md p-2 text-gray-700 w-full"
+            className="add border border-gray-300 rounded-md p-2 text-gray-700 w-full"
           >
             <option disabled value="">
-              choose
+              Choose
             </option>
 
             <option value="0">Not Started</option>
@@ -761,6 +806,7 @@ const AddNewProject = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Branch */}
         <div className="p-1 mt-4">
           <label className="total block text-sm font-medium ml-6">Branch</label>
           <Select
@@ -777,6 +823,7 @@ const AddNewProject = () => {
           )}
         </div>
 
+        {/* Services */}
         <div className="p-1 mt-4">
           <label className="total block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1 ml-6">
             Services
@@ -799,6 +846,7 @@ const AddNewProject = () => {
               +
             </button>
 
+            {/* Add New Service Modal */}
             <Dialog
               open={isServiceModalOpen}
               onClose={handleCancelService}
@@ -836,14 +884,14 @@ const AddNewProject = () => {
                       <button
                         type="button"
                         onClick={handleSaveService}
-                        className=" inline-flex mr-60 w-full h-10 justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto"
+                        className="inline-flex mr-60 w-full h-10 justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto"
                       >
                         Save Service
                       </button>
                       <button
                         type="button"
                         onClick={handleCancelService}
-                        className="services mt-3 inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-900 shadow-sm transition duration-200 ease-in-out hover:bg-gray-100 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:mt-0 sm:w-auto"
+                        className="mt-3 inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-900 shadow-sm transition duration-200 ease-in-out hover:bg-gray-100 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:mt-0 sm:w-auto"
                       >
                         Cancel
                       </button>
@@ -860,19 +908,17 @@ const AddNewProject = () => {
           )}
         </div>
 
+        {/* Project Owner */}
         <div className="p-1">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1 ml-6">
             Project Owner
           </label>
           <div className="flex items-center mt-1">
             <Select
-              options={[
-                { value: null, label: "Select or add new owner" },
-                ...owners,
-              ]}
+              options={owners}
               value={selectedOwner}
               onChange={(selected) => setSelectedOwner(selected)}
-              placeholder="Select or add new owner"
+              placeholder="Select owner"
               className="select1 custom-select flex-1"
               name="project_owner_id"
             />
@@ -884,6 +930,7 @@ const AddNewProject = () => {
               +
             </button>
 
+            {/* Add New Owner Modal */}
             <Dialog
               open={isOwnerModalOpen}
               onClose={handleCancelOwner}
@@ -905,13 +952,27 @@ const AddNewProject = () => {
                           >
                             Add New Owner
                           </DialogTitle>
-                          <div className="mt-2">
+                          <div className="mt-2 space-y-4">
                             <input
                               type="text"
                               placeholder="Enter owner name"
-                              value={newOwner}
-                              onChange={(e) => setNewOwner(e.target.value)}
-                              className="mt-1 w-full border border-gray-300 rounded-md p-2 dark:bg-slate-900 dark:text-white"
+                              value={newOwnerName}
+                              onChange={(e) => setNewOwnerName(e.target.value)}
+                              className="w-full border border-gray-300 rounded-md p-2 dark:bg-slate-900 dark:text-white"
+                            />
+                            <input
+                              type="email"
+                              placeholder="Enter owner email"
+                              value={newOwnerEmail}
+                              onChange={(e) => setNewOwnerEmail(e.target.value)}
+                              className="w-full border border-gray-300 rounded-md p-2 dark:bg-slate-900 dark:text-white"
+                            />
+                            <input
+                              type="tel"
+                              placeholder="Enter owner phone"
+                              value={newOwnerPhone}
+                              onChange={(e) => setNewOwnerPhone(e.target.value)}
+                              className="w-full border border-gray-300 rounded-md p-2 dark:bg-slate-900 dark:text-white"
                             />
                           </div>
                         </div>
@@ -945,6 +1006,7 @@ const AddNewProject = () => {
           )}
         </div>
 
+        {/* Customer / Contractor */}
         <div className="p-1">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1 ml-6">
             Customer / Contractor
@@ -952,13 +1014,10 @@ const AddNewProject = () => {
 
           <div className="flex items-center gap-2 mt-1">
             <Select
-              options={[
-                { value: null, label: "Select or add new customer" },
-                ...customers,
-              ]}
+              options={customers}
               value={selectedCustomer}
               onChange={(selected) => setSelectedCustomer(selected)}
-              placeholder="Select or add new customer"
+              placeholder="Select customer"
               className="select1 custom-select flex-1"
               name="customer_constructor_id"
             />
@@ -970,6 +1029,7 @@ const AddNewProject = () => {
               +
             </button>
 
+            {/* Add New Customer Modal */}
             <Dialog
               open={isCustomerModalOpen}
               onClose={handleCancelCustomer}
@@ -991,7 +1051,7 @@ const AddNewProject = () => {
                           >
                             Add New Customer
                           </DialogTitle>
-                          <div className="mt-2">
+                          <div className="mt-2 space-y-4">
                             <input
                               type="text"
                               placeholder="Enter customer name"
@@ -999,7 +1059,25 @@ const AddNewProject = () => {
                               onChange={(e) =>
                                 setNewCustomerName(e.target.value)
                               }
-                              className="mt-1 w-full border border-gray-300 rounded-md p-2 dark:bg-slate-900 dark:text-white"
+                              className="w-full border border-gray-300 rounded-md p-2 dark:bg-slate-900 dark:text-white"
+                            />
+                            <input
+                              type="email"
+                              placeholder="Enter customer email"
+                              value={newCustomerEmail}
+                              onChange={(e) =>
+                                setNewCustomerEmail(e.target.value)
+                              }
+                              className="w-full border border-gray-300 rounded-md p-2 dark:bg-slate-900 dark:text-white"
+                            />
+                            <input
+                              type="tel"
+                              placeholder="Enter customer phone"
+                              value={newCustomerPhone}
+                              onChange={(e) =>
+                                setNewCustomerPhone(e.target.value)
+                              }
+                              className="w-full border border-gray-300 rounded-md p-2 dark:bg-slate-900 dark:text-white"
                             />
                           </div>
                         </div>
@@ -1033,6 +1111,7 @@ const AddNewProject = () => {
           )}
         </div>
 
+        {/* Consultive(s) */}
         <div className="p-1">
           <label className="block text-sm font-medium text-gray-700 ml-6">
             Consultive(s)
@@ -1056,6 +1135,7 @@ const AddNewProject = () => {
               +
             </button>
 
+            {/* Add New Consultive Modal */}
             <Dialog
               open={isConsultiveModalOpen}
               onClose={handleCancelConsultive}
@@ -1077,7 +1157,7 @@ const AddNewProject = () => {
                           >
                             Add New Consultive
                           </DialogTitle>
-                          <div className="mt-2">
+                          <div className="mt-2 space-y-4">
                             <input
                               type="text"
                               placeholder="Enter consultive name"
@@ -1085,7 +1165,25 @@ const AddNewProject = () => {
                               onChange={(e) =>
                                 setNewConsultiveName(e.target.value)
                               }
-                              className="mt-1 w-full border border-gray-300 rounded-md p-2 dark:bg-slate-900 dark:text-white"
+                              className="w-full border border-gray-300 rounded-md p-2 dark:bg-slate-900 dark:text-white"
+                            />
+                            <input
+                              type="email"
+                              placeholder="Enter consultive email"
+                              value={newConsultiveEmail}
+                              onChange={(e) =>
+                                setNewConsultiveEmail(e.target.value)
+                              }
+                              className="w-full border border-gray-300 rounded-md p-2 dark:bg-slate-900 dark:text-white"
+                            />
+                            <input
+                              type="tel"
+                              placeholder="Enter consultive phone"
+                              value={newConsultivePhone}
+                              onChange={(e) =>
+                                setNewConsultivePhone(e.target.value)
+                              }
+                              className="w-full border border-gray-300 rounded-md p-2 dark:bg-slate-900 dark:text-white"
                             />
                           </div>
                         </div>
@@ -1119,6 +1217,7 @@ const AddNewProject = () => {
           )}
         </div>
 
+        {/* Inspection Date */}
         <div className="p-1">
           <label className="block text-sm font-medium text-gray-700 ml-6">
             Inspection Date
@@ -1138,6 +1237,7 @@ const AddNewProject = () => {
           )}
         </div>
 
+        {/* Engineer */}
         <div className="p-1">
           <label className="block text-sm font-medium text-gray-700 ml-6">
             Engineer
@@ -1145,13 +1245,7 @@ const AddNewProject = () => {
 
           <div className="flex items-center gap-2 mt-1">
             <Select
-              options={[
-                {
-                  value: null,
-                  label: "Select Engineer to assign for inspection",
-                },
-                ...engineers,
-              ]}
+              options={engineers}
               value={selectedEngineer}
               onChange={(selected) => setSelectedEngineer(selected)}
               placeholder="Select Engineer to assign for inspection"
@@ -1166,6 +1260,7 @@ const AddNewProject = () => {
           )}
         </div>
 
+        {/* Inspection Time */}
         <div className="p-1">
           <label className="block text-sm font-medium text-gray-700 ml-6">
             Inspection Time
@@ -1192,18 +1287,18 @@ const AddNewProject = () => {
           <div
             ref={divRef}
             className="
-          mt-1 
-          bg-white 
-          block 
-          w-full 
-          text-gray-800 
-          dark:border-gray-700 
-          rounded-md 
-          p-2 
-          dark:text-white 
-          focus:outline-none 
-          focus:border-none
-        "
+              mt-1 
+              bg-white 
+              block 
+              w-full 
+              text-gray-800 
+              dark:border-gray-700 
+              rounded-md 
+              p-2 
+              dark:text-white 
+              focus:outline-none 
+              focus:border-none
+            "
             contentEditable
             style={{
               minHeight: "310px",
@@ -1216,8 +1311,9 @@ const AddNewProject = () => {
             {notes}
           </div>
 
+          {/* Project Image Upload */}
           <div className="mb-5">
-          <div className="w-96 h-16 flex flex-col  md:col-span-2 mt-4">
+            <div className="w-96 h-16 flex flex-col md:col-span-2 mt-4">
               <label
                 htmlFor="project_image"
                 className="mb-2 ml-6 font-medium text-gray-700"
@@ -1248,14 +1344,17 @@ const AddNewProject = () => {
           </div>
         </div>
 
+        {/* Inspection Location */}
         <div className="p-1">
           <label className="block text-sm font-medium text-gray-700 ml-6">
             Inspection Location
           </label>
-          <div className="mt-1 block w-full border border-gray-300 dark:border-gray-700 rounded-md p-2  dark:text-white">
-            <input type="hidden" hidden value={position[0]} name="latitude" />
-            <input type="hidden" hidden value={position[1]} name="longitude" />
+          <div className="mt-1 block w-full border border-gray-300 dark:border-gray-700 rounded-md p-2 dark:text-white">
+            {/* Hidden Inputs for Latitude and Longitude */}
+            <input type="hidden" value={position[0]} name="latitude" />
+            <input type="hidden" value={position[1]} name="longitude" />
 
+            {/* Map */}
             <div>
               <MapContainer
                 center={position}
@@ -1278,6 +1377,7 @@ const AddNewProject = () => {
             </p>
           )}
 
+          {/* Search Location */}
           <form onSubmit={handleSearch} className="mt-4 flex">
             <input
               type="text"
@@ -1297,6 +1397,7 @@ const AddNewProject = () => {
         </div>
       </div>
 
+      {/* Add Project Button */}
       <button
         type="button"
         className="mt-6 w-full bg-blue-500 text-white font-semibold py-3 px-4 rounded-lg shadow-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 flex items-center justify-center text-sm"
@@ -1312,6 +1413,8 @@ const AddNewProject = () => {
           <span className="button-text font-bold">Add Project</span>
         )}
       </button>
+
+      {/* Toast Notifications */}
       <ToastContainer
         position="top-center"
         autoClose={5000}

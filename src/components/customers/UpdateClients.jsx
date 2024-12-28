@@ -12,7 +12,9 @@ const UpdateClients = () => {
     name: "",
     email: "",
     phone: "",
+    branch_id: "", // إضافة البرانش
   });
+  const [branches, setBranches] = useState([]); // حالة لتخزين البرانشات
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false); // حالة التحميل
 
@@ -23,9 +25,47 @@ const UpdateClients = () => {
         name: location.state.name || "",
         email: location.state.email || "",
         phone: location.state.phone || "",
+        branch_id: location.state.branch_id || "", // تعيين البرانش
       });
     }
   }, [location.state]);
+
+  useEffect(() => {
+    const fetchBranches = async () => {
+      const token = Cookies.get("token");
+
+      if (!token) {
+        toast.error("No token found. Please log in.");
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          "https://inout-api.octopusteam.net/api/front/getBranches",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const data = await response.json();
+
+        if (response.ok) {
+          setBranches(data.data || []);
+        } else {
+          toast.error("Failed to fetch branches.");
+        }
+      } catch (error) {
+        toast.error("Error fetching branches. Please try again later.");
+        console.error(error);
+      }
+    };
+
+    fetchBranches();
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -63,6 +103,7 @@ const UpdateClients = () => {
             name: formData.name,
             email: formData.email,
             phone: formData.phone,
+            branch_id: formData.branch_id, // إرسال البرانش
           }),
         }
       );
@@ -113,8 +154,6 @@ const UpdateClients = () => {
           Update Client
         </h2>
 
-        {/* الحقول الأخرى تبقى كما هي */}
-
         <div className="mb-4">
           <label
             htmlFor="name"
@@ -136,8 +175,6 @@ const UpdateClients = () => {
             <p className="text-red-500 text-sm mt-1">{errors.name}</p>
           )}
         </div>
-
-        {/* الحقول الأخرى (email, phone) تبقى كما هي */}
 
         <div className="mb-4">
           <label
@@ -180,6 +217,34 @@ const UpdateClients = () => {
           />
           {errors.phone && (
             <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
+          )}
+        </div>
+
+        <div className="mb-4">
+          <label
+            htmlFor="branch_id"
+            className="block text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2"
+          >
+            Branch
+          </label>
+          <select
+            id="branch_id"
+            name="branch_id"
+            value={formData.branch_id}
+            onChange={handleInputChange}
+            className={`w-full px-4 py-2 border rounded-lg bg-gray-50 dark:bg-slate-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-200 ${
+              errors.branch_id ? "border-red-500" : "border-gray-300 dark:border-gray-700"
+            }`}
+          >
+            <option value="">Select a branch</option>
+            {branches.map((branch) => (
+              <option key={branch.id} value={branch.id}>
+                {branch.name}
+              </option>
+            ))}
+          </select>
+          {errors.branch_id && (
+            <p className="text-red-500 text-sm mt-1">{errors.branch_id}</p>
           )}
         </div>
 

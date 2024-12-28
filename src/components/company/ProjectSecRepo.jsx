@@ -110,8 +110,8 @@ const AddSecRepo = () => {
   }, [data]);
 
   const handleEdit = (id) => {
-    const report = data.find((item) => item.id === id); // العثور على التقرير
-    navigate(`/company/editsecrepo/${id}`, { state: { report } }); // تمرير البيانات
+    const report = data.find((item) => item.id === id);
+    navigate(`/company/editsecrepo/${id}`, { state: { report } });
   };
 
   const handleDelete = (id) => {
@@ -230,6 +230,12 @@ const AddSecRepo = () => {
                 <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">
                   Report
                 </th>
+                <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">
+                  Employee
+                </th>
+                <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">
+                  Created At
+                </th>
                 <th className="py-3 font-semibold text-lg border-b border-gray-300">
                   Actions
                 </th>
@@ -271,6 +277,12 @@ const AddSecRepo = () => {
                       </td>
                       <td className="px-4 py-3 dark:bg-slate-900 dark:text-white text-gray-800">
                         {d.report}
+                      </td>
+                      <td className="px-4 py-3 dark:bg-slate-900 dark:text-white text-gray-800">
+                        {d.employee}
+                      </td>
+                      <td className="px-4 py-3 dark:bg-slate-900 dark:text-white text-gray-800">
+                        {d.created_at}
                       </td>
                       <td className="px-4 py-3 dark:bg-slate-900 dark:text-white  space-x-2">
                         <button

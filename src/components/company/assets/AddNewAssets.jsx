@@ -10,6 +10,7 @@ import "react-toastify/dist/ReactToastify.css";
 const AddNewAssets = () => {
   const [data, setData] = useState([]);    
   const [assetTypes, setAssetTypes] = useState([]); 
+  const [branches, setBranches] = useState([]); // State to store branches
   const [search, setSearch] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [assetToDelete, setAssetToDelete] = useState(null);
@@ -20,6 +21,7 @@ const AddNewAssets = () => {
   useEffect(() => {
     const token = Cookies.get('token');
 
+    // Fetch assets
     fetch("https://inout-api.octopusteam.net/api/front/getAssets", {
       method: "GET",
       headers: {
@@ -44,6 +46,7 @@ const AddNewAssets = () => {
         toast.error("Failed to fetch assets");
       });
 
+    // Fetch asset types
     fetch("https://inout-api.octopusteam.net/api/front/getAssetTypes", {
       method: "GET",
       headers: {
@@ -67,6 +70,32 @@ const AddNewAssets = () => {
       .catch((error) => {
         console.error("Error fetching asset types:", error);
         toast.error("Error fetching asset types");
+      });
+
+    // Fetch branches
+    fetch("https://inout-api.octopusteam.net/api/front/getBranches", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to fetch branches");
+        }
+        return response.json();
+      })
+      .then((branchData) => {
+        if (branchData && branchData.status === 200) {
+          setBranches(branchData.data);
+        } else {
+          toast.error(branchData.msg || "Failed to load branches");
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching branches:", error);
+        toast.error("Error fetching branches");
       });
   }, []);
 
@@ -107,6 +136,11 @@ const AddNewAssets = () => {
   const getAssetTypeNameById = (typeId) => {
     const foundType = assetTypes.find((item) => item.id === typeId);
     return foundType ? foundType.name : "N/A";
+  };
+
+  const getBranchNameById = (branchId) => {
+    const foundBranch = branches.find((branch) => branch.id === branchId);
+    return foundBranch ? foundBranch.name : "N/A";
   };
 
   const openModal = (id) => {
@@ -159,14 +193,7 @@ const AddNewAssets = () => {
 
       <h2 className="text-center font-bold text-2xl text-black">Assets</h2>
 
-      <div className="flex justify-between items-center my-4">
-        <input
-          className="border border-gray-300 dark:bg-slate-900 dark:text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-96 shadow-md"
-          type="text"
-          placeholder="Search Assets .."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+      <div className="flex justify-end items-center my-4">
         <Link
           to="/company/assets/createassets"
           className="bg-blue-800 text-white font-semibold py-2 px-6 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
@@ -182,18 +209,11 @@ const AddNewAssets = () => {
         >
           <thead>
             <tr className="bg-gradient-to-r from-blue-600 to-blue-400 text-white">
-              <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
-                #
-              </th>
-              <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
-                Name
-              </th>
-              <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
-                Assets Type 
-              </th>
-              <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
-                Action
-              </th>
+              <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">#</th>
+              <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">Name</th>
+              <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">Assets Type</th>
+              <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">Branch</th>
+              <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">Action</th>
             </tr>
           </thead>
           <tbody>
@@ -204,16 +224,11 @@ const AddNewAssets = () => {
                   index % 2 === 0 ? "bg-gray-50" : "bg-white"
                 }`}
               >
-                <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">
-                  {d.id}
-                </td>
-                <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">
-                  {d.name}
-                </td>
-                <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">
-                  {getAssetTypeNameById(d.asset_type_id)}
-                </td>
-                <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left space-x-2">
+                <td className="px-4 py-3 text-gray-800">{d.id}</td>
+                <td className="px-4 py-3 text-gray-800">{d.name}</td>
+                <td className="px-4 py-3 text-gray-800">{getAssetTypeNameById(d.asset_type_id)}</td>
+                <td className="px-4 py-3 text-gray-800">{getBranchNameById(d.branch_id)}</td>
+                <td className="px-4 py-3 text-left space-x-2">
                   <button
                     onClick={() =>
                       navigate(`/company/assets/updateassets`, { state: d })
