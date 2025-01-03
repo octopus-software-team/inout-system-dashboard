@@ -495,22 +495,22 @@ const Employees = () => {
                         to={`/company/view/${d.id}`}
                         className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-opacity-85 flex items-center"
                       >
-                        <FaEye className="mr-1" />
-                        View
+                        <FaEye className="" />
+                        
                       </Link>
                       <Link
                         to={`/company/editemp/${d.id}`}
                         className="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 flex items-center"
                       >
-                        <FaEdit className="mr-1" />
-                        Edit
+                        <FaEdit className="" />
+                        
                       </Link>
                       <button
                         onClick={() => openConfirmModal(d.id)}
-                        className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 flex items-center"
+                        className="bg-red-100 text-white px-2 py-1 rounded hover:bg-red-700 flex items-center"
                       >
-                        <FaTrash className="mr-1" />
-                        Delete
+                        <FaTrash className="" />
+                        
                       </button>
                     </div>
                   </td>

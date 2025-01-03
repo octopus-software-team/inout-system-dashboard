@@ -1,12 +1,10 @@
 import React from 'react'
 
-const AddBranch = () => {
+const AddServices = () => {
   return (
     <div>
-   
-      
     </div>
   )
 }
 
-export default AddBranch
+export default AddServices
