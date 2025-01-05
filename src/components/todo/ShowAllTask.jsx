@@ -1,35 +1,27 @@
 import React, { useEffect, useState } from "react";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import { FaEdit, FaTrash, FaFilter, FaSearch } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
-// خرائط (Mappings) لتحويل الأرقام إلى قيم نصية
-const typeMap = {
-  0: "Urgent",   // عاجل
-  1: "High",     // عالي الأهمية
-  2: "Low",      // منخفض الأولوية
-};
-
-const statusMap = {
-  0: "Inactive", // غير فعّال
-  1: "Active",   // فعّال
-};
+import DataTable from "react-data-table-component";
+import { Input } from "antd";
 
 const ShowAllTask = () => {
   const [tasks, setTasks] = useState([]);
-  const [employeesMap, setEmployeesMap] = useState({});
-  const [order, setOrder] = useState("ASC");
-  const [sortedColumn, setSortedColumn] = useState(null);
-  const [search, setSearch] = useState("");
+  const [employees, setEmployees] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const [deleteId, setDeleteId] = useState(null);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const [filters, setFilters] = useState({
+    employee_id: "",
+    status: "",
+  });
+
   const navigate = useNavigate();
 
-  // دالة لجلب قائمة الـ Employees من أجل الحصول على أسمائهم
+  // Fetch Employees
   const fetchEmployees = async () => {
     try {
       const token = Cookies.get("token");
@@ -46,12 +38,7 @@ const ShowAllTask = () => {
 
       const data = await response.json();
       if (data.status === 200 && Array.isArray(data.data)) {
-        // نبني قاموس/Map من ID -> اسم الموظف
-        const map = {};
-        data.data.forEach((emp) => {
-          map[emp.id] = emp.full_name; // أو أي عمود اسم موجود: emp.full_name
-        });
-        setEmployeesMap(map);
+        setEmployees(data.data);
       } else {
         toast.error("Failed to load employees.");
       }
@@ -61,7 +48,7 @@ const ShowAllTask = () => {
     }
   };
 
-  // دالة لجلب المهام
+  // Fetch Tasks
   const fetchTasks = async () => {
     const token = Cookies.get("token");
 
@@ -102,49 +89,128 @@ const ShowAllTask = () => {
     }
   };
 
-  // نقوم بجلب الموظفين والمهام مرة واحدة عند التحميل
+  // Fetch Employees and Tasks on component mount
   useEffect(() => {
     fetchEmployees();
     fetchTasks();
   }, []);
 
-  // دالة الفرز (Sorting)
-  const sorting = (col) => {
-    let sorted = [];
-    if (order === "ASC") {
-      sorted = [...tasks].sort((a, b) => {
-        if (typeof a[col] === "string") {
-          return a[col].toLowerCase() > b[col].toLowerCase() ? 1 : -1;
-        }
-        return a[col] > b[col] ? 1 : -1;
-      });
-      setOrder("DSC");
-    } else {
-      sorted = [...tasks].sort((a, b) => {
-        if (typeof a[col] === "string") {
-          return a[col].toLowerCase() < b[col].toLowerCase() ? 1 : -1;
-        }
-        return a[col] < b[col] ? 1 : -1;
-      });
-      setOrder("ASC");
+  // Handle Filter Change
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters({
+      ...filters,
+      [name]: value,
+    });
+  };
+
+  // Apply Filters
+  const applyFilters = () => {
+    let filteredData = tasks;
+
+    if (filters.employee_id) {
+      filteredData = filteredData.filter(
+        (task) => task.employee_id === parseInt(filters.employee_id)
+      );
     }
-    setTasks(sorted);
-    setSortedColumn(col);
-  };
 
-  // دالة تظهر أيقونة سهم الفرز
-  const renderSortIcon = (col) => {
-    if (sortedColumn === col) {
-      return order === "ASC" ? <span>&#9650;</span> : <span>&#9660;</span>;
+    if (filters.status) {
+      filteredData = filteredData.filter(
+        (task) => task.status === parseInt(filters.status)
+      );
     }
-    return "";
+
+    return filteredData;
   };
 
-  const handleEdit = (id) => {
-    navigate(`/todo/updatetask/${id}`);
+  // Apply Search
+  const filteredData = applyFilters().filter((task) =>
+    search === ""
+      ? task
+      : task.name.toLowerCase().includes(search.toLowerCase())
+  );
+
+  // Columns for DataTable
+  const columns = [
+    {
+      name: "#",
+      selector: (row) => row.id,
+      sortable: true,
+      width: "60px",
+    },
+    {
+      name: "Task Name",
+      selector: (row) => row.name,
+      sortable: true,
+    },
+    {
+      name: "Start Date",
+      selector: (row) => row.start_date,
+      sortable: true,
+    },
+    {
+      name: "End Date",
+      selector: (row) => row.end_date,
+      sortable: true,
+    },
+    {
+      name: "Employee Name",
+      selector: (row) => {
+        const employee = employees.find((emp) => emp.id === row.employee_id);
+        return employee ? employee.full_name : "N/A";
+      },
+      sortable: true,
+    },
+    {
+      name: "Status",
+      selector: (row) => {
+        switch (row.status) {
+          case 0:
+            return "Urgent";
+          case 1:
+            return "High";
+          case 2:
+            return "Low";
+          default:
+            return "N/A";
+        }
+      },
+      sortable: true,
+    },
+    {
+      name: "Actions",
+      cell: (row) => (
+        <div className="flex space-x-2">
+          <button
+            onClick={() => navigate(`/todo/updatetask/${row.id}`)}
+            className="edit"
+          >
+            <FaEdit className="mr-2" />
+          </button>
+          <button
+            onClick={() => openConfirmModal(row.id)}
+            className="colors"
+          >
+            <FaTrash className="mr-2" />
+          </button>
+        </div>
+      ),
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
+      width: "150px",
+    },
+  ];
+
+  // Handle Search
+  const handleSearch = (event) => {
+    setSearch(event.target.value);
   };
 
-  // فتح/إغلاق مودال الـتأكيد على الحذف
+  // Confirm Delete Modal
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
+
   const openConfirmModal = (id) => {
     setDeleteId(id);
     setIsConfirmOpen(true);
@@ -155,7 +221,6 @@ const ShowAllTask = () => {
     setIsConfirmOpen(false);
   };
 
-  // تأكيد الحذف
   const confirmDelete = () => {
     const token = Cookies.get("token");
 
@@ -192,155 +257,118 @@ const ShowAllTask = () => {
 
   return (
     <div className="container mt-5">
-      <h2 className="text-center font-bold text-3xl text-black">
-        Show All Tasks
-      </h2>
+      <ToastContainer />
 
-      <div className="flex justify-between items-center my-4">
-        <input
-          className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-2/3 shadow-md"
+      <h2 className="text-center font-bold text-3xl text-black">Show All Tasks</h2>
+
+      <div className="flex justify-between items-center my-4 gap-4">
+        <Input
           type="text"
-          placeholder="Search tasks..."
+          placeholder="Search by name..."
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={handleSearch}
+          style={{ width: "300px" }}
+          prefix={<FaSearch />}
+          className="border border-gray-300 rounded p-2"
         />
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => setIsFilterOpen(true)}
+            className="flex items-center bg-blue-800 text-white py-2 px-4 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
+          >
+            <FaFilter className="mr-2" />
+            Filter
+          </button>
+        </div>
       </div>
 
       {isLoading ? (
-        <div className="flex justify-center items-center">
-          <p className="text-gray-700 -mt-56 text-xl font-semibold">Loading...</p>
+        <div className="flex justify-center items-center h-64">
+          <p className="text-gray-700 text-xl font-semibold">Loading...</p>
         </div>
       ) : error ? (
         <p className="text-red-500 text-center">{error}</p>
-      ) : tasks.length === 0 ? (
+      ) : filteredData.length === 0 ? (
         <p className="text-center text-gray-600 text-lg">No tasks found.</p>
       ) : (
-        <div className="overflow-x-auto shadow-lg rounded-lg w-full mx-auto">
-          <table className="table-auto w-full border border-gray-200 bg-white rounded-lg">
-            <thead>
-              <tr className="bg-gradient-to-r from-blue-600 to-blue-400 text-white">
-                <th
-                  className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
-                  onClick={() => sorting("id")}
-                  aria-sort={order === "ASC" ? "ascending" : "descending"}
-                >
-                  # {renderSortIcon("id")}
-                </th>
-                <th
-                  className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
-                  onClick={() => sorting("name")}
-                  aria-sort={order === "ASC" ? "ascending" : "descending"}
-                >
-                  Task Name {renderSortIcon("name")}
-                </th>
-                <th
-                  className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
-                  onClick={() => sorting("start_date")}
-                  aria-sort={order === "ASC" ? "ascending" : "descending"}
-                >
-                  Start Date {renderSortIcon("start_date")}
-                </th>
-                <th
-                  className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
-                  onClick={() => sorting("end_date")}
-                  aria-sort={order === "ASC" ? "ascending" : "descending"}
-                >
-                  End Date {renderSortIcon("end_date")}
-                </th>
-                {/** نعرض اسم الموظف بدلاً من الـ ID */}
-                <th
-                  className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
-                >
-                  Employee Name
-                </th>
-                <th
-                  className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
-                  onClick={() => sorting("status")}
-                >
-                  Status {renderSortIcon("status")}
-                </th>
-                <th
-                  className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
-                  onClick={() => sorting("type")}
-                >
-                  Type {renderSortIcon("type")}
-                </th>
-                <th className="px-4 py-3 text-right font-semibold text-lg border-b border-gray-300">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {tasks
-                .filter((task) =>
-                  search.toLowerCase() === ""
-                    ? task
-                    : task.name.toLowerCase().includes(search.toLowerCase())
-                )
-                .map((d, index) => (
-                  <tr
-                    key={d.id}
-                    className={`hover:bg-gray-100 transition duration-200 ${
-                      index % 2 === 0 ? "bg-gray-50" : "bg-white"
-                    }`}
-                  >
-                    <td className="px-4 py-3 text-gray-800">{d.id}</td>
-                    <td className="px-4 py-3 text-gray-800">{d.name}</td>
-                    <td className="px-4 py-3 text-gray-800">{d.start_date}</td>
-                    <td className="px-4 py-3 text-gray-800">{d.end_date}</td>
+        <DataTable
+          columns={columns}
+          data={filteredData}
+          pagination
+          highlightOnHover
+          striped
+          responsive
+          defaultSortField="id"
+          paginationPerPage={10}
+          paginationRowsPerPageOptions={[10, 20, 30]}
+          className="shadow-lg rounded-lg overflow-hidden"
+        />
+      )}
 
-                    {/** إذا وجدنا في القاموس اسم الموظف corresponding للـ ID نعـرضه؛ وإلا نعرض الـ ID */}
-                    <td className="px-4 py-3 text-gray-800">
-                      {employeesMap[d.employee_id]
-                        ? employeesMap[d.employee_id]
-                        : `Employee ID: ${d.employee_id}`}
-                    </td>
-
-                    <td className="px-4 py-3 text-gray-800">
-                      {statusMap[d.status]}
-                    </td>
-                    <td className="px-4 py-3 text-gray-800">
-                      {typeMap[d.type]}
-                    </td>
-
-                    <td className="px-4 py-3 text-right space-x-2">
-                      <button
-                        onClick={() => handleEdit(d.id)}
-                        className="bg-green-600 text-white font-semibold py-2 px-4 rounded-lg hover:shadow-md transform hover:scale-105 transition duration-300"
-                      >
-                        <FaEdit className="inline mr-2" />
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => openConfirmModal(d.id)}
-                        className="bg-red-600 text-white font-semibold py-2 px-4 rounded-lg hover:shadow-md transform hover:scale-105 transition duration-300"
-                      >
-                        <FaTrash className="inline mr-2" />
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
+      {/* Filter Modal */}
+      {isFilterOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg w-full max-w-md">
+            <h3 className="text-xl font-bold mb-4">Filter Tasks</h3>
+            <div className="space-y-4">
+              <select
+                name="employee_id"
+                value={filters.employee_id}
+                onChange={handleFilterChange}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Select Employee</option>
+                {employees.map((employee) => (
+                  <option key={employee.id} value={employee.id}>
+                    {employee.full_name}
+                  </option>
                 ))}
-            </tbody>
-          </table>
+              </select>
+              <select
+                name="status"
+                value={filters.status}
+                onChange={handleFilterChange}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Select Status</option>
+                <option value="0">Urgent</option>
+                <option value="1">High</option>
+                <option value="2">Low</option>
+              </select>
+            </div>
+            <div className="flex justify-end mt-6">
+              <button
+                onClick={() => setIsFilterOpen(false)}
+                className="bg-gray-500 text-white px-4 py-2 rounded-lg mr-2 hover:bg-gray-600 transition duration-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => setIsFilterOpen(false)}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200"
+              >
+                Apply
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
+      {/* Confirm Delete Modal */}
       {isConfirmOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 w-80">
-            <h3 className="text-xl font-semibold mb-4">Confirm Deletion</h3>
-            <p className="mb-6">Are you sure you want to delete this task?</p>
-            <div className="flex justify-end space-x-4">
+          <div className="bg-white p-6 rounded-lg">
+            <p>Are you sure you want to delete this task?</p>
+            <div className="flex justify-end space-x-4 mt-4">
               <button
                 onClick={confirmDelete}
-                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition duration-300"
+                className="bg-red-500 text-white py-2 px-4 rounded-lg"
               >
                 Yes
               </button>
               <button
                 onClick={closeConfirmModal}
-                className="bg-gray-300 dark:bg-slate-700 text-gray-800 dark:text-white px-4 py-2 rounded-lg hover:bg-gray-400 dark:hover:bg-slate-600 transition duration-300"
+                className="bg-gray-500 text-white py-2 px-4 rounded-lg"
               >
                 No
               </button>
@@ -348,19 +376,6 @@ const ShowAllTask = () => {
           </div>
         </div>
       )}
-
-      <ToastContainer
-        position="top-center"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
-      />
     </div>
   );
 };

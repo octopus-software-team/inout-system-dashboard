@@ -6,6 +6,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
+import QRCodeDisplay from "./QRCodeDisplay";
 
 const AddEngineer = () => {
   const [formData, setFormData] = useState({
@@ -24,6 +25,7 @@ const AddEngineer = () => {
     contract_start_date: "",
     contract_end_date: "",
     type: 0,
+    notes: "",
   });
 
   const [branches, setBranches] = useState([]);
@@ -35,6 +37,8 @@ const AddEngineer = () => {
   const token = Cookies.get("token");
 
   const imageInputRef = useRef(null);
+
+  const [qrCode, setQrCode] = useState(null);
 
   const formatDate = (date) => {
     if (date) {
@@ -95,27 +99,7 @@ const AddEngineer = () => {
     fetchSpecialties();
   }, [token]);
 
-  useEffect(() => {
-    if (imageInputRef.current) {
-      $(imageInputRef.current).dropify({
-        messages: {
-          default: "Drag and drop a file here or click",
-          replace: "Drag and drop or click to replace",
-          remove: "Remove",
-          error: "Ooops, something wrong happened.",
-        },
-      });
 
-      $(imageInputRef.current).on("change", function (event) {
-        const files = event.target.files;
-        if (files && files[0]) {
-          setFormData({ ...formData, image: files[0] });
-        } else {
-          setFormData({ ...formData, image: null });
-        }
-      });
-    }
-  }, [formData]);
 
   const handleChange = (e) => {
     const { id, value, type } = e.target;
@@ -146,6 +130,7 @@ const AddEngineer = () => {
       "experience",
       "contract_start_date",
       "contract_end_date",
+      "notes",
     ];
 
     requiredFields.forEach((field) => {
@@ -200,14 +185,18 @@ const AddEngineer = () => {
       );
 
       const result = await response.json();
+      console.log("API Response:", result); // إضافة هذا السطر للتحقق من البيانات المستلمة
 
       if (result.status === 200) {
         toast.success("Engineer added successfully.");
-
+      
+        // تخزين QR Code في الحالة
+        setQrCode(result.data.qrcode);
+      
         setTimeout(() => {
           navigate("/company/employees");
         }, 2000);
-
+      
         setFormData({
           full_name: "",
           email: "",
@@ -224,8 +213,10 @@ const AddEngineer = () => {
           contract_start_date: "",
           contract_end_date: "",
           type: 0,
+          notes: "",
         });
-      } else {
+      }
+       else {
         if (result.msg) {
           toast.error(result.msg);
         } else if (result.data) {
@@ -454,6 +445,23 @@ const AddEngineer = () => {
         </div>
 
         <div className="flex flex-col">
+          <label htmlFor="notes" className="mb-2 font-medium text-gray-700">
+            notes
+          </label>
+          <input
+            type="text"
+            id="notes"
+            value={formData.notes}
+            onChange={handleChange}
+            placeholder="notes"
+            className="p-2 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          {errors.notes && (
+            <span className="text-red-500 text-xs">{errors.notes}</span>
+          )}
+        </div>
+
+        <div className="flex flex-col">
           <label
             htmlFor="experience"
             className="mb-2 font-medium text-gray-700"
@@ -533,6 +541,7 @@ const AddEngineer = () => {
           </select>
         </div>
 
+
         <div className="flex flex-col md:col-span-2">
           <label htmlFor="image" className="mb-2 font-medium text-gray-700">
             Upload Image
@@ -551,12 +560,14 @@ const AddEngineer = () => {
           <button
             type="submit"
             className="bg-blue-500 w-full text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition duration-300"
-            disabled={false} 
+            disabled={false}
           >
-            Save 
+            Save
           </button>
         </div>
       </form>
+
+      {qrCode && <QRCodeDisplay svgData={qrCode} />}
 
       <ToastContainer
         position="top-center"

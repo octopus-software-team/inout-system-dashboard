@@ -1,11 +1,14 @@
 import React, { useEffect, useState, useRef } from "react";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import { FaEdit, FaEye, FaTrash, FaFilter, FaSearch } from "react-icons/fa";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { toast, Toaster } from "sonner";
 import Cookies from "js-cookie";
 import $ from "jquery";
 import "datatables.net";
 import ImportFile from "../ImportFile"; // Ensure this path is correct
+import { Modal, Select, Table, Input, Button } from "antd"; // Added Input and Button from Ant Design
+
+const { Option } = Select;
 
 const Branchs = () => {
   const [data, setData] = useState([]);
@@ -17,6 +20,15 @@ const Branchs = () => {
   const [deleteId, setDeleteId] = useState(null);
   const tableRef = useRef(null);
   const dataTable = useRef(null);
+
+  const [branchName, setBranchName] = useState([]);
+  const [branchCountry, setBranchCountry] = useState([]);
+  const [branchCity, setBranchCity] = useState([]);
+
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false); // State for Filter Modal
+  const [searchCity, setSearchCity] = useState(""); // State for City Search
+  const [searchCountry, setSearchCountry] = useState(""); // State for Country Search
+  const [searchText, setSearchText] = useState(""); // State for General Search
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -132,8 +144,6 @@ const Branchs = () => {
               previous: "Previous",
             },
           },
-          // Optional: Customize ordering if needed
-          // order: [[0, 'asc']],
         });
       } else {
         dataTable.current.clear();
@@ -176,13 +186,16 @@ const Branchs = () => {
       return;
     }
 
-    fetch(`https://inout-api.octopusteam.net/api/front/deleteBranch/${deleteId}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    fetch(
+      `https://inout-api.octopusteam.net/api/front/deleteBranch/${deleteId}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
       .then((res) => {
         if (!res.ok) {
           throw new Error("Failed to delete branch.");
@@ -206,7 +219,6 @@ const Branchs = () => {
       });
   };
 
-  // Handle Export File
   const handleExportFile = async () => {
     const formData = new FormData();
     formData.append("table", tableName);
@@ -215,7 +227,7 @@ const Branchs = () => {
 
     try {
       const response = await fetch(
-        "https://inout-api.octopusteam.net/api/front/export",
+        "https://inout-api.octopusteam.net/api/front/searchInAnyTable",
         {
           method: "POST",
           headers: {
@@ -226,7 +238,7 @@ const Branchs = () => {
       );
 
       if (!response.ok) {
-        throw new Error("Failed to export file");
+        throw new Error("Failed to fetch file");
       }
 
       const blob = await response.blob();
@@ -246,8 +258,52 @@ const Branchs = () => {
     }
   };
 
-  // Handle Import Modal
   const [open, setOpen] = useState(false);
+
+  // تعريف أعمدة الجدول في الـ Modal
+  const columns = [
+    {
+      title: "Branch Name",
+      dataIndex: "name",
+      key: "name",
+    },
+    {
+      title: "City",
+      dataIndex: "city_id",
+      key: "city_id",
+      render: (cityId) => {
+        const city = cities.find((c) => c.id === cityId);
+        return city ? city.name : "N/A";
+      },
+    },
+    {
+      title: "Country",
+      dataIndex: "country_id",
+      key: "country_id",
+      render: (countryId) => {
+        const country = countries.find((c) => c.id === countryId);
+        return country ? country.name : "N/A";
+      },
+    },
+  ];
+
+  // تصفية الفروع بناءً على المدينة والبلد والنص العام
+  const filteredBranches = data.filter((branch) => {
+    const city = cities.find((c) => c.id === branch.city_id);
+    const country = countries.find((c) => c.id === branch.country_id);
+
+    const matchesCity = city?.name
+      .toLowerCase()
+      .includes(searchCity.toLowerCase());
+    const matchesCountry = country?.name
+      .toLowerCase()
+      .includes(searchCountry.toLowerCase());
+    const matchesSearch = branch.name
+      .toLowerCase()
+      .includes(searchText.toLowerCase());
+
+    return matchesCity && matchesCountry && matchesSearch;
+  });
 
   return (
     <div className="container p-5 mt-5 border-collapse">
@@ -274,11 +330,94 @@ const Branchs = () => {
         >
           Export
         </button>
+
+        {/* Filter Button */}
+        <button
+          onClick={() => setIsFilterModalOpen(true)}
+          className="icons bg-blue-800 text-white  ml-4 px-4 py-2 rounded"
+        >
+          <FaFilter className="inline mr-2" />
+          Filter
+        </button>
       </div>
 
+      {/* Filter Modal */}
+      <Modal
+        title="Filter Branches"
+        visible={isFilterModalOpen}
+        onCancel={() => setIsFilterModalOpen(false)}
+        footer={[
+          <Button
+            key="search"
+            type="primary"
+            icon={<FaSearch />}
+            onClick={() => setIsFilterModalOpen(false)}
+          >
+            Search
+          </Button>,
+        ]}
+        width={800}
+      >
+        <div className="space-y-4">
+          {/* Country Select Box */}
+          <Select
+            showSearch
+            style={{ width: "100%", marginBottom: "20px" }}
+            placeholder="Search for a country"
+            optionFilterProp="children"
+            onChange={(value) => setSearchCountry(value)}
+            filterOption={(input, option) =>
+              option.children.toLowerCase().includes(input.toLowerCase())
+            }
+          >
+            {countries.map((country) => (
+              <Option key={country.id} value={country.name}>
+                {country.name}
+              </Option>
+            ))}
+          </Select>
+
+          {/* City Select Box */}
+          <Select
+            showSearch
+            style={{ width: "100%", marginBottom: "20px" }}
+            placeholder="Search for a city"
+            optionFilterProp="children"
+            onChange={(value) => setSearchCity(value)}
+            filterOption={(input, option) =>
+              option.children.toLowerCase().includes(input.toLowerCase())
+            }
+          >
+            {cities.map((city) => (
+              <Option key={city.id} value={city.name}>
+                {city.name}
+              </Option>
+            ))}
+          </Select>
+
+          {/* General Search Input */}
+          <Input
+            placeholder="Search by branch name"
+            prefix={<FaSearch className="text-gray-400" />}
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+          />
+
+          {/* Table */}
+          <Table
+            columns={columns}
+            dataSource={filteredBranches}
+            rowKey="id"
+            pagination={{ pageSize: 5 }}
+          />
+        </div>
+      </Modal>
+
       {isLoading ? (
-        <div className="flex justify-center items-center">
-          <p className="text-gray-600 mt-56 text-xl font-semibold">Loading...</p>
+        <div className="flex justify-center mt-56 t items-center">
+          <p className="text-gray-600 ext-xl font-semibold">
+            Loading...
+          </p>
         </div>
       ) : error ? (
         <p className="text-red-500 text-center">{error}</p>
@@ -286,7 +425,10 @@ const Branchs = () => {
         <p className="text-center text-gray-600 text-lg">No branches found.</p>
       ) : (
         <div className="overflow-x-auto shadow-lg rounded-lg w-full mx-auto">
-          <table ref={tableRef} className="display table-auto w-full border border-gray-200 bg-white rounded-lg">
+          <table
+            ref={tableRef}
+            className="display table-auto w-full border border-gray-200 bg-white rounded-lg"
+          >
             <thead>
               <tr className="bg-gradient-to-r from-blue-600 to-blue-400 text-white">
                 <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
@@ -308,7 +450,9 @@ const Branchs = () => {
             </thead>
             <tbody>
               {data.map((d, index) => {
-                const country = countries.find((c) => c.id === Number(d.country_id));
+                const country = countries.find(
+                  (c) => c.id === Number(d.country_id)
+                );
                 const city = cities.find((c) => c.id === Number(d.city_id));
 
                 return (
@@ -331,6 +475,7 @@ const Branchs = () => {
                       {city ? city.name : "N/A"}
                     </td>
                     <td className="px-4 dark:bg-slate-900 dark:text-white py-3 space-x-2">
+                      {/* Edit Button */}
                       <button
                         onClick={() => handleEdit(d.id)}
                         className="edit font-semibold py-2 px-4 rounded-lg "
@@ -338,12 +483,23 @@ const Branchs = () => {
                         <FaEdit className="inline mr-2" />
                         Edit
                       </button>
+
+                      {/* Delete Button */}
                       <button
                         onClick={() => openConfirmModal(d.id)}
                         className="colors rounded-lg hover:shadow-md transform "
                       >
                         <FaTrash className="inline mr-2" />
                         Delete
+                      </button>
+                      <button
+                        onClick={() =>
+                          navigate(`/company/viewbranchdetails/${d.id}`)
+                        }
+                        className="eye"
+                      >
+                        <FaEye className="inline mr-2" />
+                        View
                       </button>
                     </td>
                   </tr>
@@ -388,7 +544,9 @@ const Branchs = () => {
             className="w-[350px] h-[350px] bg-white rounded-lg shadow-lg p-6"
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="text-center text-xl font-semibold mb-4">Import File</h2>
+            <h2 className="text-center text-xl font-semibold mb-4">
+              Import File
+            </h2>
             <div className="flex flex-col items-center space-y-4">
               <ImportFile tableName={tableName} />
             </div>

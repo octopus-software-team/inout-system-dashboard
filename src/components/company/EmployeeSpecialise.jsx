@@ -59,7 +59,7 @@ const EmployeesSpecials = () => {
         dataTable.current = $(tableRef.current).DataTable({
           // يمكنك إضافة إعدادات DataTables هنا حسب الحاجة
           paging: true,
-          searching: false, // نعطل البحث المدمج لأننا نستخدم خاصية البحث الخاصة بنا
+          searching: true, // نعطل البحث المدمج لأننا نستخدم خاصية البحث الخاصة بنا
           info: false,
         });
       } else {
@@ -134,14 +134,14 @@ const EmployeesSpecials = () => {
         Employees Specials
       </h2>
 
-      <div className="flex justify-between items-center mb-5">
-        <input
+      <div className="flex justify-end items-center mb-5">
+        {/* <input
           type="text"
           className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-96"
           placeholder="Search employees..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-        />
+        /> */}
         <Link
           to="/company/createSpecialise"
           className="icons bg-blue-800 text-white font-semibold py-2 px-6 rounded-lg hover:shadow-md transform hover:scale-105 transition duration-300"
@@ -182,14 +182,14 @@ const EmployeesSpecials = () => {
                   <td className="flex space-x-2">
                     <button
                       onClick={() => handleEdit(item.id)}
-                      className="edit  py-2 px-4 rounded-lg "
+                      className="edit m-2  py-2 px-4 rounded-lg "
                     >
                       <FaEdit className="inline" />
                       Edit
                     </button>
                     <button
                       onClick={() => handleDelete(item.id)}
-                      className="colors  py-2 px-4 rounded-lg "
+                      className="colors m-2  py-2 px-4 rounded-lg "
                     >
                       <FaTrash className="inline" />
                       Delete

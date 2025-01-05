@@ -5,49 +5,49 @@ import Cookies from "js-cookie";
 import { FaSpinner } from "react-icons/fa"; // Importing Spinner icon for loading state
 
 const units = [
-    { label: "Millimeter", value: "mm" },
-    { label: "Centimeter", value: "cm" },
-    { label: "Meter", value: "m" },
-    { label: "Kilometer", value: "km" },
-    { label: "Inch", value: "in" },
-    { label: "Foot", value: "ft" },
-    { label: "Yard", value: "yd" },
-    { label: "Mile", value: "mi" },
-    { label: "Milligram", value: "mg" },
-    { label: "Gram", value: "g" },
-    { label: "Kilogram", value: "kg" },
-    { label: "Tonne", value: "t" },
-    { label: "Ounce", value: "oz" },
-    { label: "Pound", value: "lb" },
-    { label: "Stone", value: "st" },
-    { label: "Milliliter", value: "ml" },
-    { label: "Liter", value: "l" },
-    { label: "Cubic meter", value: "m³" },
-    { label: "Teaspoon", value: "tsp" },
-    { label: "Tablespoon", value: "tbsp" },
-    { label: "Cup", value: "cup" },
-    { label: "Pint", value: "pt" },
-    { label: "Quart", value: "qt" },
-    { label: "Gallon", value: "gal" },
-    { label: "Square meter", value: "m²" },
-    { label: "Hectare", value: "ha" },
-    { label: "Square kilometer", value: "km²" },
-    { label: "Acre", value: "ac" },
-    { label: "Square mile", value: "mi²" },
-    { label: "Celsius", value: "°C" },
-    { label: "Fahrenheit", value: "°F" },
-    { label: "Kelvin", value: "K" },
-    { label: "Joule", value: "J" },
-    { label: "Kilojoule", value: "kJ" },
-    { label: "Calorie", value: "cal" },
-    { label: "Kilocalorie", value: "kcal" },
-    { label: "Watt hour", value: "Wh" },
-    { label: "Kilowatt hour", value: "kWh" },
-    { label: "Pascal", value: "Pa" },
-    { label: "Kilopascal", value: "kPa" },
-    { label: "Bar", value: "bar" },
-    { label: "Psi", value: "psi" },
-    { label: "Piece", value: "piece" }
+  { label: "Millimeter", value: "mm" },
+  { label: "Centimeter", value: "cm" },
+  { label: "Meter", value: "m" },
+  { label: "Kilometer", value: "km" },
+  { label: "Inch", value: "in" },
+  { label: "Foot", value: "ft" },
+  { label: "Yard", value: "yd" },
+  { label: "Mile", value: "mi" },
+  { label: "Milligram", value: "mg" },
+  { label: "Gram", value: "g" },
+  { label: "Kilogram", value: "kg" },
+  { label: "Tonne", value: "t" },
+  { label: "Ounce", value: "oz" },
+  { label: "Pound", value: "lb" },
+  { label: "Stone", value: "st" },
+  { label: "Milliliter", value: "ml" },
+  { label: "Liter", value: "l" },
+  { label: "Cubic meter", value: "m³" },
+  { label: "Teaspoon", value: "tsp" },
+  { label: "Tablespoon", value: "tbsp" },
+  { label: "Cup", value: "cup" },
+  { label: "Pint", value: "pt" },
+  { label: "Quart", value: "qt" },
+  { label: "Gallon", value: "gal" },
+  { label: "Square meter", value: "m²" },
+  { label: "Hectare", value: "ha" },
+  { label: "Square kilometer", value: "km²" },
+  { label: "Acre", value: "ac" },
+  { label: "Square mile", value: "mi²" },
+  { label: "Celsius", value: "°C" },
+  { label: "Fahrenheit", value: "°F" },
+  { label: "Kelvin", value: "K" },
+  { label: "Joule", value: "J" },
+  { label: "Kilojoule", value: "kJ" },
+  { label: "Calorie", value: "cal" },
+  { label: "Kilocalorie", value: "kcal" },
+  { label: "Watt hour", value: "Wh" },
+  { label: "Kilowatt hour", value: "kWh" },
+  { label: "Pascal", value: "Pa" },
+  { label: "Kilopascal", value: "kPa" },
+  { label: "Bar", value: "bar" },
+  { label: "Psi", value: "psi" },
+  { label: "Piece", value: "piece" },
 ];
 
 const UpdateMaterials = () => {
@@ -60,20 +60,26 @@ const UpdateMaterials = () => {
     name: "",
     stock: "",
     type: "",
-    branch_id: "" // إضافة حقل branch_id
+    branch_id: "",
+    material_category_id: "",
+    description: "",
   });
+
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false); // Loading state
   const [branches, setBranches] = useState([]); // حالة لتخزين بيانات الفروع
+  const [materialCategories, setMaterialCategories] = useState([]); // حالة لتخزين فئات المواد
 
   useEffect(() => {
     if (material) {
       setFormData({
         id: material.id || "",
-        name: material.name || "",
+        // name: material.name || "",
         stock: material.stock || "",
         type: material.type || "",
-        branch_id: material.branch_id || "" // تعيين branch_id
+        branch_id: material.branch_id || "",
+        material_category_id: material.material_category_id || "",
+        description: material.description || "",
       });
     }
 
@@ -103,6 +109,31 @@ const UpdateMaterials = () => {
           console.error("Error fetching branches:", err);
           toast.error("Failed to fetch branches");
         });
+
+      // جلب بيانات فئات المواد
+      fetch("https://inout-api.octopusteam.net/api/front/getMaterialCategory", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error("Failed to fetch material categories");
+          }
+          return res.json();
+        })
+        .then((resData) => {
+          if (resData && resData.data) {
+            setMaterialCategories(resData.data);
+          } else {
+            toast.error("No material categories found");
+          }
+        })
+        .catch((err) => {
+          console.error("Error fetching material categories:", err);
+          toast.error("Failed to fetch material categories");
+        });
     } else {
       toast.error("No token found. Please log in.");
     }
@@ -115,7 +146,6 @@ const UpdateMaterials = () => {
       [name]: value,
     }));
 
-    // Clear the error for the field if any
     if (errors[name]) {
       setErrors({ ...errors, [name]: "" });
     }
@@ -131,18 +161,25 @@ const UpdateMaterials = () => {
       return;
     }
 
-    const { id, name, stock, type, branch_id } = formData;
+    const { id, name, stock, type, branch_id, material_category_id, description } = formData;
 
-    if (!name || !stock || !type || !branch_id) {
-      toast.error("All fields are required.");
+    // if (!name || !stock || !type || !branch_id || !material_category_id || !description) {
+    //   toast.error("All fields are required.");
+    //   return;
+    // }
+
+    if (stock < 0) {
+      toast.error("Stock cannot be negative.");
       return;
     }
 
     const updatedMaterial = {
       name,
       stock: parseInt(stock),
-      type: type, // إرسال النوع كنص كما هو في الـ API
-      branch_id: parseInt(branch_id)
+      type: type,
+      branch_id: parseInt(branch_id),
+      material_category_id: parseInt(material_category_id),
+      description,
     };
 
     console.log("Updated Material:", updatedMaterial);
@@ -211,33 +248,6 @@ const UpdateMaterials = () => {
           Update Material
         </h2>
 
-        {/* Material Name Field */}
-        <div className="mb-4">
-          <label
-            htmlFor="name"
-            className="block text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2"
-          >
-            Material Name
-          </label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            value={formData.name}
-            onChange={handleInputChange}
-            className={`w-full px-4 py-2 border rounded-lg bg-gray-50 dark:bg-slate-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-200 ${
-              errors.name
-                ? "border-red-500"
-                : "border-gray-300 dark:border-gray-700"
-            }`}
-            placeholder="Enter material name"
-            required
-          />
-          {errors.name && (
-            <p className="text-red-500 text-sm mt-1">{errors.name}</p>
-          )}
-        </div>
-
         {/* Stock Field */}
         <div className="mb-4">
           <label
@@ -262,6 +272,38 @@ const UpdateMaterials = () => {
           />
           {errors.stock && (
             <p className="text-red-500 text-sm mt-1">{errors.stock}</p>
+          )}
+        </div>
+
+        {/* Material Category Field */}
+        <div className="mb-4">
+          <label
+            htmlFor="material_category_id"
+            className="block text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2"
+          >
+            Material Category
+          </label>
+          <select
+            id="material_category_id"
+            name="material_category_id"
+            value={formData.material_category_id}
+            onChange={handleInputChange}
+            className={`w-full px-4 py-2 border rounded-lg bg-gray-50 dark:bg-slate-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-200 ${
+              errors.material_category_id
+                ? "border-red-500"
+                : "border-gray-300 dark:border-gray-700"
+            }`}
+            required
+          >
+            <option value="">Select Material Category</option>
+            {materialCategories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
+            ))}
+          </select>
+          {errors.material_category_id && (
+            <p className="text-red-500 text-sm mt-1">{errors.material_category_id}</p>
           )}
         </div>
 
@@ -326,6 +368,32 @@ const UpdateMaterials = () => {
           </select>
           {errors.branch_id && (
             <p className="text-red-500 text-sm mt-1">{errors.branch_id}</p>
+          )}
+        </div>
+
+        {/* Description Field */}
+        <div className="mb-4">
+          <label
+            htmlFor="description"
+            className="block text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2"
+          >
+            Description
+          </label>
+          <textarea
+            id="description"
+            name="description"
+            value={formData.description}
+            onChange={handleInputChange}
+            className={`w-full px-4 py-2 border rounded-lg bg-gray-50 dark:bg-slate-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-200 ${
+              errors.description
+                ? "border-red-500"
+                : "border-gray-300 dark:border-gray-700"
+            }`}
+            placeholder="Enter description"
+            required
+          />
+          {errors.description && (
+            <p className="text-red-500 text-sm mt-1">{errors.description}</p>
           )}
         </div>
 

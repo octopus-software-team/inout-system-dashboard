@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Cookies from 'js-cookie';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import Cookies from "js-cookie";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const CreateSecRepo = () => {
   const [id, setId] = useState(""); // Holds the entered ID
@@ -12,13 +12,12 @@ const CreateSecRepo = () => {
   const [reportStock, setReportStock] = useState("");
   const [isInspection, setIsInspection] = useState(1);
   const [report, setReport] = useState("");
-  const [employeeId, setEmployeeId] = useState(""); // Holds the selected employee ID
-  const [employees, setEmployees] = useState([]); // Holds the fetched employee list
+
   const [createdAt, setCreatedAt] = useState(""); // Holds the entered created at date
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = Cookies.get('token');
+    const token = Cookies.get("token");
 
     // Fetch projects
     fetch("https://inout-api.octopusteam.net/api/front/getProjects", {
@@ -32,39 +31,21 @@ const CreateSecRepo = () => {
         if (data.status === 200) {
           setProjects(data.data); // Set the projects in state
         } else {
-          toast.error(`Error fetching projects: ${data.msg || "Unknown error"}`);
+          toast.error(
+            `Error fetching projects: ${data.msg || "Unknown error"}`
+          );
         }
       })
       .catch((error) => {
         console.error("Error fetching projects:", error);
         toast.error("Failed to fetch projects. Please try again.");
       });
-
-    // Fetch employees
-    fetch("https://inout-api.octopusteam.net/api/front/getEmployees", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.status === 200) {
-          setEmployees(data.data); // Set the employees in state
-        } else {
-          toast.error(`Error fetching employees: ${data.msg || "Unknown error"}`);
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching employees:", error);
-        toast.error("Failed to fetch employees. Please try again.");
-      });
   }, []);
 
   // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
-    const token = Cookies.get('token');
+    const token = Cookies.get("token");
 
     const payload = {
       id, // ID input
@@ -73,8 +54,6 @@ const CreateSecRepo = () => {
       is_inspection: isInspection,
       report_stock: isInspection ? reportStock : undefined,
       report,
-      employee_id: employeeId, // Selected employee ID
-      created_at: createdAt, // Created at date
     };
 
     fetch("https://inout-api.octopusteam.net/api/front/addProjectReport", {
@@ -106,7 +85,10 @@ const CreateSecRepo = () => {
       <form className="w-full max-w-sm" onSubmit={handleSubmit}>
         {/* Project Name Dropdown */}
         <div className="mb-4">
-          <label htmlFor="projectId" className="block text-sm font-medium text-gray-700 dark:text-white">
+          <label
+            htmlFor="projectId"
+            className="block text-sm font-medium text-gray-700 dark:text-white"
+          >
             Project Name
           </label>
           <select
@@ -116,7 +98,9 @@ const CreateSecRepo = () => {
             required
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-900 dark:text-white"
           >
-            <option value="" disabled>Select a project</option>
+            <option value="" disabled>
+              Select a project
+            </option>
             {projects.map((project) => (
               <option key={project.id} value={project.id}>
                 {project.name}
@@ -198,47 +182,6 @@ const CreateSecRepo = () => {
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-900 dark:text-white"
             rows="4"
           ></textarea>
-        </div>
-
-        {/* Employee Dropdown */}
-        <div className="mb-4">
-          <label
-            htmlFor="employeeId"
-            className="block text-sm font-medium text-gray-700 dark:text-white"
-          >
-            Employee
-          </label>
-          <select
-            id="employeeId"
-            value={employeeId}
-            onChange={(e) => setEmployeeId(e.target.value)}
-            required
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-900 dark:text-white"
-          >
-            <option value="" disabled>Select an employee</option>
-            {employees.map((employee) => (
-              <option key={employee.id} value={employee.id}>
-                {employee.full_name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Created At */}
-        <div className="mb-4">
-          <label
-            htmlFor="createdAt"
-            className="block text-sm font-medium text-gray-700 dark:text-white"
-          >
-            Created At
-          </label>
-          <input
-            id="createdAt"
-            type="date"
-            value={createdAt}
-            onChange={(e) => setCreatedAt(e.target.value)}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-900 dark:text-white"
-          />
         </div>
 
         {/* Submit Button */}

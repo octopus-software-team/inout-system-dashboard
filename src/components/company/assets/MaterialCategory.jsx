@@ -154,14 +154,8 @@ const MaterialCategory = () => {
       <ToastContainer />
       <h2 className="text-center font-bold text-3xl text-black">Material Category</h2>
 
-      <div className="flex justify-between items-center my-4">
-        <input
-          className="border border-gray-300 dark:bg-slate-900 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-96 shadow-md"
-          type="text"
-          placeholder="Search Material Category..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+      <div className="flex justify-end items-center my-4">
+        
         <Link
           to="/company/assets/creatematerialcategory"
           className=" text-white bg-blue-800 font-semibold py-2 px-6 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"

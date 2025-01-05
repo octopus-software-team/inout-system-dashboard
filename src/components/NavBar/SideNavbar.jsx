@@ -125,18 +125,18 @@ const todo = [
   },
 ];
 
-const admin = [
-  {
-    name: "Add New Role",
-    path: "/admin/addnewrole",
-    icon: <FaBriefcase className="mr-2 text-gray-400" />,
-  },
-  {
-    name: "Edit Roles",
-    path: "/admin/editroles",
-    icon: <FaUserEdit className="mr-2 text-gray-400" />,
-  },
-];
+// const admin = [
+//   {
+//     name: "Add New Role",
+//     path: "/admin/addnewrole",
+//     icon: <FaBriefcase className="mr-2 text-gray-400" />,
+//   },
+//   {
+//     name: "Edit Roles",
+//     path: "/admin/editroles",
+//     icon: <FaUserEdit className="mr-2 text-gray-400" />,
+//   },
+// ];
 
 const moderator = [
   {
@@ -318,13 +318,13 @@ const Navbar = () => {
             />
 
             {/* قائمة Admin */}
-            <NavItemWithSubMenu
+            {/* <NavItemWithSubMenu
               title="Admin"
               icon={<FaUserPlus className="text-gray-400 w-5 h-5" />}
               items={admin}
               isOpen={activeItems["Admin"]}
               onToggle={() => handleToggleItem("Admin")}
-            />
+            /> */}
 
             <NavItemWithSubMenu
               title="moderator"

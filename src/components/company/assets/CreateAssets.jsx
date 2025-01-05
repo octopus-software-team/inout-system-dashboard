@@ -11,6 +11,8 @@ const CreateAssets = () => {
   const [count, setCount] = useState("");
   const [assetTypes, setAssetTypes] = useState([]);
   const [branches, setBranches] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false); // حالة النافذة المنبثقة
+  const [newAssetTypeName, setNewAssetTypeName] = useState(""); // اسم نوع الأصل الجديد
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -122,6 +124,41 @@ const CreateAssets = () => {
     }
   };
 
+  const handleAddNewAssetType = async () => {
+    if (!newAssetTypeName) {
+      toast.error("Please enter a valid asset type name");
+      return;
+    }
+
+    try {
+      const token = Cookies.get("token");
+      const response = await fetch(
+        "https://inout-api.octopusteam.net/api/front/addAssetType",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ name: newAssetTypeName }),
+        }
+      );
+
+      const result = await response.json();
+      if (response.ok && result.status === 200) {
+        setAssetTypes((prev) => [...prev, { id: result.data.id, name: newAssetTypeName }]);
+        toast.success("Asset type added successfully");
+        setIsModalOpen(false);
+        setNewAssetTypeName("");
+      } else {
+        toast.error(result.msg || "Failed to add asset type");
+      }
+    } catch (error) {
+      console.error("Error adding asset type:", error);
+      toast.error("Failed to add asset type. Please try again.");
+    }
+  };
+
   return (
     <div className="flex dark:bg-slate-950 justify-center items-center mt-20 bg-gray-100">
       <ToastContainer theme="light" />
@@ -144,30 +181,37 @@ const CreateAssets = () => {
               className="mt-1 dark:bg-slate-800 dark:text-white block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
           </div>
-          <div>
+          <div className="flex justify-between items-center">
             <label
               htmlFor="assetTypeId"
               className="block text-sm font-medium text-gray-700"
             >
               Asset Type
             </label>
-            <select
-              id="assetTypeId"
-              value={assetTypeId}
-              onChange={(e) => setAssetTypeId(e.target.value)}
-              required
-              className="mt-1 dark:bg-slate-800 dark:text-white block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(true)}
+              className="text-blue-600 text-sm"
             >
-              <option value="id" disabled>
-                Select an asset type
-              </option>
-              {assetTypes.map((type) => (
-                <option key={type.id} value={type.id}>
-                  {type.name}
-                </option>
-              ))}
-            </select>
+              + Add 
+            </button>
           </div>
+          <select
+            id="assetTypeId"
+            value={assetTypeId}
+            onChange={(e) => setAssetTypeId(e.target.value)}
+            required
+            className="mt-1 dark:bg-slate-800 dark:text-white block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+          >
+            <option value="id" disabled>
+              Select an asset type
+            </option>
+            {assetTypes.map((type) => (
+              <option key={type.id} value={type.id}>
+                {type.name}
+              </option>
+            ))}
+          </select>
           <div>
             <label
               htmlFor="branchId"
@@ -217,6 +261,36 @@ const CreateAssets = () => {
           </button>
         </form>
       </div>
+
+      {/* Modal for adding new Asset Type */}
+      {isModalOpen && (
+        <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-md w-96">
+            <h2 className="text-xl font-bold mb-4">Add New Asset Type</h2>
+            <input
+              type="text"
+              value={newAssetTypeName}
+              onChange={(e) => setNewAssetTypeName(e.target.value)}
+              placeholder="Asset Type Name"
+              className="mb-4 w-full p-2 border border-gray-300 rounded-md"
+            />
+            <div className="flex justify-between">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="bg-gray-500 text-white py-2 px-4 rounded"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleAddNewAssetType}
+                className="bg-blue-600 text-white py-2 px-4 rounded"
+              >
+                Add
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

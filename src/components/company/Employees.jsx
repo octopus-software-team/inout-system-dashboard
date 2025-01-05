@@ -1,30 +1,30 @@
-import React, { useEffect, useState, useRef } from "react";
-import { FaEdit, FaEye, FaTrash } from "react-icons/fa";
+import React, { useEffect, useState } from "react";
+import { FaEdit, FaEye, FaTrash, FaFilter, FaSearch } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import Cookies from "js-cookie";
 import "react-toastify/dist/ReactToastify.css";
 import ImportFile from "../ImportFile";
 import ExportFile from "../ExportFile";
-import $ from "jquery";
-import "datatables.net";
+import DataTable from "react-data-table-component";
+import { Input } from "antd";
 
 const Employees = () => {
   const [employees, setEmployees] = useState([]);
   const [branches, setBranches] = useState([]);
   const [employeeSpecials, setEmployeeSpecials] = useState([]);
-  const [order, setOrder] = useState("ASC");
-  const [sortedColumn, setSortedColumn] = useState(null);
   const [search, setSearch] = useState("");
-  const navigate = useNavigate();
-  const [open, setOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filters, setFilters] = useState({
+    branch_id: "",
+    employee_special_id: "",
+  });
+  const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
 
-  const tableName = "employees"; // تحديد اسم الجدول
-
-  const tableRef = useRef(null); // Reference to the table
-  const dataTable = useRef(null); // Reference to DataTable instance
+  const tableName = "employees";
 
   // Fetch employees
   const fetchEmployees = async () => {
@@ -125,67 +125,7 @@ const Employees = () => {
     fetchEmployeeSpecials();
   }, []);
 
-  // Initialize DataTable
-  useEffect(() => {
-    // Initialize only if employees data is present
-    if (employees.length > 0) {
-      // If DataTable is already initialized, destroy it before re-initializing
-      if ($.fn.DataTable.isDataTable(tableRef.current)) {
-        dataTable.current.destroy();
-      }
-
-      dataTable.current = $(tableRef.current).DataTable({
-        responsive: true,
-        searching: false, // Disable default search to use custom search
-        ordering: false, // Disable default ordering to use custom sorting
-        language: {
-          search: "Filter records:",
-          emptyTable: "No employees found.",
-          paginate: {
-            previous: "Previous",
-            next: "Next",
-          },
-        },
-        // Customize other DataTable options as needed
-      });
-    }
-
-    // Cleanup on unmount
-    return () => {
-      if (dataTable.current) {
-        dataTable.current.destroy();
-      }
-    };
-  }, [employees]);
-
-  // Integrate custom search with DataTables
-  useEffect(() => {
-    if (dataTable.current) {
-      dataTable.current.search(search).draw();
-    }
-  }, [search]);
-
-  const sorting = (col) => {
-    let sorted = [];
-    if (order === "ASC") {
-      sorted = [...employees].sort((a, b) =>
-        a[col].toString().toLowerCase() > b[col].toString().toLowerCase()
-          ? 1
-          : -1
-      );
-      setOrder("DSC");
-    } else {
-      sorted = [...employees].sort((a, b) =>
-        a[col].toString().toLowerCase() < b[col].toString().toLowerCase()
-          ? 1
-          : -1
-      );
-      setOrder("ASC");
-    }
-    setEmployees(sorted);
-    setSortedColumn(col);
-  };
-
+  // Handle delete confirmation
   const handleDelete = (id) => {
     setDeleteId(id);
     setIsConfirmOpen(true);
@@ -240,27 +180,24 @@ const Employees = () => {
       });
   };
 
-  const renderSortIcon = (col) => {
-    if (sortedColumn === col) {
-      return order === "ASC" ? <span>&#9650;</span> : <span>&#9660;</span>;
-    }
-    return "";
-  };
-
+  // Get branch name by ID
   const getBranchName = (id) => {
     const branch = branches.find((b) => b.id === id);
     return branch ? branch.name : "N/A";
   };
 
+  // Get employee special name by ID
   const getEmployeeSpecialName = (id) => {
     const special = employeeSpecials.find((s) => s.id === id);
     return special ? special.name : "N/A";
   };
 
+  // Get gender text
   const getGender = (gender) => {
     return gender === 0 ? "Male" : "Female";
   };
 
+  // Get employee type text
   const getType = (type) => {
     if (type === 0) {
       return "Engineer";
@@ -273,11 +210,49 @@ const Employees = () => {
     }
   };
 
-  const handleExportFile = async () => {
-    const formData = new FormData();
-    formData.append("table", tableName);
+  // Handle filter change
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters({
+      ...filters,
+      [name]: value,
+    });
+  };
 
+  // Apply filters to data
+  const applyFilters = () => {
+    let filteredData = employees;
+
+    if (filters.branch_id) {
+      filteredData = filteredData.filter(
+        (emp) => emp.branch_id === parseInt(filters.branch_id)
+      );
+    }
+
+    if (filters.employee_special_id) {
+      filteredData = filteredData.filter(
+        (emp) => emp.employee_special_id === parseInt(filters.employee_special_id)
+      );
+    }
+
+    return filteredData;
+  };
+
+  // Filter data based on search and filters
+  const filteredData = applyFilters().filter((emp) =>
+    search === ""
+      ? emp
+      : emp.full_name.toLowerCase().includes(search.toLowerCase())
+  );
+
+  // Handle export file
+  const handleExportFile = async () => {
     const token = Cookies.get("token");
+
+    if (!token) {
+      toast.error("No token found. Please log in.");
+      return;
+    }
 
     try {
       const response = await fetch(
@@ -287,46 +262,171 @@ const Employees = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-          body: formData,
+          body: JSON.stringify({ table: tableName }),
         }
       );
 
       if (!response.ok) {
-        throw new Error("Failed to export file");
+        throw new Error("Failed to export file.");
       }
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-
       link.download = `${tableName}.xlsx`;
       document.body.appendChild(link);
       link.click();
-
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
+
+      toast.success("File exported successfully!");
     } catch (error) {
       console.error("Error exporting file:", error);
       toast.error("Failed to export file.");
     }
   };
 
+  // Table columns
+  const columns = [
+    {
+      name: "#",
+      selector: (row) => row.id,
+      sortable: true,
+      width: "60px",
+    },
+    {
+      name: "Image",
+      cell: (row) => (
+        <img
+          src={row.image}
+          alt={row.full_name}
+          className="w-12 h-12 object-cover rounded"
+        />
+      ),
+    },
+    {
+      name: "Full Name",
+      selector: (row) => row.full_name,
+      sortable: true,
+    },
+    {
+      name: "Email",
+      selector: (row) => row.email,
+      sortable: true,
+    },
+    {
+      name: "Phone",
+      selector: (row) => row.phone,
+      sortable: true,
+    },
+    {
+      name: "Branch",
+      selector: (row) => getBranchName(row.branch_id),
+      sortable: true,
+    },
+    {
+      name: "Specialization",
+      selector: (row) => getEmployeeSpecialName(row.employee_special_id),
+      sortable: true,
+    },
+    {
+      name: "Date of Birth",
+      selector: (row) => row.date_of_birth,
+      sortable: true,
+    },
+    {
+      name: "Gender",
+      selector: (row) => getGender(row.gender),
+      sortable: true,
+    },
+    {
+      name: "Experience",
+      selector: (row) => row.experience,
+      sortable: true,
+    },
+    {
+      name: "Contract Start",
+      selector: (row) => row.contract_start_date,
+      sortable: true,
+    },
+    {
+      name: "Notes",
+      selector: (row) => row.notes,
+      sortable: true,
+    },
+    {
+      name: "Contract Duration",
+      selector: (row) => `${row.contract_duration} months`,
+      sortable: true,
+    },
+    {
+      name: "Contract End",
+      selector: (row) => row.contract_end_date,
+      sortable: true,
+    },
+    {
+      name: "Type",
+      selector: (row) => getType(row.type),
+      sortable: true,
+    },
+    {
+      name: "QR Code",
+      cell: (row) =>
+        row.qrcode ? (
+          <div
+            className="svg1"
+            dangerouslySetInnerHTML={{ __html: row.qrcode }}
+          />
+        ) : (
+          "No QR Code"
+        ),
+    },
+    {
+      name: "Actions",
+      cell: (row) => (
+        <div className="flex">
+          <Link to={`/company/view/${row.id}`} className="eye">
+            <FaEye />
+          </Link>
+          <Link to={`/company/editemp/${row.id}`} className="edit">
+            <FaEdit />
+          </Link>
+          <button
+            onClick={() => openConfirmModal(row.id)}
+            className="colors"
+          >
+            <FaTrash />
+          </button>
+        </div>
+      ),
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
+    },
+  ];
+
+  const handleSearch = (event) => {
+    setSearch(event.target.value);
+  };
+
+
   return (
     <div className="container p-5 mx-auto mt-5 px-4 w-full">
       <h2 className="text-center font-bold text-3xl mb-4">Employees</h2>
+      
 
       <div className="flex flex-col md:flex-row justify-between items-center mb-4 w-full space-y-4 md:space-y-0">
-        {/* Search Input */}
-        <input
-          className="border border-gray-300 dark:bg-slate-900 h-10 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 w-96 sm:w-1/2 shadow-sm text-xs"
+      <Input
           type="text"
-          placeholder="Search employees by name..."
+          placeholder="Search by name..."
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={handleSearch}
+          style={{ width: "300px" }}
+          prefix={<FaSearch />}
+          className="border border-gray-300 rounded p-2"
         />
 
-        {/* Button Container */}
         <div className="flex space-x-2 w-full md:w-auto">
           <Link
             to="/company/engineers"
@@ -341,6 +441,13 @@ const Employees = () => {
             Import
           </button>
           <button
+            onClick={() => setIsFilterOpen(true)}
+            className="icons bg-blue-800 text-white  rounded-lg transition duration-300 flex items-center"
+          >
+            <FaFilter className="mr-2" />
+            Filter
+          </button>
+          <button
             onClick={handleExportFile}
             className="icons bg-blue-800 text-white  rounded-lg flex items-center"
           >
@@ -348,7 +455,6 @@ const Employees = () => {
           </button>
         </div>
 
-        {/* Import & Export Modal */}
         {open && (
           <div
             className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
@@ -370,281 +476,77 @@ const Employees = () => {
         )}
       </div>
 
-      <div className="w-full overflow-x-auto">
-        <table
-          ref={tableRef}
-          className="w-full bg-white dark:bg-slate-800 rounded-lg table-auto"
-        >
-          <thead>
-            <tr className="bg-gradient-to-r from-blue-600 to-blue-400 text-white text-xs">
-              <th
-                className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
-                onClick={() => sorting("id")}
-                aria-sort={
-                  sortedColumn === "id"
-                    ? order === "ASC"
-                      ? "ascending"
-                      : "descending"
-                    : "none"
-                }
-              >
-                # {renderSortIcon("id")}
-              </th>
-              <th
-                className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
-                onClick={() => sorting("full_name")}
-                aria-sort={
-                  sortedColumn === "full_name"
-                    ? order === "ASC"
-                      ? "ascending"
-                      : "descending"
-                    : "none"
-                }
-              >
-                Full Name {renderSortIcon("full_name")}
-              </th>
-              <th
-                className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
-                onClick={() => sorting("email")}
-                aria-sort={
-                  sortedColumn === "email"
-                    ? order === "ASC"
-                      ? "ascending"
-                      : "descending"
-                    : "none"
-                }
-              >
-                Email {renderSortIcon("email")}
-              </th>
-              <th
-                className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
-                onClick={() => sorting("phone")}
-                aria-sort={
-                  sortedColumn === "phone"
-                    ? order === "ASC"
-                      ? "ascending"
-                      : "descending"
-                    : "none"
-                }
-              >
-                Phone {renderSortIcon("phone")}
-              </th>
-              <th
-                className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
-                onClick={() => sorting("branch_id")}
-                aria-sort={
-                  sortedColumn === "branch_id"
-                    ? order === "ASC"
-                      ? "ascending"
-                      : "descending"
-                    : "none"
-                }
-              >
-                Branch {renderSortIcon("branch_id")}
-              </th>
-              <th
-                className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
-                onClick={() => sorting("employee_special_id")}
-                aria-sort={
-                  sortedColumn === "employee_special_id"
-                    ? order === "ASC"
-                      ? "ascending"
-                      : "descending"
-                    : "none"
-                }
-              >
-                Specialization {renderSortIcon("employee_special_id")}
-              </th>
-              <th
-                className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
-                onClick={() => sorting("date_of_birth")}
-                aria-sort={
-                  sortedColumn === "date_of_birth"
-                    ? order === "ASC"
-                      ? "ascending"
-                      : "descending"
-                    : "none"
-                }
-              >
-                Date of Birth {renderSortIcon("date_of_birth")}
-              </th>
-              <th
-                className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
-                onClick={() => sorting("gender")}
-                aria-sort={
-                  sortedColumn === "gender"
-                    ? order === "ASC"
-                      ? "ascending"
-                      : "descending"
-                    : "none"
-                }
-              >
-                Gender {renderSortIcon("gender")}
-              </th>
-              <th
-                className="px-2 py-1 text-left font-semibold border-b border-gray-300"
-              >
-                Image
-              </th>
-              <th
-                className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
-                onClick={() => sorting("experience")}
-                aria-sort={
-                  sortedColumn === "experience"
-                    ? order === "ASC"
-                      ? "ascending"
-                      : "descending"
-                    : "none"
-                }
-              >
-                Experience {renderSortIcon("experience")}
-              </th>
-              <th
-                className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
-                onClick={() => sorting("contract_start_date")}
-                aria-sort={
-                  sortedColumn === "contract_start_date"
-                    ? order === "ASC"
-                      ? "ascending"
-                      : "descending"
-                    : "none"
-                }
-              >
-                Contract Start {renderSortIcon("contract_start_date")}
-              </th>
-              <th
-                className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
-                onClick={() => sorting("contract_duration")}
-                aria-sort={
-                  sortedColumn === "contract_duration"
-                    ? order === "ASC"
-                      ? "ascending"
-                      : "descending"
-                    : "none"
-                }
-              >
-                Contract Duration {renderSortIcon("contract_duration")}
-              </th>
-              <th
-                className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
-                onClick={() => sorting("contract_end_date")}
-                aria-sort={
-                  sortedColumn === "contract_end_date"
-                    ? order === "ASC"
-                      ? "ascending"
-                      : "descending"
-                    : "none"
-                }
-              >
-                Contract End {renderSortIcon("contract_end_date")}
-              </th>
-              <th
-                className="px-2 py-1 text-left font-semibold border-b border-gray-300 cursor-pointer"
-                onClick={() => sorting("type")}
-                aria-sort={
-                  sortedColumn === "type"
-                    ? order === "ASC"
-                      ? "ascending"
-                      : "descending"
-                    : "none"
-                }
-              >
-                Type {renderSortIcon("type")}
-              </th>
-              <th className="px-2 py-1 text-left font-semibold border-b border-gray-300">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {employees
-              .filter((employee) => {
-                return search.toLowerCase() === ""
-                  ? employee
-                  : employee.full_name
-                      .toLowerCase()
-                      .includes(search.toLowerCase());
-              })
-              .map((d) => (
-                <tr
-                  key={d.id}
-                  className="hover:bg-gray-100 dark:hover:bg-slate-700 transition duration-200 text-xs"
-                >
-                  <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
-                    {d.id}
-                  </td>
-                  <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white break-words">
-                    {d.full_name}
-                  </td>
-                  <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white break-words">
-                    {d.email}
-                  </td>
-                  <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
-                    {d.phone}
-                  </td>
-                  <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
-                    {getBranchName(d.branch_id)}
-                  </td>
-                  <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white break-words">
-                    {getEmployeeSpecialName(d.employee_special_id)}
-                  </td>
-                  <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
-                    {d.date_of_birth}
-                  </td>
-                  <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
-                    {getGender(d.gender)}
-                  </td>
-                  <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
-                    <img
-                      src={d.image}
-                      alt={d.full_name}
-                      className="w-12 h-12 object-cover rounded"
-                    />
-                  </td>
-                  <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white break-words">
-                    {d.experience}
-                  </td>
-                  <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
-                    {d.contract_start_date}
-                  </td>
-                  <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
-                    {d.contract_duration} months
-                  </td>
-                  <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
-                    {d.contract_end_date}
-                  </td>
-                  <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
-                    {getType(d.type)}
-                  </td>
-                  <td className="px-2 py-1 border-b border-gray-200 dark:border-slate-700 dark:text-white">
-                    <div className="flex space-x-1">
-                      <Link
-                        to={`/company/view/${d.id}`}
-                        className="eye"
-                      >
-                        <FaEye />
-                      </Link>
-                      <Link
-                        to={`/company/editemp/${d.id}`}
-                        className="edit"
-                      >
-                        <FaEdit />
-                      </Link>
-                      <button
-                        onClick={() => openConfirmModal(d.id)}
-                        className="colors"
-                      >
-                        <FaTrash />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
-      </div>
+      {/* <input
+        type="text"
+        placeholder="Search by name..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="w-full p-2 border border-gray-300 rounded-lg mb-4"
+      /> */}
 
-      {/* Confirmation Modal */}
+      <DataTable
+        columns={columns}
+        data={filteredData}
+        pagination
+        highlightOnHover
+        striped
+        responsive
+        defaultSortField="id"
+        paginationPerPage={10}
+        paginationRowsPerPageOptions={[10, 20, 30]}
+        className="rounded-lg overflow-hidden"
+      />
+
+      {isFilterOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 w-80">
+            <h3 className="text-xl font-semibold mb-4">Filter Employees</h3>
+            <div className="space-y-4">
+              <select
+                name="branch_id"
+                value={filters.branch_id}
+                onChange={handleFilterChange}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Select Branch</option>
+                {branches.map((branch) => (
+                  <option key={branch.id} value={branch.id}>
+                    {branch.name}
+                  </option>
+                ))}
+              </select>
+              <select
+                name="employee_special_id"
+                value={filters.employee_special_id}
+                onChange={handleFilterChange}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Select Specialization</option>
+                {employeeSpecials.map((special) => (
+                  <option key={special.id} value={special.id}>
+                    {special.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex justify-end mt-6">
+              <button
+                onClick={() => setIsFilterOpen(false)}
+                className="bg-gray-300 dark:bg-slate-700 text-gray-800 dark:text-white px-4 py-2 rounded-lg hover:bg-gray-400 dark:hover:bg-slate-600 transition duration-300"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => setIsFilterOpen(false)}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-300"
+              >
+                Apply
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {isConfirmOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 w-80">
@@ -670,7 +572,6 @@ const Employees = () => {
         </div>
       )}
 
-      {/* Toast Notifications */}
       <ToastContainer
         position="top-center"
         autoClose={5000}

@@ -171,6 +171,7 @@ const ViewEmployee = () => {
     contract_duration,
     contract_end_date,
     type,
+    notes, 
     image,
   } = employeeData;
 
@@ -240,6 +241,11 @@ const ViewEmployee = () => {
           <div>
             <label className="text-gray-600 font-medium">Experience:</label>
             <p className="text-black">{experience || "N/A"}</p>
+          </div>
+
+          <div>
+            <label className="text-gray-600 font-medium">notes:</label>
+            <p className="text-black">{notes || "N/A"}</p>
           </div>
 
           <div>

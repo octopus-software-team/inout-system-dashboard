@@ -1,53 +1,27 @@
-import React, { useEffect, useState, useRef } from "react";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import React, { useEffect, useState } from "react";
+import DataTable from "react-data-table-component";
+import { FaEdit, FaTrash, FaFilter } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast, ToastContainer } from "react-toastify";
 import Cookies from "js-cookie";
-import $ from "jquery";
-import "datatables.net";
+import "react-toastify/dist/ReactToastify.css";
 
 const AddSecRepo = () => {
   const [data, setData] = useState([]);
   const [projects, setProjects] = useState([]);
-  const [order, setOrder] = useState("ASC");
-  const [sortedColumn, setSortedColumn] = useState(null);
-  const [search, setSearch] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const tableRef = useRef(null);
-  const dataTable = useRef(null);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filters, setFilters] = useState({
+    project_id: "",
+    report_type: "",
+  });
+
   const navigate = useNavigate();
 
+  // Fetch projects
   useEffect(() => {
-    const fetchData = async () => {
-      const token = Cookies.get("token");
-
-      if (!token) {
-        console.error("token expired ");
-        setError("No token found. Please log in.");
-      }
-
-      const BASE_URL = "https://inout-api.octopusteam.net/api/front";
-
-      const response = await fetch(`${BASE_URL}/getProjectReports`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const result = await response.json();
-      const apiData = result.data;
-      setData(apiData);
-      setIsLoading(false);
-    };
-    fetchData();
-  }, []);
-
-  useEffect(() => {
-    const fetchProject = async () => {
+    const fetchProjects = async () => {
       const token = Cookies.get("token");
 
       if (!token) {
@@ -55,75 +29,113 @@ const AddSecRepo = () => {
         return;
       }
 
-      const response = await fetch(
-        "https://inout-api.octopusteam.net/api/front/getProjects",
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      try {
+        const response = await fetch(
+          "https://inout-api.octopusteam.net/api/front/getProjects",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
-      const result = await response.json();
-      const data = result.data;
-      console.log(data);
-      setProjects(data);
+        const result = await response.json();
+        setProjects(result.data || []);
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+      }
     };
 
-    fetchProject();
+    fetchProjects();
   }, []);
 
+  // Fetch data
   useEffect(() => {
-    if (data.length > 0) {
-      if (!dataTable.current) {
-        dataTable.current = $(tableRef.current).DataTable({
-          paging: true,
-          searching: true,
-          info: true,
-          language: {
-            search: "Search:",
-            lengthMenu: "Show _MENU_ entries",
-            info: "Showing _START_ to _END_ of _TOTAL_ entries",
-            paginate: {
-              first: "First",
-              last: "Last",
-              next: "Next",
-              previous: "Previous",
-            },
-          },
-        });
-      } else {
-        dataTable.current.clear();
-        dataTable.current.rows.add(data);
-        dataTable.current.draw();
-      }
-    }
+    const fetchData = async () => {
+      const token = Cookies.get("token");
 
-    return () => {
-      if (dataTable.current) {
-        dataTable.current.destroy();
-        dataTable.current = null;
+      if (!token) {
+        console.error("Token expired");
+        setError("No token found. Please log in.");
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          "https://inout-api.octopusteam.net/api/front/getProjectReports",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const result = await response.json();
+        setData(result.data || []);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setError("Failed to fetch data. Please try again later.");
+      } finally {
+        setIsLoading(false);
       }
     };
-  }, [data]);
 
+    fetchData();
+  }, []);
+
+  // Handle filter change
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters({
+      ...filters,
+      [name]: value,
+    });
+  };
+
+  // Apply filters
+  const applyFilters = () => {
+    let filteredData = data;
+
+    if (filters.project_id) {
+      filteredData = filteredData.filter(
+        (item) => item.project_id === parseInt(filters.project_id)
+      );
+    }
+
+    if (filters.report_type) {
+      filteredData = filteredData.filter(
+        (item) => item.report_type === filters.report_type
+      );
+    }
+
+    return filteredData;
+  };
+
+  const filteredData = applyFilters();
+
+  // Handle Edit
   const handleEdit = (id) => {
     const report = data.find((item) => item.id === id);
     navigate(`/company/editsecrepo/${id}`, { state: { report } });
   };
 
+  // Handle Delete
   const handleDelete = (id) => {
     const token = Cookies.get("token");
+
     if (!token) {
-      alert("No token found. Please log in.");
+      toast.error("No token found. Please log in.");
       return;
     }
 
     const confirmToast = toast(
       <div>
-        <p>Are you sure you want to delete this service?</p>
+        <p>Are you sure you want to delete this report?</p>
         <div className="flex space-x-2 justify-end">
           <button
             onClick={() => handleConfirmDelete(id, token, confirmToast)}
@@ -156,26 +168,123 @@ const AddSecRepo = () => {
     )
       .then((res) => {
         if (!res.ok) {
-          throw new Error("Failed to delete service.");
+          throw new Error("Failed to delete report.");
         }
         return res.json();
       })
       .then((response) => {
-        toast.success(response.msg || "Service deleted successfully.");
-        setData(data.filter((service) => service.id !== id));
+        toast.success(response.msg || "Report deleted successfully.");
+        setData(data.filter((report) => report.id !== id));
         toast.dismiss(confirmToast);
       })
       .catch((error) => {
-        console.error("Error deleting service:", error);
-        toast.error("Failed to delete the service. Please try again.");
+        console.error("Error deleting report:", error);
+        toast.error("Failed to delete the report. Please try again.");
         toast.dismiss(confirmToast);
       });
   };
 
-  useEffect(() => {
-    console.log(data);
-    console.log(projects);
-  }, []);
+  // تعريف أعمدة الجدول
+  const columns = [
+    {
+      name: "#",
+      selector: (row) => row.id,
+      sortable: true,
+      width: "60px",
+      cell: (row) => (
+        <span className="font-medium text-gray-800">{row.id}</span>
+      ),
+    },
+    {
+      name: "Project Name",
+      selector: (row) => {
+        const project = projects.find((p) => p.id === row.project_id);
+        return project ? project.name : "N/A";
+      },
+      sortable: true,
+      cell: (row) => {
+        const project = projects.find((p) => p.id === row.project_id);
+        return (
+          <span className="font-medium text-gray-800">
+            {project ? project.name : "N/A"}
+          </span>
+        );
+      },
+    },
+    {
+      name: "Report Type",
+      selector: (row) => row.report_type,
+      sortable: true,
+      cell: (row) => (
+        <span className="text-gray-700">{row.report_type}</span>
+      ),
+    },
+    {
+      name: "Report Stock",
+      selector: (row) => row.report_stock,
+      sortable: true,
+      cell: (row) => (
+        <span className="text-gray-700">{row.report_stock}</span>
+      ),
+    },
+    {
+      name: "Is Inspection",
+      selector: (row) => (row.is_inspection ? "Yes" : "No"),
+      sortable: true,
+      cell: (row) => (
+        <span className="text-gray-700">
+          {row.is_inspection ? "Yes" : "No"}
+        </span>
+      ),
+    },
+    {
+      name: "Report",
+      selector: (row) => row.report,
+      sortable: true,
+      cell: (row) => (
+        <span className="text-gray-700">{row.report}</span>
+      ),
+    },
+    {
+      name: "Employee",
+      selector: (row) => row.employee,
+      sortable: true,
+      cell: (row) => (
+        <span className="text-gray-700">{row.employee}</span>
+      ),
+    },
+    {
+      name: "Created At",
+      selector: (row) => row.created_at,
+      sortable: true,
+      cell: (row) => (
+        <span className="text-gray-700">{row.created_at}</span>
+      ),
+    },
+    {
+      name: "Actions",
+      cell: (row) => (
+        <div className="flex space-x-2">
+          <button
+            onClick={() => handleEdit(row.id)}
+            className="edit"
+          >
+            <FaEdit className="mr-2" />
+          </button>
+          <button
+            onClick={() => handleDelete(row.id)}
+            className="colors"
+          >
+            <FaTrash className="mr-2" />
+          </button>
+        </div>
+      ),
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
+      width: "150px",
+    },
+  ];
 
   return (
     <div className="container p-6 mt-5">
@@ -183,132 +292,105 @@ const AddSecRepo = () => {
         Project Report
       </h2>
 
-      <div className="flex justify-between items-center my-4">
-        <input
-          className="border border-gray-300 dark:bg-slate-900 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-96 shadow-md"
-          type="text"
-          placeholder="Search services..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+      <div className="flex justify-end items-center my-4 gap-4">
+        <button
+          onClick={() => setIsFilterOpen(true)}
+          className="flex items-center bg-blue-800 text-white py-2 px-4 rounded transition duration-200"
+        >
+          <FaFilter className="mr-2" />
+          Filter
+        </button>
         <Link
           to="/company/createsecrepo"
-          className="icons bg-blue-800 text-white font-semibold py-2 px-6 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
+          className="flex items-center bg-blue-800 text-white font-semibold py-2 px-4 rounded transition duration-200"
         >
           + Create Project Report
         </Link>
       </div>
 
       {isLoading ? (
-        <div className="flex justify-center items-center">
-          <p className="text-gray-600 mt-56 text-xl font-semibold">Loading...</p>
+        <div className="flex justify-center items-center h-64">
+          <p className="text-gray-700 text-xl font-semibold">Loading...</p>
         </div>
       ) : error ? (
         <p className="text-red-500 text-center">{error}</p>
-      ) : data.length === 0 ? (
-        <p className="text-center text-gray-600 text-lg">No services found.</p>
+      ) : filteredData.length === 0 ? (
+        <p className="text-center text-gray-600 text-lg">No reports found.</p>
       ) : (
-        <div className="overflow-x-auto shadow-lg rounded-lg w-full mx-auto">
-          <table ref={tableRef} className="display table-auto w-full border border-gray-200 bg-white rounded-lg">
-            <thead>
-              <tr className="bg-gradient-to-r from-blue-600 to-blue-400 text-white">
-                <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">
-                 #
-                </th>
-                <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">
-                  Project Name
-                </th>
-                <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">
-                  Report Type
-                </th>
-                <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">
-                  Report Stock
-                </th>
-                <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">
-                  Is Inspection
-                </th>
-                <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">
-                  Report
-                </th>
-                <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">
-                  Employee
-                </th>
-                <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">
-                  Created At
-                </th>
-                <th className="py-3 font-semibold text-lg border-b border-gray-300">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {data
-                .filter((i) =>
-                  search
-                    ? i.name?.toLowerCase().includes(search.toLowerCase())
-                    : true
-                )
-                .map((d, index) => {
-                  const project = projects.find(
-                    (project) => project.id === d.project_id
-                  );
+        <DataTable
+          columns={columns}
+          data={filteredData}
+          pagination
+          highlightOnHover
+          striped
+          responsive
+          defaultSortField="#"
+          paginationPerPage={10}
+          paginationRowsPerPageOptions={[10, 20, 30]}
+          className="shadow-lg rounded-lg overflow-hidden"
+        />
+      )}
 
-                  return (
-                    <tr
-                      key={d.id}
-                      className={`hover:bg-gray-100 dark:bg-slate-900 transition duration-200 ${
-                        index % 2 === 0 ? "bg-gray-50" : "bg-white"
-                      }`}
-                    >
-                      <td className="px-4 py-3 dark:bg-slate-900 dark:text-white text-gray-800">
-                        {d.id}
-                      </td>
-                      <td className="px-4 py-3 dark:bg-slate-900 dark:text-white text-gray-800">
-                        {project ? project.name : "N/A"}
-                      </td>
-                      <td className="px-4 py-3 dark:bg-slate-900 dark:text-white text-gray-800">
-                        {d.report_type}
-                      </td>
-                      <td className="px-4 py-3 dark:bg-slate-900 dark:text-white text-gray-800">
-                        {d.report_stock}
-                      </td>
-                      <td className="px-4 py-3 dark:bg-slate-900 dark:text-white text-gray-800">
-                        {d.is_inspection ? "Yes" : "No"}
-                      </td>
-                      <td className="px-4 py-3 dark:bg-slate-900 dark:text-white text-gray-800">
-                        {d.report}
-                      </td>
-                      <td className="px-4 py-3 dark:bg-slate-900 dark:text-white text-gray-800">
-                        {d.employee}
-                      </td>
-                      <td className="px-4 py-3 dark:bg-slate-900 dark:text-white text-gray-800">
-                        {d.created_at}
-                      </td>
-                      <td className="px-4 py-3 dark:bg-slate-900 dark:text-white  space-x-2">
-                        <button
-                          onClick={() => handleEdit(d.id)}
-                          className="edit rounded-lg "
-                        >
-                          <FaEdit className="inline mr-2" />
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(d.id)}
-                          className="colors rounded-lg "
-                        >
-                          <FaTrash className="inline mr-2" />
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-            </tbody>
-          </table>
+      {/* Filter Modal */}
+      {isFilterOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg w-full max-w-md">
+            <h3 className="text-xl font-bold mb-4">Filter Reports</h3>
+            <div className="space-y-4">
+              <select
+                name="project_id"
+                value={filters.project_id}
+                onChange={handleFilterChange}
+                className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Select Project</option>
+                {projects.map((project) => (
+                  <option key={project.id} value={project.id}>
+                    {project.name}
+                  </option>
+                ))}
+              </select>
+              <select
+                name="report_type"
+                value={filters.report_type}
+                onChange={handleFilterChange}
+                className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Select Report Type</option>
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+              </select>
+            </div>
+            <div className="flex justify-end mt-6">
+              <button
+                onClick={() => setIsFilterOpen(false)}
+                className="bg-gray-500 text-white px-4 py-2 rounded mr-2 hover:bg-gray-600 transition duration-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => setIsFilterOpen(false)}
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-200"
+              >
+                Apply
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
-      <ToastContainer />
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </div>
   );
 };

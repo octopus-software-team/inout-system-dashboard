@@ -1,25 +1,29 @@
-import React, { useEffect, useState, useRef } from "react"; 
-import { FaEdit, FaTrash } from "react-icons/fa"; 
-import { Link, useNavigate } from "react-router-dom"; 
-import Cookies from 'js-cookie'; 
-import $ from "jquery"; 
-import "datatables.net"; 
+import React, { useEffect, useState } from "react";
+import { FaEdit, FaTrash, FaFilter, FaSearch } from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
+import DataTable from "react-data-table-component";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Input } from "antd";
 
 const AddNewAssets = () => {
-  const [data, setData] = useState([]);    
-  const [assetTypes, setAssetTypes] = useState([]); 
-  const [branches, setBranches] = useState([]); // State to store branches
+  const [data, setData] = useState([]);
+  const [assetTypes, setAssetTypes] = useState([]);
+  const [branches, setBranches] = useState([]);
   const [search, setSearch] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [assetToDelete, setAssetToDelete] = useState(null);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+  const [filters, setFilters] = useState({
+    asset_type_id: "",
+    branch_id: "",
+  });
   const navigate = useNavigate();
-  const tableRef = useRef(null);
-  const dataTable = useRef(null);
 
   useEffect(() => {
-    const token = Cookies.get('token');
+    const token = Cookies.get("token");
 
     // Fetch assets
     fetch("https://inout-api.octopusteam.net/api/front/getAssets", {
@@ -99,40 +103,6 @@ const AddNewAssets = () => {
       });
   }, []);
 
-  useEffect(() => {
-    if (data.length > 0) {
-      if (!dataTable.current) {
-        dataTable.current = $(tableRef.current).DataTable({
-          paging: true,
-          searching: false,
-          info: false,
-          language: {
-            search: "Search:",
-            lengthMenu: "Show _MENU_ entries",
-            info: "Showing _START_ to _END_ of _TOTAL_ entries",
-            paginate: {
-              first: "First",
-              last: "Last",
-              next: "Next",
-              previous: "Previous"
-            }
-          }
-        });
-      } else {
-        dataTable.current.clear();
-        dataTable.current.rows.add(data);
-        dataTable.current.draw();
-      }
-    }
-
-    return () => {
-      if (dataTable.current) {
-        dataTable.current.destroy();
-        dataTable.current = null;
-      }
-    };
-  }, [data]);
-
   const getAssetTypeNameById = (typeId) => {
     const foundType = assetTypes.find((item) => item.id === typeId);
     return foundType ? foundType.name : "N/A";
@@ -155,13 +125,16 @@ const AddNewAssets = () => {
 
   const confirmDelete = () => {
     if (assetToDelete) {
-      const token = Cookies.get('token');
-      fetch(`https://inout-api.octopusteam.net/api/front/deleteAsset/${assetToDelete}`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+      const token = Cookies.get("token");
+      fetch(
+        `https://inout-api.octopusteam.net/api/front/deleteAsset/${assetToDelete}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
         .then((res) => {
           if (!res.ok) {
             throw new Error("Failed to delete asset");
@@ -170,7 +143,9 @@ const AddNewAssets = () => {
         })
         .then((resData) => {
           toast.success("Asset deleted successfully!");
-          setData((prevData) => prevData.filter((asset) => asset.id !== assetToDelete));
+          setData((prevData) =>
+            prevData.filter((asset) => asset.id !== assetToDelete)
+          );
           closeModal();
         })
         .catch((err) => {
@@ -181,11 +156,101 @@ const AddNewAssets = () => {
     }
   };
 
-  const filteredData = data.filter((item) =>
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters({
+      ...filters,
+      [name]: value,
+    });
+  };
+
+  const applyFilters = () => {
+    let filteredData = data;
+
+    if (filters.asset_type_id) {
+      filteredData = filteredData.filter(
+        (item) => item.asset_type_id === parseInt(filters.asset_type_id)
+      );
+    }
+
+    if (filters.branch_id) {
+      filteredData = filteredData.filter(
+        (item) => item.branch_id === parseInt(filters.branch_id)
+      );
+    }
+
+    return filteredData;
+  };
+
+  const filteredData = applyFilters().filter((item) =>
     search === ""
       ? item
       : item.name.toLowerCase().includes(search.toLowerCase())
   );
+
+  const columns = [
+    {
+      name: "#",
+      selector: (row) => row.id,
+      sortable: true,
+      width: "60px",
+    },
+    {
+      name: "Name",
+      selector: (row) => row.name,
+      sortable: true,
+    },
+    {
+      name: "Assets Type",
+      selector: (row) => getAssetTypeNameById(row.asset_type_id),
+      sortable: true,
+    },
+    {
+      name: "Branch",
+      selector: (row) => getBranchNameById(row.branch_id),
+      sortable: true,
+    },
+    {
+      name: "QR Code",
+      cell: (row) =>
+        row.qrcode ? (
+          <div
+            className="svg1"
+            dangerouslySetInnerHTML={{ __html: row.qrcode }}
+          />
+        ) : (
+          "No QR Code"
+        ),
+    },
+    {
+      name: "Actions",
+      cell: (row) => (
+        <div className="flex space-x-2">
+          <button
+            onClick={() =>
+              navigate(`/company/assets/updateassets`, { state: row })
+            }
+            className="edit"
+          >
+            <FaEdit className="mr-2" />
+            {/* Edit */}
+          </button>
+          <button onClick={() => openModal(row.id)} className="colors">
+            <FaTrash className="mr-2" />
+            {/* Delete */}
+          </button>
+        </div>
+      ),
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
+      width: "150px",
+    },
+  ];
+
+  const handleSearch = (event) => {
+    setSearch(event.target.value);
+  };
 
   return (
     <div className="container mt-5">
@@ -193,64 +258,53 @@ const AddNewAssets = () => {
 
       <h2 className="text-center font-bold text-2xl text-black">Assets</h2>
 
-      <div className="flex justify-end items-center my-4">
-        <Link
-          to="/company/assets/createassets"
-          className="bg-blue-800 text-white font-semibold py-2 px-6 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
-        >
-          + Create Assets
-        </Link>
+      <div className="flex justify-between items-center my-4 gap-4">
+        <Input
+          type="text"
+          placeholder="Search by name..."
+          value={search}
+          onChange={handleSearch}
+          style={{ width: "300px" }}
+          prefix={<FaSearch />}
+          className="border border-gray-300 rounded p-2"
+        />
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => setIsFilterOpen(true)}
+            className="flex items-center bg-blue-800 text-white py-2 px-4 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
+          >
+            <FaFilter className="mr-2" />
+            Filter
+          </button>
+          <Link
+            to="/company/assets/createassets"
+            className="bg-blue-800 text-white font-semibold py-2 px-6 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
+          >
+            + Create Assets
+          </Link>
+        </div>
       </div>
 
-      <div className="overflow-x-auto shadow-lg rounded-lg w-full mx-auto">
-        <table
-          ref={tableRef}
-          className="display table-auto w-full border border-gray-200 bg-white rounded-lg"
-        >
-          <thead>
-            <tr className="bg-gradient-to-r from-blue-600 to-blue-400 text-white">
-              <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">#</th>
-              <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">Name</th>
-              <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">Assets Type</th>
-              <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">Branch</th>
-              <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredData.map((d, index) => (
-              <tr
-                key={d.id}
-                className={`hover:bg-gray-100 transition duration-200 ${
-                  index % 2 === 0 ? "bg-gray-50" : "bg-white"
-                }`}
-              >
-                <td className="px-4 py-3 text-gray-800">{d.id}</td>
-                <td className="px-4 py-3 text-gray-800">{d.name}</td>
-                <td className="px-4 py-3 text-gray-800">{getAssetTypeNameById(d.asset_type_id)}</td>
-                <td className="px-4 py-3 text-gray-800">{getBranchNameById(d.branch_id)}</td>
-                <td className="px-4 py-3 text-left space-x-2">
-                  <button
-                    onClick={() =>
-                      navigate(`/company/assets/updateassets`, { state: d })
-                    }
-                    className="edit py-2 px-4 rounded-lg "
-                  >
-                    <FaEdit className="inline mr-2" />
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => openModal(d.id)}
-                    className="colors py-2 px-4 rounded-lg "
-                  >
-                    <FaTrash className="inline mr-2" />
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {/* <input
+        type="text"
+        placeholder="Search by name..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="w-full p-2 border border-gray-300 rounded-lg mb-4"
+      /> */}
+
+      <DataTable
+        columns={columns}
+        data={filteredData}
+        pagination
+        highlightOnHover
+        striped
+        responsive
+        defaultSortField="id"
+        paginationPerPage={10}
+        paginationRowsPerPageOptions={[10, 20, 30]}
+        className="shadow-lg rounded-lg overflow-hidden"
+      />
 
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
@@ -268,6 +322,56 @@ const AddNewAssets = () => {
                 className="bg-gray-500 text-white py-2 px-4 rounded-lg"
               >
                 No
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isFilterOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg w-full max-w-md">
+            <h3 className="text-xl font-bold mb-4">Filter Assets</h3>
+            <div className="space-y-4">
+              <select
+                name="asset_type_id"
+                value={filters.asset_type_id}
+                onChange={handleFilterChange}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Select Asset Type</option>
+                {assetTypes.map((type) => (
+                  <option key={type.id} value={type.id}>
+                    {type.name}
+                  </option>
+                ))}
+              </select>
+              <select
+                name="branch_id"
+                value={filters.branch_id}
+                onChange={handleFilterChange}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Select Branch</option>
+                {branches.map((branch) => (
+                  <option key={branch.id} value={branch.id}>
+                    {branch.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex justify-end mt-6">
+              <button
+                onClick={() => setIsFilterOpen(false)}
+                className="bg-gray-500 text-white px-4 py-2 rounded-lg mr-2 hover:bg-gray-600 transition duration-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => setIsFilterOpen(false)}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200"
+              >
+                Apply
               </button>
             </div>
           </div>

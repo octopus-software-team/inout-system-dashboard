@@ -11,6 +11,7 @@ import "react-toastify/dist/ReactToastify.css";
 import $ from "jquery";
 import "dropify/dist/css/dropify.min.css";
 import "dropify/dist/js/dropify.min.js";
+
 import {
   MapContainer,
   TileLayer,
@@ -31,15 +32,16 @@ const AddNewProject = () => {
   const [isConsultiveModalOpen, setIsConsultiveModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  const imageInputRef = useRef(null);
+
   // New Entry States
   // Customer
   const [newCustomerName, setNewCustomerName] = useState("");
   const [newCustomerEmail, setNewCustomerEmail] = useState("");
   const [newCustomerPhone, setNewCustomerPhone] = useState("");
- 
+
   const [newService, setNewService] = useState("");
 
-  
   // Consultive
   const [newConsultiveName, setNewConsultiveName] = useState("");
   const [newConsultiveEmail, setNewConsultiveEmail] = useState("");
@@ -121,6 +123,34 @@ const AddNewProject = () => {
   const isDarkMode = () =>
     typeof window !== "undefined" &&
     document.documentElement.classList.contains("dark");
+
+    useEffect(() => {
+      if (imageInputRef.current) {
+        $(imageInputRef.current).dropify({
+          messages: {
+            default: "Drag and drop a file here or click",
+            replace: "Drag and drop or click to replace",
+            remove: "Remove",
+            error: "Ooops, something wrong happened.",
+          },
+        });
+    
+        $(imageInputRef.current).on("change", function (event) {
+          const files = event.target.files;
+          if (files && files[0]) {
+            setProjectImage(files[0]);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              setImagePreview(reader.result);
+            };
+            reader.readAsDataURL(files[0]);
+          } else {
+            setProjectImage(null);
+            setImagePreview(null);
+          }
+        });
+      }
+    }, []);
 
   useEffect(() => {
     const fetchBranches = async () => {
@@ -333,14 +363,12 @@ const AddNewProject = () => {
     if (!selectedServices || selectedServices.length === 0)
       newErrors.selectedServices = "At least one Service is required.";
     if (!selectedOwner) newErrors.selectedOwner = "Project Owner is required.";
-    if (!selectedCustomer)
-      newErrors.selectedCustomer = "Customer is required.";
+    if (!selectedCustomer) newErrors.selectedCustomer = "Customer is required.";
     if (!selectedConsultives || selectedConsultives.length === 0)
       newErrors.selectedConsultives = "At least one Consultive is required.";
     if (!inspectionDate)
       newErrors.inspectionDate = "Inspection Date is required.";
-    if (!selectedEngineer)
-      newErrors.selectedEngineer = "Engineer is required.";
+    if (!selectedEngineer) newErrors.selectedEngineer = "Engineer is required.";
     if (!inspectionTime)
       newErrors.inspectionTime = "Inspection Time is required.";
     if (!position || position.length !== 2)
@@ -982,7 +1010,7 @@ const AddNewProject = () => {
                       <button
                         type="button"
                         onClick={handleSaveOwner}
-                        className="inline-flex mr-60 mt-3 w-full h-10 justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto"
+                        className="inline-flex mr-60 w-full h-10 justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto"
                       >
                         Save Owner
                       </button>
@@ -1087,7 +1115,7 @@ const AddNewProject = () => {
                       <button
                         type="button"
                         onClick={handleSaveCustomer}
-                        className="inline-flex mr-60 mt-3 w-full h-10 justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto"
+                        className="inline-flex mr-60  w-full h-10 justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto"
                       >
                         Save Customer
                       </button>
@@ -1193,7 +1221,7 @@ const AddNewProject = () => {
                       <button
                         type="button"
                         onClick={handleSaveConsultive}
-                        className="inline-flex mr-60 mt-3 w-full h-10 justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto"
+                        className="inline-flex mr-60 w-full h-10 justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto"
                       >
                         Save Consultive
                       </button>
@@ -1279,69 +1307,20 @@ const AddNewProject = () => {
           )}
         </div>
 
-        {/* Notes */}
-        <div className="p-1">
-          <label className="block text-sm font-medium text-gray-700 ml-6">
-            Notes
+        <div>
+          <label className="total dark:text-white  block ml-6 text-sm font-medium mb-1">
+            notes
           </label>
-          <div
-            ref={divRef}
-            className="
-              mt-1 
-              bg-white 
-              block 
-              w-full 
-              text-gray-800 
-              dark:border-gray-700 
-              rounded-md 
-              p-2 
-              dark:text-white 
-              focus:outline-none 
-              focus:border-none
-            "
-            contentEditable
-            style={{
-              minHeight: "310px",
-              maxHeight: "500px",
-              overflowY: "auto",
-            }}
-            onInput={handleInput}
-            name="notes"
-          >
-            {notes}
-          </div>
-
-          {/* Project Image Upload */}
-          <div className="mb-5">
-            <div className="w-96 h-16 flex flex-col md:col-span-2 mt-4">
-              <label
-                htmlFor="project_image"
-                className="mb-2 ml-6 font-medium text-gray-700"
-              >
-                Upload Project Image
-              </label>
-              <input
-                type="file"
-                id="project_image"
-                ref={dropifyRef}
-                className="dropify"
-                data-allowed-file-extensions="jpg jpeg png gif"
-                data-max-file-size="2M"
-              />
-              {errors.projectImage && (
-                <p className="text-red-500 text-sm mt-1 ml-6">
-                  {errors.projectImage}
-                </p>
-              )}
-              {imagePreview && (
-                <img
-                  src={imagePreview}
-                  alt="Project Preview"
-                  className="mt-4 h-40 w-40 object-cover rounded-md"
-                />
-              )}
-            </div>
-          </div>
+          <textarea
+            type="text"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            required
+            className="textarea dark:bg-slate-900"
+          />
+          {errors.notes && (
+            <p className="text-red-500 text-sm mt-1 ml-6">{errors.notes}</p>
+          )}
         </div>
 
         {/* Inspection Location */}
@@ -1395,6 +1374,20 @@ const AddNewProject = () => {
             </button>
           </form>
         </div>
+      </div>
+
+      <div className="flex flex-col md:col-span-2">
+        <label htmlFor="image" className="mb-2 font-medium text-gray-700">
+          Upload Image
+          <input
+            hidden
+            type="file"
+            id="image"
+            ref={imageInputRef}
+            accept="image/*"
+            className="img"
+          />
+        </label>
       </div>
 
       {/* Add Project Button */}

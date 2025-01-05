@@ -75,6 +75,8 @@ import EditSecRepo from "./components/company/EditSecRepo";
 import { Toaster, toast } from "sonner";
 import AdminDetails from "./components/Login/AdminDetails";
 import LatestProject from "./components/charts/LatestProject";
+import QRCodeDisplay from "./components/company/QRCodeDisplay";
+import ViewBranchDetails from "./components/company/ViewBranchDetails";
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -173,6 +175,14 @@ function App() {
             <Route
               path="/company/editservice"
               element={<PrivateRoute element={<EditService />} />}
+            />
+            <Route
+              path="/company/viewbranchdetails/:id"
+              element={<PrivateRoute element={<ViewBranchDetails />} />}
+            />
+            <Route
+              path="/company/qrcodedisplay"
+              element={<PrivateRoute element={<QRCodeDisplay />} />}
             />
             <Route
               path="/project_services/project_services"

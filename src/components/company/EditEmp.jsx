@@ -27,6 +27,7 @@ const EditEmp = () => {
     contract_duration: "",
     contract_end_date: "",
     type: 0,
+    notes:""
   });
 
   const [branches, setBranches] = useState([]);
@@ -135,6 +136,7 @@ const EditEmp = () => {
               contract_duration: employee.contract_duration || "",
               contract_end_date: employee.contract_end_date || "",
               type: employee.type || 0,
+              notes: employee.notes || "",
             });
             // Initialize Dropify with the existing image
             if (fileInputRef.current) {
@@ -551,6 +553,30 @@ const EditEmp = () => {
           />
           {errors.contract_start_date && (
             <p className="text-red-500 text-sm">{errors.contract_start_date}</p>
+          )}
+        </div>
+
+
+        {/* notes */}
+        <div className="flex flex-col">
+          <label
+            htmlFor="notes"
+            className="mb-2 font-medium text-gray-700"
+          >
+            notes
+          </label>
+          <input
+            type="text"
+            id="notes"
+            value={formData.notes}
+            onChange={handleChange}
+            placeholder="notes"
+            className={`p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              errors.notes ? "border-red-500" : "border-gray-300"
+            }`}
+          />
+          {errors.notes && (
+            <p className="text-red-500 text-sm">{errors.notes}</p>
           )}
         </div>
 

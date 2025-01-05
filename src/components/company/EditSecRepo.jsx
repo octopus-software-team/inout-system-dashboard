@@ -17,9 +17,7 @@ const EditSecRepo = () => {
   const [report, setReport] = useState("");
   const [projects, setProjects] = useState([]);
   const [projectId, setProjectId] = useState("");
-  const [employees, setEmployees] = useState([]);
-  const [employeeId, setEmployeeId] = useState("");
-  const [createdAt, setCreatedAt] = useState("");
+
 
   // Fetch the projects from the API
   useEffect(() => {
@@ -46,26 +44,6 @@ const EditSecRepo = () => {
       });
 
     // Fetch employees
-    fetch("https://inout-api.octopusteam.net/api/front/getEmployees", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.status === 200) {
-          setEmployees(data.data);
-        } else {
-          toast.error(
-            `Error fetching employees: ${data.msg || "Unknown error"}`
-          );
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching employees:", error);
-        toast.error("Failed to fetch employees. Please try again.");
-      });
   }, []);
 
   // Use the data from location.state.report to fill in the fields
@@ -84,14 +62,12 @@ const EditSecRepo = () => {
     setReportStock(oldReport.report_stock);
     setIsInspection(oldReport.is_inspection ? 1 : 0);
     setReport(oldReport.report);
-    setEmployeeId(oldReport.employee);
-    setCreatedAt(oldReport.created_at);
   }, [location, navigate]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const token = Cookies.get("token");
-  
+
     const formData = new FormData();
     formData.append("id", id);
     formData.append("project_id", projectId);
@@ -99,12 +75,10 @@ const EditSecRepo = () => {
     formData.append("is_inspection", isInspection);
     formData.append("report_stock", isInspection === 1 ? reportStock : "");
     formData.append("report", report);
-    formData.append("employee", employeeId);
-    formData.append("created_at", createdAt);
-  
+
     // Log the payload for debugging
     console.log("Payload being sent:", Object.fromEntries(formData.entries()));
-  
+
     fetch(
       `https://inout-api.octopusteam.net/api/front/updateProjectReport/${paramId}`,
       {
@@ -118,7 +92,7 @@ const EditSecRepo = () => {
       .then((res) => res.json())
       .then((data) => {
         console.log("Response after update:", data);
-  
+
         if (data.status === 200) {
           toast.success("Report updated successfully!");
           setTimeout(() => navigate("/company/projectsecrepo"), 2000);
@@ -131,7 +105,7 @@ const EditSecRepo = () => {
         toast.error("Failed to submit report. Please try again.");
       });
   };
-  
+
   return (
     <div className="mt-10 flex justify-center items-center dark:text-white">
       <ToastContainer />
@@ -161,34 +135,6 @@ const EditSecRepo = () => {
             {projects.map((project) => (
               <option key={project.id} value={project.id}>
                 {project.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Employee dropdown */}
-        <div className="mb-4">
-          <label
-            htmlFor="employee"
-            className="block text-sm font-medium text-gray-700 dark:text-white"
-          >
-            Employee
-          </label>
-          <select
-            id="employee"
-            value={employeeId}
-            onChange={(e) => setEmployeeId(e.target.value)}
-            required
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm 
-              focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
-              dark:bg-slate-900 dark:text-white"
-          >
-            <option value="" disabled>
-              Select an employee
-            </option>
-            {employees.map((employee) => (
-              <option key={employee.id} value={employee.id}>
-                {employee.full_name}
               </option>
             ))}
           </select>
@@ -275,25 +221,7 @@ const EditSecRepo = () => {
           ></textarea>
         </div>
 
-        {/* Created At */}
-        <div className="mb-4">
-          <label
-            htmlFor="created_at"
-            className="block text-sm font-medium text-gray-700 dark:text-white"
-          >
-            Created At
-          </label>
-          <input
-            id="created_at"
-            type="date"
-            value={createdAt}
-            onChange={(e) => setCreatedAt(e.target.value)}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 
-              rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 
-              focus:border-blue-500 dark:bg-slate-900 dark:text-white dark:border-gray-600"
-          />
-        </div>
-
+      
         <button
           type="submit"
           className="w-full px-4 py-2 bg-blue-500 text-white font-semibold 

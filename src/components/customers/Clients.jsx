@@ -1,21 +1,28 @@
-// Clients.js
-import React, { useEffect, useState, useRef } from "react";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import React, { useEffect, useState } from "react";
+import DataTable from "react-data-table-component";
+import { FaEdit, FaTrash, FaFilter, FaSearch } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import Cookies from "js-cookie";
-import $ from "jquery";
-import "datatables.net";
+import "react-toastify/dist/ReactToastify.css";
+import { Input } from "antd";
 
 const Clients = () => {
   const [data, setData] = useState([]);
-  const [branches, setBranches] = useState([]); // To store branch names
+  const [branches, setBranches] = useState([]);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const tableRef = useRef(null);
-  const dataTable = useRef(null);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [search, setSearch] = useState(""); // حالة البحث
+
+  const [filters, setFilters] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    branch_id: "",
+  });
 
   const navigate = useNavigate();
 
@@ -35,9 +42,9 @@ const Clients = () => {
             },
           }
         );
-        const data = await response.json();
+        const resData = await response.json();
         if (response.ok) {
-          setBranches(data.data);
+          setBranches(resData.data);
         } else {
           console.error("Failed to fetch branches.");
         }
@@ -103,47 +110,10 @@ const Clients = () => {
     };
   }, []);
 
-  // Initialize DataTable
-  useEffect(() => {
-    if (!isLoading && data.length > 0) {
-      if (!dataTable.current) {
-        dataTable.current = $(tableRef.current).DataTable({
-          paging: true,
-          searching: true,
-          info: true,
-          ordering: true,
-          language: {
-            search: "Search:",
-            lengthMenu: "Show _MENU_ entries",
-            info: "Showing _START_ to _END_ of _TOTAL_ entries",
-            paginate: {
-              first: "First",
-              last: "Last",
-              next: "Next",
-              previous: "Previous",
-            },
-          },
-          columnDefs: [{ orderable: false, targets: -1 }],
-        });
-      } else {
-        dataTable.current.clear();
-        dataTable.current.rows.add(data);
-        dataTable.current.draw();
-      }
-    }
-
-    return () => {
-      if (dataTable.current) {
-        dataTable.current.destroy();
-        dataTable.current = null;
-      }
-    };
-  }, [data, isLoading]);
-
   // Get branch name by ID
   const getBranchName = (branchId) => {
     const branch = branches.find((b) => b.id === branchId);
-    return branch ? branch.name : "Unknown Branch"; // Default text if branch is not found
+    return branch ? branch.name : "Unknown Branch";
   };
 
   // Handle Edit
@@ -197,100 +167,232 @@ const Clients = () => {
       });
   };
 
+  // Handle Filter Change
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters({
+      ...filters,
+      [name]: value,
+    });
+  };
+
+  // Apply Filters
+  const applyFilters = () => {
+    let filteredData = data;
+
+    if (filters.name) {
+      filteredData = filteredData.filter((client) =>
+        client.name.toLowerCase().includes(filters.name.toLowerCase())
+      );
+    }
+
+    if (filters.email) {
+      filteredData = filteredData.filter((client) =>
+        client.email.toLowerCase().includes(filters.email.toLowerCase())
+      );
+    }
+
+    if (filters.phone) {
+      filteredData = filteredData.filter((client) =>
+        client.phone.includes(filters.phone)
+      );
+    }
+
+    if (filters.branch_id) {
+      filteredData = filteredData.filter(
+        (client) => client.branch_id === parseInt(filters.branch_id)
+      );
+    }
+
+    // Apply search filter
+    if (search) {
+      filteredData = filteredData.filter((client) =>
+        client.name.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+
+    return filteredData;
+  };
+
+  const filteredData = applyFilters();
+
+  // تعريف أعمدة الجدول
+  const columns = [
+    {
+      name: "#",
+      selector: (row) => row.id,
+      sortable: true,
+      width: "60px",
+      cell: (row) => (
+        <span className="font-medium text-gray-800">{row.id}</span>
+      ),
+    },
+    {
+      name: "Name",
+      selector: (row) => row.name,
+      sortable: true,
+      cell: (row) => (
+        <span className="font-medium text-gray-800">{row.name}</span>
+      ),
+    },
+    {
+      name: "Email",
+      selector: (row) => row.email,
+      sortable: true,
+      cell: (row) => <span className="text-gray-700">{row.email}</span>,
+    },
+    {
+      name: "Phone",
+      selector: (row) => row.phone,
+      sortable: true,
+      cell: (row) => <span className="text-gray-700">{row.phone}</span>,
+    },
+    {
+      name: "Branch",
+      selector: (row) => getBranchName(row.branch_id),
+      sortable: true,
+      cell: (row) => (
+        <span className="text-gray-700">{getBranchName(row.branch_id)}</span>
+      ),
+    },
+    {
+      name: "Actions",
+      cell: (row) => (
+        <div className="flex space-x-2">
+          <button onClick={() => handleEdit(row.id)} className="edit">
+            <FaEdit className="mr-6" />
+          </button>
+          <button onClick={() => handleDelete(row.id)} className="colors">
+            <FaTrash className="mr-2" />
+          </button>
+        </div>
+      ),
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
+      width: "150px",
+    },
+  ];
+
+  const handleSearch = (event) => {
+    setSearch(event.target.value);
+  };
+
   return (
     <div className="container p-6 mt-5">
-      <h2 className="text-center font-bold text-3xl dark:text-white">
+      <h2 className="text-center font-bold text-3xl dark:text-white mb-6">
         Clients
       </h2>
 
-      <div className="flex justify-end items-center my-4">
-        <Link
-          to="/customers/createclients"
-          className="icons text-white bg-blue-800 rounded p-2 "
-        >
-          + Create Client
-        </Link>
+      <div className="flex justify-between items-center my-4 gap-4">
+        <Input
+          type="text"
+          placeholder="Search by name..."
+          value={search}
+          onChange={handleSearch}
+          style={{ width: "300px" }}
+          prefix={<FaSearch />}
+          className="border border-gray-300 rounded p-2"
+        />
+        <div className="flex items-center gap-4">
+          <Link
+            to="/customers/createclients"
+            className="flex items-center bg-blue-800 text-white font-semibold py-2 px-4 rounded transition duration-200"
+          >
+            + Create Client
+          </Link>
+          <button
+            onClick={() => setIsFilterOpen(true)}
+            className="flex items-center bg-blue-800 text-white py-2 px-4 rounded transition duration-200"
+          >
+            <FaFilter className="mr-2" />
+            Filter
+          </button>
+        </div>
       </div>
 
       {isLoading ? (
-        <div className="flex justify-center items-center">
-          <p className="text-gray-700 mt-56 text-xl font-semibold">
-            Loading...
-          </p>
+        <div className="flex justify-center items-center h-64">
+          <p className="text-gray-700 text-xl font-semibold">Loading...</p>
         </div>
       ) : error ? (
         <p className="text-red-500 text-center">{error}</p>
-      ) : data.length === 0 ? (
+      ) : filteredData.length === 0 ? (
         <p className="text-center text-gray-600 text-lg">No clients found.</p>
       ) : (
-        <div className="overflow-x-auto shadow-lg rounded-lg w-full mx-auto">
-          <table
-            ref={tableRef}
-            className="display min-w-full divide-y divide-gray-200"
-          >
-            <thead>
-              <tr className="bg-gradient-to-r from-blue-600 to-blue-400 text-white">
-                <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">
-                  #
-                </th>
-                <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">
-                  Name
-                </th>
-                <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">
-                  Email
-                </th>
-                <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">
-                  Phone
-                </th>
-                <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">
-                  Branch
-                </th>
-                <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((d) => (
-                <tr
-                  key={d.id}
-                  className="hover:bg-gray-100 transition duration-200"
-                >
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
-                    {d.id}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
-                    {d.name}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
-                    {d.email}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
-                    {d.phone}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
-                    {getBranchName(d.branch_id)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 flex gap-4">
-                    <button
-                      onClick={() => handleEdit(d.id)}
-                      className="edit rounded-lg hover:shadow-md "
-                    >
-                      <FaEdit className="inline mr-2" />
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(d.id)}
-                      className="colors rounded-lg "
-                    >
-                      <FaTrash className="inline mr-2" />
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <DataTable
+          columns={columns}
+          data={filteredData}
+          pagination
+          highlightOnHover
+          striped
+          responsive
+          defaultSortField="#"
+          paginationPerPage={10}
+          paginationRowsPerPageOptions={[10, 20, 30]}
+          className="shadow-lg rounded-lg overflow-hidden"
+        />
+      )}
+
+      {/* Filter Modal */}
+      {isFilterOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg w-full max-w-md">
+            <h3 className="text-xl font-bold mb-4">Filter Clients</h3>
+            <div className="space-y-4">
+              <select
+                name="branch_id"
+                value={filters.branch_id}
+                onChange={handleFilterChange}
+                className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Select Branch</option>
+                {branches.map((branch) => (
+                  <option key={branch.id} value={branch.id}>
+                    {branch.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex justify-end mt-6">
+              <button
+                onClick={() => setIsFilterOpen(false)}
+                className="bg-gray-500 text-white px-4 py-2 rounded mr-2 hover:bg-gray-600 transition duration-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => setIsFilterOpen(false)}
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-200"
+              >
+                Apply
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirm Delete Modal */}
+      {isConfirmOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg w-full max-w-md">
+            <h3 className="text-xl font-bold mb-4">Confirm Delete</h3>
+            <p className="mb-6">Are you sure you want to delete this client?</p>
+            <div className="flex justify-end">
+              <button
+                onClick={() => setIsConfirmOpen(false)}
+                className="bg-gray-500 text-white px-4 py-2 rounded mr-2 hover:bg-gray-600 transition duration-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition duration-200"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

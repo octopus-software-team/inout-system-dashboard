@@ -1,28 +1,31 @@
-import React, { useEffect, useState, useRef } from "react";
-import { FaEdit, FaEye, FaTrash } from "react-icons/fa";
+import React, { useEffect, useState } from "react";
+import { FaEdit, FaEye, FaTrash, FaFilter, FaSearch } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Cookies from "js-cookie";
-import $ from "jquery";
-import "datatables.net"; // DataTables JS
+import DataTable from "react-data-table-component";
+import { Input } from "antd";
 
 const ShowAllProjects = () => {
   const [projects, setProjects] = useState([]);
-  const [order, setOrder] = useState("ASC");
-  const [sortedColumn, setSortedColumn] = useState(null);
-  const navigate = useNavigate();
-  const [search, setSearch] = useState("");
+  const [branches, setBranches] = useState([]);
+  const [engineers, setEngineers] = useState([]);
+  const [customers, setCustomers] = useState([]);
+  const [owners, setOwners] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const [filters, setFilters] = useState({
+    status: "",
+    inspection_engineer_id: "",
+    customer_constructor_id: "",
+    project_owner_id: "",
+    branch_id: "",
+  });
 
-  // Mapping Dictionaries
-  const [branches, setBranches] = useState({});
-  const [owners, setOwners] = useState({});
-  const [customers, setCustomers] = useState({});
-  const [engineers, setEngineers] = useState({});
-  const [servicesMap, setServicesMap] = useState({});
-  const [consultivesMap, setConsultivesMap] = useState({});
+  const navigate = useNavigate();
 
   // Status Mapping
   const STATUS_MAPPING = {
@@ -39,12 +42,11 @@ const ShowAllProjects = () => {
     10: "Cancelled",
   };
 
-  const tableRef = useRef(null);
-  const dataTable = useRef(null);
-
+  // Fetch Data
   useEffect(() => {
     const fetchData = async () => {
       const token = Cookies.get("token");
+
       if (!token) {
         setError("You are not authenticated. Please log in.");
         setIsLoading(false);
@@ -69,8 +71,6 @@ const ShowAllProjects = () => {
           throw new Error(projectsData.msg || "Failed to fetch projects.");
         }
 
-        const fetchedProjects = projectsData.data;
-
         // Fetch Branches
         const branchesResponse = await fetch(
           "https://inout-api.octopusteam.net/api/front/getBranches",
@@ -87,36 +87,23 @@ const ShowAllProjects = () => {
           throw new Error(branchesData.msg || "Failed to fetch branches.");
         }
 
-        const branchesMap = {};
-        branchesData.data.forEach((branch) => {
-          branchesMap[branch.id] = branch.name;
-        });
-        setBranches(branchesMap);
-
-        // Fetch Owners
-        const ownersResponse = await fetch(
-          "https://inout-api.octopusteam.net/api/front/getCustomers",
+        // Fetch Engineers (type === 0)
+        const engineersResponse = await fetch(
+          "https://inout-api.octopusteam.net/api/front/getEmployees",
           {
             method: "GET",
             headers: {
-              "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
             },
           }
         );
-        const ownersData = await ownersResponse.json();
+        const engineersData = await engineersResponse.json();
 
-        if (ownersData.status !== 200) {
-          throw new Error(ownersData.msg || "Failed to fetch owners.");
+        if (engineersData.status !== 200) {
+          throw new Error(engineersData.msg || "Failed to fetch engineers.");
         }
 
-        const ownersMap = {};
-        ownersData.data.forEach((owner) => {
-          ownersMap[owner.id] = owner.name;
-        });
-        setOwners(ownersMap);
-
-        // Fetch Customers
+        // Fetch Customers (type === 0)
         const customersResponse = await fetch(
           "https://inout-api.octopusteam.net/api/front/getCustomers",
           {
@@ -132,15 +119,9 @@ const ShowAllProjects = () => {
           throw new Error(customersData.msg || "Failed to fetch customers.");
         }
 
-        const customersMap = {};
-        customersData.data.forEach((customer) => {
-          customersMap[customer.id] = customer.name;
-        });
-        setCustomers(customersMap);
-
-        // Fetch Engineers
-        const engineersResponse = await fetch(
-          "https://inout-api.octopusteam.net/api/front/getEngineers",
+        // Fetch Owners (type === 1)
+        const ownersResponse = await fetch(
+          "https://inout-api.octopusteam.net/api/front/getCustomers",
           {
             method: "GET",
             headers: {
@@ -148,76 +129,18 @@ const ShowAllProjects = () => {
             },
           }
         );
-        const engineersData = await engineersResponse.json();
+        const ownersData = await ownersResponse.json();
 
-        if (engineersData.status !== 200) {
-          throw new Error(engineersData.msg || "Failed to fetch engineers.");
+        if (ownersData.status !== 200) {
+          throw new Error(ownersData.msg || "Failed to fetch owners.");
         }
 
-        const engineersMap = {};
-        engineersData.data.forEach((engineer) => {
-          engineersMap[engineer.id] = engineer.full_name;
-        });
-        setEngineers(engineersMap);
-
-        // Fetch Services
-        const servicesResponse = await fetch(
-          "https://inout-api.octopusteam.net/api/front/getServices",
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        const serviceData = await servicesResponse.json();
-
-        if (serviceData.status !== 200) {
-          throw new Error(serviceData.msg || "Failed to fetch services.");
-        }
-
-        // Convert Services to Map
-        const tempServicesMap = {};
-        serviceData.data.forEach((service) => {
-          tempServicesMap[service.id] = service.name;
-        });
-        setServicesMap(tempServicesMap);
-
-        // Fetch Consultives (Customers of type 2)
-        const consultivesMapTemp = {};
-        customersData.data
-          .filter((customer) => customer.type === 2)
-          .forEach((consultive) => {
-            consultivesMapTemp[consultive.id] = consultive.name;
-          });
-        setConsultivesMap(consultivesMapTemp);
-
-        // Map Projects with Additional Fields
-        const mappedProjects = fetchedProjects.map((project) => ({
-          ...project,
-          branchName: branchesMap[project.branch_id] || "Unknown",
-          ownerName: ownersMap[project.project_owner_id] || "Unknown",
-          customerName:
-            customersMap[project.customer_constructor_id] || "Unknown",
-          engineerName:
-            engineersMap[project.inspection_engineer_id] || "Unknown",
-          services: project.services
-            ? project.services
-                .map((s) => tempServicesMap[s.service_id] || "Unknown")
-                .join(", ")
-            : "None",
-          consultives: project.consultive
-            ? project.consultive
-                .map((c) => consultivesMapTemp[c.consultive_id] || "Unknown")
-                .join(", ")
-            : "None",
-          statusText: STATUS_MAPPING[project.status] || "Unknown",
-          notes: project.notes || "N/A",
-          inspectionTime: project.inspection_time || "N/A",
-        }));
-
-        setProjects(mappedProjects);
+        // Set Data
+        setProjects(projectsData.data);
+        setBranches(branchesData.data);
+        setEngineers(engineersData.data.filter((emp) => emp.type === 0));
+        setCustomers(customersData.data.filter((cust) => cust.type === 0));
+        setOwners(ownersData.data.filter((owner) => owner.type === 1));
       } catch (err) {
         console.error(err);
         setError(err.message || "An unexpected error occurred.");
@@ -230,85 +153,180 @@ const ShowAllProjects = () => {
     fetchData();
   }, []);
 
-  // Initialize DataTable
-  useEffect(() => {
-    if (!isLoading && projects.length > 0) {
-      // Initialize DataTable
-      if (!dataTable.current) {
-        dataTable.current = $(tableRef.current).DataTable({
-          paging: true,
-          searching: true,
-          info: true,
-          ordering: true,
-          language: {
-            search: "Search:",
-            lengthMenu: "Show _MENU_ entries",
-            info: "Showing _START_ to _END_ of _TOTAL_ entries",
-            paginate: {
-              first: "First",
-              last: "Last",
-              next: "Next",
-              previous: "Previous",
-            },
-          },
-          // Prevent ordering on the Actions column
-          columnDefs: [
-            { orderable: false, targets: -1 },
-          ],
-        });
-      } else {
-        // If DataTable already initialized, just update the data
-        dataTable.current.clear();
-        dataTable.current.rows.add(projects);
-        dataTable.current.draw();
-      }
-    }
-
-    return () => {
-      if (dataTable.current) {
-        dataTable.current.destroy();
-        dataTable.current = null;
-      }
-    };
-  }, [projects, isLoading]);
-
-  const handleViewClick = (projectId) => {
-    navigate(`/allprojects/addreport/${projectId}`);
+  // Handle Filter Change
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters({
+      ...filters,
+      [name]: value,
+    });
   };
 
-  const handleReportClick = (projectId) => {
-    navigate(`/allprojects/addrepo/${projectId}`);
-  };
+  // Apply Filters
+  const applyFilters = () => {
+    let filteredData = projects;
 
-  // Sorting - This can be handled by DataTables, so you might consider removing this logic to avoid conflicts
-  const sorting = (col) => {
-    let sorted = [];
-    if (order === "ASC") {
-      sorted = [...projects].sort((a, b) =>
-        a[col].toString().toLowerCase() > b[col].toString().toLowerCase()
-          ? 1
-          : -1
+    if (filters.status) {
+      filteredData = filteredData.filter(
+        (project) => project.status === parseInt(filters.status)
       );
-      setOrder("DSC");
-    } else {
-      sorted = [...projects].sort((a, b) =>
-        a[col].toString().toLowerCase() < b[col].toString().toLowerCase()
-          ? 1
-          : -1
+    }
+
+    if (filters.inspection_engineer_id) {
+      filteredData = filteredData.filter(
+        (project) =>
+          project.inspection_engineer_id === parseInt(filters.inspection_engineer_id)
       );
-      setOrder("ASC");
     }
-    setProjects(sorted);
-    setSortedColumn(col);
+
+    if (filters.customer_constructor_id) {
+      filteredData = filteredData.filter(
+        (project) =>
+          project.customer_constructor_id === parseInt(filters.customer_constructor_id)
+      );
+    }
+
+    if (filters.project_owner_id) {
+      filteredData = filteredData.filter(
+        (project) =>
+          project.project_owner_id === parseInt(filters.project_owner_id)
+      );
+    }
+
+    if (filters.branch_id) {
+      filteredData = filteredData.filter(
+        (project) => project.branch_id === parseInt(filters.branch_id)
+      );
+    }
+
+    return filteredData;
   };
 
-  const renderSortIcon = (col) => {
-    if (sortedColumn === col) {
-      return order === "ASC" ? <span>&#9650;</span> : <span>&#9660;</span>;
-    }
-    return "";
+  // Apply Search
+  const filteredData = applyFilters().filter((project) =>
+    search === ""
+      ? project
+      : project.name.toLowerCase().includes(search.toLowerCase())
+  );
+
+  // Columns for DataTable
+  const columns = [
+    {
+      name: "#",
+      selector: (row) => row.id,
+      sortable: true,
+      width: "60px",
+    },
+    {
+      name: "Name",
+      selector: (row) => row.name,
+      sortable: true,
+    },
+    {
+      name: "Inspection Date",
+      selector: (row) => row.inspection_date,
+      sortable: true,
+    },
+    {
+      name: "Status",
+      selector: (row) => STATUS_MAPPING[row.status] || "Unknown",
+      sortable: true,
+    },
+    {
+      name: "Branch",
+      selector: (row) => {
+        const branch = branches.find((b) => b.id === row.branch_id);
+        return branch ? branch.name : "Unknown";
+      },
+      sortable: true,
+    },
+    {
+      name: "Owner",
+      selector: (row) => {
+        const owner = owners.find((o) => o.id === row.project_owner_id);
+        return owner ? owner.name : "Unknown";
+      },
+      sortable: true,
+    },
+    {
+      name: "Customer",
+      selector: (row) => {
+        const customer = customers.find((c) => c.id === row.customer_constructor_id);
+        return customer ? customer.name : "Unknown";
+      },
+      sortable: true,
+    },
+    {
+      name: "Engineer",
+      selector: (row) => {
+        const engineer = engineers.find((e) => e.id === row.inspection_engineer_id);
+        return engineer ? engineer.full_name : "Unknown";
+      },
+      sortable: true,
+    },
+    {
+      name: "Notes",
+      selector: (row) => row.notes || "N/A",
+      sortable: true,
+    },
+    {
+      name: "Inspection Time",
+      selector: (row) => row.inspection_time || "N/A",
+      sortable: true,
+    },
+    {
+      name: "Services",
+      selector: (row) =>
+        row.services
+          ? row.services.map((s) => s.service_id).join(", ")
+          : "None",
+      sortable: true,
+    },
+    {
+      name: "Consultives",
+      selector: (row) =>
+        row.consultive
+          ? row.consultive.map((c) => c.consultive_id).join(", ")
+          : "None",
+      sortable: true,
+    },
+    {
+      name: "Actions",
+      cell: (row) => (
+        <div className="flex space-x-2">
+          <button
+            onClick={() => navigate(`/allprojects/updateprojects/${row.id}`)}
+            className="edit"
+          >
+            <FaEdit className="mr-2" />
+          </button>
+          <button
+            onClick={() => handleDelete(row.id)}
+            className="colors"
+          >
+            <FaTrash className="mr-2" />
+          </button>
+          <button
+            onClick={() => navigate(`/allprojects/addreport/${row.id}`)}
+            className="eye"
+          >
+            <FaEye className="mr-2" />
+          </button>
+        </div>
+      ),
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
+      width: "150px",
+    },
+  ];
+
+  // Handle Search
+  const handleSearch = (event) => {
+    setSearch(event.target.value);
   };
 
+  // Handle Delete
   const handleDelete = (id) => {
     toast(
       ({ closeToast }) => (
@@ -367,277 +385,158 @@ const ShowAllProjects = () => {
       const res = await response.json();
 
       if (res.status === 200) {
-        toast.success(res.msg || "تم حذف المشروع بنجاح.");
+        toast.success(res.msg || "Project deleted successfully.");
         setProjects((prevProjects) =>
           prevProjects.filter((project) => project.id !== id)
         );
-        // Remove the deleted row from DataTable
-        if (dataTable.current) {
-          dataTable.current
-            .row(`#project-${id}`)
-            .remove()
-            .draw();
-        }
       } else {
-        toast.error(`فشل في حذف المشروع: ${res.msg || "خطأ غير معروف"}`);
+        toast.error(`Failed to delete project: ${res.msg || "Unknown error"}`);
       }
     } catch (err) {
       console.error("Error deleting project:", err);
-      toast.error("فشل في حذف المشروع. الرجاء المحاولة مرة أخرى.");
-    }
-  };
-
-  const tableName = "projects"; // تحديد اسم الجدول
-
-  const handleExportFile = async () => {
-    const formData = new FormData();
-    formData.append("table", tableName);
-
-    const token = Cookies.get("token");
-
-    try {
-      const response = await fetch(
-        "https://inout-api.octopusteam.net/api/front/export",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to export file");
-      }
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-
-      link.download = `${tableName}.xlsx`;
-      document.body.appendChild(link);
-      link.click();
-
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("Error exporting file:", error);
-      toast.error("فشل في تصدير الملف. الرجاء المحاولة مرة أخرى.");
+      toast.error("Failed to delete project. Please try again.");
     }
   };
 
   return (
-    <div className="container mx-auto mt-5 px-4 w-full">
-      <h2 className="text-center font-bold text-gray-900 dark:text-white text-xl mb-4">
-        Show All Projects
-      </h2>
+    <div className="container mt-5">
+      <ToastContainer />
 
-      <div className="flex flex-col md:flex-row justify-end items-center mb-4">
-        
-        {/* <input
-          className="border border-gray-300 dark:bg-slate-900 rounded-lg p-3 placeholder:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-xs md:w-1/2 w-96 lg:!w-[600px]"
+      <h2 className="text-center font-bold text-3xl text-black">Show All Projects</h2>
+
+      <div className="flex justify-between items-center my-4 gap-4">
+        <Input
           type="text"
-          placeholder="Search projects by name..."
+          placeholder="Search by name..."
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        /> */}
-        <button
-          onClick={handleExportFile}
-          className="icons bg-blue-500 text-white transition duration-300 ease-in-out transform px-4 py-2 rounded-lg hover:bg-blue-600"
-        >
-          Export
-        </button>
+          onChange={handleSearch}
+          style={{ width: "300px" }}
+          prefix={<FaSearch />}
+          className="border border-gray-300 rounded p-2"
+        />
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => setIsFilterOpen(true)}
+            className="flex items-center bg-blue-800 text-white py-2 px-4 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
+          >
+            <FaFilter className="mr-2" />
+            Filter
+          </button>
+        </div>
       </div>
 
       {isLoading ? (
-        <div className="flex justify-center items-center">
-          <p className="w-full text-center mt-56 h-full text-gray-700 text-xl font-semibold">
-            Loading...
-          </p>
+        <div className="flex justify-center items-center h-64">
+          <p className="text-gray-700 text-xl font-semibold">Loading...</p>
         </div>
       ) : error ? (
         <p className="text-red-500 text-center">{error}</p>
-      ) : projects.length === 0 ? (
+      ) : filteredData.length === 0 ? (
         <p className="text-center text-gray-600 text-lg">No projects found.</p>
       ) : (
-        <div className="flex flex-col">
-          <div className="-m-1.5 overflow-x-auto">
-            <div className="p-1.5 min-w-full inline-block align-middle">
-              <div className="overflow-hidden">
-                <table
-                  ref={tableRef}
-                  id="projectsTable"
-                  className="min-w-full divide-y divide-gray-200"
-                >
-                  <thead>
-                    <tr className="bg-gradient-to-r from-blue-600 to-blue-400 text-white text-xs">
-                      <th
-                        className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
-                        onClick={() => sorting("id")}
-                      >
-                        # {renderSortIcon("id")}
-                      </th>
-                      <th
-                        className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
-                        onClick={() => sorting("name")}
-                      >
-                        Name {renderSortIcon("name")}
-                      </th>
-                      <th
-                        className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
-                        onClick={() => sorting("inspection_date")}
-                      >
-                        Inspection Date {renderSortIcon("inspection_date")}
-                      </th>
-                      <th
-                        className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
-                        onClick={() => sorting("statusText")}
-                      >
-                        Status {renderSortIcon("statusText")}
-                      </th>
-                      <th
-                        className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
-                        onClick={() => sorting("branchName")}
-                      >
-                        Branch {renderSortIcon("branchName")}
-                      </th>
-                      <th
-                        className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
-                        onClick={() => sorting("ownerName")}
-                      >
-                        Owner {renderSortIcon("ownerName")}
-                      </th>
-                      <th
-                        className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
-                        onClick={() => sorting("customerName")}
-                      >
-                        Customer {renderSortIcon("customerName")}
-                      </th>
-                      <th
-                        className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300 cursor-pointer"
-                        onClick={() => sorting("engineerName")}
-                      >
-                        Engineer {renderSortIcon("engineerName")}
-                      </th>
-                      {/* New Columns */}
-                      <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
-                        Notes
-                      </th>
-                      <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
-                        Inspection Time
-                      </th>
-                      {/* Existing Columns */}
-                      <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
-                        Services
-                      </th>
-                      <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
-                        Consultives
-                      </th>
-                      <th className="pe-16 text-center dark:bg-slate-900 dark:text-white py-3 font-semibold text-lg border-b border-gray-300">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {projects
-                      .filter((project) => {
-                        return search.toLowerCase() === ""
-                          ? true
-                          : project.name
-                              .toLowerCase()
-                              .includes(search.toLowerCase());
-                      })
-                      .map((project, index) => (
-                        <tr
-                          key={project.id}
-                          id={`project-${project.id}`}
-                          className={`hover:bg-gray-100 dark:hover:bg-slate-700 transition duration-200 text-xs ${
-                            index % 2 === 0
-                              ? "bg-white dark:bg-slate-800"
-                              : "bg-gray-50 dark:bg-slate-700"
-                          }`}
-                        >
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
-                            {project.id}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 break-words">
-                            {project.name}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
-                            {project.inspection_date}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
-                            {project.statusText}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
-                            {project.branchName}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
-                            {project.ownerName}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
-                            {project.customerName}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
-                            {project.engineerName}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
-                            {project.notes}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
-                            {project.inspectionTime}
-                          </td>
-                          {/* Existing Columns */}
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
-                            {project.services}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
-                            {project.consultives}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
-                            <div className="flex space-x-1">
-                              <Link
-                                to={`/allprojects/updateprojects/${project.id}`}
-                                className="edit flex items-center text-blue-600 hover:text-blue-800"
-                              >
-                                <FaEdit />
-                              </Link>
-                              <button
-                                onClick={() => handleDelete(project.id)}
-                                className="colors flex items-center text-red-600 hover:text-red-800"
-                              >
-                                <FaTrash />
-                              </button>
-                              <button
-                                onClick={() => handleViewClick(project.id)}
-                                className="eye flex items-center text-green-600 hover:text-green-800"
-                              >
-                                <FaEye />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                  </tbody>
-                </table>
-              </div>
+        <DataTable
+          columns={columns}
+          data={filteredData}
+          pagination
+          highlightOnHover
+          striped
+          responsive
+          defaultSortField="id"
+          paginationPerPage={10}
+          paginationRowsPerPageOptions={[10, 20, 30]}
+          className="shadow-lg rounded-lg overflow-hidden"
+        />
+      )}
+
+      {/* Filter Modal */}
+      {isFilterOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg w-full max-w-md">
+            <h3 className="text-xl font-bold mb-4">Filter Projects</h3>
+            <div className="space-y-4">
+              <select
+                name="status"
+                value={filters.status}
+                onChange={handleFilterChange}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Select Status</option>
+                {Object.entries(STATUS_MAPPING).map(([key, value]) => (
+                  <option key={key} value={key}>
+                    {value}
+                  </option>
+                ))}
+              </select>
+              <select
+                name="inspection_engineer_id"
+                value={filters.inspection_engineer_id}
+                onChange={handleFilterChange}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Select Engineer</option>
+                {engineers.map((engineer) => (
+                  <option key={engineer.id} value={engineer.id}>
+                    {engineer.full_name}
+                  </option>
+                ))}
+              </select>
+              <select
+                name="customer_constructor_id"
+                value={filters.customer_constructor_id}
+                onChange={handleFilterChange}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Select Customer</option>
+                {customers.map((customer) => (
+                  <option key={customer.id} value={customer.id}>
+                    {customer.name}
+                  </option>
+                ))}
+              </select>
+              <select
+                name="project_owner_id"
+                value={filters.project_owner_id}
+                onChange={handleFilterChange}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Select Owner</option>
+                {owners.map((owner) => (
+                  <option key={owner.id} value={owner.id}>
+                    {owner.name}
+                  </option>
+                ))}
+              </select>
+              <select
+                name="branch_id"
+                value={filters.branch_id}
+                onChange={handleFilterChange}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Select Branch</option>
+                {branches.map((branch) => (
+                  <option key={branch.id} value={branch.id}>
+                    {branch.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex justify-end mt-6">
+              <button
+                onClick={() => setIsFilterOpen(false)}
+                className="bg-gray-500 text-white px-4 py-2 rounded-lg mr-2 hover:bg-gray-600 transition duration-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => setIsFilterOpen(false)}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200"
+              >
+                Apply
+              </button>
             </div>
           </div>
         </div>
       )}
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
     </div>
   );
 };

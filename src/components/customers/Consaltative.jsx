@@ -187,7 +187,7 @@ const Consultative = () => {
                   <td className="px-4 py-3 dark:text-white text-gray-800">
                     {item.phone}
                   </td>
-                  <td className="px-4 py-3 dark:text-white text-center">
+                  <td className="px-4 py-3 dark:text-white ">
                     <Link
                       to={`/customers/editconsultive/${item.id}`}
                       className="edit rounded-lg "

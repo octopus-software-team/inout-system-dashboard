@@ -13,7 +13,6 @@ const UpdateAssets = () => {
   const [name, setName] = useState(state?.name || "");
   const [assetTypeId, setAssetTypeId] = useState(state?.asset_type_id || "");
   const [branchId, setBranchId] = useState(state?.branch_id || "");
-  const [count, setCount] = useState(state?.count || "");
 
   useEffect(() => {
     const token = Cookies.get('token');
@@ -77,7 +76,6 @@ const UpdateAssets = () => {
             name,
             asset_type_id: assetTypeId,
             branch_id: branchId,
-            count: Number(count),
           }),
         }
       );
@@ -173,25 +171,7 @@ const UpdateAssets = () => {
           </select>
         </div>
 
-        <div className="mb-4">
-          <label
-            className="block text-gray-700 font-semibold mb-2"
-            htmlFor="count"
-          >
-            Count
-          </label>
-          <input
-            type="number"
-            id="count"
-            className="border border-gray-300 dark:bg-slate-900 dark:text-white rounded-lg w-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={count}
-            onChange={(e) => setCount(e.target.value)}
-            placeholder="Enter asset count"
-            required
-            min="1"
-          />
-        </div>
-
+       
         <button
           type="submit"
           className="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:shadow-md transform hover:scale-105 transition duration-300"

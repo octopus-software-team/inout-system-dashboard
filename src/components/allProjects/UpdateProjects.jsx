@@ -618,8 +618,29 @@ const UpdateProject = () => {
                 />
               </div>
 
-              {/* Notes */}
+
+
               <div>
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                >
+                  notes <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  type="text"
+                  id="notes"
+                  name="notes"
+                  value={formData.notes}
+                  onChange={handleChange}
+                  required
+                  className="textarea1"
+                />
+              </div>
+
+
+              {/* Notes */}
+              {/* <div>
                 <label
                   htmlFor="notes"
                   className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
@@ -629,7 +650,6 @@ const UpdateProject = () => {
                 <div
                   id="notes"
                   name="notes"
-                  // value={formData.notes}
                   onChange={handleChange}
                   className="mt-1 
           bg-white 
@@ -649,7 +669,7 @@ const UpdateProject = () => {
                     overflowY: "auto",
                   }}
                 ></div>
-              </div>
+              </div> */}
 
               {/* الخريطة */}
               <div className="mt-4">
@@ -693,7 +713,7 @@ const UpdateProject = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className={`w-full sm:w-auto bg-blue-600 text-white font-semibold py-2 px-6 rounded-md shadow hover:bg-blue-700 transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                className={`w-full bg-blue-600 text-white font-semibold py-2 px-6 rounded-md shadow hover:bg-blue-700 transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                   loading ? "opacity-50 cursor-not-allowed" : ""
                 }`}
               >

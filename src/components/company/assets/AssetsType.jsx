@@ -1,14 +1,14 @@
 import React, { useEffect, useState, useRef } from "react";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import { FaEdit, FaTrash, FaFilter, FaSearch } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { toast, Toaster } from "sonner";
 import $ from "jquery";
 import "datatables.net";
+import { Modal, Input, Button } from "antd"; // Added Modal, Input, and Button from Ant Design
 
-const AddServices = () => {
+const AssetsType = () => {
   const [data, setData] = useState([]);
-  const [search, setSearch] = useState("");
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -16,9 +16,12 @@ const AddServices = () => {
   const tableRef = useRef(null);
   const dataTable = useRef(null);
 
+  const [searchText, setSearchText] = useState(""); // State for Search Text
+
   const navigate = useNavigate();
 
-  useEffect(() => {
+  // Fetch Asset Types
+  const fetchAssetTypes = async () => {
     const token = Cookies.get("token");
 
     if (!token) {
@@ -28,34 +31,40 @@ const AddServices = () => {
       return;
     }
 
-    fetch("https://inout-api.octopusteam.net/api/front/getAssetTypes", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error("Failed to fetch data.");
+    try {
+      const response = await fetch(
+        "https://inout-api.octopusteam.net/api/front/getAssetTypes",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         }
-        return res.json();
-      })
-      .then((resData) => {
-        if (resData && resData.status === 200) {
-          setData(resData.data);
-        } else {
-          setError("No data found in the response.");
-        }
-      })
-      .catch((err) => {
-        console.error("Error fetching asset types:", err);
-        toast.error("Failed to fetch data. Please try again later.");
-        setError("Failed to fetch data. Please try again later.");
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch data.");
+      }
+
+      const resData = await response.json();
+
+      if (resData && resData.status === 200) {
+        setData(resData.data);
+      } else {
+        setError("No data found in the response.");
+      }
+    } catch (err) {
+      console.error("Error fetching asset types:", err);
+      toast.error("Failed to fetch data. Please try again later.");
+      setError("Failed to fetch data. Please try again later.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAssetTypes();
   }, []);
 
   useEffect(() => {
@@ -116,13 +125,16 @@ const AddServices = () => {
       return;
     }
 
-    fetch(`https://inout-api.octopusteam.net/api/front/deleteAssetType/${deleteId}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    fetch(
+      `https://inout-api.octopusteam.net/api/front/deleteAssetType/${deleteId}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
       .then((res) => {
         if (!res.ok) {
           throw new Error("Failed to delete asset type.");
@@ -146,39 +158,86 @@ const AddServices = () => {
       });
   };
 
+  // Handle Search
+  const handleSearch = async () => {
+    const token = Cookies.get("token");
+
+    if (!token) {
+      toast.error("No token found. Please log in.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("table", "tasks");
+    formData.append("column", "name");
+    formData.append("value", searchText.trim());
+    try {
+      const response = await fetch(
+        "https://inout-api.octopusteam.net/api/front/searchInAnyTable",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch data.");
+      }
+
+      const resData = await response.json();
+      console.log(resData); // طباعة البيانات المسترجعة
+
+      if (resData && resData.status === 200) {
+        setData(resData.data); // Update the data with the search results
+        // setIsFilterModalOpen(false); // إغلاق الـ Modal بعد البحث
+      } else {
+        setError("No data found in the response.");
+      }
+    } catch (err) {
+      console.error("Error searching tasks:", err);
+      toast.error("Failed to search data. Please try again later.");
+      setError("Failed to search data. Please try again later.");
+    }
+  };
+
   return (
     <div className="container mt-5">
       <h2 className="text-center font-bold text-3xl text-black mb-5">
         Asset Types
       </h2>
 
-      <div className="flex justify-between items-center my-4">
-        <input
-          className="border border-gray-300 dark:bg-slate-900 dark:text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-96 shadow-md"
-          type="text"
-          placeholder="Search asset types..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+      <div className="flex justify-end items-center my-4">
         <Link
           to="/company/assets/createassettype"
           className="icons bg-blue-800 font-semibold text-white py-2 px-6 rounded-lg"
         >
           + Create Asset Type
         </Link>
+
+        {/* Filter Button */}
       </div>
+
+      {/* Filter Modal */}
 
       {isLoading ? (
         <div className="flex justify-center items-center">
-          <p className="text-gray-600 mt-56 text-xl font-semibold">Loading...</p>
+          <p className="text-gray-600 mt-56 text-xl font-semibold">
+            Loading...
+          </p>
         </div>
       ) : error ? (
         <p className="text-red-500 text-center">{error}</p>
       ) : data.length === 0 ? (
-        <p className="text-center text-gray-600 text-lg">No asset types found.</p>
+        <p className="text-center text-gray-600 text-lg">No tasks found.</p>
       ) : (
         <div className="overflow-x-auto shadow-lg rounded-lg w-full mx-auto">
-          <table ref={tableRef} className="display table-auto w-full border border-gray-200 bg-white rounded-lg">
+          <table
+            ref={tableRef}
+            className="display table-auto w-full border border-gray-200 bg-white rounded-lg"
+          >
             <thead>
               <tr className="bg-gradient-to-r from-blue-600 to-blue-400 text-white">
                 <th className="w-30 px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
@@ -233,7 +292,7 @@ const AddServices = () => {
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 w-80">
             <h3 className="text-xl font-semibold mb-4">Confirm Deletion</h3>
-            <p className="mb-6">Are you sure you want to delete this asset type?</p>
+            <p className="mb-6">Are you sure you want to delete this task?</p>
             <div className="flex justify-end space-x-4">
               <button
                 onClick={confirmDelete}
@@ -266,4 +325,4 @@ const AddServices = () => {
   );
 };
 
-export default AddServices;
+export default AssetsType;
