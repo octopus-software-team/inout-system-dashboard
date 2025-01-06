@@ -120,7 +120,7 @@ const Moderator = () => {
 
       <div className="flex justify-between items-center my-4">
         <input
-          className="border border-gray-300 dark:bg-slate-900 dark:text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-2/3 shadow-md"
+          className="border border-gray-300 dark:bg-slate-900 dark:text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-96 shadow-md"
           type="text"
           placeholder="Search admins..."
           value={search}
