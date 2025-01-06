@@ -134,6 +134,7 @@ const ShowAllTask = () => {
   const columns = [
     {
       name: "#",
+      className :"tdt",      
       selector: (row) => row.id,
       sortable: true,
       width: "60px",
@@ -185,13 +186,13 @@ const ShowAllTask = () => {
             onClick={() => navigate(`/todo/updatetask/${row.id}`)}
             className="edit"
           >
-            <FaEdit className="mr-2" />
+            <FaEdit className="" />
           </button>
           <button
             onClick={() => openConfirmModal(row.id)}
             className="colors"
           >
-            <FaTrash className="mr-2" />
+            <FaTrash className="" />
           </button>
         </div>
       ),

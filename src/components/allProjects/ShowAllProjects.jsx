@@ -298,19 +298,19 @@ const ShowAllProjects = () => {
             onClick={() => navigate(`/allprojects/updateprojects/${row.id}`)}
             className="edit"
           >
-            <FaEdit className="mr-2" />
+            <FaEdit className="" />
           </button>
           <button
             onClick={() => handleDelete(row.id)}
             className="colors"
           >
-            <FaTrash className="mr-2" />
+            <FaTrash className="" />
           </button>
           <button
             onClick={() => navigate(`/allprojects/addreport/${row.id}`)}
             className="eye"
           >
-            <FaEye className="mr-2" />
+            <FaEye className="" />
           </button>
         </div>
       ),

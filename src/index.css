@@ -452,3 +452,30 @@ table.dataTable td.dt-type-date {
   padding: 0;
 } */
 
+
+
+.sc-egkSDF{
+  @apply dark:!bg-slate-900;
+  @apply dark:!text-white;
+
+}
+
+
+.cell-1-21{
+  @apply dark:!bg-slate-900;
+  @apply dark:!text-white;
+}
+
+.sc-fAUdSK{
+  @apply dark:!bg-slate-900;
+  @apply dark:!text-white;
+}
+
+.sc-epnzzT{
+  @apply dark:!bg-slate-900;
+  @apply dark:!text-white;
+}
+
+
+
+

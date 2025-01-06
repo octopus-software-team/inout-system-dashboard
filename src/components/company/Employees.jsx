@@ -386,15 +386,15 @@ const Employees = () => {
       name: "Actions",
       cell: (row) => (
         <div className="flex">
-          <Link to={`/company/view/${row.id}`} className="eye">
+          <Link to={`/company/view/${row.id}`} className="eye mr-2">
             <FaEye />
           </Link>
-          <Link to={`/company/editemp/${row.id}`} className="edit">
+          <Link to={`/company/editemp/${row.id}`} className="edit mr-2">
             <FaEdit />
           </Link>
           <button
             onClick={() => openConfirmModal(row.id)}
-            className="colors"
+            className="colors mr-2"
           >
             <FaTrash />
           </button>
