@@ -292,7 +292,7 @@ const AddServices = () => {
       <div className="flex justify-between items-center my-4 space-x-2 flex-wrap">
         <input
           type="text"
-          placeholder="Search tasks..."
+        placeholder="Search tasks..."
           value={search}
           onChange={handleSearch}
           className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
