@@ -479,3 +479,12 @@ table.dataTable td.dt-type-date {
 
 
 
+.sc-dstKZu{
+  @apply dark:!bg-slate-900;
+  @apply dark:!text-white;
+}
+
+.sc-fAUdSK {
+  @apply dark:!bg-slate-900;
+  @apply dark:!text-white;
+}

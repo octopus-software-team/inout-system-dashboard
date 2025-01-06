@@ -5,7 +5,6 @@ import Cookies from "js-cookie";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import DataTable from "react-data-table-component";
-import { Input } from "antd";
 
 const ShowAllTask = () => {
   const [tasks, setTasks] = useState([]);
@@ -134,7 +133,7 @@ const ShowAllTask = () => {
   const columns = [
     {
       name: "#",
-      className :"tdt",      
+      className: "tdt",
       selector: (row) => row.id,
       sortable: true,
       width: "60px",
@@ -263,15 +262,16 @@ const ShowAllTask = () => {
       <h2 className="text-center font-bold text-3xl text-black">Show All Tasks</h2>
 
       <div className="flex justify-between items-center my-4 gap-4">
-        <Input
-          type="text"
-          placeholder="Search by name..."
-          value={search}
-          onChange={handleSearch}
-          style={{ width: "300px" }}
-          prefix={<FaSearch />}
-          className="border border-gray-300 rounded p-2"
-        />
+        <div className="flex items-center">
+          <input
+            type="text"
+            placeholder="Search tasks..."
+            value={search}
+            onChange={handleSearch}
+            className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
+          />
+          {/* <FaSearch className="ml-2 text-gray-500" /> */}
+        </div>
         <div className="flex items-center gap-4">
           <button
             onClick={() => setIsFilterOpen(true)}

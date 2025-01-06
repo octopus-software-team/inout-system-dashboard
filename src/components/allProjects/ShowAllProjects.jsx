@@ -175,14 +175,16 @@ const ShowAllProjects = () => {
     if (filters.inspection_engineer_id) {
       filteredData = filteredData.filter(
         (project) =>
-          project.inspection_engineer_id === parseInt(filters.inspection_engineer_id)
+          project.inspection_engineer_id ===
+          parseInt(filters.inspection_engineer_id)
       );
     }
 
     if (filters.customer_constructor_id) {
       filteredData = filteredData.filter(
         (project) =>
-          project.customer_constructor_id === parseInt(filters.customer_constructor_id)
+          project.customer_constructor_id ===
+          parseInt(filters.customer_constructor_id)
       );
     }
 
@@ -251,7 +253,9 @@ const ShowAllProjects = () => {
     {
       name: "Customer",
       selector: (row) => {
-        const customer = customers.find((c) => c.id === row.customer_constructor_id);
+        const customer = customers.find(
+          (c) => c.id === row.customer_constructor_id
+        );
         return customer ? customer.name : "Unknown";
       },
       sortable: true,
@@ -259,7 +263,9 @@ const ShowAllProjects = () => {
     {
       name: "Engineer",
       selector: (row) => {
-        const engineer = engineers.find((e) => e.id === row.inspection_engineer_id);
+        const engineer = engineers.find(
+          (e) => e.id === row.inspection_engineer_id
+        );
         return engineer ? engineer.full_name : "Unknown";
       },
       sortable: true,
@@ -300,10 +306,7 @@ const ShowAllProjects = () => {
           >
             <FaEdit className="" />
           </button>
-          <button
-            onClick={() => handleDelete(row.id)}
-            className="colors"
-          >
+          <button onClick={() => handleDelete(row.id)} className="colors">
             <FaTrash className="" />
           </button>
           <button
@@ -402,18 +405,19 @@ const ShowAllProjects = () => {
     <div className="container mt-5">
       <ToastContainer />
 
-      <h2 className="text-center font-bold text-3xl text-black">Show All Projects</h2>
+      <h2 className="text-center font-bold text-3xl text-black">
+        Show All Projects
+      </h2>
 
       <div className="flex justify-between items-center my-4 gap-4">
-        <Input
+        <input
           type="text"
-          placeholder="Search by name..."
+          placeholder="Search tasks..."
           value={search}
           onChange={handleSearch}
-          style={{ width: "300px" }}
-          prefix={<FaSearch />}
-          className="border border-gray-300 rounded p-2"
+          className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
         />
+        {/* <FaSearch className="ml-2 text-gray-500" /> */}
         <div className="flex items-center gap-4">
           <button
             onClick={() => setIsFilterOpen(true)}

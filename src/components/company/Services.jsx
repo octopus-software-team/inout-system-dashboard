@@ -147,6 +147,12 @@ const AddServices = () => {
     return filteredData;
   };
 
+  const filteredSearch = applyFilters().filter((task) =>
+    search === ""
+      ? task
+      : task.name.toLowerCase().includes(search.toLowerCase())
+  );
+
   const filteredData = applyFilters();
 
   // تعريف أعمدة الجدول
@@ -157,7 +163,9 @@ const AddServices = () => {
       sortable: true,
       width: "200px",
       cell: (row) => (
-        <span className="font-medium text-gray-800">{row.id}</span>
+        <span className="font-medium text-gray-800 dark:text-white">
+          {row.id}
+        </span>
       ),
     },
     {
@@ -166,7 +174,9 @@ const AddServices = () => {
       selector: (row) => row.name,
       sortable: true,
       cell: (row) => (
-        <span className="font-medium text-gray-800">{row.name}</span>
+        <span className="font-medium text-gray-800 dark:text-white">
+          {row.name}
+        </span>
       ),
     },
     // يمكنك إضافة المزيد من الأعمدة إذا لزم الأمر
@@ -280,16 +290,14 @@ const AddServices = () => {
       <h2 className="text-center font-bold text-3xl text-black">Services</h2>
 
       <div className="flex justify-between items-center my-4 space-x-2 flex-wrap">
-        <Input
+        <input
           type="text"
-          placeholder="Search by name..."
+          placeholder="Search tasks..."
           value={search}
           onChange={handleSearch}
-          style={{ width: "300px" }}
-          prefix={<FaSearch />}
-          className="border border-gray-300 rounded p-2"
+          className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
         />
-
+        {/* <FaSearch className="ml-2 text-gray-500" /> */}
         <div>
           <Link
             to="/company/createservices"

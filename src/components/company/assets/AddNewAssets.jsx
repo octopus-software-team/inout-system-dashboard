@@ -259,15 +259,14 @@ const AddNewAssets = () => {
       <h2 className="text-center font-bold text-2xl text-black">Assets</h2>
 
       <div className="flex justify-between items-center my-4 gap-4">
-        <Input
+        <input
           type="text"
-          placeholder="Search by name..."
+          placeholder="Search tasks..."
           value={search}
           onChange={handleSearch}
-          style={{ width: "300px" }}
-          prefix={<FaSearch />}
-          className="border border-gray-300 rounded p-2"
+          className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
         />
+        {/* <FaSearch className="ml-2 text-gray-500" /> */}
         <div className="flex items-center gap-4">
           <button
             onClick={() => setIsFilterOpen(true)}

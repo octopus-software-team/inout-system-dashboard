@@ -224,7 +224,7 @@ const Clients = () => {
       sortable: true,
       width: "60px",
       cell: (row) => (
-        <span className="font-medium text-gray-800">{row.id}</span>
+        <span className="font-medium text-gray-800 dark:text-white">{row.id}</span>
       ),
     },
     {
@@ -232,27 +232,27 @@ const Clients = () => {
       selector: (row) => row.name,
       sortable: true,
       cell: (row) => (
-        <span className="font-medium text-gray-800">{row.name}</span>
+        <span className="font-medium text-gray-800 dark:text-white">{row.name}</span>
       ),
     },
     {
       name: "Email",
       selector: (row) => row.email,
       sortable: true,
-      cell: (row) => <span className="text-gray-700">{row.email}</span>,
+      cell: (row) => <span className="text-gray-700 dark:text-white">{row.email}</span>,
     },
     {
       name: "Phone",
       selector: (row) => row.phone,
       sortable: true,
-      cell: (row) => <span className="text-gray-700">{row.phone}</span>,
+      cell: (row) => <span className="text-gray-700 dark:text-white">{row.phone}</span>,
     },
     {
       name: "Branch",
       selector: (row) => getBranchName(row.branch_id),
       sortable: true,
       cell: (row) => (
-        <span className="text-gray-700">{getBranchName(row.branch_id)}</span>
+        <span className="text-gray-700 dark:text-white">{getBranchName(row.branch_id)}</span>
       ),
     },
     {
@@ -285,15 +285,14 @@ const Clients = () => {
       </h2>
 
       <div className="flex justify-between items-center my-4 gap-4">
-        <Input
+        <input
           type="text"
-          placeholder="Search by name..."
+          placeholder="Search tasks..."
           value={search}
           onChange={handleSearch}
-          style={{ width: "300px" }}
-          prefix={<FaSearch />}
-          className="border border-gray-300 rounded p-2"
+          className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
         />
+        {/* <FaSearch className="ml-2 text-gray-500" /> */}
         <div className="flex items-center gap-4">
           <Link
             to="/customers/createclients"

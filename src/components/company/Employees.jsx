@@ -231,7 +231,8 @@ const Employees = () => {
 
     if (filters.employee_special_id) {
       filteredData = filteredData.filter(
-        (emp) => emp.employee_special_id === parseInt(filters.employee_special_id)
+        (emp) =>
+          emp.employee_special_id === parseInt(filters.employee_special_id)
       );
     }
 
@@ -410,22 +411,19 @@ const Employees = () => {
     setSearch(event.target.value);
   };
 
-
   return (
     <div className="container p-5 mx-auto mt-5 px-4 w-full">
       <h2 className="text-center font-bold text-3xl mb-4">Employees</h2>
-      
 
       <div className="flex flex-col md:flex-row justify-between items-center mb-4 w-full space-y-4 md:space-y-0">
-      <Input
+        <input
           type="text"
-          placeholder="Search by name..."
+          placeholder="Search tasks..."
           value={search}
           onChange={handleSearch}
-          style={{ width: "300px" }}
-          prefix={<FaSearch />}
-          className="border border-gray-300 rounded p-2"
+          className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
         />
+        {/* <FaSearch className="ml-2 text-gray-500" /> */}
 
         <div className="flex space-x-2 w-full md:w-auto">
           <Link

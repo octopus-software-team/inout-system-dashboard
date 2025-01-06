@@ -16,6 +16,7 @@ const AddSecRepo = () => {
     project_id: "",
     report_type: "",
   });
+  const [search, setSearch] = useState(""); // State for search
 
   const navigate = useNavigate();
 
@@ -116,7 +117,18 @@ const AddSecRepo = () => {
     return filteredData;
   };
 
-  const filteredData = applyFilters();
+  // Handle search
+  const handleSearch = (e) => {
+    setSearch(e.target.value);
+  };
+
+  // Apply search to filtered data
+  const filteredData = applyFilters().filter((item) =>
+    search === ""
+      ? item
+      : item.report_type.toLowerCase().includes(search.toLowerCase()) ||
+        (projects.find((p) => p.id === item.project_id)?.name || "").toLowerCase().includes(search.toLowerCase())
+  );
 
   // Handle Edit
   const handleEdit = (id) => {
@@ -292,20 +304,29 @@ const AddSecRepo = () => {
         Project Report
       </h2>
 
-      <div className="flex justify-end items-center my-4 gap-4">
-        <button
-          onClick={() => setIsFilterOpen(true)}
-          className="flex items-center bg-blue-800 text-white py-2 px-4 rounded transition duration-200"
-        >
-          <FaFilter className="mr-2" />
-          Filter
-        </button>
-        <Link
-          to="/company/createsecrepo"
-          className="flex items-center bg-blue-800 text-white font-semibold py-2 px-4 rounded transition duration-200"
-        >
-          + Create Project Report
-        </Link>
+      <div className="flex justify-between items-center my-4 gap-4">
+        <input
+          type="text"
+          placeholder="Search reports..."
+          value={search}
+          onChange={handleSearch}
+          className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
+        />
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => setIsFilterOpen(true)}
+            className="flex items-center bg-blue-800 text-white py-2 px-4 rounded transition duration-200"
+          >
+            <FaFilter className="mr-2" />
+            Filter
+          </button>
+          <Link
+            to="/company/createsecrepo"
+            className="flex items-center bg-blue-800 text-white font-semibold py-2 px-4 rounded transition duration-200"
+          >
+            + Create Project Report
+          </Link>
+        </div>
       </div>
 
       {isLoading ? (
