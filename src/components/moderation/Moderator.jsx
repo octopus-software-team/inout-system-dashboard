@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
-import { toast, ToastContainer } from "react-toastify"; // 1) Import react-toastify
-import "react-toastify/dist/ReactToastify.css";         // 2) Import react-toastify CSS
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import DataTable from 'react-data-table-component';
 
 const Moderator = () => {
   const [data, setData] = useState([]);
@@ -34,7 +35,6 @@ const Moderator = () => {
       })
       .then((resData) => {
         if (resData && resData.data) {
-          // Only keep the necessary fields (id, name, email)
           const filteredData = resData.data.map(({ id, name, email }) => ({
             id,
             name,
@@ -51,11 +51,9 @@ const Moderator = () => {
       });
   }, [navigate]);
 
-  // 3) Show the custom toast for delete confirmation
   const handleDelete = (adminId) => {
     const token = Cookies.get("token");
 
-    // Create a toast that won't auto-close and has custom buttons
     const confirmToast = toast(
       <div>
         <p>Are you sure you want to delete this admin?</p>
@@ -81,7 +79,6 @@ const Moderator = () => {
     );
   };
 
-  // 4) If the user confirms, proceed with deleting
   const handleConfirmDelete = (adminId, token, confirmToast) => {
     fetch(`https://inout-api.octopusteam.net/api/front/deleteAdmin`, {
       method: "POST",
@@ -89,10 +86,9 @@ const Moderator = () => {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ id: adminId }) // Make sure you send the 'id' in the request body if the endpoint requires it
+      body: JSON.stringify({ id: adminId })
     })
       .then(async (res) => {
-        // We'll parse text first then convert to JSON
         const responseText = await res.text();
         if (!res.ok) {
           throw new Error("Failed to delete admin");
@@ -100,11 +96,8 @@ const Moderator = () => {
         return JSON.parse(responseText);
       })
       .then((resData) => {
-        // Show success toast
         toast.success(resData.msg || "Admin deleted successfully");
-        // Remove the deleted admin from local state
         setData((prevData) => prevData.filter((admin) => admin.id !== adminId));
-        // Dismiss the confirmation toast
         toast.dismiss(confirmToast);
       })
       .catch((err) => {
@@ -113,6 +106,49 @@ const Moderator = () => {
         toast.dismiss(confirmToast);
       });
   };
+
+  const columns = [
+    {
+      name: '#',
+      selector: row => row.id,
+      sortable: true,
+    },
+    {
+      name: 'Name',
+      selector: row => row.name,
+      sortable: true,
+    },
+    {
+      name: 'Email',
+      selector: row => row.email,
+      sortable: true,
+    },
+    {
+      name: 'Actions',
+      cell: (row) => (
+        <div className="space-x-2">
+          <button
+            onClick={() => navigate(`/moderation/editadmin`, { state: row })}
+            className="edit rounded-lg"
+          >
+            <FaEdit className="inline mr-2" />
+            Edit
+          </button>
+          <button
+            onClick={() => handleDelete(row.id)}
+            className="colors rounded-lg"
+          >
+            <FaTrash className="inline mr-2" />
+            Delete
+          </button>
+        </div>
+      ),
+    },
+  ];
+
+  const filteredData = data.filter(item => 
+    item.name.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <div className="container mt-5">
@@ -134,66 +170,15 @@ const Moderator = () => {
         </Link>
       </div>
 
-      <div className="overflow-x-auto shadow-lg rounded-lg w-full mx-auto">
-        <table className="table-auto w-full border border-gray-200 bg-white rounded-lg">
-          <thead>
-            <tr className="bg-gradient-to-r from-blue-600 to-blue-400 text-white">
-              <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">
-                #
-              </th>
-              <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">
-                Name
-              </th>
-              <th className="px-4 py-3 text-left font-semibold text-lg border-b border-gray-300">
-                Email
-              </th>
-              <th className="px-4 py-3 text-right font-semibold text-lg border-b border-gray-300">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {data
-              .filter((item) => {
-                return search.toLowerCase() === ""
-                  ? item
-                  : item.name.toLowerCase().includes(search.toLowerCase());
-              })
-              .map((item, index) => (
-                <tr
-                  key={item.id}
-                  className={`hover:bg-gray-100 transition duration-200 ${
-                    index % 2 === 0 ? "bg-gray-50" : "bg-white"
-                  }`}
-                >
-                  <td className="px-4 py-3 text-gray-800">{item.id}</td>
-                  <td className="px-4 py-3 text-gray-800">{item.name}</td>
-                  <td className="px-4 py-3 text-gray-800">{item.email}</td>
-                  <td className="px-4 py-3 text-right space-x-2">
-                    <button
-                      onClick={() =>
-                        navigate(`/moderation/editadmin`, { state: item })
-                      }
-                      className="bg-green-600 text-white font-semibold py-2 px-4 rounded-lg hover:shadow-md transform hover:scale-105 transition duration-300"
-                    >
-                      <FaEdit className="inline mr-2" />
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(item.id)} // 5) Use the new handleDelete for the toast
-                      className="bg-red-600 text-white font-semibold py-2 px-4 rounded-lg hover:shadow-md transform hover:scale-105 transition duration-300"
-                    >
-                      <FaTrash className="inline mr-2" />
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
-      </div>
+      <DataTable
+        columns={columns}
+        data={filteredData}
+        pagination
+        highlightOnHover
+        responsive
+        striped
+      />
 
-      {/* 6) Include the ToastContainer so that the toasts will appear */}
       <ToastContainer
         position="top-right"
         autoClose={3000}
