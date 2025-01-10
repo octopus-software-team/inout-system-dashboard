@@ -32,7 +32,12 @@ const AddEngineer = () => {
   const [specialties, setSpecialties] = useState([]);
   const navigate = useNavigate();
 
+  const [isModalOpen, setIsModalOpen] = useState(false); // حالة فتح/إغلاق المودال
+  const [newSpecialty, setNewSpecialty] = useState(""); // حالة لحفظ اسم الخاصية الجديدة
+
   const [errors, setErrors] = useState({});
+
+  const [type, setType] = useState(0); // حالة type مع قيمة افتراضية 0
 
   const token = Cookies.get("token");
 
@@ -99,14 +104,15 @@ const AddEngineer = () => {
     fetchSpecialties();
   }, [token]);
 
-
-
   const handleChange = (e) => {
-    const { id, value, type } = e.target;
-    if (id === "contract_start_date" || id === "contract_end_date") {
+    const { id, value, type, files } = e.target;
+
+    if (type === "file") {
+      setFormData({ ...formData, [id]: files[0] });
+    } else if (id === "contract_start_date" || id === "contract_end_date") {
       const formattedDate = value ? value : "";
       setFormData({ ...formData, [id]: formattedDate });
-    } else if (type !== "file") {
+    } else {
       setFormData({ ...formData, [id]: value });
     }
 
@@ -139,8 +145,13 @@ const AddEngineer = () => {
       }
     });
 
-    if (formData.email && !formData.email.includes("@")) {
+    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = "Please enter a valid email address.";
+    }
+
+    // التحقق من أن رقم الهاتف يحتوي على أرقام فقط
+    if (formData.phone && !/^\d+$/.test(formData.phone)) {
+      newErrors.phone = "Please enter a valid phone number (numbers only).";
     }
 
     if (
@@ -155,6 +166,8 @@ const AddEngineer = () => {
       newErrors.contract_duration = "Duration must be a positive number.";
     }
 
+    console.log(newErrors);
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -162,15 +175,20 @@ const AddEngineer = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!validateForm()) {
-      toast.error("Please fix the errors in the form.");
-      return;
-    }
-
     const formDataToSend = new FormData();
     Object.entries(formData).forEach(([key, value]) => {
-      formDataToSend.append(key, value);
+      if (value !== null && value !== "") {
+        formDataToSend.append(key, value);
+      }
     });
+
+    console.log(errors);
+
+    validateForm();
+    // if (validateForm()) {
+    //   toast.error("Please fix the errors in the form.");
+    //   return;
+    // }
 
     try {
       const response = await fetch(
@@ -185,18 +203,14 @@ const AddEngineer = () => {
       );
 
       const result = await response.json();
-      console.log("API Response:", result); // إضافة هذا السطر للتحقق من البيانات المستلمة
+      console.log("API Response:", result);
 
       if (result.status === 200) {
         toast.success("Engineer added successfully.");
-      
-        // تخزين QR Code في الحالة
         setQrCode(result.data.qrcode);
-      
         setTimeout(() => {
           navigate("/company/employees");
         }, 2000);
-      
         setFormData({
           full_name: "",
           email: "",
@@ -215,8 +229,7 @@ const AddEngineer = () => {
           type: 0,
           notes: "",
         });
-      }
-       else {
+      } else {
         if (result.msg) {
           toast.error(result.msg);
         } else if (result.data) {
@@ -232,6 +245,43 @@ const AddEngineer = () => {
       toast.error("Error occurred while saving. Please check your input.");
     }
   };
+
+ const handleAddSpecialty = async () => {
+  if (!newSpecialty) {
+    toast.error("Please enter a specialty name.");
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      "https://inout-api.octopusteam.net/api/front/addEmployeesSpecials",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name: newSpecialty, type }), // إرسال name و type
+      }
+    );
+
+    const result = await response.json();
+    if (result.status === 200) {
+      toast.success("Specialty added successfully.");
+      setSpecialties([...specialties, result.data]); // تحديث قائمة الخصائص
+      setIsModalOpen(false); // إغلاق المودال
+      setNewSpecialty(""); // مسح حقل الإدخال
+      setType(0); // إعادة تعيين type إلى القيمة الافتراضية
+    } else {
+      toast.error(result.msg || "Failed to add specialty.");
+    }
+  } catch (error) {
+    console.error("Error adding specialty:", error);
+    toast.error("Failed to add specialty. Please try again.");
+  }
+};
+
+
 
   useEffect(() => {
     console.log(errors);
@@ -386,23 +436,78 @@ const AddEngineer = () => {
           >
             Specialty
           </label>
-          <select
-            id="employee_special_id"
-            value={formData.employee_special_id}
-            onChange={handleChange}
-            className="p-2 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">Select Specialty</option>
-            {specialties.map((specialty) => (
-              <option key={specialty.id} value={specialty.id}>
-                {specialty.name}
-              </option>
-            ))}
-          </select>
+          <div className="flex items-center">
+            <select
+              id="employee_special_id"
+              value={formData.employee_special_id}
+              onChange={handleChange}
+              className="p-2 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Select Specialty</option>
+              {specialties.map((specialty) => (
+                <option key={specialty.id} value={specialty.id}>
+                  {specialty.name}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(true)} // فتح المودال عند الضغط
+              className="ml-2 p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+            >
+              +
+            </button>
+          </div>
           {errors.employee_special_id && (
             <span className="text-red-500 text-xs">
               {errors.employee_special_id}
             </span>
+          )}
+
+          {isModalOpen && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+              <div className="bg-white p-6 rounded-lg w-96">
+                <h2 className="text-xl font-bold mb-4">Add New Specialty</h2>
+
+                {/* Specialization Name */}
+                <input
+                  type="text"
+                  value={newSpecialty}
+                  onChange={(e) => setNewSpecialty(e.target.value)} // تحديث حالة الـ newSpecialty
+                  placeholder="Enter specialty name"
+                  className="p-2 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
+                  required
+                />
+
+                {/* Specialization Type */}
+                <select
+                  value={type} // قيمة type من الـ state
+                  onChange={(e) => setType(parseInt(e.target.value))} // تحديث حالة الـ type
+                  className="p-2 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
+                >
+                  <option value={0}>General</option>
+                  <option value={1}>Special</option>
+                </select>
+
+                {/* Buttons */}
+                <div className="mt-4 flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setIsModalOpen(false)} // إغلاق المودال
+                    className="mr-2 p-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleAddSpecialty} // حفظ الخاصية الجديدة
+                    className="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                  >
+                    Save
+                  </button>
+                </div>
+              </div>
+            </div>
           )}
         </div>
 
@@ -446,7 +551,7 @@ const AddEngineer = () => {
 
         <div className="flex flex-col">
           <label htmlFor="notes" className="mb-2 font-medium text-gray-700">
-            notes
+            Notes
           </label>
           <input
             type="text"
@@ -541,16 +646,15 @@ const AddEngineer = () => {
           </select>
         </div>
 
-
         <div className="flex flex-col md:col-span-2">
           <label htmlFor="image" className="mb-2 font-medium text-gray-700">
-            Upload Image
+            Upload Image (Optional)
             <input
-              hidden
               type="file"
               id="image"
               ref={imageInputRef}
               accept="image/*"
+              onChange={handleChange}
               className="img"
             />
           </label>

@@ -100,14 +100,6 @@ const AddBranch = () => {
     formData.append("country_id", Number(selectedCountry)); // Convert to number
     formData.append("city_id", Number(selectedCity)); // Convert to number
 
-    console.log("Submitting Branch:", {
-      name: branchName,
-      latitude: position[0],
-      longitude: position[1],
-      country_id: Number(selectedCountry),
-      city_id: Number(selectedCity),
-    }); // Debugging
-
     try {
       const token = Cookies.get("token");
 
@@ -129,13 +121,20 @@ const AddBranch = () => {
 
       const result = await response.json();
 
-      if (response.status==200) {
-        toast.success("Branch added successfully!");
-        setTimeout(() => {
-          navigate("/company/Branchs");
-        }, 2000);
+      console.log(result);
+
+      if (response.status === 200) {
+        if (response.data === null) {
+          toast.error("this city does not belong to this country");
+          return;
+        } else {
+          toast.success("Branch added successfully!");
+
+          setTimeout(() => {
+            navigate("/company/Branchs");
+          }, 2000);
+        }
       } else if (response.status === 422) {
-        // Handle validation errors if your API returns them
         const validationErrors = result.data;
         if (validationErrors) {
           Object.keys(validationErrors).forEach((field) => {

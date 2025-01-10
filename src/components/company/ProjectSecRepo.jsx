@@ -279,15 +279,17 @@ const AddSecRepo = () => {
         <div className="flex space-x-2">
           <button
             onClick={() => handleEdit(row.id)}
-            className="edit"
+            className="edit1"
           >
             <FaEdit className="mr-2" />
+            Edit
           </button>
           <button
             onClick={() => handleDelete(row.id)}
-            className="colors"
+            className="colors1"
           >
             <FaTrash className="mr-2" />
+            Delete
           </button>
         </div>
       ),
@@ -322,7 +324,7 @@ const AddSecRepo = () => {
           </button>
           <Link
             to="/company/createsecrepo"
-            className="flex items-center bg-blue-800 text-white font-semibold py-2 px-4 rounded transition duration-200"
+            className="icons flex items-center bg-blue-800 text-white font-semibold py-2 px-4 rounded transition duration-200"
           >
             + Create Project Report
           </Link>

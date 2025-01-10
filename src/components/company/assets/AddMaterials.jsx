@@ -21,7 +21,10 @@ const AddMaterials = () => {
   });
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
-  const tableName = "material";
+  const tableName = "materials";
+
+
+
 
   // Fetch branches
   const fetchBranches = async () => {
@@ -172,12 +175,10 @@ const AddMaterials = () => {
 
   // Handle export file
   const handleExportFile = async () => {
-    const token = Cookies.get("token");
+    const formData = new FormData();
+    formData.append("table", tableName);
 
-    if (!token) {
-      toast.error("No token found. Please log in.");
-      return;
-    }
+    const token = Cookies.get("token");
 
     try {
       const response = await fetch(
@@ -187,25 +188,25 @@ const AddMaterials = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ table: tableName }),
+          body: formData,
         }
       );
 
       if (!response.ok) {
-        throw new Error("Failed to export file.");
+        throw new Error("Failed to export file");
       }
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
+
       link.download = `${tableName}.xlsx`;
       document.body.appendChild(link);
       link.click();
+
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-
-      toast.success("File exported successfully!");
     } catch (error) {
       console.error("Error exporting file:", error);
       toast.error("Failed to export file.");
@@ -253,17 +254,17 @@ const AddMaterials = () => {
             onClick={() =>
               navigate(`/company/assets/updatematerials`, { state: row })
             }
-            className="edit rounded-lg"
+            className="edit1 rounded-lg"
           >
             <FaEdit className="inline mr-2" />
-            {/* Edit */}
+            Edit
           </button>
           <button
             onClick={() => setMaterialToDelete(row.id)}
-            className="colors  rounded-lg"
+            className="colors1  rounded-lg"
           >
             <FaTrash className="inline mr-2" />
-            {/* Delete */}
+            Delete
           </button>
         </div>
       ),
@@ -294,25 +295,25 @@ const AddMaterials = () => {
         <div className="flex items-center gap-4">
           <Link
             to="/company/assets/creatematerials"
-            className="bg-blue-800 text-white font-semibold py-2 px-6 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
+            className="icons bg-blue-800 text-white"
           >
             + Create Material
           </Link>
           <button
             onClick={() => setOpen(true)}
-            className="bg-blue-800 text-white px-4 py-2 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
+            className="icons bg-blue-800 text-white "
           >
             Import
           </button>
           <button
             onClick={handleExportFile}
-            className="bg-blue-800 text-white px-4 py-2 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
+            className="icons bg-blue-800 text-white "
           >
             Export
           </button>
           <button
             onClick={() => setIsFilterOpen(true)}
-            className="flex items-center bg-blue-800 text-white py-2 px-4 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
+            className="icons flex items-center bg-blue-800 text-white "
           >
             <FaFilter className="mr-2" />
             Filter
@@ -369,26 +370,30 @@ const AddMaterials = () => {
           <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 w-80">
             <h3 className="text-xl font-semibold mb-4">Filter Materials</h3>
             <div className="space-y-4">
+              <label htmlFor="">select branch</label>
               <select
                 name="branch_id"
                 value={filters.branch_id}
                 onChange={handleFilterChange}
                 className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="">Select Branch</option>
+                <option value="">All</option>
                 {branches.map((branch) => (
                   <option key={branch.id} value={branch.id}>
                     {branch.name}
                   </option>
                 ))}
               </select>
+
+              <label htmlFor="">select branch</label>
+
               <select
                 name="material_category_id"
                 value={filters.material_category_id}
                 onChange={handleFilterChange}
                 className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="">Select Material Category</option>
+                <option value="">All</option>
                 {materialCategories.map((category) => (
                   <option key={category.id} value={category.id}>
                     {category.name}
@@ -399,13 +404,13 @@ const AddMaterials = () => {
             <div className="flex justify-end mt-6">
               <button
                 onClick={() => setIsFilterOpen(false)}
-                className="bg-gray-300 dark:bg-slate-700 text-gray-800 dark:text-white px-4 py-2 rounded-lg hover:bg-gray-400 dark:hover:bg-slate-600 transition duration-300"
+                className="bg-gray-300 mr-3 dark:bg-slate-700 text-gray-800 dark:text-white px-4 py-2 rounded-lg hover:bg-gray-400 dark:hover:bg-slate-600 transition duration-300"
               >
                 Cancel
               </button>
               <button
                 onClick={() => setIsFilterOpen(false)}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-300"
+                className="bg-blue-600 mr-3 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-300"
               >
                 Apply
               </button>

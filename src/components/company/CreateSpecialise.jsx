@@ -40,7 +40,7 @@ const CreateSpecialise = () => {
         setName("");
         setType(0);
         setTimeout(() => {
-          navigate("/employees/specials"); // Navigate back to specializations page after addition
+          navigate("/company/employeespecialise"); // Navigate back to specializations page after addition
         }, 1500);
       } else {
         setIsError(true);
@@ -96,8 +96,8 @@ const CreateSpecialise = () => {
             onChange={(e) => setType(parseInt(e.target.value))}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           >
-            <option value={0}>General</option>
-            <option value={1}>Special</option>
+            <option value={0}>engineer</option>
+            <option value={1}>employee</option>
           </select>
         </div>
 

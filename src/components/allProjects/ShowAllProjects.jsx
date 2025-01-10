@@ -302,18 +302,21 @@ const ShowAllProjects = () => {
         <div className="flex space-x-2">
           <button
             onClick={() => navigate(`/allprojects/updateprojects/${row.id}`)}
-            className="edit"
+            className="edit1"
           >
             <FaEdit className="" />
+            Edit
           </button>
-          <button onClick={() => handleDelete(row.id)} className="colors">
+          <button onClick={() => handleDelete(row.id)} className="colors1">
             <FaTrash className="" />
+            Delete
           </button>
           <button
             onClick={() => navigate(`/allprojects/addreport/${row.id}`)}
-            className="eye"
+            className="eye1"
           >
             <FaEye className="" />
+            eye
           </button>
         </div>
       ),

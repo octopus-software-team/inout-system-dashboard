@@ -1,21 +1,49 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Cookies from 'js-cookie';
-import $ from "jquery";
-import "datatables.net"; // Import DataTables CSS if needed
+import Cookies from "js-cookie";
+import DataTable from "react-data-table-component";
 
 const Consultative = () => {
   const [data, setData] = useState([]);
-  const navigate = useNavigate();
+  const [branches, setBranches] = useState([]);
   const [search, setSearch] = useState("");
-  const tableRef = useRef(null);
-  const dataTable = useRef(null);
+  const navigate = useNavigate();
 
+  // Fetch branches
   useEffect(() => {
-    const token = Cookies.get('token');
+    const fetchBranches = async () => {
+      try {
+        const token = Cookies.get("token");
+
+        const response = await fetch(
+          "https://inout-api.octopusteam.net/api/front/getBranches",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const resData = await response.json();
+        if (response.ok) {
+          setBranches(resData.data);
+        } else {
+          console.error("Failed to fetch branches.");
+        }
+      } catch (error) {
+        console.error("Error fetching branches:", error);
+      }
+    };
+    fetchBranches();
+  }, []);
+
+  // Fetch consultative data
+  useEffect(() => {
+    const token = Cookies.get("token");
     if (!token) {
       alert("No token found. Please log in.");
       return;
@@ -38,50 +66,15 @@ const Consultative = () => {
       .catch((err) => console.error("Error fetching consultative data:", err));
   }, []);
 
-  // Initialize DataTable
-  useEffect(() => {
-    if (data.length > 0) {
-      // Initialize DataTable
-      if (!dataTable.current) {
-        dataTable.current = $(tableRef.current).DataTable({
-          paging: true,
-          searching: true,
-          info: true,
-          ordering: true,
-          language: {
-            search: "Search:",
-            lengthMenu: "Show _MENU_ entries",
-            info: "Showing _START_ to _END_ of _TOTAL_ entries",
-            paginate: {
-              first: "First",
-              last: "Last",
-              next: "Next",
-              previous: "Previous",
-            },
-          },
-          // Prevent ordering on the Actions column
-          columnDefs: [
-            { orderable: false, targets: -1 },
-          ],
-        });
-      } else {
-        // If DataTable already initialized, just update the data
-        dataTable.current.clear();
-        dataTable.current.rows.add(data);
-        dataTable.current.draw();
-      }
-    }
+  // Get branch name by ID
+  const getBranchName = (branchId) => {
+    const branch = branches.find((b) => b.id === branchId);
+    return branch ? branch.name : "Unknown Branch";
+  };
 
-    return () => {
-      if (dataTable.current) {
-        dataTable.current.destroy();
-        dataTable.current = null;
-      }
-    };
-  }, [data]);
-
+  // Handle delete
   const handleDelete = (id) => {
-    const token = Cookies.get('token');
+    const token = Cookies.get("token");
     if (!token) {
       alert("No token found. Please log in.");
       return;
@@ -110,6 +103,7 @@ const Consultative = () => {
     );
   };
 
+  // Confirm delete
   const handleConfirmDelete = (id, token, confirmToast) => {
     fetch(
       `https://inout-api.octopusteam.net/api/front/deleteProjectConsultive/${id}`,
@@ -132,82 +126,96 @@ const Consultative = () => {
       });
   };
 
+  // Filter data based on search
+  const filteredData = data.filter((item) =>
+    item.name.toLowerCase().includes(search.toLowerCase())
+  );
+
+  // Define columns for the table
+  const columns = [
+    {
+      name: "#",
+      selector: (row) => row.id,
+      sortable: true,
+      width: "70px",
+    },
+    {
+      name: "Name",
+      selector: (row) => row.name,
+      sortable: true,
+    },
+    {
+      name: "Phone Number",
+      selector: (row) => row.phone,
+      sortable: true,
+    },
+    {
+      name: "Branch",
+      selector: (row) => getBranchName(row.branch_id),
+      sortable: true,
+    },
+    {
+      name: "Actions",
+      cell: (row) => (
+        <div className="flex space-x-2">
+          <Link
+            to={`/customers/editconsultive/${row.id}`}
+            className="edit1 py-1 px-3 rounded-lg"
+          >
+            <FaEdit className="inline mr-1" />
+            Edit
+          </Link>
+          <button
+            onClick={() => handleDelete(row.id)}
+            className="colors1 py-1 px-3 rounded-lg"
+          >
+            <FaTrash className="inline mr-1" />
+            Delete
+          </button>
+        </div>
+      ),
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
+      width: "150px",
+    },
+  ];
+
   return (
     <div className="container mt-5">
       <h2 className="text-center font-bold text-2xl text-gray-800">
         Consultatives
       </h2>
 
-      <div className="flex justify-end items-center my-4">
-        {/* Search input can be handled by DataTables, so it's optional to keep it */}
+      <div className="flex justify-between items-center my-4">
+        <input
+          type="text"
+          placeholder="Search ..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
+        />
         <Link
           to="/customers/createconsultive"
-          className="icons  text-white bg-blue-800 font-semibold py-2 px-6 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
+          className="icons text-white bg-blue-800 font-semibold py-2 px-6 rounded-lg ml-4"
         >
           + Create Consultive
         </Link>
       </div>
 
-      <div className="overflow-x-auto shadow-lg rounded-lg w-full mx-auto">
-        <table ref={tableRef} className="display table-auto w-full border border-gray-200 rounded-lg">
-          <thead>
-            <tr className="text-white bg-gradient-to-r from-blue-600 to-blue-400">
-              <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
-                #
-              </th>
-              <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
-                Name
-              </th>
-              <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
-                Phone Number
-              </th>
-              <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-center font-semibold text-lg border-b border-gray-300">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {data
-              .filter((item) =>
-                search.toLowerCase() === ""
-                  ? item
-                  : item.name.toLowerCase().includes(search.toLowerCase())
-              )
-              .map((item) => (
-                <tr
-                  key={item.id}
-                  className="hover:bg-gray-100 transition duration-200"
-                >
-                  <td className="px-4 py-3 dark:text-white text-gray-800">
-                    {item.id}
-                  </td>
-                  <td className="px-4 py-3 dark:text-white text-gray-800">
-                    {item.name}
-                  </td>
-                  <td className="px-4 py-3 dark:text-white text-gray-800">
-                    {item.phone}
-                  </td>
-                  <td className="px-4 py-3 dark:text-white ">
-                    <Link
-                      to={`/customers/editconsultive/${item.id}`}
-                      className="edit rounded-lg "
-                    >
-                      <FaEdit className="inline mr-2" />
-                      Edit
-                    </Link>
-                    <button
-                      onClick={() => handleDelete(item.id)}
-                      className="colors rounded-lg ml-2 "
-                    >
-                      <FaTrash className="inline mr-2" />
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
-      </div>
+      <DataTable
+        columns={columns}
+        data={filteredData}
+        pagination
+        highlightOnHover
+        striped
+        responsive
+        defaultSortField="id"
+        paginationPerPage={10}
+        paginationRowsPerPageOptions={[10, 20, 30]}
+        className="shadow-lg rounded-lg overflow-hidden"
+      />
+
       <ToastContainer
         position="top-right"
         autoClose={3000}

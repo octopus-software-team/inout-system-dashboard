@@ -6,6 +6,8 @@ import { toast, ToastContainer } from "react-toastify";
 import Cookies from "js-cookie";
 import "react-toastify/dist/ReactToastify.css";
 import { Input } from "antd";
+import ImportFile from "../ImportFile"; // تأكد من صحة المسار
+
 
 const Clients = () => {
   const [data, setData] = useState([]);
@@ -24,8 +26,57 @@ const Clients = () => {
     branch_id: "",
   });
 
+
+
+  const tableName = "customers"; // تحديد اسم الجدول
+
+  const [open, setOpen] = useState(false);
+
+
+
   const navigate = useNavigate();
 
+
+
+    const handleExportFile = async () => {
+      const formData = new FormData();
+      formData.append("table", tableName);
+  
+      const token = Cookies.get("token");
+  
+      try {
+        const response = await fetch(
+          "https://inout-api.octopusteam.net/api/front/export",
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            body: formData,
+          }
+        );
+  
+        if (!response.ok) {
+          throw new Error("Failed to export file");
+        }
+  
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+  
+        link.download = `${tableName}.xlsx`;
+        document.body.appendChild(link);
+        link.click();
+  
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      } catch (error) {
+        console.error("Error exporting file:", error);
+        toast.error("Failed to export file.");
+      }
+    };
+  
   // Fetch branches
   useEffect(() => {
     const fetchBranches = async () => {
@@ -259,11 +310,13 @@ const Clients = () => {
       name: "Actions",
       cell: (row) => (
         <div className="flex space-x-2">
-          <button onClick={() => handleEdit(row.id)} className="edit">
-            <FaEdit className="mr-6" />
+          <button onClick={() => handleEdit(row.id)} className="edit1">
+            <FaEdit className="mr-2" />
+            Edit
           </button>
-          <button onClick={() => handleDelete(row.id)} className="colors">
+          <button onClick={() => handleDelete(row.id)} className="colors1">
             <FaTrash className="mr-2" />
+            Delete
           </button>
         </div>
       ),
@@ -293,7 +346,7 @@ const Clients = () => {
           className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
         />
         {/* <FaSearch className="ml-2 text-gray-500" /> */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
           <Link
             to="/customers/createclients"
             className="flex items-center bg-blue-800 text-white font-semibold py-2 px-4 rounded transition duration-200"
@@ -307,6 +360,39 @@ const Clients = () => {
             <FaFilter className="mr-2" />
             Filter
           </button>
+
+          <button
+            onClick={() => setOpen(true)}
+            className="icons bg-blue-800  text-white  rounded-lg "
+          >
+            Import
+          </button>
+          <button
+            onClick={handleExportFile}
+            className="icons bg-blue-800 text-white  rounded-lg "
+          >
+            Export
+          </button>
+
+          {open && (
+        <div
+          className="fixed top-0 left-0 z-30 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
+          onClick={() => setOpen(false)}
+        >
+          <div
+            className="w-[350px] h-[350px] bg-white rounded-lg shadow-lg p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-center text-xl font-semibold mb-4">
+              Import File
+            </h2>
+            <div className="flex flex-col items-center space-y-4">
+              <ImportFile tableName={tableName} /> {/* مكون الاستيراد */}
+            </div>
+          </div>
+        </div>
+      )}
+
         </div>
       </div>
 
@@ -319,6 +405,8 @@ const Clients = () => {
       ) : filteredData.length === 0 ? (
         <p className="text-center text-gray-600 text-lg">No clients found.</p>
       ) : (
+
+        
         <DataTable
           columns={columns}
           data={filteredData}

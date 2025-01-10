@@ -230,14 +230,15 @@ const AddNewAssets = () => {
             onClick={() =>
               navigate(`/company/assets/updateassets`, { state: row })
             }
-            className="edit"
+            className="edit1"
           >
             <FaEdit className="mr-2" />
-            {/* Edit */}
+            Edit
           </button>
-          <button onClick={() => openModal(row.id)} className="colors">
+          <button onClick={() => openModal(row.id)}
+           className="colors1">
             <FaTrash className="mr-2" />
-            {/* Delete */}
+            Delete
           </button>
         </div>
       ),

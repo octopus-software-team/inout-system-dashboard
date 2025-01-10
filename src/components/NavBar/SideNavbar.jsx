@@ -34,6 +34,12 @@ const projects = [
     path: "/allprojects/showallprojects",
     icon: <FaEye className="mr-2 text-gray-400" />,
   },
+
+  {
+    name: "project Report",
+    path: "/company/projectsecrepo",
+    icon: <FaCubes className="mr-2 text-gray-400" />,
+  },
 ];
 
 const company = [
@@ -85,11 +91,7 @@ const company = [
         path: "/company/assets/assetstype",
         icon: <FaCubes className="mr-2 text-gray-400" />,
       },
-      {
-        name: "project Report",
-        path: "/company/projectsecrepo",
-        icon: <FaCubes className="mr-2 text-gray-400" />,
-      },
+     
     ],
   },
 ];

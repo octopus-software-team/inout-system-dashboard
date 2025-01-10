@@ -197,6 +197,27 @@ const CreateMaterials = () => {
         onSubmit={handleSubmit}
         className="service max-w-lg mx-auto p-8 rounded-lg shadow-lg"
       >
+
+
+
+           {/* حقل Description */}
+           <div className="mb-4">
+          <label
+            className="block text-gray-700 font-semibold mb-2"
+            htmlFor="description"
+          >
+            Description
+          </label>
+          <input
+            type="text"
+            id="description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="w-full dark:bg-slate-900 dark:text-white px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter description"
+            required
+          />
+        </div>
         {/* حقل Stock */}
         <div className="mb-4">
           <label
@@ -216,24 +237,7 @@ const CreateMaterials = () => {
           />
         </div>
 
-        {/* حقل Description */}
-        <div className="mb-4">
-          <label
-            className="block text-gray-700 font-semibold mb-2"
-            htmlFor="description"
-          >
-            Description
-          </label>
-          <input
-            type="text"
-            id="description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="w-full dark:bg-slate-900 dark:text-white px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter description"
-            required
-          />
-        </div>
+     
 
         {/* حقل Type */}
         <div className="mb-4">

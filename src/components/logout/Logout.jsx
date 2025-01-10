@@ -9,8 +9,6 @@ const LogoutButton = () => {
     const token = Cookies.get('token');
     console.log(token);
 
-    console.log(token)
-
     if (!token) {
       console.log("No token found, cannot log out.");
       return;
@@ -36,15 +34,12 @@ const LogoutButton = () => {
           console.log("Logout failed with non-JSON response.");
         }
         return;
-        // const data = await response.json();
-        // console.error("Logout failed", data);
       }
 
       localStorage.removeItem("token");
-      
-      
+      Cookies.remove('token');
       navigate("/");
-      
+
     } catch (error) {
       console.log("An error occurred during logout", error);
     }

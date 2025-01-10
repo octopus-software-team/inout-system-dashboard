@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
-import $ from "jquery";
-import "datatables.net";
+import DataTable from "react-data-table-component";
 import { FaEdit, FaTrash } from "react-icons/fa";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const EmployeesSpecials = () => {
   const [data, setData] = useState([]);
@@ -11,8 +12,6 @@ const EmployeesSpecials = () => {
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
-  const tableRef = useRef(null);
-  const dataTable = useRef(null); // لإدارة مثيل DataTables
 
   useEffect(() => {
     const token = Cookies.get("token");
@@ -27,7 +26,7 @@ const EmployeesSpecials = () => {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`, // إرسال التوكن في الهيدر
+        Authorization: `Bearer ${token}`,
       },
     })
       .then((response) => {
@@ -38,7 +37,7 @@ const EmployeesSpecials = () => {
       })
       .then((res) => {
         if (res.status === 200) {
-          setData(res.data); // تخزين البيانات في الحالة
+          setData(res.data);
         } else {
           setError("Failed to load employees specials.");
         }
@@ -52,33 +51,6 @@ const EmployeesSpecials = () => {
       });
   }, []);
 
-  useEffect(() => {
-    if (!isLoading && !error && data.length > 0) {
-      // تهيئة DataTables فقط إذا لم يكن هناك مثيل سابق
-      if (!dataTable.current) {
-        dataTable.current = $(tableRef.current).DataTable({
-          // يمكنك إضافة إعدادات DataTables هنا حسب الحاجة
-          paging: true,
-          searching: true, // نعطل البحث المدمج لأننا نستخدم خاصية البحث الخاصة بنا
-          info: false,
-        });
-      } else {
-        // إذا كان مثيل DataTables موجوداً، قم بتحديث البيانات
-        dataTable.current.clear();
-        dataTable.current.rows.add(data);
-        dataTable.current.draw();
-      }
-    }
-
-    // تنظيف مثيل DataTables عند إزالة المكون
-    return () => {
-      if (dataTable.current) {
-        dataTable.current.destroy();
-        dataTable.current = null;
-      }
-    };
-  }, [isLoading, error, data]);
-
   const handleEdit = (id) => {
     const selectedEmployee = data.find((employee) => employee.id === id);
     navigate(`/company/updatespecialise`, { state: selectedEmployee });
@@ -86,7 +58,7 @@ const EmployeesSpecials = () => {
 
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this employee?")) {
-      const token = Cookies.get("token"); // الحصول على التوكن من التخزين المحلي
+      const token = Cookies.get("token");
 
       if (!token) {
         setError("No token found. Please log in.");
@@ -100,7 +72,7 @@ const EmployeesSpecials = () => {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`, // تمرير التوكن في الهيدر
+              Authorization: `Bearer ${token}`,
             },
           }
         );
@@ -108,9 +80,8 @@ const EmployeesSpecials = () => {
         const result = await response.json();
 
         if (response.ok && result.status === 200) {
-          // تحديث البيانات محليًا بعد الحذف
           setData(data.filter((item) => item.id !== id));
-          alert("Employee deleted successfully!");
+          toast.success("Employee deleted successfully!");
         } else {
           setError(result.msg || "Failed to delete employee.");
         }
@@ -121,36 +92,80 @@ const EmployeesSpecials = () => {
     }
   };
 
-  // فلترة البيانات بناءً على البحث
   const filteredData = data.filter((item) =>
     search === ""
       ? item
       : item.name.toLowerCase().includes(search.toLowerCase())
   );
 
+  const columns = [
+    {
+      name: "ID",
+      selector: (row) => row.id,
+      sortable: true,
+      width: "60px",
+    },
+    {
+      name: "Name",
+      selector: (row) => row.name,
+      sortable: true,
+    },
+    {
+      name: "Type",
+      selector: (row) => (row.type === 0 ? "Engineer" : "Employee"),
+      sortable: true,
+    },
+    {
+      name: "Actions",
+      cell: (row) => (
+        <div className="flex space-x-2">
+          <button
+            onClick={() => handleEdit(row.id)}
+            className="edit1"
+          >
+            <FaEdit className="mr-2" />
+            Edit
+          </button>
+          <button
+            onClick={() => handleDelete(row.id)}
+            className="colors1"
+          >
+            <FaTrash className="mr-2" />
+            Delete
+          </button>
+        </div>
+      ),
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
+      width: "150px",
+    },
+  ];
+
   return (
     <div className="container mx-auto mt-5 p-4">
+      <ToastContainer />
+
       <h2 className="text-center font-bold text-2xl mb-5">
         Employees Specials
       </h2>
 
-      <div className="flex justify-end items-center mb-5">
-        {/* <input
+      <div className="flex justify-between items-center my-4 gap-4">
+        <input
           type="text"
-          className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-96"
-          placeholder="Search employees..."
+          placeholder="Search ..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-        /> */}
+          className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
+        />
         <Link
           to="/company/createSpecialise"
-          className="icons bg-blue-800 text-white font-semibold py-2 px-6 rounded-lg hover:shadow-md transform hover:scale-105 transition duration-300"
+          className="bg-blue-800 text-white font-semibold py-2 px-6 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
         >
           + Create Employee
         </Link>
       </div>
 
-      {/* الجدول */}
       {isLoading ? (
         <div className="flex justify-center items-center">
           <p className="text-gray-600 mt-56 text-xl font-semibold">Loading...</p>
@@ -160,46 +175,18 @@ const EmployeesSpecials = () => {
       ) : filteredData.length === 0 ? (
         <p className="text-center text-gray-600 text-lg">No data found.</p>
       ) : (
-        <div className="overflow-x-auto shadow-lg rounded-lg w-full mx-auto">
-          <table
-            ref={tableRef}
-            className="display table-auto w-full border border-gray-200 bg-white rounded-lg"
-          >
-            <thead>
-              <tr className="bg-gradient-to-r from-blue-600 to-blue-400 text-white">
-                <th>ID</th>
-                <th>Name</th>
-                <th>Type</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredData.map((item) => (
-                <tr key={item.id} className="hover:bg-gray-100">
-                  <td>{item.id}</td>
-                  <td>{item.name}</td>
-                  <td>{item.type === 0 ? "Engineer" : "Employee"}</td>
-                  <td className="flex space-x-2">
-                    <button
-                      onClick={() => handleEdit(item.id)}
-                      className="edit m-2  py-2 px-4 rounded-lg "
-                    >
-                      <FaEdit className="inline" />
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(item.id)}
-                      className="colors m-2  py-2 px-4 rounded-lg "
-                    >
-                      <FaTrash className="inline" />
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <DataTable
+          columns={columns}
+          data={filteredData}
+          pagination
+          highlightOnHover
+          striped
+          responsive
+          defaultSortField="id"
+          paginationPerPage={10}
+          paginationRowsPerPageOptions={[10, 20, 30]}
+          className="shadow-lg rounded-lg overflow-hidden"
+        />
       )}
     </div>
   );

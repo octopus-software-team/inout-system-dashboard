@@ -155,27 +155,36 @@ const AddServices = () => {
 
   const filteredData = applyFilters();
 
+   console.log(filteredData)
+
   // تعريف أعمدة الجدول
   const columns = [
     {
-      name: "#",
-      selector: (row) => row.id,
+      title: "id",
+      name: "id",
+      dataIndex : "id",
+
+      selector: (row) => row?.id,
       sortable: true,
+      sorter: (a, b) => a.id - b.id,
       width: "200px",
-      cell: (row) => (
+      render: (row) => (
         <span className="font-medium text-gray-800 dark:text-white">
-          {row.id}
+          {row?.id}
         </span>
       ),
     },
     {
+      title: "name",
+      dataIndex : "name",
       name: "Name",
       width: "400px",
-      selector: (row) => row.name,
+      sorter: (a, b) => a.name - b.name,
+      selector: (row) => row?.name,
       sortable: true,
       cell: (row) => (
         <span className="font-medium text-gray-800 dark:text-white">
-          {row.name}
+          {row?.name}
         </span>
       ),
     },
@@ -267,16 +276,16 @@ const AddServices = () => {
   // دالة فرز الأعمدة
   const handleSort = (column, sortDirection) => {
     const sorted = [...data].sort((a, b) => {
-      if (a[column.selector] < b[column.selector]) {
+      if (a[column?.selector] < b[column?.selector]) {
         return sortDirection === "asc" ? -1 : 1;
       }
-      if (a[column.selector] > b[column.selector]) {
+      if (a[column?.selector] > b[column?.selector]) {
         return sortDirection === "asc" ? 1 : -1;
       }
       return 0;
     });
     setData(sorted);
-    setSortedColumn(column.selector);
+    setSortedColumn(column?.selector);
     setOrder(sortDirection === "asc" ? "ASC" : "DSC");
   };
 
@@ -292,7 +301,7 @@ const AddServices = () => {
       <div className="flex justify-between items-center my-4 space-x-2 flex-wrap">
         <input
           type="text"
-        placeholder="Search tasks..."
+          placeholder="Search tasks..."
           value={search}
           onChange={handleSearch}
           className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
@@ -301,19 +310,19 @@ const AddServices = () => {
         <div>
           <Link
             to="/company/createservices"
-            className="icons bg-blue-800 text-white ml-3 font-semibold py-2 px-6 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
+            className="icons bg-blue-800 text-white  mr-2 font-semibold rounded-lg "
           >
             + Create Service
           </Link>
           <button
             onClick={() => setOpen(true)}
-            className="icons bg-blue-800 ml-3 text-white px-4 py-2 rounded "
+            className="icons bg-blue-800  text-white  mr-2 rounded-lg "
           >
             Import
           </button>
           <button
             onClick={handleExportFile}
-            className="icons bg-blue-800 px-6 py-3 ml-3 text-white rounded-lg shadow-md "
+            className="icons bg-blue-800 text-white  mr-2 rounded-lg "
           >
             Export
           </button>

@@ -183,15 +183,17 @@ const ShowAllTask = () => {
         <div className="flex space-x-2">
           <button
             onClick={() => navigate(`/todo/updatetask/${row.id}`)}
-            className="edit"
+            className="edit1"
           >
             <FaEdit className="" />
+            Edit
           </button>
           <button
             onClick={() => openConfirmModal(row.id)}
-            className="colors"
+            className="colors1"
           >
             <FaTrash className="" />
+            Delete
           </button>
         </div>
       ),

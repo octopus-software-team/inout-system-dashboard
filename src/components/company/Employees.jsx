@@ -248,12 +248,10 @@ const Employees = () => {
 
   // Handle export file
   const handleExportFile = async () => {
-    const token = Cookies.get("token");
+    const formData = new FormData();
+    formData.append("table", tableName);
 
-    if (!token) {
-      toast.error("No token found. Please log in.");
-      return;
-    }
+    const token = Cookies.get("token");
 
     try {
       const response = await fetch(
@@ -263,30 +261,31 @@ const Employees = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ table: tableName }),
+          body: formData,
         }
       );
 
       if (!response.ok) {
-        throw new Error("Failed to export file.");
+        throw new Error("Failed to export file");
       }
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
+
       link.download = `${tableName}.xlsx`;
       document.body.appendChild(link);
       link.click();
+
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-
-      toast.success("File exported successfully!");
     } catch (error) {
       console.error("Error exporting file:", error);
       toast.error("Failed to export file.");
     }
   };
+
 
   // Table columns
   const columns = [

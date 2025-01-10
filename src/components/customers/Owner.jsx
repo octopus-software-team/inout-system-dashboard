@@ -1,11 +1,10 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Cookies from "js-cookie";
-import $ from "jquery";
-import "datatables.net"; // Import DataTables
+import DataTable from "react-data-table-component"; // استبدال jQuery DataTables بـ react-data-table-component
 
 const Owner = () => {
   const [data, setData] = useState([]);
@@ -13,14 +12,88 @@ const Owner = () => {
   const [deleteId, setDeleteId] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const tableRef = useRef(null);
-  const dataTable = useRef(null);
-
+  const [search, setSearch] = useState(""); // حالة البحث
   const navigate = useNavigate();
+  const [branches, setBranches] = useState([]);
 
+  const [filters, setFilters] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    branch_id: "",
+  });
+
+  useEffect(() => {
+    const fetchBranches = async () => {
+      try {
+        const token = Cookies.get("token");
+
+        const response = await fetch(
+          "https://inout-api.octopusteam.net/api/front/getBranches",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const resData = await response.json();
+        if (response.ok) {
+          setBranches(resData.data); // تخزين بيانات الفروع في الحالة
+        } else {
+          console.error("Failed to fetch branches.");
+        }
+      } catch (error) {
+        console.error("Error fetching branches:", error);
+      }
+    };
+    fetchBranches();
+  }, []);
+  const applyFilters = () => {
+    let filteredData = data;
+
+    if (filters.name) {
+      filteredData = filteredData.filter((client) =>
+        client.name.toLowerCase().includes(filters.name.toLowerCase())
+      );
+    }
+
+    if (filters.email) {
+      filteredData = filteredData.filter((client) =>
+        client.email.toLowerCase().includes(filters.email.toLowerCase())
+      );
+    }
+
+    if (filters.phone) {
+      filteredData = filteredData.filter((client) =>
+        client.phone.includes(filters.phone)
+      );
+    }
+
+    if (filters.branch_id) {
+      filteredData = filteredData.filter(
+        (client) => client.branch_id === parseInt(filters.branch_id)
+      );
+    }
+
+    // Apply search filter
+    if (search) {
+      filteredData = filteredData.filter((client) =>
+        client.name.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+
+    return filteredData;
+  };
+
+  const getBranchName = (branchId) => {
+    const branch = branches.find((b) => b.id === branchId); // البحث عن الفرع باستخدام branchId
+    return branch ? branch.name : "Unknown Branch"; // إرجاع اسم الفرع أو "Unknown Branch" إذا لم يتم العثور عليه
+  };
   const token = Cookies.get("token");
 
-  // Fetch Owners
+  // جلب البيانات
   useEffect(() => {
     if (!token) {
       console.log("No token found, cannot fetch data.");
@@ -59,60 +132,7 @@ const Owner = () => {
       .finally(() => setIsLoading(false));
   }, [token]);
 
-  // Initialize DataTable
-  useEffect(() => {
-    if (!isLoading && data.length > 0) {
-      // Initialize DataTable
-      if (!dataTable.current) {
-        dataTable.current = $(tableRef.current).DataTable({
-          paging: true,
-          searching: true,
-          info: true,
-          ordering: true,
-          language: {
-            search: "Search:",
-            lengthMenu: "Show _MENU_ entries",
-            info: "Showing _START_ to _END_ of _TOTAL_ entries",
-            paginate: {
-              first: "First",
-              last: "Last",
-              next: "Next",
-              previous: "Previous",
-            },
-          },
-          // Prevent ordering on the Actions column
-          columnDefs: [
-            { orderable: false, targets: -1 },
-          ],
-        });
-      } else {
-        // If DataTable already initialized, just update the data
-        dataTable.current.clear();
-        dataTable.current.rows.add(data);
-        dataTable.current.draw();
-      }
-    }
-
-    return () => {
-      if (dataTable.current) {
-        dataTable.current.destroy();
-        dataTable.current = null;
-      }
-    };
-  }, [data, isLoading]);
-
-  // Handle Edit
-  const handleEdit = (id) => {
-    const selectedOwner = data.find((owner) => owner.id === id);
-    navigate("/customers/updateowner", { state: selectedOwner });
-  };
-
-  // Handle Delete
-  const handleDelete = (id) => {
-    setDeleteId(id);
-    setIsConfirmOpen(true);
-  };
-
+  // تأكيد الحذف
   const confirmDelete = () => {
     if (!token) {
       toast.error("No token found. Please log in.");
@@ -120,13 +140,16 @@ const Owner = () => {
       return;
     }
 
-    fetch(`https://inout-api.octopusteam.net/api/front/deleteCustomer/${deleteId}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    fetch(
+      `https://inout-api.octopusteam.net/api/front/deleteCustomer/${deleteId}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
       .then((res) => {
         if (!res.ok) {
           throw new Error("Failed to delete owner.");
@@ -136,7 +159,9 @@ const Owner = () => {
       .then((result) => {
         if (result.status === 200) {
           toast.success(result.msg || "Owner deleted successfully.");
-          setData((prevData) => prevData.filter((item) => item.id !== deleteId));
+          setData((prevData) =>
+            prevData.filter((item) => item.id !== deleteId)
+          );
         } else {
           toast.error(result.msg || "Failed to delete owner.");
         }
@@ -148,99 +173,142 @@ const Owner = () => {
       .finally(() => setIsConfirmOpen(false));
   };
 
-  return (
-    <div className="container mt-5">
-      <h2 className="text-center font-bold dark:text-white text-3xl">Owners</h2>
+  // البحث
+  const handleSearch = (event) => {
+    setSearch(event.target.value);
+  };
 
-      <div className="flex justify-end items-center my-4">
-        {/* <input
-          className="border border-gray-300 dark:bg-slate-900 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-2/3 shadow-md"
+  // تصفية البيانات بناءً على البحث
+  const filteredData = data.filter((item) =>
+    item.name.toLowerCase().includes(search.toLowerCase())
+  );
+
+  // تعريف أعمدة الجدول
+  const columns = [
+    {
+      name: "#",
+      selector: (row) => row.id,
+      sortable: true,
+      width: "100px",
+      cell: (row) => (
+        <span className="font-medium text-gray-800 dark:text-white">
+          {row.id}
+        </span>
+      ),
+    },
+    {
+      name: "Name",
+      selector: (row) => row.name,
+      sortable: true,
+      cell: (row) => (
+        <span className="font-medium text-gray-800 dark:text-white">
+          {row.name}
+        </span>
+      ),
+    },
+    {
+      name: "Email",
+      selector: (row) => row.email,
+      sortable: true,
+      cell: (row) => (
+        <span className="font-medium text-gray-800 dark:text-white">
+          {row.email}
+        </span>
+      ),
+    },
+    {
+      name: "Phone",
+      selector: (row) => row.phone,
+      sortable: true,
+      cell: (row) => (
+        <span className="font-medium text-gray-800 dark:text-white">
+          {row.phone}
+        </span>
+      ),
+    },
+    {
+      name: "Branch",
+      selector: (row) => getBranchName(row.branch_id), // استخدام الدالة getBranchName
+      sortable: true,
+      cell: (row) => (
+        <span className="text-gray-700 dark:text-white">
+          {getBranchName(row.branch_id)} {/* عرض اسم الفرع */}
+        </span>
+      ),
+    },
+    {
+      name: "Actions",
+      cell: (row) => (
+        <div className="flex space-x-2">
+          <Link to={`/customers/editowner/${row.id}`} className="btn1 edit1">
+            <FaEdit className="mr-2" />
+            Edit
+          </Link>
+          <button
+            onClick={() => {
+              setDeleteId(row.id);
+              setIsConfirmOpen(true);
+            }}
+            className="btn1 colors1"
+          >
+            <FaTrash className="mr-2" />
+            Delete
+          </button>
+        </div>
+      ),
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
+      width: "150px",
+    },
+  ];
+
+  return (
+    <div className="container p-6 mt-5">
+      <h2 className="text-center font-bold text-3xl text-black">Owners</h2>
+
+      <div className="flex justify-between items-center my-4 space-x-2 flex-wrap">
+        <input
           type="text"
           placeholder="Search owners..."
-          value={""} 
-          onChange={() => {}}
-          disabled
-        /> */}
-        <Link
-          to="/customers/createowner"
-          className="text-white bg-blue-800 font-semibold py-2 px-6 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
-        >
-          + Create Owner
-        </Link>
+          value={search}
+          onChange={handleSearch}
+          className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
+        />
+        <div>
+          <Link
+            to="/customers/createowner"
+            className="icons bg-blue-800 text-white  mr-2 font-semibold rounded-lg "
+          >
+            + Create Owner
+          </Link>
+        </div>
       </div>
+
+      <DataTable
+        columns={columns}
+        data={filteredData}
+        pagination
+        highlightOnHover
+        striped
+        responsive
+        defaultSortField="#"
+        paginationPerPage={10}
+        paginationRowsPerPageOptions={[10, 20, 30]}
+        className="shadow-lg rounded-lg overflow-hidden"
+      />
 
       {isLoading ? (
         <div className="flex justify-center items-center">
-          <p className="text-gray-600 mt-56 text-xl font-semibold">Loading...</p>
+          <p className="w-full text-center mt-56 h-full text-gray-700 text-xl font-semibold">
+            Loading...
+          </p>
         </div>
       ) : error ? (
         <p className="text-red-500 text-center">{error}</p>
-      ) : data.length === 0 ? (
+      ) : filteredData.length === 0 ? (
         <p className="text-center text-gray-600 text-lg">No owners found.</p>
-      ) : (
-        <div className="overflow-x-auto shadow-lg rounded-lg w-full mx-auto">
-          <table ref={tableRef} className="display table-auto w-full border border-gray-200 bg-white rounded-lg">
-            <thead>
-              <tr className="bg-gradient-to-r from-blue-600 to-blue-400 text-white">
-                <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
-                  #
-                </th>
-                <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
-                  Name
-                </th>
-                <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
-                  Email
-                </th>
-                <th className="px-4 dark:bg-slate-900 dark:text-white py-3 text-left font-semibold text-lg border-b border-gray-300">
-                  Phone
-                </th>
-                <th className="px-4 dark:bg-slate-900 dark:text-white py-3  font-semibold text-lg border-b border-gray-300">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((d, index) => (
-                <tr
-                  key={d.id}
-                  className={`hover:bg-gray-100 transition duration-200 ${
-                    index % 2 === 0 ? "bg-gray-50" : "bg-white"
-                  }`}
-                >
-                  <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">
-                    {d.id}
-                  </td>
-                  <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">
-                    {d.name}
-                  </td>
-                  <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">
-                    {d.email}
-                  </td>
-                  <td className="px-4 dark:bg-slate-900 dark:text-white py-3 text-gray-800">
-                    {d.phone}
-                  </td>
-                  <td className="px-4 dark:bg-slate-900 dark:text-white py-3  space-x-2">
-                    <Link
-                      to={`/customers/editowner/${d.id}`}
-                      className="edit rounded-lg "
-                    >
-                      <FaEdit className="inline mr-2" />
-                      Edit
-                    </Link>
-                    <button
-                      onClick={() => handleDelete(d.id)}
-                      className="colors  rounded-lg"
-                    >
-                      <FaTrash className="inline mr-2" />
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      ) : null}
 
       {/* Confirm Deletion Modal */}
       {isConfirmOpen && (

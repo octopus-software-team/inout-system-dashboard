@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Cookies from 'js-cookie';
+import { Toaster, toast } from 'react-hot-toast'; // استيراد Toaster و toast من react-hot-toast
 
 const UpdateSpecialise = () => {
   const [employeeData, setEmployeeData] = useState({
@@ -35,6 +36,7 @@ const UpdateSpecialise = () => {
 
     if (!token) {
       setError("No token found. Please log in.");
+      toast.error("No token found. Please log in."); // استخدام toast من react-hot-toast
       return;
     }
 
@@ -59,22 +61,34 @@ const UpdateSpecialise = () => {
       const result = await response.json();
 
       if (result.status === 200) {
-        alert("Employee updated successfully!");
-        navigate("/company/employeespecialise");
+        toast.success("Employee updated successfully!", { duration: 4000 }); // زيادة مدة ظهور التوست
+        setTimeout(() => {
+          navigate("/company/employeespecialise");
+        }, 2000); // تأخير إعادة التوجيه
       } else {
         setError(result.msg || "Failed to update employee.");
+        toast.error(result.msg || "Failed to update employee.", { duration: 4000 }); // زيادة مدة ظهور التوست
       }
     } catch (err) {
       console.error("Error updating employee:", err);
       setError("Error updating employee.");
+      toast.error("Error updating employee.", { duration: 4000 }); // زيادة مدة ظهور التوست
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="container mx-auto mt-5 p-4">
-      <h2 className="text-center font-bold text-2xl mb-5">Update Employee Specialisation</h2>
+    <div className="container mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg max-w-2xl">
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          style: {
+            zIndex: 9999, // التأكد من ظهور التوست فوق كل العناصر
+          },
+        }}
+      />
+      <h2 className="text-center font-bold text-3xl mb-8 text-gray-800">Update Employee Specialisation</h2>
 
       {isLoading && (
         <div className="flex justify-center items-center">
@@ -82,31 +96,31 @@ const UpdateSpecialise = () => {
         </div>
       )}
 
-      {error && <p className="text-red-500 text-center">{error}</p>}
+      {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
-      <form onSubmit={handleSubmit} className="max-w-lg mx-auto space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label htmlFor="name" className="block font-semibold">Employee Name</label>
+          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">Employee Name</label>
           <input
             type="text"
             id="name"
             name="name"
             value={employeeData.name}
             onChange={handleInputChange}
-            className="w-full p-2 border border-gray-300 rounded-lg"
+            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
             placeholder="Enter employee name"
             required
           />
         </div>
 
         <div>
-          <label htmlFor="type" className="block font-semibold">Employee Type</label>
+          <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-2">Employee Type</label>
           <select
             id="type"
             name="type"
             value={employeeData.type}
             onChange={handleInputChange}
-            className="w-full p-2 border border-gray-300 rounded-lg"
+            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
             required
           >
             <option value={0}>Engineer</option>
@@ -117,7 +131,7 @@ const UpdateSpecialise = () => {
         <div className="flex justify-center">
           <button
             type="submit"
-            className="bg-blue-500 text-white font-semibold py-2 px-6 rounded-lg hover:shadow-md transform hover:scale-105 transition duration-300"
+            className="bg-blue-600 text-white font-semibold py-3 px-8 rounded-lg hover:bg-blue-700 hover:shadow-md transform hover:scale-105 transition duration-300"
           >
             Save Changes
           </button>
