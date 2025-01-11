@@ -280,23 +280,52 @@ const Branches = () => {
     },
   ];
 
-  // تصفية الفروع بناءً على المدينة والبلد والنص العام
-  const filteredData = data.filter((branch) => {
-    const city = cities.find((c) => c.id === branch.city_id);
-    const country = countries.find((c) => c.id === branch.country_id);
 
-    const matchesCity = city?.name
-      .toLowerCase()
-      .includes(searchCity.toLowerCase());
-    const matchesCountry = country?.name
-      .toLowerCase()
-      .includes(searchCountry.toLowerCase());
-    const matchesSearch = branch.name
-      .toLowerCase()
-      .includes(searchText.toLowerCase());
-
-    return matchesCity && matchesCountry && matchesSearch;
+  const [filters, setFilters] = useState({
+    country_id: "",
+    city_id: "",
   });
+
+
+  const applyFilters = () => {
+    let filteredData = data;
+  
+    if (filters.country_id) {
+      filteredData = filteredData.filter(
+        (branch) => branch.country_id === parseInt(filters.country_id)
+      );
+    }
+  
+    if (filters.city_id) {
+      filteredData = filteredData.filter(
+        (branch) => branch.city_id === parseInt(filters.city_id)
+      );
+    }
+  
+    return filteredData;
+  };
+  
+  const filteredData = applyFilters().filter((branch) =>
+    branch.name.toLowerCase().includes(searchText.toLowerCase())
+  );
+
+  // تصفية الفروع بناءً على المدينة والبلد والنص العام
+  // const filteredData = data.filter((branch) => {
+  //   const city = cities.find((c) => c.id === branch.city_id);
+  //   const country = countries.find((c) => c.id === branch.country_id);
+
+  //   const matchesCity = city?.name
+  //     .toLowerCase()
+  //     .includes(searchCity.toLowerCase());
+  //   const matchesCountry = country?.name
+  //     .toLowerCase()
+  //     .includes(searchCountry.toLowerCase());
+  //   const matchesSearch = branch.name
+  //     .toLowerCase()
+  //     .includes(searchText.toLowerCase());
+
+  //   return matchesCity && matchesCountry && matchesSearch;
+  // });
 
   return (
     <div className="container mt-5">
@@ -405,70 +434,63 @@ const Branches = () => {
         </div>
       )}
 
-      {isFilterModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg w-full max-w-md">
-            <h3 className="text-xl font-bold mb-4">Filter Branches</h3>
-            <div className="space-y-4">
-              <Select
-                showSearch
-                style={{ width: "100%", marginBottom: "20px" }}
-                placeholder="Search for a country"
-                optionFilterProp="children"
-                onChange={(value) => setSearchCountry(value)}
-                filterOption={(input, option) =>
-                  option.children.toLowerCase().includes(input.toLowerCase())
-                }
-              >
-                {countries.map((country) => (
-                  <Option key={country.id} value={country.name}>
-                    {country.name}
-                  </Option>
-                ))}
-              </Select>
+{isFilterModalOpen && (
+  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div className="bg-white p-6 rounded-lg w-full max-w-md">
+      <h3 className="text-xl font-bold mb-4">Filter Branches</h3>
+      <div className="space-y-4">
+      <label htmlFor="">select country</label>
 
-              <Select
-                showSearch
-                style={{ width: "100%", marginBottom: "20px" }}
-                placeholder="Search for a city"
-                optionFilterProp="children"
-                onChange={(value) => setSearchCity(value)}
-                filterOption={(input, option) =>
-                  option.children.toLowerCase().includes(input.toLowerCase())
-                }
-              >
-                {cities.map((city) => (
-                  <Option key={city.id} value={city.name}>
-                    {city.name}
-                  </Option>
-                ))}
-              </Select>
+        <select
+          name="country_id"
+          value={filters.country_id}
+          onChange={(e) =>
+            setFilters({ ...filters, country_id: e.target.value })
+          }
+          className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
 
-              <Input
-                placeholder="Search by branch name"
-                prefix={<FaSearch className="text-gray-400" />}
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-              />
-            </div>
-            <div className="flex justify-end mt-6">
-              <button
-                onClick={() => setIsFilterModalOpen(false)}
-                className="bg-gray-500 text-white px-4 py-2 rounded-lg mr-2 hover:bg-gray-600 transition duration-200"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => setIsFilterModalOpen(false)}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200"
-              >
-                Apply
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+          <option value="">All</option>
+          {countries.map((country) => (
+            <option key={country.id} value={country.id}>
+              {country.name}
+            </option>
+          ))}
+        </select>
 
+        <label htmlFor="">select city</label>
+
+        <select
+          name="city_id"
+          value={filters.city_id}
+          onChange={(e) => setFilters({ ...filters, city_id: e.target.value })}
+          className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="">Select City</option>
+          {cities.map((city) => (
+            <option key={city.id} value={city.id}>
+              {city.name}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="flex justify-end mt-6">
+        <button
+          onClick={() => setIsFilterModalOpen(false)}
+          className="bg-gray-500 text-white px-4 py-2 rounded-lg mr-2 hover:bg-gray-600 transition duration-200"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={() => setIsFilterModalOpen(false)}
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200"
+        >
+          Apply
+        </button>
+      </div>
+    </div>
+  </div>
+)}
       {open && (
         <div
           className="fixed top-0 left-0 z-30 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"

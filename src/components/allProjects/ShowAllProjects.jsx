@@ -25,6 +25,10 @@ const ShowAllProjects = () => {
     branch_id: "",
   });
 
+
+  const [services, setServices] = useState([]); // إضافة services إلى الحالة
+const [consultives, setConsultives] = useState([]); // إضافة consultives إلى الحالة
+
   const navigate = useNavigate();
 
   // Status Mapping
@@ -284,7 +288,14 @@ const ShowAllProjects = () => {
       name: "Services",
       selector: (row) =>
         row.services
-          ? row.services.map((s) => s.service_id).join(", ")
+          ? row.services
+              .map((s) => {
+                const service = services.find(
+                  (service) => service.id === s.service_id
+                );
+                return service ? service.name : "Unknown";
+              })
+              .join(", ")
           : "None",
       sortable: true,
     },
@@ -292,7 +303,14 @@ const ShowAllProjects = () => {
       name: "Consultives",
       selector: (row) =>
         row.consultive
-          ? row.consultive.map((c) => c.consultive_id).join(", ")
+          ? row.consultive
+              .map((c) => {
+                const consultive = consultives.find(
+                  (consultive) => consultive.id === c.consultive_id
+                );
+                return consultive ? consultive.name : "Unknown";
+              })
+              .join(", ")
           : "None",
       sortable: true,
     },
@@ -316,7 +334,7 @@ const ShowAllProjects = () => {
             className="eye1"
           >
             <FaEye className="" />
-            eye
+            View
           </button>
         </div>
       ),

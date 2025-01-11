@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import { FaEdit, FaTrash, FaFilter } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -10,6 +10,12 @@ const Consultative = () => {
   const [data, setData] = useState([]);
   const [branches, setBranches] = useState([]);
   const [search, setSearch] = useState("");
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filters, setFilters] = useState({
+    name: "",
+    phone: "",
+    branch_id: "",
+  });
   const navigate = useNavigate();
 
   // Fetch branches
@@ -126,9 +132,45 @@ const Consultative = () => {
       });
   };
 
-  // Filter data based on search
-  const filteredData = data.filter((item) =>
-    item.name.toLowerCase().includes(search.toLowerCase())
+  // Handle filter change
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters({
+      ...filters,
+      [name]: value,
+    });
+  };
+
+  // Apply filters
+  const applyFilters = () => {
+    let filteredData = data;
+
+    if (filters.name) {
+      filteredData = filteredData.filter((consultive) =>
+        consultive.name.toLowerCase().includes(filters.name.toLowerCase())
+      );
+    }
+
+    if (filters.phone) {
+      filteredData = filteredData.filter((consultive) =>
+        consultive.phone.includes(filters.phone)
+      );
+    }
+
+    if (filters.branch_id) {
+      filteredData = filteredData.filter(
+        (consultive) => consultive.branch_id === parseInt(filters.branch_id)
+      );
+    }
+
+    return filteredData;
+  };
+
+  // Filter data based on search and filters
+  const filteredData = applyFilters().filter((consultive) =>
+    search === ""
+      ? consultive
+      : consultive.name.toLowerCase().includes(search.toLowerCase())
   );
 
   // Define columns for the table
@@ -195,12 +237,21 @@ const Consultative = () => {
           onChange={(e) => setSearch(e.target.value)}
           className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
         />
-        <Link
-          to="/customers/createconsultive"
-          className="icons text-white bg-blue-800 font-semibold py-2 px-6 rounded-lg ml-4"
-        >
-          + Create Consultive
-        </Link>
+        <div>
+          <Link
+            to="/customers/createconsultive"
+            className="icons text-white bg-blue-800 font-semibold py-2 px-6 rounded-lg mr-2"
+          >
+            + Create Consultive
+          </Link>
+          <button
+            onClick={() => setIsFilterOpen(true)}
+            className="icons text-white bg-blue-800 font-semibold py-2 px-6 rounded-lg"
+          >
+            <FaFilter className="inline-block mr-2" />
+            Filter
+          </button>
+        </div>
       </div>
 
       <DataTable
@@ -215,6 +266,46 @@ const Consultative = () => {
         paginationRowsPerPageOptions={[10, 20, 30]}
         className="shadow-lg rounded-lg overflow-hidden"
       />
+
+      {isFilterOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg w-full max-w-md">
+            <h3 className="text-xl font-bold mb-4">Filter Consultives</h3>
+            <div className="space-y-4">
+            <label htmlFor="">select branch </label>
+
+            
+              <select
+                name="branch_id"
+                value={filters.branch_id}
+                onChange={handleFilterChange}
+                className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">All</option>
+                {branches.map((branch) => (
+                  <option key={branch.id} value={branch.id}>
+                    {branch.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex justify-end mt-6">
+              <button
+                onClick={() => setIsFilterOpen(false)}
+                className="bg-gray-500 text-white px-4 py-2 rounded mr-2 hover:bg-gray-600 transition duration-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => setIsFilterOpen(false)}
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-200"
+              >
+                Apply
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <ToastContainer
         position="top-right"

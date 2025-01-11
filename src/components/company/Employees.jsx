@@ -286,7 +286,6 @@ const Employees = () => {
     }
   };
 
-
   // Table columns
   const columns = [
     {
@@ -386,17 +385,20 @@ const Employees = () => {
       name: "Actions",
       cell: (row) => (
         <div className="flex">
-          <Link to={`/company/view/${row.id}`} className="eye mr-2">
+          <Link to={`/company/view/${row.id}`} className="eye1 mr-2">
             <FaEye />
+            View
           </Link>
-          <Link to={`/company/editemp/${row.id}`} className="edit mr-2">
+          <Link to={`/company/editemp/${row.id}`} className="edit1 mr-2">
             <FaEdit />
+            Edit
           </Link>
           <button
             onClick={() => openConfirmModal(row.id)}
-            className="colors mr-2"
+            className="colors1 mr-2"
           >
             <FaTrash />
+            Delete
           </button>
         </div>
       ),
@@ -499,26 +501,30 @@ const Employees = () => {
           <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 w-80">
             <h3 className="text-xl font-semibold mb-4">Filter Employees</h3>
             <div className="space-y-4">
+              <label htmlFor="">select branch</label>
+
               <select
                 name="branch_id"
                 value={filters.branch_id}
                 onChange={handleFilterChange}
                 className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="">Select Branch</option>
+                <option value="">ALL</option>
                 {branches.map((branch) => (
                   <option key={branch.id} value={branch.id}>
                     {branch.name}
                   </option>
                 ))}
               </select>
+              <label htmlFor="">select employee special </label>
+
               <select
                 name="employee_special_id"
                 value={filters.employee_special_id}
                 onChange={handleFilterChange}
                 className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="">Select Specialization</option>
+                <option value="">ALL</option>
                 {employeeSpecials.map((special) => (
                   <option key={special.id} value={special.id}>
                     {special.name}

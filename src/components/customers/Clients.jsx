@@ -427,13 +427,15 @@ const Clients = () => {
           <div className="bg-white p-6 rounded-lg w-full max-w-md">
             <h3 className="text-xl font-bold mb-4">Filter Clients</h3>
             <div className="space-y-4">
+            <label htmlFor="">select branch </label>
+
               <select
                 name="branch_id"
                 value={filters.branch_id}
                 onChange={handleFilterChange}
                 className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="">Select Branch</option>
+                <option value="">ALL</option>
                 {branches.map((branch) => (
                   <option key={branch.id} value={branch.id}>
                     {branch.name}

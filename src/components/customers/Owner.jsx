@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import { FaEdit, FaTrash, FaFilter } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Cookies from "js-cookie";
-import DataTable from "react-data-table-component"; // استبدال jQuery DataTables بـ react-data-table-component
+import DataTable from "react-data-table-component";
 
 const Owner = () => {
   const [data, setData] = useState([]);
@@ -12,16 +12,56 @@ const Owner = () => {
   const [deleteId, setDeleteId] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [search, setSearch] = useState(""); // حالة البحث
+  const [search, setSearch] = useState("");
   const navigate = useNavigate();
   const [branches, setBranches] = useState([]);
-
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filters, setFilters] = useState({
     name: "",
     email: "",
     phone: "",
     branch_id: "",
   });
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters({
+      ...filters,
+      [name]: value,
+    });
+  };
+
+  const applyFilters = () => {
+    let filteredData = data;
+
+    if (filters.name) {
+      filteredData = filteredData.filter((owner) =>
+        owner.name.toLowerCase().includes(filters.name.toLowerCase())
+      );
+    }
+
+    if (filters.email) {
+      filteredData = filteredData.filter((owner) =>
+        owner.email.toLowerCase().includes(filters.email.toLowerCase())
+      );
+    }
+
+    if (filters.phone) {
+      filteredData = filteredData.filter((owner) =>
+        owner.phone.includes(filters.phone)
+      );
+    }
+
+    if (filters.branch_id) {
+      filteredData = filteredData.filter(
+        (owner) => owner.branch_id === parseInt(filters.branch_id)
+      );
+    }
+
+    return filteredData;
+  };
+
+  const filteredData = applyFilters();
 
   useEffect(() => {
     const fetchBranches = async () => {
@@ -40,7 +80,7 @@ const Owner = () => {
         );
         const resData = await response.json();
         if (response.ok) {
-          setBranches(resData.data); // تخزين بيانات الفروع في الحالة
+          setBranches(resData.data);
         } else {
           console.error("Failed to fetch branches.");
         }
@@ -50,50 +90,14 @@ const Owner = () => {
     };
     fetchBranches();
   }, []);
-  const applyFilters = () => {
-    let filteredData = data;
-
-    if (filters.name) {
-      filteredData = filteredData.filter((client) =>
-        client.name.toLowerCase().includes(filters.name.toLowerCase())
-      );
-    }
-
-    if (filters.email) {
-      filteredData = filteredData.filter((client) =>
-        client.email.toLowerCase().includes(filters.email.toLowerCase())
-      );
-    }
-
-    if (filters.phone) {
-      filteredData = filteredData.filter((client) =>
-        client.phone.includes(filters.phone)
-      );
-    }
-
-    if (filters.branch_id) {
-      filteredData = filteredData.filter(
-        (client) => client.branch_id === parseInt(filters.branch_id)
-      );
-    }
-
-    // Apply search filter
-    if (search) {
-      filteredData = filteredData.filter((client) =>
-        client.name.toLowerCase().includes(search.toLowerCase())
-      );
-    }
-
-    return filteredData;
-  };
 
   const getBranchName = (branchId) => {
-    const branch = branches.find((b) => b.id === branchId); // البحث عن الفرع باستخدام branchId
-    return branch ? branch.name : "Unknown Branch"; // إرجاع اسم الفرع أو "Unknown Branch" إذا لم يتم العثور عليه
+    const branch = branches.find((b) => b.id === branchId);
+    return branch ? branch.name : "Unknown Branch";
   };
+
   const token = Cookies.get("token");
 
-  // جلب البيانات
   useEffect(() => {
     if (!token) {
       console.log("No token found, cannot fetch data.");
@@ -132,7 +136,6 @@ const Owner = () => {
       .finally(() => setIsLoading(false));
   }, [token]);
 
-  // تأكيد الحذف
   const confirmDelete = () => {
     if (!token) {
       toast.error("No token found. Please log in.");
@@ -173,17 +176,10 @@ const Owner = () => {
       .finally(() => setIsConfirmOpen(false));
   };
 
-  // البحث
   const handleSearch = (event) => {
     setSearch(event.target.value);
   };
 
-  // تصفية البيانات بناءً على البحث
-  const filteredData = data.filter((item) =>
-    item.name.toLowerCase().includes(search.toLowerCase())
-  );
-
-  // تعريف أعمدة الجدول
   const columns = [
     {
       name: "#",
@@ -228,11 +224,11 @@ const Owner = () => {
     },
     {
       name: "Branch",
-      selector: (row) => getBranchName(row.branch_id), // استخدام الدالة getBranchName
+      selector: (row) => getBranchName(row.branch_id),
       sortable: true,
       cell: (row) => (
         <span className="text-gray-700 dark:text-white">
-          {getBranchName(row.branch_id)} {/* عرض اسم الفرع */}
+          {getBranchName(row.branch_id)}
         </span>
       ),
     },
@@ -282,6 +278,13 @@ const Owner = () => {
           >
             + Create Owner
           </Link>
+          <button
+            onClick={() => setIsFilterOpen(true)}
+            className="icons bg-blue-800 text-white font-semibold rounded-lg"
+          >
+            <FaFilter className="inline-block mr-2" />
+            Filter
+          </button>
         </div>
       </div>
 
@@ -310,7 +313,45 @@ const Owner = () => {
         <p className="text-center text-gray-600 text-lg">No owners found.</p>
       ) : null}
 
-      {/* Confirm Deletion Modal */}
+      {isFilterOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg w-full max-w-md">
+            <h3 className="text-xl font-bold mb-4">Filter Owners</h3>
+            <div className="space-y-4">
+            <label htmlFor="">select branch </label>
+
+              <select
+                name="branch_id"
+                value={filters.branch_id}
+                onChange={handleFilterChange}
+                className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">ALL</option>
+                {branches.map((branch) => (
+                  <option key={branch.id} value={branch.id}>
+                    {branch.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex justify-end mt-6">
+              <button
+                onClick={() => setIsFilterOpen(false)}
+                className="bg-gray-500 text-white px-4 py-2 rounded mr-2 hover:bg-gray-600 transition duration-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => setIsFilterOpen(false)}
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-200"
+              >
+                Apply
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {isConfirmOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 w-80">

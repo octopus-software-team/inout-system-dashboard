@@ -188,10 +188,7 @@ const ShowAllTask = () => {
             <FaEdit className="" />
             Edit
           </button>
-          <button
-            onClick={() => openConfirmModal(row.id)}
-            className="colors1"
-          >
+          <button onClick={() => openConfirmModal(row.id)} className="colors1">
             <FaTrash className="" />
             Delete
           </button>
@@ -232,17 +229,22 @@ const ShowAllTask = () => {
       return;
     }
 
-    fetch(`https://inout-api.octopusteam.net/api/front/deleteTask/${deleteId}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    fetch(
+      `https://inout-api.octopusteam.net/api/front/deleteTask/${deleteId}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
       .then((res) => res.json())
       .then((data) => {
         if (data.status === 200) {
-          setTasks((prevData) => prevData.filter((task) => task.id !== deleteId));
+          setTasks((prevData) =>
+            prevData.filter((task) => task.id !== deleteId)
+          );
           toast.success(data.msg || "Task deleted successfully.");
         } else {
           toast.error("Failed to delete task.");
@@ -261,7 +263,9 @@ const ShowAllTask = () => {
     <div className="container mt-5">
       <ToastContainer />
 
-      <h2 className="text-center font-bold text-3xl text-black">Show All Tasks</h2>
+      <h2 className="text-center font-bold text-3xl text-black">
+        Show All Tasks
+      </h2>
 
       <div className="flex justify-between items-center my-4 gap-4">
         <div className="flex items-center">
@@ -314,26 +318,30 @@ const ShowAllTask = () => {
           <div className="bg-white p-6 rounded-lg w-full max-w-md">
             <h3 className="text-xl font-bold mb-4">Filter Tasks</h3>
             <div className="space-y-4">
+              <label htmlFor="">select employe </label>
+
               <select
                 name="employee_id"
                 value={filters.employee_id}
                 onChange={handleFilterChange}
                 className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="">Select Employee</option>
+                <option value="">ALL</option>
                 {employees.map((employee) => (
                   <option key={employee.id} value={employee.id}>
                     {employee.full_name}
                   </option>
                 ))}
               </select>
+              <label htmlFor="">select status </label>
+
               <select
                 name="status"
                 value={filters.status}
                 onChange={handleFilterChange}
                 className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="">Select Status</option>
+                <option value="">ALL</option>
                 <option value="0">Urgent</option>
                 <option value="1">High</option>
                 <option value="2">Low</option>

@@ -116,12 +116,14 @@ const AddEngineer = () => {
       setFormData({ ...formData, [id]: value });
     }
 
+    // مسح رسالة الخطأ للحقل الذي تم تغييره
     setErrors((prevErrors) => ({ ...prevErrors, [id]: "" }));
   };
 
   const validateForm = () => {
     let newErrors = {};
 
+    // التحقق من الحقول المطلوبة
     const requiredFields = [
       "full_name",
       "email",
@@ -145,15 +147,17 @@ const AddEngineer = () => {
       }
     });
 
+    // التحقق من صحة البريد الإلكتروني
     if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = "Please enter a valid email address.";
     }
 
-    // التحقق من أن رقم الهاتف يحتوي على أرقام فقط
+    // التحقق من صحة رقم الهاتف
     if (formData.phone && !/^\d+$/.test(formData.phone)) {
       newErrors.phone = "Please enter a valid phone number (numbers only).";
     }
 
+    // التحقق من تطابق كلمة المرور
     if (
       formData.password &&
       formData.password_confirmation &&
@@ -162,18 +166,24 @@ const AddEngineer = () => {
       newErrors.password_confirmation = "Passwords do not match.";
     }
 
+    // التحقق من أن مدة العقد رقم موجب
     if (formData.contract_duration && formData.contract_duration <= 0) {
       newErrors.contract_duration = "Duration must be a positive number.";
     }
 
-    console.log(newErrors);
-
+    // تحديث حالة الأخطاء
     setErrors(newErrors);
+
+    // إرجاع `true` إذا لم يكن هناك أخطاء
     return Object.keys(newErrors).length === 0;
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!validateForm()) {
+      toast.error("Please fix the errors in the form.");
+      return;
+    }
 
     const formDataToSend = new FormData();
     Object.entries(formData).forEach(([key, value]) => {
@@ -181,14 +191,6 @@ const AddEngineer = () => {
         formDataToSend.append(key, value);
       }
     });
-
-    console.log(errors);
-
-    validateForm();
-    // if (validateForm()) {
-    //   toast.error("Please fix the errors in the form.");
-    //   return;
-    // }
 
     try {
       const response = await fetch(
@@ -229,16 +231,16 @@ const AddEngineer = () => {
           type: 0,
           notes: "",
         });
+      } else if (result.status === 422) {
+        // تحديث حالة الأخطاء لعرضها تحت الحقول
+        const validationErrors = result.data;
+        const formattedErrors = {};
+        Object.keys(validationErrors).forEach((field) => {
+          formattedErrors[field] = validationErrors[field].join(" "); // تحويل المصفوفة إلى سلسلة نصية
+        });
+        setErrors(formattedErrors);
       } else {
-        if (result.msg) {
-          toast.error(result.msg);
-        } else if (result.data) {
-          Object.values(result.data).forEach((errorMsg) => {
-            toast.error(errorMsg);
-          });
-        } else {
-          toast.error("Failed to add engineer. Please try again.");
-        }
+        toast.error(result.msg || "Failed to add engineer. Please try again.");
       }
     } catch (error) {
       console.error(error);
@@ -246,46 +248,49 @@ const AddEngineer = () => {
     }
   };
 
- const handleAddSpecialty = async () => {
-  if (!newSpecialty) {
-    toast.error("Please enter a specialty name.");
-    return;
-  }
-
-  try {
-    const response = await fetch(
-      "https://inout-api.octopusteam.net/api/front/addEmployeesSpecials",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name: newSpecialty, type }), // إرسال name و type
-      }
-    );
-
-    const result = await response.json();
-    if (result.status === 200) {
-      toast.success("Specialty added successfully.");
-      setSpecialties([...specialties, result.data]); // تحديث قائمة الخصائص
-      setIsModalOpen(false); // إغلاق المودال
-      setNewSpecialty(""); // مسح حقل الإدخال
-      setType(0); // إعادة تعيين type إلى القيمة الافتراضية
-    } else {
-      toast.error(result.msg || "Failed to add specialty.");
+  const handleAddSpecialty = async () => {
+    if (!newSpecialty) {
+      toast.error("Please enter a specialty name.");
+      return;
     }
-  } catch (error) {
-    console.error("Error adding specialty:", error);
-    toast.error("Failed to add specialty. Please try again.");
-  }
-};
 
+    try {
+      const response = await fetch(
+        "https://inout-api.octopusteam.net/api/front/addEmployeesSpecials",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ name: newSpecialty, type }), // إرسال name و type
+        }
+      );
 
+      const result = await response.json();
+      if (result.status === 200) {
+        toast.success("Specialty added successfully.");
+        setSpecialties([...specialties, result.data]); // تحديث قائمة الخصائص
+        setIsModalOpen(false); // إغلاق المودال
+        setNewSpecialty(""); // مسح حقل الإدخال
+        setType(0); // إعادة تعيين type إلى القيمة الافتراضية
+      } else {
+        toast.error(result.msg || "Failed to add specialty.");
+      }
+    } catch (error) {
+      console.error("Error adding specialty:", error);
+      toast.error("Failed to add specialty. Please try again.");
+    }
+  };
 
   useEffect(() => {
     console.log(errors);
   }, [errors]);
+
+  // if (!validateForm()) {
+  //   toast.error("Please fix the errors in the form.");
+  //   return;
+  // }
 
   return (
     <div className="mx-auto p-6">
@@ -389,7 +394,6 @@ const AddEngineer = () => {
             </span>
           )}
         </div>
-
         <div className="flex flex-col">
           <label htmlFor="phone" className="mb-2 font-medium text-gray-700">
             Phone Number
@@ -485,8 +489,8 @@ const AddEngineer = () => {
                   onChange={(e) => setType(parseInt(e.target.value))} // تحديث حالة الـ type
                   className="p-2 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
                 >
-                  <option value={0}>General</option>
-                  <option value={1}>Special</option>
+                  <option value={0}>Engineer</option>
+                  <option value={1}>Employee</option>
                 </select>
 
                 {/* Buttons */}
