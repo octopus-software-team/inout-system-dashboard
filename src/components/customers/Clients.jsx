@@ -8,7 +8,6 @@ import "react-toastify/dist/ReactToastify.css";
 import { Input } from "antd";
 import ImportFile from "../ImportFile"; // تأكد من صحة المسار
 
-
 const Clients = () => {
   const [data, setData] = useState([]);
   const [branches, setBranches] = useState([]);
@@ -26,57 +25,51 @@ const Clients = () => {
     branch_id: "",
   });
 
-
-
   const tableName = "customers"; // تحديد اسم الجدول
 
   const [open, setOpen] = useState(false);
 
-
-
   const navigate = useNavigate();
 
+  const handleExportFile = async () => {
+    const formData = new FormData();
+    formData.append("table", tableName);
 
+    const token = Cookies.get("token");
 
-    const handleExportFile = async () => {
-      const formData = new FormData();
-      formData.append("table", tableName);
-  
-      const token = Cookies.get("token");
-  
-      try {
-        const response = await fetch(
-          "https://inout-api.octopusteam.net/api/front/export",
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-            body: formData,
-          }
-        );
-  
-        if (!response.ok) {
-          throw new Error("Failed to export file");
+    try {
+      const response = await fetch(
+        "https://inout-api.octopusteam.net/api/front/export",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
         }
-  
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-  
-        link.download = `${tableName}.xlsx`;
-        document.body.appendChild(link);
-        link.click();
-  
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-      } catch (error) {
-        console.error("Error exporting file:", error);
-        toast.error("Failed to export file.");
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to export file");
       }
-    };
-  
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+
+      link.download = `${tableName}.xlsx`;
+      document.body.appendChild(link);
+      link.click();
+
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error exporting file:", error);
+      toast.error("Failed to export file.");
+    }
+  };
+
   // Fetch branches
   useEffect(() => {
     const fetchBranches = async () => {
@@ -275,35 +268,53 @@ const Clients = () => {
       sortable: true,
       width: "60px",
       cell: (row) => (
-        <span className="font-medium text-gray-800 dark:text-white">{row.id}</span>
+        <span className="font-medium text-gray-800 dark:text-white">
+          {row.id}
+        </span>
       ),
     },
     {
       name: "Name",
+      width: "100px",
+
       selector: (row) => row.name,
       sortable: true,
       cell: (row) => (
-        <span className="font-medium text-gray-800 dark:text-white">{row.name}</span>
+        <span className="font-medium text-gray-800 dark:text-white">
+          {row.name}
+        </span>
       ),
     },
     {
       name: "Email",
+      width: "180px",
+
       selector: (row) => row.email,
       sortable: true,
-      cell: (row) => <span className="text-gray-700 dark:text-white">{row.email}</span>,
+      cell: (row) => (
+        <span className="text-gray-700 dark:text-white">{row.email}</span>
+      ),
     },
     {
       name: "Phone",
+      width: "170px",
+
       selector: (row) => row.phone,
       sortable: true,
-      cell: (row) => <span className="text-gray-700 dark:text-white">{row.phone}</span>,
+      cell: (row) => (
+        <span className="text-gray-700 dark:text-white">{row.phone}</span>
+      ),
     },
     {
       name: "Branch",
+      width: "100px",
+
       selector: (row) => getBranchName(row.branch_id),
       sortable: true,
       cell: (row) => (
-        <span className="text-gray-700 dark:text-white">{getBranchName(row.branch_id)}</span>
+        <span className="text-gray-700 dark:text-white">
+          {getBranchName(row.branch_id)}
+        </span>
       ),
     },
     {
@@ -323,7 +334,7 @@ const Clients = () => {
       ignoreRowClick: true,
       allowOverflow: true,
       button: true,
-      width: "150px",
+      width: "200px",
     },
   ];
 
@@ -375,24 +386,23 @@ const Clients = () => {
           </button>
 
           {open && (
-        <div
-          className="fixed top-0 left-0 z-30 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
-          onClick={() => setOpen(false)}
-        >
-          <div
-            className="w-[350px] h-[350px] bg-white rounded-lg shadow-lg p-6"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 className="text-center text-xl font-semibold mb-4">
-              Import File
-            </h2>
-            <div className="flex flex-col items-center space-y-4">
-              <ImportFile tableName={tableName} /> {/* مكون الاستيراد */}
+            <div
+              className="fixed top-0 left-0 z-30 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
+              onClick={() => setOpen(false)}
+            >
+              <div
+                className="w-[350px] h-[350px] bg-white rounded-lg shadow-lg p-6"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <h2 className="text-center text-xl font-semibold mb-4">
+                  Import File
+                </h2>
+                <div className="flex flex-col items-center space-y-4">
+                  <ImportFile tableName={tableName} /> {/* مكون الاستيراد */}
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
-
+          )}
         </div>
       </div>
 
@@ -405,8 +415,6 @@ const Clients = () => {
       ) : filteredData.length === 0 ? (
         <p className="text-center text-gray-600 text-lg">No clients found.</p>
       ) : (
-
-        
         <DataTable
           columns={columns}
           data={filteredData}
@@ -427,7 +435,7 @@ const Clients = () => {
           <div className="bg-white p-6 rounded-lg w-full max-w-md">
             <h3 className="text-xl font-bold mb-4">Filter Clients</h3>
             <div className="space-y-4">
-            <label htmlFor="">select branch </label>
+              <label htmlFor="">select branch </label>
 
               <select
                 name="branch_id"

@@ -149,14 +149,14 @@ const AssetsType = () => {
         <div className="flex space-x-2">
           <button
             onClick={() => handleEdit(row.id)}
-            className="edit py-1 px-3 rounded-lg"
+            className="edit1 py-1 px-3 rounded-lg"
           >
             <FaEdit className="inline mr-1" />
             Edit
           </button>
           <button
             onClick={() => openConfirmModal(row.id)}
-            className="colors py-1 px-3 rounded-lg"
+            className="colors1 py-1 px-3 rounded-lg"
           >
             <FaTrash className="inline mr-1" />
             Delete

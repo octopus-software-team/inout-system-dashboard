@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
+import DataTable from "react-data-table-component";
 import Cookies from "js-cookie";
-import $ from "jquery";
-import "datatables.net";
-
+import { FaSearch } from "react-icons/fa";
 import projectIcon from "../../assests/logo4.png";
 
 const statusStyles = {
@@ -26,8 +25,7 @@ const statusLabels = {
 const LatestProject = () => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
-  const tableRef = useRef(null);
-  const dataTableRef = useRef(null);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -46,17 +44,15 @@ const LatestProject = () => {
         );
         const projectData = await projectResponse.json();
 
-        // تحقق من وجود البيانات
         if (projectData.status !== 200) {
           throw new Error(projectData.msg || "Failed to fetch projects");
         }
 
-        // تحويل البيانات حسب الريسبونس المقدم
         const mergedData = projectData.data.map((project, index) => ({
-          id: index, // استخدام الفهرس كمعرف فريد
+          id: index,
           project: project.name,
           customer: project.customer || "Unknown",
-          branch: project.branch || "Unknown", // إضافة حقل البرانش
+          branch: project.branch || "Unknown",
           details: project.notes || "",
           status: project.status.toString(),
           time: project.created_at || "",
@@ -73,91 +69,105 @@ const LatestProject = () => {
     fetchData();
   }, []);
 
-  useEffect(() => {
-    if (!loading && tableRef.current) {
-      // تهيئة DataTable
-      dataTableRef.current = $(tableRef.current).DataTable({
-        order: [[4, "desc"]], // ترتيب حسب TIME تنازليًا
-        pageLength: 10, // عدد الصفوف في الصفحة
-        lengthMenu: [5, 10, 25, 50, 100], // خيارات عدد الصفوف
-      });
-    }
+  const columns = [
+    {
+      name: "PROJECTS",
+      selector: (row) => row.project,
+      sortable: true,
+      cell: (row) => (
+        <div className="flex items-center">
+          <img src={projectIcon} alt="Project Icon" className="w-6 h-6 mr-2" />
+          <span>{row.project}</span>
+        </div>
+      ),
+    },
+    {
+      name: "CUSTOMER",
+      selector: (row) => row.customer,
+      sortable: true,
+    },
+    {
+      name: "BRANCH",
+      selector: (row) => row.branch,
+      sortable: true,
+    },
+    {
+      name: "DETAILS",
+      selector: (row) => row.details,
+      sortable: true,
+    },
+    {
+      name: "STATUS",
+      selector: (row) => row.status,
+      sortable: true,
+      cell: (row) => (
+        <div className="flex items-center">
+          <span
+            className={`px-2 py-1 rounded-lg text-sm font-semibold ${
+              statusStyles[row.status]
+            }`}
+          >
+            {statusLabels[row.status]}
+          </span>
+          {row.status === "4" && (
+            <svg
+              className="w-4 h-4 text-green-500 ml-2"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+          )}
+        </div>
+      ),
+    },
+    {
+      name: "TIME",
+      selector: (row) => row.time,
+      sortable: true,
+    },
+  ];
 
-    // تنظيف DataTable عند تفكيك المكون
-    return () => {
-      if (dataTableRef.current) {
-        dataTableRef.current.destroy();
-      }
-    };
-  }, [loading, projects]);
-
-  if (loading) {
-    return <div className="text-center py-5">Loading data...</div>;
-  }
+  const filteredData = projects.filter((project) =>
+    project.project.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
-    <div className="t1 p-5 h-screen">
+    <div className="p-5 h-screen">
       <h3 className="text-xl font-bold mb-4">Latest Projects</h3>
-      <div className="overflow-x-auto h-full">
-        <table
-          ref={tableRef}
-          className="min-w-full bg-white border border-gray-200 rounded-lg shadow-md display"
-        >
-          <thead className="bg-gray-100">
-            <tr>
-              <th>PROJECTS</th>
-              <th>CUSTOMER</th>
-              <th>BRANCH</th>
-              <th>DETAILS</th>
-              <th>STATUS</th>
-              <th>TIME</th>
-            </tr>
-          </thead>
-          <tbody>
-            {projects.map((row) => (
-              <tr key={row.id} className="border-t hover:bg-gray-50">
-                <td className="px-4 py-3 font-medium flex items-center">
-                  <img
-                    src={row.project_image || projectIcon} // استخدام صورة المشروع إذا كانت متاحة
-                    alt="Project Icon"
-                    className="w-10 h-6 mr-2" // عرض وارتفاع 1.5rem (24px) ومسافة 0.5rem بين الصورة والنص
-                  />
-                  {row.project}
-                </td>
-                <td className="px-4 py-3">{row.customer}</td>
-                <td className="px-4 py-3">{row.branch}</td> {/* عرض البرانش */}
-                <td className="px-4 py-3 text-gray-600">{row.details}</td>
-                <td className="px-4 py-3 flex items-center">
-                  <span
-                    className={`px-2 py-1 rounded-lg text-sm font-semibold ${
-                      statusStyles[row.status]
-                    }`}
-                  >
-                    {statusLabels[row.status]}
-                  </span>
-                  {row.status === "4" && (
-                    <svg
-                      className="w-4 h-4 text-green-500 ml-2"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                  )}
-                </td>
-                <td className="px-4 py-3 text-gray-500">{row.time}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="flex justify-between items-center my-4">
+        <div className="flex items-center">
+          {/* <FaSearch className="ml-2 text-gray-500" /> */}
+
+          <input
+            type="text"
+            placeholder="Search projects..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
+          />
+        </div>
       </div>
+      <DataTable
+        columns={columns}
+        data={filteredData}
+        pagination
+        highlightOnHover
+        striped
+        responsive
+        defaultSortField="TIME"
+        defaultSortAsc={false}
+        paginationPerPage={10}
+        paginationRowsPerPageOptions={[10, 20, 30]}
+        className="shadow-lg rounded-lg overflow-hidden"
+      />
     </div>
   );
 };

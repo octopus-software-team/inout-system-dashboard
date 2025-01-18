@@ -1,4 +1,3 @@
-// ViewBranchDetails.jsx
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Cookies from "js-cookie";
@@ -149,6 +148,11 @@ const ViewBranchDetails = () => {
 
     fetchData();
   }, [id]);
+
+  // تصفية الموظفين بناءً على branch_id
+  const filteredEmployees = employees.filter(
+    (employee) => employee.branch_id === branchDetails?.id
+  );
 
   // Getters for related data
   const getCountryName = (countryId) => {
@@ -317,15 +321,15 @@ const ViewBranchDetails = () => {
     branches.length === 0 ||
     assetTypes.length === 0
   ) {
-    return <div style={styles.loading}>Loading...</div>;
+    return <div className="mt-56" style={styles.loading}>Loading...</div>;
   }
 
   return (
     <div style={styles.container}>
       <h2 style={styles.header}>Branch Details</h2>
       <div className="flex">
-          <img className="h-30 w-30" src={inout} />
-      
+        <img className="h-30 w-30" src={inout} />
+
         <div className="cardBranches" style={styles.card}>
           {/* Branch Details Rows */}
           <div style={styles.row}>
@@ -406,12 +410,9 @@ const ViewBranchDetails = () => {
       <h2 style={{ ...styles.header, marginTop: "40px" }}>Employees</h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {employees.length > 0 ? (
-          employees.map((employee) => (
-            <div
-              key={employee.id}
-              className="bg-white shadow-lg rounded-lg p-6"
-            >
+        {filteredEmployees.length > 0 ? (
+          filteredEmployees.map((employee) => (
+            <div key={employee.id} className="bg-white shadow-lg rounded-lg p-6">
               {/* صورة الموظف */}
               <div className="flex justify-center mb-6">
                 <img

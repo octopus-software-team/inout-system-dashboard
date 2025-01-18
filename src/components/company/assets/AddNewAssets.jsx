@@ -237,25 +237,33 @@ const AddNewAssets = () => {
       name: "#",
       selector: (row) => row.id,
       sortable: true,
-      width: "60px",
+      width: "100px",
     },
     {
       name: "Name",
       selector: (row) => row.name,
       sortable: true,
+      width: "170px",
+
     },
     {
       name: "Assets Type",
       selector: (row) => getAssetTypeNameById(row.asset_type_id),
       sortable: true,
+      width: "170px",
+
     },
     {
       name: "Branch",
       selector: (row) => getBranchNameById(row.branch_id),
       sortable: true,
+      width: "170px",
+
     },
     {
       name: "QR Code",
+      width: "200px",
+
       cell: (row) =>
         row.qrcode ? (
           <div
@@ -321,7 +329,7 @@ const AddNewAssets = () => {
           </button>
           <Link
             to="/company/assets/createassets"
-            className="bg-blue-800 text-white font-semibold py-2 px-6 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
+            className="icons bg-blue-800 text-white font-semibold py-2 px-6 rounded-lg"
           >
             + Create Assets
           </Link>

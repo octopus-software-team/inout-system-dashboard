@@ -246,20 +246,6 @@ const UpdateBranch = () => {
           </select>
         </div>
 
-        {/* <MapContainer
-          center={[formData.latitude || 23.8859, formData.longitude || 45.0792]}
-          zoom={6}
-          style={{ height: "200px", width: "100%" }}
-        >
-          <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          />
-          <Marker
-            position={[formData.latitude || 23.8859, formData.longitude || 45.0792]}
-          />
-        </MapContainer> */}
-
         <div className="text-center">
           <button
             type="submit"

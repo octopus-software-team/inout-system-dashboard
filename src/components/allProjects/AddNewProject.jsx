@@ -81,6 +81,10 @@ const AddNewProject = () => {
   const [projectImage, setProjectImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
 
+  const [newBranchName, setNewBranchName] = useState("");
+  const [newBranchLatitude, setNewBranchLatitude] = useState("");
+  const [newBranchLongitude, setNewBranchLongitude] = useState("");
+  const [isBranchModalOpen, setIsBranchModalOpen] = useState(false);
   const [position, setPosition] = useState([23.8859, 45.0792]);
 
   const dropifyRef = useRef(null);
@@ -124,33 +128,33 @@ const AddNewProject = () => {
     typeof window !== "undefined" &&
     document.documentElement.classList.contains("dark");
 
-    useEffect(() => {
-      if (imageInputRef.current) {
-        $(imageInputRef.current).dropify({
-          messages: {
-            default: "Drag and drop a file here or click",
-            replace: "Drag and drop or click to replace",
-            remove: "Remove",
-            error: "Ooops, something wrong happened.",
-          },
-        });
-    
-        $(imageInputRef.current).on("change", function (event) {
-          const files = event.target.files;
-          if (files && files[0]) {
-            setProjectImage(files[0]);
-            const reader = new FileReader();
-            reader.onloadend = () => {
-              setImagePreview(reader.result);
-            };
-            reader.readAsDataURL(files[0]);
-          } else {
-            setProjectImage(null);
-            setImagePreview(null);
-          }
-        });
-      }
-    }, []);
+  useEffect(() => {
+    if (imageInputRef.current) {
+      $(imageInputRef.current).dropify({
+        messages: {
+          default: "Drag and drop a file here or click",
+          replace: "Drag and drop or click to replace",
+          remove: "Remove",
+          error: "Ooops, something wrong happened.",
+        },
+      });
+
+      $(imageInputRef.current).on("change", function (event) {
+        const files = event.target.files;
+        if (files && files[0]) {
+          setProjectImage(files[0]);
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            setImagePreview(reader.result);
+          };
+          reader.readAsDataURL(files[0]);
+        } else {
+          setProjectImage(null);
+          setImagePreview(null);
+        }
+      });
+    }
+  }, []);
 
   useEffect(() => {
     const fetchBranches = async () => {
@@ -779,6 +783,65 @@ const AddNewProject = () => {
     }
   };
 
+  const handleSaveBranch = async () => {
+    if (!newBranchName.trim()) {
+      toast.error("Please enter a branch name");
+      return;
+    }
+    if (!newBranchLatitude.trim()) {
+      toast.error("Please enter a latitude");
+      return;
+    }
+    if (!newBranchLongitude.trim()) {
+      toast.error("Please enter a longitude");
+      return;
+    }
+
+    const branchData = {
+      name: newBranchName,
+      latitude: newBranchLatitude,
+      longitude: newBranchLongitude,
+    };
+
+    try {
+      const token = Cookies.get("token");
+      if (!token) {
+        toast.error("You need to log in first.");
+        return;
+      }
+
+      const response = await fetch(
+        "https://inout-api.octopusteam.net/api/front/addBranch",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(branchData),
+        }
+      );
+
+      const result = await response.json();
+      if (response.ok && result.status === 200) {
+        const newOption = { value: result.data.id, label: result.data.name };
+        setBranches((prevBranches) => [...prevBranches, newOption]);
+        setIsBranchModalOpen(false);
+        setNewBranchName("");
+        setNewBranchLatitude("");
+        setNewBranchLongitude("");
+        setSelectedBranch(newOption);
+        toast.success("Branch added successfully");
+      } else {
+        console.error("Error adding branch", result.message);
+        toast.error("Failed to add branch: " + result.message);
+      }
+    } catch (error) {
+      console.error("Error saving branch:", error);
+      toast.error("Error saving branch: " + error.message);
+    }
+  };
+
   return (
     <div className="container ml-0 p-10">
       <h1 className="total text-4xl font-bold mb-3">Add New Project</h1>
@@ -876,8 +939,8 @@ const AddNewProject = () => {
 
             {/* Add New Service Modal */}
             <Dialog
-              open={isServiceModalOpen}
-              onClose={handleCancelService}
+              open={isBranchModalOpen}
+              onClose={() => setIsBranchModalOpen(false)}
               className="relative z-10"
             >
               <DialogBackdrop
@@ -887,39 +950,57 @@ const AddNewProject = () => {
               <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
                 <div className="flex min-h-full items-end justify-center p-4 text-m sm:items-center sm:p-0">
                   <DialogPanel className="relative transform overflow-hidden dark:bg-slate-900 rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
-                    <div className="service px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                    <div className="branch px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
                       <div className="sm:flex sm:items-start">
                         <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
                           <DialogTitle
                             as="h3"
                             className="text-base font-semibold text-gray-900"
                           >
-                            Add New Service
+                            Add New Branch
                           </DialogTitle>
-                          <div className="mt-2">
+                          <div className="mt-2 space-y-4">
                             <input
                               type="text"
-                              placeholder="Enter service name"
-                              value={newService}
-                              onChange={(e) => setNewService(e.target.value)}
-                              className="mt-1 w-full border border-gray-300 rounded-md p-2 dark:bg-slate-900 dark:text-white"
+                              placeholder="Enter branch name"
+                              value={newBranchName}
+                              onChange={(e) => setNewBranchName(e.target.value)}
+                              className="w-full border border-gray-300 rounded-md p-2 dark:bg-slate-900 dark:text-white"
+                            />
+                            <input
+                              type="text"
+                              placeholder="Enter latitude"
+                              value={newBranchLatitude}
+                              onChange={(e) =>
+                                setNewBranchLatitude(e.target.value)
+                              }
+                              className="w-full border border-gray-300 rounded-md p-2 dark:bg-slate-900 dark:text-white"
+                            />
+                            <input
+                              type="text"
+                              placeholder="Enter longitude"
+                              value={newBranchLongitude}
+                              onChange={(e) =>
+                                setNewBranchLongitude(e.target.value)
+                              }
+                              className="w-full border border-gray-300 rounded-md p-2 dark:bg-slate-900 dark:text-white"
                             />
                           </div>
                         </div>
                       </div>
                     </div>
-                    <div className="service bg-gray-50 px-5 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                    <div className="branch bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
                       <button
                         type="button"
-                        onClick={handleSaveService}
+                        onClick={handleSaveBranch}
                         className="inline-flex mr-60 w-full h-10 justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto"
                       >
-                        Save Service
+                        Save Branch
                       </button>
                       <button
                         type="button"
-                        onClick={handleCancelService}
-                        className="mt-3 inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-900 shadow-sm transition duration-200 ease-in-out hover:bg-gray-100 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:mt-0 sm:w-auto"
+                        onClick={() => setIsBranchModalOpen(false)}
+                        className="mt-3 inline-flex w-full justify-center rounded-md px-3 py-2 bg-white text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
                       >
                         Cancel
                       </button>
@@ -1002,6 +1083,47 @@ const AddNewProject = () => {
                               onChange={(e) => setNewOwnerPhone(e.target.value)}
                               className="w-full border border-gray-300 rounded-md p-2 dark:bg-slate-900 dark:text-white"
                             />
+                            <div className="mb-4">
+                              <label
+                                htmlFor="branch"
+                                className="block text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2"
+                              ></label>
+                              <select
+                                id="branch"
+                                name="branch_id"
+                                value={
+                                  selectedBranch ? selectedBranch.value : ""
+                                }
+                                onChange={(e) => {
+                                  const selected = branches.find(
+                                    (branch) => branch.value === e.target.value
+                                  );
+                                  setSelectedBranch(selected);
+                                }}
+                                className={`w-full px-3 py-2 border rounded-md bg-gray-50 dark:bg-slate-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 ${
+                                  errors.selectedBranch
+                                    ? "border-red-500"
+                                    : "border-gray-300 dark:border-gray-700"
+                                }`}
+                              >
+                                <option value="" disabled>
+                                  Select Branch
+                                </option>
+                                {branches.map((branch) => (
+                                  <option
+                                    key={branch.value}
+                                    value={branch.value}
+                                  >
+                                    {branch.label}
+                                  </option>
+                                ))}
+                              </select>
+                              {errors.selectedBranch && (
+                                <p className="text-red-500 text-sm mt-1">
+                                  {errors.selectedBranch}
+                                </p>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -1107,6 +1229,49 @@ const AddNewProject = () => {
                               }
                               className="w-full border border-gray-300 rounded-md p-2 dark:bg-slate-900 dark:text-white"
                             />
+                             <div className="mb-4">
+                              <label
+                                htmlFor="branch"
+                                className="block text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2"
+                              >
+                                
+                              </label>
+                              <select
+                                id="branch"
+                                name="branch_id"
+                                value={
+                                  selectedBranch ? selectedBranch.value : ""
+                                }
+                                onChange={(e) => {
+                                  const selected = branches.find(
+                                    (branch) => branch.value === e.target.value
+                                  );
+                                  setSelectedBranch(selected);
+                                }}
+                                className={`w-full px-3 py-2 border rounded-md bg-gray-50 dark:bg-slate-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 ${
+                                  errors.selectedBranch
+                                    ? "border-red-500"
+                                    : "border-gray-300 dark:border-gray-700"
+                                }`}
+                              >
+                                <option value="" disabled>
+                                  Select Branch
+                                </option>
+                                {branches.map((branch) => (
+                                  <option
+                                    key={branch.value}
+                                    value={branch.value}
+                                  >
+                                    {branch.label}
+                                  </option>
+                                ))}
+                              </select>
+                              {errors.selectedBranch && (
+                                <p className="text-red-500 text-sm mt-1">
+                                  {errors.selectedBranch}
+                                </p>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -1213,6 +1378,49 @@ const AddNewProject = () => {
                               }
                               className="w-full border border-gray-300 rounded-md p-2 dark:bg-slate-900 dark:text-white"
                             />
+                             <div className="mb-4">
+                              <label
+                                htmlFor="branch"
+                                className="block text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2"
+                              >
+                                
+                              </label>
+                              <select
+                                id="branch"
+                                name="branch_id"
+                                value={
+                                  selectedBranch ? selectedBranch.value : ""
+                                }
+                                onChange={(e) => {
+                                  const selected = branches.find(
+                                    (branch) => branch.value === e.target.value
+                                  );
+                                  setSelectedBranch(selected);
+                                }}
+                                className={`w-full px-3 py-2 border rounded-md bg-gray-50 dark:bg-slate-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 ${
+                                  errors.selectedBranch
+                                    ? "border-red-500"
+                                    : "border-gray-300 dark:border-gray-700"
+                                }`}
+                              >
+                                <option value="" disabled>
+                                  Select Branch
+                                </option>
+                                {branches.map((branch) => (
+                                  <option
+                                    key={branch.value}
+                                    value={branch.value}
+                                  >
+                                    {branch.label}
+                                  </option>
+                                ))}
+                              </select>
+                              {errors.selectedBranch && (
+                                <p className="text-red-500 text-sm mt-1">
+                                  {errors.selectedBranch}
+                                </p>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -1315,7 +1523,7 @@ const AddNewProject = () => {
             type="text"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            required
+            
             className="textarea dark:bg-slate-900"
           />
           {errors.notes && (

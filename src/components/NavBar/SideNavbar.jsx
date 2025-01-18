@@ -40,6 +40,12 @@ const projects = [
     path: "/company/projectsecrepo",
     icon: <FaCubes className="mr-2 text-gray-400" />,
   },
+
+  {
+    name: "project Task",
+    path: "/projectask/projecttask",
+    icon: <FaCubes className="mr-2 text-gray-400" />,
+  },
 ];
 
 const company = [

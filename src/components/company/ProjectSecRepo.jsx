@@ -209,10 +209,13 @@ const AddSecRepo = () => {
     },
     {
       name: "Project Name",
+      width: "150px",
+
       selector: (row) => {
         const project = projects.find((p) => p.id === row.project_id);
         return project ? project.name : "N/A";
       },
+
       sortable: true,
       cell: (row) => {
         const project = projects.find((p) => p.id === row.project_id);
@@ -227,6 +230,8 @@ const AddSecRepo = () => {
       name: "Report Type",
       selector: (row) => row.report_type,
       sortable: true,
+      width: "150px",
+
       cell: (row) => (
         <span className="text-gray-700">{row.report_type}</span>
       ),
@@ -235,6 +240,8 @@ const AddSecRepo = () => {
       name: "Report Stock",
       selector: (row) => row.report_stock,
       sortable: true,
+      width: "150px",
+
       cell: (row) => (
         <span className="text-gray-700">{row.report_stock}</span>
       ),
@@ -243,6 +250,9 @@ const AddSecRepo = () => {
       name: "Is Inspection",
       selector: (row) => (row.is_inspection ? "Yes" : "No"),
       sortable: true,
+      width: "150px",
+
+
       cell: (row) => (
         <span className="text-gray-700">
           {row.is_inspection ? "Yes" : "No"}
@@ -253,6 +263,8 @@ const AddSecRepo = () => {
       name: "Report",
       selector: (row) => row.report,
       sortable: true,
+      width: "150px",
+
       cell: (row) => (
         <span className="text-gray-700">{row.report}</span>
       ),
@@ -261,6 +273,9 @@ const AddSecRepo = () => {
       name: "Employee",
       selector: (row) => row.employee,
       sortable: true,
+      width: "150px",
+
+
       cell: (row) => (
         <span className="text-gray-700">{row.employee}</span>
       ),
@@ -269,6 +284,8 @@ const AddSecRepo = () => {
       name: "Created At",
       selector: (row) => row.created_at,
       sortable: true,
+      width: "150px",
+
       cell: (row) => (
         <span className="text-gray-700">{row.created_at}</span>
       ),
@@ -296,7 +313,7 @@ const AddSecRepo = () => {
       ignoreRowClick: true,
       allowOverflow: true,
       button: true,
-      width: "150px",
+      width: "250px",
     },
   ];
 
@@ -360,26 +377,28 @@ const AddSecRepo = () => {
           <div className="bg-white p-6 rounded-lg w-full max-w-md">
             <h3 className="text-xl font-bold mb-4">Filter Reports</h3>
             <div className="space-y-4">
+              <label htmlFor="">select project</label>
               <select
                 name="project_id"
                 value={filters.project_id}
                 onChange={handleFilterChange}
                 className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="">Select Project</option>
+                <option value="">All</option>
                 {projects.map((project) => (
                   <option key={project.id} value={project.id}>
                     {project.name}
                   </option>
                 ))}
               </select>
+              <label className="mt-3" htmlFor="">Select Report Type</label>
               <select
                 name="report_type"
                 value={filters.report_type}
                 onChange={handleFilterChange}
                 className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="">Select Report Type</option>
+                <option value="">All</option>
                 <option value="daily">Daily</option>
                 <option value="weekly">Weekly</option>
                 <option value="monthly">Monthly</option>

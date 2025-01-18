@@ -70,7 +70,7 @@ function Login() {
   }, [isLoginSuccessful]);
 
   return (
-    <div className="flex justify-center items-center min-h-screen mr-64 bg-gray-100 dark:bg-slate-950 relative">
+    <div className="flex justify-center items-center bg-gray-100 dark:bg-slate-950 relative">
       <div className="service w-full max-w-md rounded-lg shadow-lg p-8 space-y-6">
         <img className="w-24 mx-auto" src={logo4} alt="Logo" />
         <h2 className="text-center text-2xl font-bold text-gray-800">

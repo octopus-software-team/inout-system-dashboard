@@ -142,8 +142,10 @@ const ViewEmployee = () => {
   if (loading) {
     return (
       <div className="container mx-auto p-6">
-        <h1 className="text-2xl font-bold mb-6">View Employee</h1>
-        <p>Loading employee data...</p>
+        <h1 className="text-2xl text-center font-bold mb-6 mt-56">
+          View Employee
+        </h1>
+        <p className="text-center">Loading employee data...</p>
       </div>
     );
   }
@@ -171,11 +173,10 @@ const ViewEmployee = () => {
     contract_duration,
     contract_end_date,
     type,
-    notes, 
+    notes,
     image,
   } = employeeData;
 
-  // دوال مساعدة للحصول على أسماء الفرع والتخصص
   const branchName = branches.find((b) => b.id === branch_id)?.name || "N/A";
   const specialtyName =
     specialties.find((s) => s.id === employee_special_id)?.name || "N/A";
@@ -183,101 +184,126 @@ const ViewEmployee = () => {
   const genderDisplay = gender === 1 ? "Female" : "Male";
 
   return (
-    <div className="min-h-screen bg-gray-100 py-10 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 py-10 px-4">
       <ToastContainer />
 
-      <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-6">
-        <h1 className="text-3xl font-bold mb-4 text-blue-600">
-          Employee Details
-        </h1>
+      <div className="w-full mx-4 rounded-xl shadow-2xl overflow-hidden">
+        {/* Header Section */}
+        <div className="bg-gradient-to-r  p-6">
+          <h1 className="text-3xl font-bold text-black text-center">
+            Employee Details
+          </h1>
+        </div>
 
-        {/* صورة المستخدم (أفاتار) مع الاسم */}
-        <div className="flex items-center mb-8">
-          {/* إن كنت تريد إظهار صورة الموظف */}
+        {/* Employee Image and Name */}
+        <div className="flex flex-col items-center py-8">
           {image ? (
             <img
               src={image}
               alt="Employee Avatar"
-              className="w-24 h-24 rounded-full object-cover mr-6 shadow-md"
+              className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
             />
           ) : (
-            <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center mr-6 shadow-md">
-              <span className="text-gray-500">No Image</span>
+            <div className="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center border-4 border-white shadow-lg">
+              <span className="text-gray-500 text-sm">No Image</span>
             </div>
           )}
-          <div>
-            <p className="text-xl font-semibold">{full_name}</p>
+          <div className="mt-4 text-center">
+            <p className="text-2xl font-semibold text-gray-800">{full_name}</p>
             <p className="text-gray-500">{email}</p>
           </div>
         </div>
 
-        {/* عرض المعلومات في جدول أو مجموعة حقول */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="text-gray-600 font-medium">Phone:</label>
-            <p className="text-black">{phone || "N/A"}</p>
+        {/* Employee Details Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
+          {/* Phone */}
+          <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+            <label className="text-sm text-gray-500">Phone</label>
+            <p className="text-lg font-medium text-gray-800">
+              {phone || "N/A"}
+            </p>
           </div>
 
-          <div>
-            <label className="text-gray-600 font-medium">Branch:</label>
-            <p className="text-black">{branchName}</p>
+          {/* Branch */}
+          <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+            <label className="text-sm text-gray-500">Branch</label>
+            <p className="text-lg font-medium text-gray-800">{branchName}</p>
           </div>
 
-          <div>
-            <label className="text-gray-600 font-medium">Specialty:</label>
-            <p className="text-black">{specialtyName}</p>
+          {/* Specialty */}
+          <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+            <label className="text-sm text-gray-500">Specialty</label>
+            <p className="text-lg font-medium text-gray-800">{specialtyName}</p>
           </div>
 
-          <div>
-            <label className="text-gray-600 font-medium">Date of Birth:</label>
-            <p className="text-black">{date_of_birth || "N/A"}</p>
+          {/* Date of Birth */}
+          <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+            <label className="text-sm text-gray-500">Date of Birth</label>
+            <p className="text-lg font-medium text-gray-800">
+              {date_of_birth || "N/A"}
+            </p>
           </div>
 
-          <div>
-            <label className="text-gray-600 font-medium">Gender:</label>
-            <p className="text-black">{genderDisplay}</p>
+          {/* Gender */}
+          <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+            <label className="text-sm text-gray-500">Gender</label>
+            <p className="text-lg font-medium text-gray-800">{genderDisplay}</p>
           </div>
 
-          <div>
-            <label className="text-gray-600 font-medium">Experience:</label>
-            <p className="text-black">{experience || "N/A"}</p>
+          {/* Experience */}
+          <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+            <label className="text-sm text-gray-500">Experience</label>
+            <p className="text-lg font-medium text-gray-800">
+              {experience || "N/A"}
+            </p>
           </div>
 
-          <div>
-            <label className="text-gray-600 font-medium">notes:</label>
-            <p className="text-black">{notes || "N/A"}</p>
+          {/* Notes */}
+          <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+            <label className="text-sm text-gray-500">Notes</label>
+            <p className="text-lg font-medium text-gray-800">
+              {notes || "N/A"}
+            </p>
           </div>
 
-          <div>
-            <label className="text-gray-600 font-medium">
-              Contract Start Date:
+          {/* Contract Start Date */}
+          <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+            <label className="text-sm text-gray-500">Contract Start Date</label>
+            <p className="text-lg font-medium text-gray-800">
+              {contract_start_date || "N/A"}
+            </p>
+          </div>
+
+          {/* Contract Duration */}
+          <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+            <label className="text-sm text-gray-500">
+              Contract Duration (months)
             </label>
-            <p className="text-black">{contract_start_date || "N/A"}</p>
+            <p className="text-lg font-medium text-gray-800">
+              {contract_duration || "N/A"}
+            </p>
           </div>
 
-          <div>
-            <label className="text-gray-600 font-medium">
-              Contract Duration (months):
-            </label>
-            <p className="text-black">{contract_duration || "N/A"}</p>
+          {/* Contract End Date */}
+          <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+            <label className="text-sm text-gray-500">Contract End Date</label>
+            <p className="text-lg font-medium text-gray-800">
+              {contract_end_date || "N/A"}
+            </p>
           </div>
 
-          <div>
-            <label className="text-gray-600 font-medium">Contract End Date:</label>
-            <p className="text-black">{contract_end_date || "N/A"}</p>
-          </div>
-
-          <div>
-            <label className="text-gray-600 font-medium">Type:</label>
-            <p className="text-black">{typeDisplay}</p>
+          {/* Type */}
+          <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+            <label className="text-sm text-gray-500">Type</label>
+            <p className="text-lg font-medium text-gray-800">{typeDisplay}</p>
           </div>
         </div>
 
-        {/* زر العودة إلى قائمة الموظفين */}
-        <div className="mt-8">
+        {/* Back Button */}
+        <div className="p-6 bg-gray-50 border-t border-gray-100">
           <button
             onClick={() => navigate("/company/employees")}
-            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-300"
+            className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-300"
           >
             Back to Employees List
           </button>

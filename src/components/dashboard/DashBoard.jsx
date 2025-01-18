@@ -6,6 +6,7 @@ import pic1 from "../../assests/12.png";
 import pic2 from "../../assests/15.png";
 import pic3 from "../../assests/13.png";
 import pic4 from "../../assests/14.png";
+import Cookies from "js-cookie";
 
 const DashBoard = () => {
   const [responseData, setResponseData] = useState({
@@ -16,10 +17,18 @@ const DashBoard = () => {
   });
 
   useEffect(() => {
+    const token = Cookies.get("token");
+
     const fetchData = async () => {
       try {
         const response = await fetch(
-          "https://inout-api.octopusteam.net/api/front/statistics"
+          "https://inout-api.octopusteam.net/api/front/statistics",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
         const result = await response.json();
         if (result.status === 200) {

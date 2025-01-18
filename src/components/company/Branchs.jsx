@@ -223,12 +223,13 @@ const Branches = () => {
       name: "#",
       selector: (row) => row.id,
       sortable: true,
-      width: "60px",
+      width: "100px",
     },
     {
       name: "Name",
       selector: (row) => row.name,
       sortable: true,
+      width: "150px",
     },
     {
       name: "Country",
@@ -237,6 +238,8 @@ const Branches = () => {
         return country ? country.name : "N/A";
       },
       sortable: true,
+      width: "200px",
+
     },
     {
       name: "City",
@@ -245,6 +248,8 @@ const Branches = () => {
         return city ? city.name : "N/A";
       },
       sortable: true,
+      width: "150px",
+
     },
     {
       name: "Actions",
@@ -266,7 +271,9 @@ const Branches = () => {
           </button>
           <button
             onClick={() => navigate(`/company/viewbranchdetails/${row.id}`)}
-            className="eye1 flex items-center justify-center"
+            className="eye1
+            
+            flex items-center justify-center"
           >
             <FaEye className="mr-2" />
             View
@@ -276,7 +283,7 @@ const Branches = () => {
       ignoreRowClick: true,
       allowOverflow: true,
       button: true,
-      width: "200px",
+      width: "500px",
     },
   ];
 

@@ -164,7 +164,7 @@ const Moderator = () => {
         />
         <Link
           to="/moderation/createadmin/"
-          className=" text-white bg-blue-800 font-semibold py-2 px-6 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
+          className=" text-white bg-blue-800 font-semibold py-2 px-6 rounded-lg "
         >
           + Create Admin
         </Link>

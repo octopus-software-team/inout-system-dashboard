@@ -77,6 +77,9 @@ import AdminDetails from "./components/Login/AdminDetails";
 import LatestProject from "./components/charts/LatestProject";
 import QRCodeDisplay from "./components/company/QRCodeDisplay";
 import ViewBranchDetails from "./components/company/ViewBranchDetails";
+import ProjectTask from "./components/projectask/ProjectTask";
+import AddProjectTask from "./components/projectask/AddProjectTask";
+import EditProjectTask from "./components/projectask/EditProjectTask";
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -155,6 +158,19 @@ function App() {
             <Route
               path="/allprojects/addreport/:id"
               element={<PrivateRoute element={<AddReport />} />}
+            />
+            <Route
+              path="/projectask/projecttask"
+              element={<PrivateRoute element={<ProjectTask />} />}
+            />
+
+            <Route
+              path="/projectask/addprojecttask"
+              element={<PrivateRoute element={<AddProjectTask />} />}
+            />
+            <Route
+              path="/projectask/editprojecttask/:id"
+              element={<PrivateRoute element={<EditProjectTask />} />}
             />
             <Route
               path="/allprojects/addrepo/:id"

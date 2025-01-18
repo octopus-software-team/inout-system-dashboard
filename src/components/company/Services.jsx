@@ -194,11 +194,11 @@ const AddServices = () => {
 
       cell: (row) => (
         <div className="flex space-x-2">
-          <button onClick={() => handleEdit(row.id)} className="btn1 edit1">
+          <button onClick={() => handleEdit(row.id)} className="btn1 edit">
             <FaEdit className="mr-2" />
             Edit
           </button>
-          <button onClick={() => handleDelete(row.id)} className="btn1 colors1">
+          <button onClick={() => handleDelete(row.id)} className="btn1 colors">
             <FaTrash className="mr-2" />
             Delete
           </button>

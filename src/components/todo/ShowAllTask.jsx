@@ -142,19 +142,27 @@ const ShowAllTask = () => {
       name: "Task Name",
       selector: (row) => row.name,
       sortable: true,
+      width: "150px",
+
     },
     {
       name: "Start Date",
       selector: (row) => row.start_date,
       sortable: true,
+      width: "170px",
+
     },
     {
       name: "End Date",
       selector: (row) => row.end_date,
       sortable: true,
+      width: "170px",
+
     },
     {
       name: "Employee Name",
+      width: "150px",
+
       selector: (row) => {
         const employee = employees.find((emp) => emp.id === row.employee_id);
         return employee ? employee.full_name : "N/A";
@@ -163,6 +171,8 @@ const ShowAllTask = () => {
     },
     {
       name: "Status",
+      width: "100px",
+
       selector: (row) => {
         switch (row.status) {
           case 0:
@@ -197,7 +207,7 @@ const ShowAllTask = () => {
       ignoreRowClick: true,
       allowOverflow: true,
       button: true,
-      width: "150px",
+      width: "200px",
     },
   ];
 

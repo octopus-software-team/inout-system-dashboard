@@ -225,26 +225,36 @@ const AddMaterials = () => {
       name: "Stock",
       selector: (row) => row.stock,
       sortable: true,
+      width: "100px",
+
     },
     {
       name: "Type",
       selector: (row) => row.type_label,
       sortable: true,
+      width: "150px",
+
     },
     {
       name: "Description",
       selector: (row) => row.description,
       sortable: true,
+      width: "150px",
+
     },
     {
       name: "Material Category",
       selector: (row) => getMaterialCategoryName(row.material_category_id),
       sortable: true,
+      width: "150px",
+
     },
     {
       name: "Branch",
       selector: (row) => getBranchName(row.branch_id),
       sortable: true,
+      width: "150px",
+
     },
     {
       name: "Actions",
@@ -271,6 +281,8 @@ const AddMaterials = () => {
       ignoreRowClick: true,
       allowOverflow: true,
       button: true,
+      width: "200px",
+
     },
   ];
 
@@ -385,7 +397,7 @@ const AddMaterials = () => {
                 ))}
               </select>
 
-              <label htmlFor="">select branch</label>
+              <label htmlFor="">select material category</label>
 
               <select
                 name="material_category_id"

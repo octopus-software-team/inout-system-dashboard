@@ -151,14 +151,14 @@ const MaterialCategory = () => {
         <div className="flex space-x-2">
           <button
             onClick={() => handleEdit(row.id)}
-            className="edit py-1 px-3 rounded-lg"
+            className="edit1 py-1 px-3 rounded-lg"
           >
             <FaEdit className="inline mr-1" />
             Edit
           </button>
           <button
             onClick={() => handleDelete(row.id)}
-            className="colors py-1 px-3 rounded-lg"
+            className="colors1 py-1 px-3 rounded-lg"
           >
             <FaTrash className="inline mr-1" />
             Delete
@@ -187,7 +187,7 @@ const MaterialCategory = () => {
         />
         <Link
           to="/company/assets/creatematerialcategory"
-          className="text-white bg-blue-800 font-semibold py-2 px-6 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
+          className="icons text-white bg-blue-800 font-semibold py-2 px-6 rounded-lg "
         >
           + Create material category
         </Link>

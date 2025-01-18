@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ReactQuill from "react-quill"; // استيراد React Quill
+import "react-quill/dist/quill.snow.css"; // استيراد أنماط React Quill
 
 const CreateSecRepo = () => {
   const [id, setId] = useState(""); // Holds the entered ID
@@ -174,14 +176,12 @@ const CreateSecRepo = () => {
           >
             Report
           </label>
-          <textarea
-            id="report"
+          <ReactQuill
             value={report}
-            onChange={(e) => setReport(e.target.value)}
+            onChange={setReport}
             placeholder="Enter report"
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-900 dark:text-white"
-            rows="4"
-          ></textarea>
+            className="bg-white dark:bg-slate-900 dark:text-white"
+          />
         </div>
 
         {/* Submit Button */}

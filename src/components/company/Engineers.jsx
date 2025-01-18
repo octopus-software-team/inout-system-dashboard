@@ -32,12 +32,12 @@ const AddEngineer = () => {
   const [specialties, setSpecialties] = useState([]);
   const navigate = useNavigate();
 
-  const [isModalOpen, setIsModalOpen] = useState(false); // حالة فتح/إغلاق المودال
-  const [newSpecialty, setNewSpecialty] = useState(""); // حالة لحفظ اسم الخاصية الجديدة
+  const [isModalOpen, setIsModalOpen] = useState(false); 
+  const [newSpecialty, setNewSpecialty] = useState(""); 
 
   const [errors, setErrors] = useState({});
 
-  const [type, setType] = useState(0); // حالة type مع قيمة افتراضية 0
+  const [type, setType] = useState(0); 
 
   const token = Cookies.get("token");
 
@@ -177,21 +177,22 @@ const AddEngineer = () => {
     // إرجاع `true` إذا لم يكن هناك أخطاء
     return Object.keys(newErrors).length === 0;
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     if (!validateForm()) {
       toast.error("Please fix the errors in the form.");
       return;
     }
-
+  
     const formDataToSend = new FormData();
     Object.entries(formData).forEach(([key, value]) => {
       if (value !== null && value !== "") {
         formDataToSend.append(key, value);
       }
     });
-
+  
     try {
       const response = await fetch(
         "https://inout-api.octopusteam.net/api/front/addEmployee",
@@ -203,10 +204,10 @@ const AddEngineer = () => {
           body: formDataToSend,
         }
       );
-
+  
       const result = await response.json();
       console.log("API Response:", result);
-
+  
       if (result.status === 200) {
         toast.success("Engineer added successfully.");
         setQrCode(result.data.qrcode);
@@ -247,7 +248,6 @@ const AddEngineer = () => {
       toast.error("Error occurred while saving. Please check your input.");
     }
   };
-
   const handleAddSpecialty = async () => {
     if (!newSpecialty) {
       toast.error("Please enter a specialty name.");
@@ -675,7 +675,7 @@ const AddEngineer = () => {
         </div>
       </form>
 
-      {qrCode && <QRCodeDisplay svgData={qrCode} />}
+      {/* {qrCode && <QRCodeDisplay svgData={qrCode} />} */}
 
       <ToastContainer
         position="top-center"

@@ -15,6 +15,9 @@ const CreateCustomer = () => {
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
 
+
+  
+
   useEffect(() => {
     const fetchBranches = async () => {
       const token = Cookies.get("token");

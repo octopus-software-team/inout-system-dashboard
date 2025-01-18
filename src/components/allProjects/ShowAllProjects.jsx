@@ -25,11 +25,24 @@ const ShowAllProjects = () => {
     branch_id: "",
   });
 
-
   const [services, setServices] = useState([]); // إضافة services إلى الحالة
-const [consultives, setConsultives] = useState([]); // إضافة consultives إلى الحالة
+  const [consultives, setConsultives] = useState([]); // إضافة consultives إلى الحالة
 
   const navigate = useNavigate();
+
+  const statusStyles = {
+    0: "text-yellow-600 bg-yellow-100", // Pending
+    1: "text-blue-600 bg-blue-100", // In Review
+    2: "text-blue-600 bg-blue-100", // In Progress
+    3: "text-purple-600 bg-purple-100", // Under Testing
+    4: "text-orange-600 bg-orange-100", // Needs Changes
+    5: "text-yellow-600 bg-yellow-100", // Review Changes
+    6: "text-green-600 bg-green-100", // Approved
+    7: "text-red-600 bg-red-100", // Rejected
+    8: "text-green-600 bg-green-100", // Completed
+    9: "text-gray-600 bg-gray-100", // Archived
+    10: "text-red-600 bg-red-100", // Cancelled
+  };
 
   // Status Mapping
   const STATUS_MAPPING = {
@@ -157,6 +170,61 @@ const [consultives, setConsultives] = useState([]); // إضافة consultives إ
     fetchData();
   }, []);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      const token = Cookies.get("token");
+
+      try {
+        // Fetch Services
+        const servicesResponse = await fetch(
+          "https://inout-api.octopusteam.net/api/front/getServices",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const servicesData = await servicesResponse.json();
+        if (servicesData.status === 200) {
+          setServices(servicesData.data);
+        }
+      } catch (err) {
+        console.error("Error fetching services:", err);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const token = Cookies.get("token");
+
+      try {
+        // Fetch Customers
+        const customersResponse = await fetch(
+          "https://inout-api.octopusteam.net/api/front/getCustomers",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const customersData = await customersResponse.json();
+        if (customersData.status === 200) {
+          setCustomers(customersData.data.filter((cust) => cust.type === 0)); // العملاء العاديون (type === 0)
+          setConsultives(customersData.data.filter((cust) => cust.type === 2)); // الاستشاريون (type === 2)
+        }
+      } catch (err) {
+        console.error("Error fetching customers:", err);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   // Handle Filter Change
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
@@ -215,6 +283,10 @@ const [consultives, setConsultives] = useState([]); // إضافة consultives إ
       : project.name.toLowerCase().includes(search.toLowerCase())
   );
 
+  useEffect(() => {
+    console.log(filteredData);
+  }, [filteredData]);
+
   // Columns for DataTable
   const columns = [
     {
@@ -227,19 +299,33 @@ const [consultives, setConsultives] = useState([]); // إضافة consultives إ
       name: "Name",
       selector: (row) => row.name,
       sortable: true,
+      width: "80px",
     },
-    {
-      name: "Inspection Date",
-      selector: (row) => row.inspection_date,
-      sortable: true,
-    },
+    // {
+    //   name: "Inspection Date",
+    //   selector: (row) => row.inspection_date,
+    //   sortable: true,
+    //   width: "90px",
+    // },
     {
       name: "Status",
       selector: (row) => STATUS_MAPPING[row.status] || "Unknown",
       sortable: true,
+      width: "150px",
+      cell: (row) => (
+        <span
+          className={`px-2 py-1 rounded-lg text-sm font-semibold ${
+            statusStyles[row.status]
+          }`}
+        >
+          {STATUS_MAPPING[row.status]}
+        </span>
+      ),
     },
     {
       name: "Branch",
+      width: "150px",
+
       selector: (row) => {
         const branch = branches.find((b) => b.id === row.branch_id);
         return branch ? branch.name : "Unknown";
@@ -248,6 +334,8 @@ const [consultives, setConsultives] = useState([]); // إضافة consultives إ
     },
     {
       name: "Owner",
+      width: "90px",
+
       selector: (row) => {
         const owner = owners.find((o) => o.id === row.project_owner_id);
         return owner ? owner.name : "Unknown";
@@ -256,64 +344,77 @@ const [consultives, setConsultives] = useState([]); // إضافة consultives إ
     },
     {
       name: "Customer",
+      width: "150px",
+
       selector: (row) => {
         const customer = customers.find(
-          (c) => c.id === row.customer_constructor_id
+          (c) => c.id == row.customer_constructor_id
         );
         return customer ? customer.name : "Unknown";
       },
       sortable: true,
     },
-    {
-      name: "Engineer",
-      selector: (row) => {
-        const engineer = engineers.find(
-          (e) => e.id === row.inspection_engineer_id
-        );
-        return engineer ? engineer.full_name : "Unknown";
-      },
-      sortable: true,
-    },
-    {
-      name: "Notes",
-      selector: (row) => row.notes || "N/A",
-      sortable: true,
-    },
-    {
-      name: "Inspection Time",
-      selector: (row) => row.inspection_time || "N/A",
-      sortable: true,
-    },
-    {
-      name: "Services",
-      selector: (row) =>
-        row.services
-          ? row.services
-              .map((s) => {
-                const service = services.find(
-                  (service) => service.id === s.service_id
-                );
-                return service ? service.name : "Unknown";
-              })
-              .join(", ")
-          : "None",
-      sortable: true,
-    },
-    {
-      name: "Consultives",
-      selector: (row) =>
-        row.consultive
-          ? row.consultive
-              .map((c) => {
-                const consultive = consultives.find(
-                  (consultive) => consultive.id === c.consultive_id
-                );
-                return consultive ? consultive.name : "Unknown";
-              })
-              .join(", ")
-          : "None",
-      sortable: true,
-    },
+
+    // {
+    //   name: "Engineer",
+    //   width: "90px",
+
+    //   selector: (row) => {
+    //     const engineer = engineers.find(
+    //       (e) => e.id === row.inspection_engineer_id
+    //     );
+    //     return engineer ? engineer.full_name : "Unknown";
+    //   },
+    //   sortable: true,
+    // },
+    // {
+    //   name: "Notes",
+    //   width: "90px",
+
+    //   selector: (row) => row.notes || "N/A",
+    //   sortable: true,
+    // },
+    // {
+    //   name: "Inspection Time",
+    //   width: "90px",
+
+    //   selector: (row) => row.inspection_time || "N/A",
+    //   sortable: true,
+    // },
+    // {
+    //   name: "Services",
+    //   width: "90px",
+
+    //   selector: (row) =>
+    //     row.services
+    //       ? row.services
+    //           .map((s) => {
+    //             const service = services.find(
+    //               (service) => service.id === s.service_id
+    //             );
+    //             return service ? service.name : "Unknown";
+    //           })
+    //           .join(", ")
+    //       : "None",
+    //   sortable: true,
+    // },
+    // {
+    //   name: "Consultives",
+    //   width: "90px",
+
+    //   selector: (row) =>
+    //     row.consultive
+    //       ? row.consultive
+    //           .map((c) => {
+    //             const consultive = consultives.find(
+    //               (consultive) => consultive.id === c.consultive_id
+    //             );
+    //             return consultive ? consultive.name : "Unknown";
+    //           })
+    //           .join(", ")
+    //       : "None",
+    //   sortable: true,
+    // },
     {
       name: "Actions",
       cell: (row) => (
@@ -479,65 +580,81 @@ const [consultives, setConsultives] = useState([]); // إضافة consultives إ
           <div className="bg-white p-6 rounded-lg w-full max-w-md">
             <h3 className="text-xl font-bold mb-4">Filter Projects</h3>
             <div className="space-y-4">
+              <label htmlFor="">status</label>
               <select
                 name="status"
                 value={filters.status}
                 onChange={handleFilterChange}
                 className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="">Select Status</option>
+                <option value="">All</option>
                 {Object.entries(STATUS_MAPPING).map(([key, value]) => (
                   <option key={key} value={key}>
                     {value}
                   </option>
                 ))}
               </select>
+              <label className="pt-3" htmlFor="">
+                engineer
+              </label>
               <select
                 name="inspection_engineer_id"
                 value={filters.inspection_engineer_id}
                 onChange={handleFilterChange}
                 className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="">Select Engineer</option>
+                <option value="">All</option>
                 {engineers.map((engineer) => (
                   <option key={engineer.id} value={engineer.id}>
                     {engineer.full_name}
                   </option>
                 ))}
               </select>
+              <label className="" htmlFor="">
+                customer-constructor
+              </label>
+
               <select
                 name="customer_constructor_id"
                 value={filters.customer_constructor_id}
                 onChange={handleFilterChange}
                 className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="">Select Customer</option>
+                <option value="">All</option>
                 {customers.map((customer) => (
                   <option key={customer.id} value={customer.id}>
                     {customer.name}
                   </option>
                 ))}
               </select>
+              <label className="pt-3" htmlFor="">
+                Owner
+              </label>
+
               <select
                 name="project_owner_id"
                 value={filters.project_owner_id}
                 onChange={handleFilterChange}
                 className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="">Select Owner</option>
+                <option value="">All</option>
                 {owners.map((owner) => (
                   <option key={owner.id} value={owner.id}>
                     {owner.name}
                   </option>
                 ))}
               </select>
+              <label className="pt-3" htmlFor="">
+                Branch
+              </label>
+
               <select
                 name="branch_id"
                 value={filters.branch_id}
                 onChange={handleFilterChange}
                 className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="">Select Branch</option>
+                <option value="">All</option>
                 {branches.map((branch) => (
                   <option key={branch.id} value={branch.id}>
                     {branch.name}

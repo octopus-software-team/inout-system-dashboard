@@ -618,8 +618,6 @@ const UpdateProject = () => {
                 />
               </div>
 
-
-
               <div>
                 <label
                   htmlFor="name"
@@ -633,11 +631,10 @@ const UpdateProject = () => {
                   name="notes"
                   value={formData.notes}
                   onChange={handleChange}
-                  required
+                  
                   className="textarea1"
                 />
               </div>
-
 
               {/* Notes */}
               {/* <div>
@@ -689,24 +686,22 @@ const UpdateProject = () => {
                   {position && <Marker position={position} />}
                 </MapContainer>
                 <form onSubmit={handleSearch} className="mt-4 flex justify-end">
-                <input
-                  type="text"
-                  placeholder="Search location..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="flex-1 w-10 border border-gray-300 rounded-l-md p-2 dark:bg-slate-900 dark:text-white"
-                />
-                <button
-                  type="submit"
-                  className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-r-md"
-                  disabled={searchLoading}
-                >
-                  {searchLoading ? "Searching..." : "Search"}
-                </button>
-              </form>
+                  <input
+                    type="text"
+                    placeholder="Search location..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="flex-1 w-10 border border-gray-300 rounded-l-md p-2 dark:bg-slate-900 dark:text-white"
+                  />
+                  <button
+                    type="submit"
+                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-r-md"
+                    disabled={searchLoading}
+                  >
+                    {searchLoading ? "Searching..." : "Search"}
+                  </button>
+                </form>
               </div>
-
-              
             </div>
 
             <div className="w-full mt-6">

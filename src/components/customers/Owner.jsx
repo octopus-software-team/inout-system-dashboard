@@ -5,6 +5,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Cookies from "js-cookie";
 import DataTable from "react-data-table-component";
+import ImportFile from "../ImportFile"; // تأكد من صحة المسار
 
 const Owner = () => {
   const [data, setData] = useState([]);
@@ -22,6 +23,13 @@ const Owner = () => {
     phone: "",
     branch_id: "",
   });
+
+    const [open, setOpen] = useState(false);
+  
+
+
+  const tableName = "owners"; // تحديد اسم الجدول
+
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
@@ -180,6 +188,48 @@ const Owner = () => {
     setSearch(event.target.value);
   };
 
+
+
+   const handleExportFile = async () => {
+      const formData = new FormData();
+      formData.append("table", tableName);
+  
+      const token = Cookies.get("token");
+  
+      try {
+        const response = await fetch(
+          "https://inout-api.octopusteam.net/api/front/export",
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            body: formData,
+          }
+        );
+  
+        if (!response.ok) {
+          throw new Error("Failed to export file");
+        }
+  
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+  
+        link.download = `${tableName}.xlsx`;
+        document.body.appendChild(link);
+        link.click();
+  
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      } catch (error) {
+        console.error("Error exporting file:", error);
+        toast.error("Failed to export file.");
+      }
+    };
+  
+
   const columns = [
     {
       name: "#",
@@ -194,6 +244,8 @@ const Owner = () => {
     },
     {
       name: "Name",
+      width: "100px",
+
       selector: (row) => row.name,
       sortable: true,
       cell: (row) => (
@@ -204,6 +256,8 @@ const Owner = () => {
     },
     {
       name: "Email",
+      width: "170px",
+
       selector: (row) => row.email,
       sortable: true,
       cell: (row) => (
@@ -214,6 +268,8 @@ const Owner = () => {
     },
     {
       name: "Phone",
+      width: "170px",
+
       selector: (row) => row.phone,
       sortable: true,
       cell: (row) => (
@@ -224,6 +280,8 @@ const Owner = () => {
     },
     {
       name: "Branch",
+      width: "150px",
+
       selector: (row) => getBranchName(row.branch_id),
       sortable: true,
       cell: (row) => (
@@ -255,7 +313,7 @@ const Owner = () => {
       ignoreRowClick: true,
       allowOverflow: true,
       button: true,
-      width: "150px",
+      width: "200px",
     },
   ];
 
@@ -280,11 +338,42 @@ const Owner = () => {
           </Link>
           <button
             onClick={() => setIsFilterOpen(true)}
-            className="icons bg-blue-800 text-white font-semibold rounded-lg"
+            className="icons bg-blue-800 text-white font-semibold rounded-lg mr-2"
           >
             <FaFilter className="inline-block mr-2" />
             Filter
           </button>
+          <button
+            onClick={() => setOpen(true)}
+            className="icons bg-blue-800  text-white  rounded-lg mr-2 "
+          >
+            Import
+          </button>
+          { <button
+            onClick={handleExportFile}
+            className="icons bg-blue-800 text-white  rounded-lg mr-2 "
+          >
+            Export
+          </button> }
+
+          {open && (
+            <div
+              className="fixed top-0 left-0 z-30 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
+              onClick={() => setOpen(false)}
+            >
+              <div
+                className="w-[350px] h-[350px] bg-white rounded-lg shadow-lg p-6"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <h2 className="text-center text-xl font-semibold mb-4">
+                  Import File
+                </h2>
+                <div className="flex flex-col items-center space-y-4">
+                  <ImportFile tableName={tableName} /> {/* مكون الاستيراد */}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -318,7 +407,7 @@ const Owner = () => {
           <div className="bg-white p-6 rounded-lg w-full max-w-md">
             <h3 className="text-xl font-bold mb-4">Filter Owners</h3>
             <div className="space-y-4">
-            <label htmlFor="">select branch </label>
+              <label htmlFor="">select branch </label>
 
               <select
                 name="branch_id"

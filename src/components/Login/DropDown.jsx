@@ -15,8 +15,10 @@ export default function DropDown() {
   const notificationsRef = useRef(null);
   const profileDropdownRef = useRef(null);
 
-  const notificationsAPI = "https://inout-api.octopusteam.net/api/front/getNotifications";
-  const markAllAsReadAPI = "https://inout-api.octopusteam.net/api/front/markAllAsRead";
+  const notificationsAPI =
+    "https://inout-api.octopusteam.net/api/front/getNotifications";
+  const markAllAsReadAPI =
+    "https://inout-api.octopusteam.net/api/front/markAllAsRead";
 
   // جلب الإشعارات
   useEffect(() => {
@@ -138,7 +140,9 @@ export default function DropDown() {
                         {new Date(notification.created_at).toLocaleString()}
                       </span>
                     </div>
-                    <p className="text-gray-700 text-sm mt-1">{notification.body}</p>
+                    <p className="text-gray-700 text-sm mt-1">
+                      {notification.body}
+                    </p>
                   </li>
                 ))}
               </ul>
@@ -149,7 +153,6 @@ export default function DropDown() {
         )}
       </div>
 
-      {/* صورة الملف الشخصي والقائمة المنسدلة */}
       <div className="relative flex items-center" ref={profileDropdownRef}>
         <img
           src={ProfileImage}
@@ -160,7 +163,7 @@ export default function DropDown() {
 
         {profileDropdownOpen && (
           <div
-            className="absolute top-12 right-0 mt-2 w-64 bg-white rounded-lg shadow-lg p-4 z-50"
+            className="service absolute top-12 right-0 mt-2 w-64 bg-white rounded-lg shadow-lg p-4 z-50"
             style={{ top: "calc(100% + 10px)", right: "0" }}
           >
             <div className="flex items-center gap-3 mb-4">

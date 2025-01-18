@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
-import { ToastContainer, toast } from "react-toastify"; // Updated import
-import "react-toastify/dist/ReactToastify.css"; // Ensure CSS is imported
 
+import toast, { Toaster } from "react-hot-toast";
 import $ from "jquery";
 import "dropify/dist/css/dropify.min.css";
 import "dropify/dist/js/dropify.min.js";
+// import { ToastContainer } from "react-toastify";
+// import toast, { Toaster } from "react-hot-toast";
 
 const EditEmp = () => {
   const { id } = useParams();
@@ -27,7 +28,7 @@ const EditEmp = () => {
     contract_duration: "",
     contract_end_date: "",
     type: 0,
-    notes:""
+    notes: "",
   });
 
   const [branches, setBranches] = useState([]);
@@ -303,47 +304,49 @@ const EditEmp = () => {
         }
       );
 
-      const result = await response.json();
+      const result = await response.json(); // هنا تم تعريف `result`
 
-      if (response.ok && result.status === 200) {
-        toast.success("Employee updated successfully!");
-        navigate("/company/employees");
+      if (response.ok) {
+        toast.success("Employee updated successfully.");
+        setTimeout(() => {
+          navigate("/company/employees");
+        }, 2000);
       } else {
-        toast.error(result.msg || "Error updating employee. Please try again.");
+        toast.error("Error updating employee.");
       }
     } catch (error) {
       console.error("Error updating employee:", error);
       toast.error("An error occurred while saving. Please check your input.");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
-  if (loading) {
-    return (
-      <div className="container mx-auto p-6">
-        <h1 className="text-2xl font-bold mb-6">Edit Employee</h1>
-        <p>Loading employee data...</p>
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="container mx-auto p-6">
+  //       <h1 className="text-2xl font-bold mb-6 text-center mt-8">
+  //         Edit Employee
+  //       </h1>
+  //       <p className="text-center mt-56">Loading</p>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="mx-auto p-6">
-      {/* ToastContainer for react-toastify */}
-      <ToastContainer
+      <Toaster
         position="top-center"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
+        reverseOrder={false}
+        toastOptions={{
+          style: {
+            width: "350px",
+            height: "80px",
+            fontSize: "1.2rem",
+          },
+        }}
       />
-      <h1 className="text-2xl font-bold mb-6">Edit Employee</h1>
+      <h1 className="text-2xl font-bold mb-6 text-center ">Edit Employee</h1>
 
       {message && (
         <div className="mb-4 p-3 text-white bg-blue-500 rounded-lg">
@@ -556,13 +559,9 @@ const EditEmp = () => {
           )}
         </div>
 
-
         {/* notes */}
         <div className="flex flex-col">
-          <label
-            htmlFor="notes"
-            className="mb-2 font-medium text-gray-700"
-          >
+          <label htmlFor="notes" className="mb-2 font-medium text-gray-700">
             notes
           </label>
           <input
@@ -641,7 +640,6 @@ const EditEmp = () => {
             <option value="0">Engineer</option>
             <option value="1">Employee</option>
             <option value="2">Worker</option>
-
           </select>
           {errors.type && <p className="text-red-500 text-sm">{errors.type}</p>}
         </div>
