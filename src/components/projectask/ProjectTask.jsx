@@ -7,13 +7,17 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const ProjectTask = () => {
-  const [tasks, setTasks] = useState([]); // بيانات التاسكات
-  const [projects, setProjects] = useState([]); // بيانات المشاريع
-  const [isLoading, setIsLoading] = useState(true); // حالة التحميل
-  const [error, setError] = useState(null); // حالة الخطأ
+  const [tasks, setTasks] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const [search, setSearch] = useState("");
 
-  // جلب بيانات التاسكات
+  const handleSearch = (e) => {
+    setSearch(e.target.value);
+  };
+
   useEffect(() => {
     const token = Cookies.get("token");
 
@@ -23,7 +27,6 @@ const ProjectTask = () => {
       return;
     }
 
-    // جلب التاسكات
     fetch("https://inout-api.octopusteam.net/api/front/getProjectTasks", {
       method: "GET",
       headers: {
@@ -47,7 +50,6 @@ const ProjectTask = () => {
         setError("Failed to fetch tasks");
       });
 
-    // جلب المشاريع
     fetch("https://inout-api.octopusteam.net/api/front/getProjects", {
       method: "GET",
       headers: {
@@ -75,13 +77,11 @@ const ProjectTask = () => {
       });
   }, []);
 
-  // دالة للحصول على اسم المشروع من الـ project_id
   const getProjectName = (projectId) => {
     const project = projects.find((proj) => proj.id === projectId);
     return project ? project.name : "Unknown Project";
   };
 
-  // دالة حذف التاسك
   const handleDelete = (id) => {
     const token = Cookies.get("token");
     if (!token) {
@@ -144,6 +144,7 @@ const ProjectTask = () => {
       state: { task: selectedTask, projects },
     });
   };
+
   const columns = [
     {
       name: "#",
@@ -184,6 +185,13 @@ const ProjectTask = () => {
     },
   ];
 
+  const filteredTasks = tasks.filter((task) =>
+    search === ""
+      ? task
+      : task.task.toLowerCase().includes(search.toLowerCase()) ||
+        getProjectName(task.project_id).toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <div className="container p-6 mt-5">
       <h2 className="text-center font-bold text-3xl text-black">
@@ -191,6 +199,13 @@ const ProjectTask = () => {
       </h2>
 
       <div className="flex justify-between items-center my-4 space-x-2 flex-wrap">
+        <input
+          type="text"
+          placeholder="Search ..."
+          value={search}
+          onChange={handleSearch}
+          className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
+        />
         <Link
           to="/projectask/addprojecttask"
           className="icons bg-blue-800 text-white mr-2 font-semibold rounded-lg px-4 py-2"
@@ -202,12 +217,12 @@ const ProjectTask = () => {
 
       <DataTable
         columns={columns}
-        data={tasks}
+        data={filteredTasks}
         pagination
         highlightOnHover
         striped
         responsive
-        defaultSortField="id" // الترتيب الافتراضي حسب الـ ID
+        defaultSortField="id"
         paginationPerPage={10}
         paginationRowsPerPageOptions={[10, 20, 30]}
         className="shadow-lg rounded-lg overflow-hidden"
@@ -221,7 +236,7 @@ const ProjectTask = () => {
         </div>
       ) : error ? (
         <p className="text-red-500 text-center">{error}</p>
-      ) : tasks.length === 0 ? (
+      ) : filteredTasks.length === 0 ? (
         <p className="text-center text-gray-600 text-lg">No tasks found.</p>
       ) : null}
 

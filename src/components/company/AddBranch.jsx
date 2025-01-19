@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { toast, Toaster } from "react-hot-toast"; // Updated import
+import { toast, Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
@@ -12,6 +12,7 @@ const AddBranch = () => {
   const [cities, setCities] = useState([]);
   const [selectedCountry, setSelectedCountry] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
+  const [filteredCities, setFilteredCities] = useState([]);
 
   const navigate = useNavigate();
 
@@ -73,6 +74,15 @@ const AddBranch = () => {
     fetchCountries();
     fetchCities();
   }, []);
+
+  useEffect(() => {
+    if (selectedCountry) {
+      const filtered = cities.filter(city => city.country_id === Number(selectedCountry));
+      setFilteredCities(filtered);
+    } else {
+      setFilteredCities([]);
+    }
+  }, [selectedCountry, cities]);
 
   const LocationMarker = () => {
     useMapEvents({
@@ -160,8 +170,6 @@ const AddBranch = () => {
         toastOptions={{
           style: {
             width: "350px",
-            // Adjust height if necessary or remove
-            // height: "80px",
             fontSize: "1.2rem",
           },
         }}
@@ -197,7 +205,6 @@ const AddBranch = () => {
                 {country.name}
               </option>
             ))}
-            {/* Removed the empty option as it's unnecessary */}
           </select>
         </div>
 
@@ -212,26 +219,13 @@ const AddBranch = () => {
             required
           >
             <option value="">Select a City</option>
-            {cities.map((city) => (
+            {filteredCities.map((city) => (
               <option key={city.id} value={city.id}>
                 {city.name}
               </option>
             ))}
-            {/* Removed the "غير محدد" option or you can keep it if necessary */}
           </select>
         </div>
-
-        {/* <MapContainer
-          center={[23.8859, 45.0792]}
-          zoom={6}
-          style={{ height: "200px", width: "100%" }}
-        >
-          <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          />
-          <LocationMarker />
-        </MapContainer> */}
 
         <button
           type="submit"

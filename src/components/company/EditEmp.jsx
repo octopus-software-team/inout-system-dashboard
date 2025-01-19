@@ -13,6 +13,7 @@ const EditEmp = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [responseMessage, setResponseMessage] = useState("");
+  const [nationalities, setNationalities] = useState([]);
 
   const [formData, setFormData] = useState({
     full_name: "",
@@ -29,6 +30,10 @@ const EditEmp = () => {
     contract_end_date: "",
     type: 0,
     notes: "",
+    nationality_id: "", // إضافة nationality
+    grade: "", // إضافة grade
+    password: "", // إضافة password
+    password_confirmation: "", // إضافة password_confirmation
   });
 
   const [branches, setBranches] = useState([]);
@@ -38,6 +43,33 @@ const EditEmp = () => {
 
   const token = Cookies.get("token");
 
+  useEffect(() => {
+    const fetchNationalities = async () => {
+      try {
+        const response = await fetch(
+          "https://inout-api.octopusteam.net/api/front/getNationalities",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const result = await response.json();
+        if (result.status === 200) {
+          setNationalities(result.data);
+        } else {
+          console.error("Error fetching nationalities:", result.msg);
+          toast.error(result.msg || "Failed to fetch nationalities.");
+        }
+      } catch (error) {
+        console.error("Error fetching nationalities:", error);
+        toast.error("Error fetching nationalities.");
+      }
+    };
+
+    fetchNationalities();
+  }, [token]);
   // Reference to the file input
   const fileInputRef = useRef(null);
 
@@ -138,6 +170,8 @@ const EditEmp = () => {
               contract_end_date: employee.contract_end_date || "",
               type: employee.type || 0,
               notes: employee.notes || "",
+              nationality: employee.nationality || "", // تعيين nationality
+              grade: employee.grade || "", // تعيين grade
             });
             // Initialize Dropify with the existing image
             if (fileInputRef.current) {
@@ -175,7 +209,6 @@ const EditEmp = () => {
         setLoading(false); // End loading state
       }
     };
-
     fetchBranches();
     fetchSpecialties();
     fetchEmployeeData();
@@ -210,10 +243,10 @@ const EditEmp = () => {
       }
     }
   };
-
   const validate = () => {
     const newErrors = {};
 
+    // التحقق من الحقول الحالية
     if (!formData.full_name.trim()) {
       newErrors.full_name = "Employee name is required.";
     }
@@ -263,11 +296,30 @@ const EditEmp = () => {
       newErrors.contract_end_date = "Contract end date is required.";
     }
 
+    // التحقق من الحقول الجديدة
+    if (!formData.nationality.trim()) {
+      newErrors.nationality = "Nationality is required.";
+    }
+
+    if (!formData.grade) {
+      newErrors.grade = "Please select a grade.";
+    }
+
+    // التحقق من كلمة المرور
+    if (formData.password && !formData.password_confirmation) {
+      newErrors.password_confirmation = "Please confirm your password.";
+    }
+
+    if (formData.password && formData.password_confirmation) {
+      if (formData.password !== formData.password_confirmation) {
+        newErrors.password_confirmation = "Passwords do not match.";
+      }
+    }
+
     setErrors(newErrors);
 
     return Object.keys(newErrors).length === 0;
   };
-
   const [errors, setErrors] = useState({});
 
   const handleSubmit = async (e) => {
@@ -288,7 +340,7 @@ const EditEmp = () => {
           formDataToSend.append(key, genderValue);
         } else if (key === "image" && value) {
           formDataToSend.append(key, value);
-        } else {
+        } else if (value) {
           formDataToSend.append(key, value);
         }
       });
@@ -304,7 +356,7 @@ const EditEmp = () => {
         }
       );
 
-      const result = await response.json(); // هنا تم تعريف `result`
+      const result = await response.json();
 
       if (response.ok) {
         toast.success("Employee updated successfully.");
@@ -312,7 +364,7 @@ const EditEmp = () => {
           navigate("/company/employees");
         }, 2000);
       } else {
-        toast.error("Error updating employee.");
+        toast.error(result.msg || "Error updating employee.");
       }
     } catch (error) {
       console.error("Error updating employee:", error);
@@ -414,6 +466,53 @@ const EditEmp = () => {
           />
           {errors.phone && (
             <p className="text-red-500 text-sm">{errors.phone}</p>
+          )}
+        </div>
+
+        {/* Password */}
+        <div className="flex flex-col">
+          <label htmlFor="password" className="mb-2 font-medium text-gray-700">
+            Password
+          </label>
+          <input
+            type="password"
+            id="password"
+            value={formData.password}
+            onChange={handleChange}
+            placeholder="Password"
+            className={`p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              errors.password ? "border-red-500" : "border-gray-300"
+            }`}
+          />
+          {errors.password && (
+            <p className="text-red-500 text-sm">{errors.password}</p>
+          )}
+        </div>
+
+        {/* Password Confirmation */}
+        <div className="flex flex-col">
+          <label
+            htmlFor="password_confirmation"
+            className="mb-2 font-medium text-gray-700"
+          >
+            Confirm Password
+          </label>
+          <input
+            type="password"
+            id="password_confirmation"
+            value={formData.password_confirmation}
+            onChange={handleChange}
+            placeholder="Confirm Password"
+            className={`p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              errors.password_confirmation
+                ? "border-red-500"
+                : "border-gray-300"
+            }`}
+          />
+          {errors.password_confirmation && (
+            <p className="text-red-500 text-sm">
+              {errors.password_confirmation}
+            </p>
           )}
         </div>
 
@@ -642,6 +741,58 @@ const EditEmp = () => {
             <option value="2">Worker</option>
           </select>
           {errors.type && <p className="text-red-500 text-sm">{errors.type}</p>}
+        </div>
+
+        {/* Nationality */}
+        {/* Nationality */}
+        <div className="flex flex-col">
+          <label
+            htmlFor="nationality"
+            className="mb-2 font-medium text-gray-700"
+          >
+            Nationality
+          </label>
+          <select
+            id="nationality"
+            value={formData.nationality}
+            onChange={handleChange}
+            className={`p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              errors.nationality ? "border-red-500" : "border-gray-300"
+            }`}
+          >
+            <option value="">Select Nationality</option>
+            {nationalities.map((nationality) => (
+              <option key={nationality.id} value={nationality.name}>
+                {nationality.name}
+              </option>
+            ))}
+          </select>
+          {errors.nationality && (
+            <p className="text-red-500 text-sm">{errors.nationality}</p>
+          )}
+        </div>
+
+        {/* Grade */}
+        <div className="flex flex-col">
+          <label htmlFor="grade" className="mb-2 font-medium text-gray-700">
+            Grade
+          </label>
+          <select
+            id="grade"
+            value={formData.grade}
+            onChange={handleChange}
+            className={`p-2 dark:bg-slate-900 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              errors.grade ? "border-red-500" : "border-gray-300"
+            }`}
+          >
+            <option value="">Select Grade</option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+          </select>
+          {errors.grade && (
+            <p className="text-red-500 text-sm">{errors.grade}</p>
+          )}
         </div>
 
         {/* Image */}

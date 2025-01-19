@@ -244,35 +244,31 @@ const AddNewAssets = () => {
       selector: (row) => row.name,
       sortable: true,
       width: "170px",
-
     },
     {
       name: "Assets Type",
       selector: (row) => getAssetTypeNameById(row.asset_type_id),
       sortable: true,
       width: "170px",
-
     },
     {
       name: "Branch",
       selector: (row) => getBranchNameById(row.branch_id),
       sortable: true,
       width: "170px",
-
     },
     {
       name: "QR Code",
       width: "200px",
-
-      cell: (row) =>
-        row.qrcode ? (
+      cell: (row) => (
+        <div className="flex flex-col items-center">
           <div
             className="svg1"
             dangerouslySetInnerHTML={{ __html: row.qrcode }}
           />
-        ) : (
-          "No QR Code"
-        ),
+          <p className="text-sm text-gray-600"> {row.serial_number}</p>
+        </div>
+      ),
     },
     {
       name: "Actions",
@@ -299,7 +295,6 @@ const AddNewAssets = () => {
       width: "150px",
     },
   ];
-
   const handleSearch = (event) => {
     setSearch(event.target.value);
   };

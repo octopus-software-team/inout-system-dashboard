@@ -1,11 +1,12 @@
 import React from 'react'
 
-const EditRoles = () => {
+const Role = () => {
   return (
     <div>
-      
+      <h1>sss</h1>
+     
     </div>
   )
 }
 
-export default EditRoles
+export default Role

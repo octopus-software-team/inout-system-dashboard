@@ -292,12 +292,11 @@ const Employees = () => {
       name: "#",
       selector: (row) => row.id,
       sortable: true,
-      width: "100px",
+      width: "80px",
     },
     {
       name: "Image",
       width: "100px",
-
       cell: (row) => (
         <img
           src={row.image}
@@ -310,108 +309,70 @@ const Employees = () => {
       name: "Name",
       selector: (row) => row.full_name,
       sortable: true,
-      width: "100px",
-
+      width: "80px",
     },
-    // {
-    //   name: "Email",
-    //   selector: (row) => row.email,
-    //   sortable: true,
-    //   width: "80px",
-
-    // },
-    // {
-    //   name: "Phone",
-    //   selector: (row) => row.phone,
-    //   sortable: true,
-    //   width: "80px",
-
-    // },
     {
       name: "Branch",
       selector: (row) => getBranchName(row.branch_id),
       sortable: true,
-      width: "100px",
-
-
+      width: "90px",
     },
     {
       name: "Specialization",
       selector: (row) => getEmployeeSpecialName(row.employee_special_id),
       sortable: true,
-      width: "100px",
-
+      width: "90px",
     },
-
     {
       name: "Date of Birth",
       selector: (row) => row.date_of_birth,
       sortable: true,
-      width: "150px",
-
+      width: "100px",
     },
-    // {
-    //   name: "Gender",
-    //   selector: (row) => getGender(row.gender),
-    //   sortable: true,
-    //   width: "80px",
-
-    // },
-    // {
-    //   name: "Experience",
-    //   selector: (row) => row.experience,
-    //   sortable: true,
-    //   width: "80px",
-
-    // },
-    // {
-    //   name: "Contract Start",
-    //   selector: (row) => row.contract_start_date,
-    //   sortable: true,
-    //   width: "80px",
-
-    // },
-    // {
-    //   name: "Notes",
-    //   selector: (row) => row.notes,
-    //   sortable: true,
-    //   width: "80px",
-
-    // },
-    // {
-    //   name: "Contract Duration",
-    //   selector: (row) => `${row.contract_duration} months`,
-    //   sortable: true,
-    //   width: "80px",
-
-    // },
-    // {
-    //   name: "Contract End",
-    //   selector: (row) => row.contract_end_date,
-    //   sortable: true,
-    //   width: "80px",
-
-    // },
     {
       name: "Type",
       selector: (row) => getType(row.type),
       sortable: true,
+      width: "90px",
+    },
+    {
+      name: "Grade",
+      selector: (row) => row.grade || "N/A", // عرض الـ grade أو "N/A" إذا كان null
+      sortable: true,
+      width: "70px",
+    },
+    {
+      name: "Nationality",
+      selector: (row) => row.nationality || "N/A", // عرض الـ nationality أو "N/A" إذا كان null
+      sortable: true,
       width: "100px",
-
+    },
+    {
+      name: "Code",
+      selector: (row) => row.code || "N/A", // عرض الـ code أو "N/A" إذا كان null
+      sortable: true,
+      width: "100px",
     },
     {
       name: "QR Code",
-      width: "100px",
-
-      cell: (row) =>
-        row.qrcode ? (
-          <div
-            className="svg1"
-            dangerouslySetInnerHTML={{ __html: row.qrcode }}
-          />
-        ) : (
-          "No QR Code"
-        ),
+      width: "100px", // زيادة العرض لاستيعاب النص
+      cell: (row) => (
+        <div className="flex flex-col items-center">
+          {row.qrcode ? (
+            <div
+              className="svg1"
+              dangerouslySetInnerHTML={{ __html: row.qrcode }}
+            />
+          ) : (
+            "No QR Code"
+          )}
+          {row.serial_number && (
+            <p className="mt-2 text-sm text-gray-600">
+               {row.serial_number}
+            </p>
+          )}
+        </div>
+      ),
     },
     {
       name: "Actions",
@@ -438,7 +399,6 @@ const Employees = () => {
       allowOverflow: true,
       button: true,
       width: "400px",
-
     },
   ];
 

@@ -26,18 +26,21 @@ const AddEngineer = () => {
     contract_end_date: "",
     type: 0,
     notes: "",
+    grade: "", // إضافة grade
+    code: "", // إضافة code
+    nationality_id: "", // إضافة nationality
   });
 
   const [branches, setBranches] = useState([]);
   const [specialties, setSpecialties] = useState([]);
   const navigate = useNavigate();
 
-  const [isModalOpen, setIsModalOpen] = useState(false); 
-  const [newSpecialty, setNewSpecialty] = useState(""); 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newSpecialty, setNewSpecialty] = useState("");
 
   const [errors, setErrors] = useState({});
 
-  const [type, setType] = useState(0); 
+  const [type, setType] = useState(0);
 
   const token = Cookies.get("token");
 
@@ -139,6 +142,9 @@ const AddEngineer = () => {
       "contract_start_date",
       "contract_end_date",
       "notes",
+      "grade", // إضافة grade
+      "code", // إضافة code
+      "nationality", // إضافة nationality
     ];
 
     requiredFields.forEach((field) => {
@@ -177,22 +183,21 @@ const AddEngineer = () => {
     // إرجاع `true` إذا لم يكن هناك أخطاء
     return Object.keys(newErrors).length === 0;
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     if (!validateForm()) {
       toast.error("Please fix the errors in the form.");
       return;
     }
-  
+
     const formDataToSend = new FormData();
     Object.entries(formData).forEach(([key, value]) => {
       if (value !== null && value !== "") {
         formDataToSend.append(key, value);
       }
     });
-  
+
     try {
       const response = await fetch(
         "https://inout-api.octopusteam.net/api/front/addEmployee",
@@ -204,10 +209,10 @@ const AddEngineer = () => {
           body: formDataToSend,
         }
       );
-  
+
       const result = await response.json();
       console.log("API Response:", result);
-  
+
       if (result.status === 200) {
         toast.success("Engineer added successfully.");
         setQrCode(result.data.qrcode);
@@ -291,6 +296,35 @@ const AddEngineer = () => {
   //   toast.error("Please fix the errors in the form.");
   //   return;
   // }
+
+  const [nationalities, setNationalities] = useState([]);
+
+  useEffect(() => {
+    const fetchNationalities = async () => {
+      try {
+        const response = await fetch(
+          "https://inout-api.octopusteam.net/api/front/getNationalities",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const result = await response.json();
+        if (result.status === 200) {
+          setNationalities(result.data);
+        } else {
+          toast.error(result.msg || "Failed to load nationalities.");
+        }
+      } catch (error) {
+        console.error("Error fetching nationalities:", error);
+        toast.error("Failed to load nationalities. Please try again.");
+      }
+    };
+
+    fetchNationalities();
+  }, [token]);
 
   return (
     <div className="mx-auto p-6">
@@ -648,6 +682,68 @@ const AddEngineer = () => {
             <option value="1">Employee</option>
             <option value="2">Worker</option>
           </select>
+        </div>
+
+        <div className="flex flex-col">
+          <label htmlFor="grade" className="mb-2 font-medium text-gray-700">
+            Grade
+          </label>
+          <select
+            id="grade"
+            value={formData.grade}
+            onChange={handleChange}
+            className="p-2 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Select Grade</option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+          </select>
+          {errors.grade && (
+            <span className="text-red-500 text-xs">{errors.grade}</span>
+          )}
+        </div>
+
+        <div className="flex flex-col">
+          <label htmlFor="code" className="mb-2 font-medium text-gray-700">
+            Code
+          </label>
+          <input
+            type="text"
+            id="code"
+            value={formData.code}
+            onChange={handleChange}
+            placeholder="User Code"
+            className="p-2 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          {errors.code && (
+            <span className="text-red-500 text-xs">{errors.code}</span>
+          )}
+        </div>
+
+        <div className="flex flex-col">
+          <label
+            htmlFor="nationality"
+            className="mb-2 font-medium text-gray-700"
+          >
+            Nationality
+          </label>
+          <select
+            id="nationality"
+            value={formData.nationality}
+            onChange={handleChange}
+            className="p-2 dark:text-white w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Select Nationality</option>
+            {nationalities.map((nationality) => (
+              <option key={nationality.id} value={nationality.id}>
+                {nationality.name}
+              </option>
+            ))}
+          </select>
+          {errors.nationality && (
+            <span className="text-red-500 text-xs">{errors.nationality}</span>
+          )}
         </div>
 
         <div className="flex flex-col md:col-span-2">

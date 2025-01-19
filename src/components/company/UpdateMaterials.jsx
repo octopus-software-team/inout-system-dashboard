@@ -48,6 +48,7 @@ const units = [
   { label: "Bar", value: "bar" },
   { label: "Psi", value: "psi" },
   { label: "Piece", value: "piece" },
+  { label: "qty", value: "qty" },
 ];
 
 const UpdateMaterials = () => {
@@ -161,7 +162,15 @@ const UpdateMaterials = () => {
       return;
     }
 
-    const { id, name, stock, type, branch_id, material_category_id, description } = formData;
+    const {
+      id,
+      name,
+      stock,
+      type,
+      branch_id,
+      material_category_id,
+      description,
+    } = formData;
 
     // if (!name || !stock || !type || !branch_id || !material_category_id || !description) {
     //   toast.error("All fields are required.");
@@ -303,7 +312,9 @@ const UpdateMaterials = () => {
             ))}
           </select>
           {errors.material_category_id && (
-            <p className="text-red-500 text-sm mt-1">{errors.material_category_id}</p>
+            <p className="text-red-500 text-sm mt-1">
+              {errors.material_category_id}
+            </p>
           )}
         </div>
 
@@ -327,7 +338,7 @@ const UpdateMaterials = () => {
             }`}
             required
           >
-            <option value="">Select type</option>
+            <option value="">All</option>
             {units.map((unit) => (
               <option key={unit.value} value={unit.value}>
                 {unit.label}
@@ -359,7 +370,7 @@ const UpdateMaterials = () => {
             }`}
             required
           >
-            <option value="">Select Branch</option>
+            <option value="">All</option>
             {branches.map((branch) => (
               <option key={branch.id} value={branch.id}>
                 {branch.name}

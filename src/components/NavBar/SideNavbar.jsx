@@ -97,7 +97,6 @@ const company = [
         path: "/company/assets/assetstype",
         icon: <FaCubes className="mr-2 text-gray-400" />,
       },
-     
     ],
   },
 ];
@@ -133,18 +132,13 @@ const todo = [
   },
 ];
 
-// const admin = [
-//   {
-//     name: "Add New Role",
-//     path: "/admin/addnewrole",
-//     icon: <FaBriefcase className="mr-2 text-gray-400" />,
-//   },
-//   {
-//     name: "Edit Roles",
-//     path: "/admin/editroles",
-//     icon: <FaUserEdit className="mr-2 text-gray-400" />,
-//   },
-// ];
+const admin = [
+  {
+    name: "Role",
+    path: "/roles/role",
+    icon: <FaBriefcase className="mr-2 text-gray-400" />,
+  },
+];
 
 const moderator = [
   {
@@ -326,13 +320,6 @@ const Navbar = () => {
             />
 
             {/* قائمة Admin */}
-            {/* <NavItemWithSubMenu
-              title="Admin"
-              icon={<FaUserPlus className="text-gray-400 w-5 h-5" />}
-              items={admin}
-              isOpen={activeItems["Admin"]}
-              onToggle={() => handleToggleItem("Admin")}
-            /> */}
 
             <NavItemWithSubMenu
               title="moderator"
@@ -341,6 +328,15 @@ const Navbar = () => {
               isOpen={activeItems["moderator"]}
               onToggle={() => handleToggleItem("moderator")}
             />
+            {
+              <NavItemWithSubMenu
+                title="Admin"
+                icon={<FaUserPlus className="text-gray-400 w-5 h-5" />}
+                items={admin}
+                isOpen={activeItems["Admin"]}
+                onToggle={() => handleToggleItem("Admin")}
+              />
+            }
           </ul>
         </div>
       </aside>

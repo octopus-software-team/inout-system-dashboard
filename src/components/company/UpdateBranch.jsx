@@ -21,6 +21,7 @@ const UpdateBranch = () => {
 
   const [countries, setCountries] = useState([]);
   const [cities, setCities] = useState([]);
+  const [filteredCities, setFilteredCities] = useState([]); // حالة جديدة للمدن المصفاة
   const [loading, setLoading] = useState(true);
 
   const fetchCountries = async () => {
@@ -117,6 +118,16 @@ const UpdateBranch = () => {
       fetchBranchData();
     }
   }, [id, location.state, navigate]);
+
+  // تصفية المدن بناءً على الدولة المحددة
+  useEffect(() => {
+    if (formData.country_id) {
+      const filtered = cities.filter((city) => city.country_id === parseInt(formData.country_id));
+      setFilteredCities(filtered);
+    } else {
+      setFilteredCities([]);
+    }
+  }, [formData.country_id, cities]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -234,15 +245,14 @@ const UpdateBranch = () => {
             onChange={handleInputChange}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg"
             required
+            disabled={!formData.country_id} // تعطيل إذا لم يتم اختيار دولة
           >
             <option value="">Select a City</option>
-            {cities
-              .filter((city) => city.country_id === parseInt(formData.country_id))
-              .map((city) => (
-                <option key={city.id} value={city.id}>
-                  {city.name}
-                </option>
-              ))}
+            {filteredCities.map((city) => (
+              <option key={city.id} value={city.id}>
+                {city.name}
+              </option>
+            ))}
           </select>
         </div>
 

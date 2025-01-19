@@ -47,6 +47,8 @@ const units = [
   { label: "Bar", value: "bar" },
   { label: "Psi", value: "psi" },
   { label: "Piece", value: "piece" },
+  { label: "qty", value: "qty" },
+
 ];
 
 const CreateMaterials = () => {
@@ -257,7 +259,7 @@ const CreateMaterials = () => {
             className="w-full px-4 dark:bg-slate-900 dark:text-white py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           >
-            <option value="">Select Type</option>
+            <option value="">All</option>
             {units.map((unit) => (
               <option key={unit.value} value={unit.value}>
                 {unit.label}
@@ -284,7 +286,7 @@ const CreateMaterials = () => {
             className="w-full px-4 dark:bg-slate-900 dark:text-white py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           >
-            <option value="">Select Branch</option>
+            <option value="">All</option>
             {branches.map((branch) => (
               <option key={branch.id} value={branch.id}>
                 {branch.name}
@@ -308,7 +310,7 @@ const CreateMaterials = () => {
             className="w-full px-4 dark:bg-slate-900 dark:text-white py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           >
-            <option value="">Select Material Category</option>
+            <option value="">All</option>
             {categories.map((category) => (
               <option key={category.id} value={category.id}>
                 {category.name}

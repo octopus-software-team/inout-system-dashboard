@@ -930,17 +930,18 @@ const AddNewProject = () => {
               className="select1 custom-select flex-1"
             />
 
+            {/* زر (+) لإضافة خدمة جديدة */}
             <button
-              onClick={() => setIsServiceModalOpen(true)}
+              onClick={() => setIsServiceModalOpen(true)} // هنا تم التصحيح
               className="ml-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-full w-8 h-8 flex items-center justify-center"
             >
               +
             </button>
 
-            {/* Add New Service Modal */}
+            {/* مودال إضافة خدمة جديدة */}
             <Dialog
-              open={isBranchModalOpen}
-              onClose={() => setIsBranchModalOpen(false)}
+              open={isServiceModalOpen} // هنا تم التصحيح
+              onClose={() => setIsServiceModalOpen(false)} // هنا تم التصحيح
               className="relative z-10"
             >
               <DialogBackdrop
@@ -957,32 +958,14 @@ const AddNewProject = () => {
                             as="h3"
                             className="text-base font-semibold text-gray-900"
                           >
-                            Add New Branch
+                            Add New Service
                           </DialogTitle>
                           <div className="mt-2 space-y-4">
                             <input
                               type="text"
-                              placeholder="Enter branch name"
-                              value={newBranchName}
-                              onChange={(e) => setNewBranchName(e.target.value)}
-                              className="w-full border border-gray-300 rounded-md p-2 dark:bg-slate-900 dark:text-white"
-                            />
-                            <input
-                              type="text"
-                              placeholder="Enter latitude"
-                              value={newBranchLatitude}
-                              onChange={(e) =>
-                                setNewBranchLatitude(e.target.value)
-                              }
-                              className="w-full border border-gray-300 rounded-md p-2 dark:bg-slate-900 dark:text-white"
-                            />
-                            <input
-                              type="text"
-                              placeholder="Enter longitude"
-                              value={newBranchLongitude}
-                              onChange={(e) =>
-                                setNewBranchLongitude(e.target.value)
-                              }
+                              placeholder="Enter service name"
+                              value={newService}
+                              onChange={(e) => setNewService(e.target.value)}
                               className="w-full border border-gray-300 rounded-md p-2 dark:bg-slate-900 dark:text-white"
                             />
                           </div>
@@ -992,14 +975,14 @@ const AddNewProject = () => {
                     <div className="branch bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
                       <button
                         type="button"
-                        onClick={handleSaveBranch}
+                        onClick={handleSaveService} // تأكد من وجود هذه الدالة
                         className="inline-flex mr-60 w-full h-10 justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto"
                       >
-                        Save Branch
+                        Save Service
                       </button>
                       <button
                         type="button"
-                        onClick={() => setIsBranchModalOpen(false)}
+                        onClick={() => setIsServiceModalOpen(false)} // هنا تم التصحيح
                         className="mt-3 inline-flex w-full justify-center rounded-md px-3 py-2 bg-white text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
                       >
                         Cancel
@@ -1183,7 +1166,7 @@ const AddNewProject = () => {
             <Dialog
               open={isCustomerModalOpen}
               onClose={handleCancelCustomer}
-              className="relative z-10"
+              className="relative z-10 "
             >
               <DialogBackdrop
                 transition
@@ -1229,13 +1212,11 @@ const AddNewProject = () => {
                               }
                               className="w-full border border-gray-300 rounded-md p-2 dark:bg-slate-900 dark:text-white"
                             />
-                             <div className="mb-4">
+                            <div className="mb-4">
                               <label
                                 htmlFor="branch"
                                 className="block text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2"
-                              >
-                                
-                              </label>
+                              ></label>
                               <select
                                 id="branch"
                                 name="branch_id"
@@ -1378,13 +1359,11 @@ const AddNewProject = () => {
                               }
                               className="w-full border border-gray-300 rounded-md p-2 dark:bg-slate-900 dark:text-white"
                             />
-                             <div className="mb-4">
+                            <div className="mb-4">
                               <label
                                 htmlFor="branch"
                                 className="block text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2"
-                              >
-                                
-                              </label>
+                              ></label>
                               <select
                                 id="branch"
                                 name="branch_id"
@@ -1523,7 +1502,6 @@ const AddNewProject = () => {
             type="text"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            
             className="textarea dark:bg-slate-900"
           />
           {errors.notes && (
@@ -1532,7 +1510,7 @@ const AddNewProject = () => {
         </div>
 
         {/* Inspection Location */}
-        <div className="p-1">
+        <div className="new p-1">
           <label className="block text-sm font-medium text-gray-700 ml-6">
             Inspection Location
           </label>

@@ -127,7 +127,9 @@ const AddSecRepo = () => {
     search === ""
       ? item
       : item.report_type.toLowerCase().includes(search.toLowerCase()) ||
-        (projects.find((p) => p.id === item.project_id)?.name || "").toLowerCase().includes(search.toLowerCase())
+        (projects.find((p) => p.id === item.project_id)?.name || "")
+          .toLowerCase()
+          .includes(search.toLowerCase())
   );
 
   // Handle Edit
@@ -209,13 +211,11 @@ const AddSecRepo = () => {
     },
     {
       name: "Project Name",
-      width: "150px",
-
+      width: "120px",
       selector: (row) => {
         const project = projects.find((p) => p.id === row.project_id);
         return project ? project.name : "N/A";
       },
-
       sortable: true,
       cell: (row) => {
         const project = projects.find((p) => p.id === row.project_id);
@@ -230,29 +230,21 @@ const AddSecRepo = () => {
       name: "Report Type",
       selector: (row) => row.report_type,
       sortable: true,
-      width: "150px",
-
-      cell: (row) => (
-        <span className="text-gray-700">{row.report_type}</span>
-      ),
+      width: "120px",
+      cell: (row) => <span className="text-gray-700">{row.report_type}</span>,
     },
     {
       name: "Report Stock",
       selector: (row) => row.report_stock,
       sortable: true,
-      width: "150px",
-
-      cell: (row) => (
-        <span className="text-gray-700">{row.report_stock}</span>
-      ),
+      width: "120px",
+      cell: (row) => <span className="text-gray-700">{row.report_stock}</span>,
     },
     {
       name: "Is Inspection",
       selector: (row) => (row.is_inspection ? "Yes" : "No"),
       sortable: true,
-      width: "150px",
-
-
+      width: "120px",
       cell: (row) => (
         <span className="text-gray-700">
           {row.is_inspection ? "Yes" : "No"}
@@ -263,48 +255,40 @@ const AddSecRepo = () => {
       name: "Report",
       selector: (row) => row.report,
       sortable: true,
-      width: "150px",
-
-      cell: (row) => (
-        <span className="text-gray-700">{row.report}</span>
-      ),
+      width: "120px",
+      cell: (row) => <span className="text-gray-700">{row.report}</span>,
     },
     {
       name: "Employee",
       selector: (row) => row.employee,
       sortable: true,
-      width: "150px",
-
-
-      cell: (row) => (
-        <span className="text-gray-700">{row.employee}</span>
-      ),
+      width: "120px",
+      cell: (row) => <span className="text-gray-700">{row.employee}</span>,
+    },
+  
+    {
+      name: "Edited At",
+      selector: (row) => row.edit_at,
+      sortable: true,
+      width: "120px",
+      cell: (row) => <span className="text-gray-700">{row.edit_at}</span>,
     },
     {
-      name: "Created At",
-      selector: (row) => row.created_at,
+      name: "Admin",
+      selector: (row) => row.admin,
       sortable: true,
-      width: "150px",
-
-      cell: (row) => (
-        <span className="text-gray-700">{row.created_at}</span>
-      ),
+      width: "120px",
+      cell: (row) => <span className="text-gray-700">{row.admin || "N/A"}</span>,
     },
     {
       name: "Actions",
       cell: (row) => (
         <div className="flex space-x-2">
-          <button
-            onClick={() => handleEdit(row.id)}
-            className="edit1"
-          >
+          <button onClick={() => handleEdit(row.id)} className="edit1">
             <FaEdit className="mr-2" />
             Edit
           </button>
-          <button
-            onClick={() => handleDelete(row.id)}
-            className="colors1"
-          >
+          <button onClick={() => handleDelete(row.id)} className="colors1">
             <FaTrash className="mr-2" />
             Delete
           </button>
@@ -313,10 +297,9 @@ const AddSecRepo = () => {
       ignoreRowClick: true,
       allowOverflow: true,
       button: true,
-      width: "250px",
+      width: "150px",
     },
   ];
-
   return (
     <div className="container p-6 mt-5">
       <h2 className="text-center font-bold text-3xl text-black">
@@ -359,7 +342,7 @@ const AddSecRepo = () => {
       ) : (
         <DataTable
           columns={columns}
-          data={filteredData}
+          data={filteredData} // البيانات المصفاة
           pagination
           highlightOnHover
           striped
@@ -391,7 +374,9 @@ const AddSecRepo = () => {
                   </option>
                 ))}
               </select>
-              <label className="mt-3" htmlFor="">Select Report Type</label>
+              <label className="mt-3" htmlFor="">
+                Select Report Type
+              </label>
               <select
                 name="report_type"
                 value={filters.report_type}

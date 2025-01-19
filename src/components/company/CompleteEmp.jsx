@@ -1,6 +1,6 @@
 import React from 'react'
 
-const AddNewRule = () => {
+const CompleteEmp = () => {
   return (
     <div>
       
@@ -8,4 +8,4 @@ const AddNewRule = () => {
   )
 }
 
-export default AddNewRule
+export default CompleteEmp

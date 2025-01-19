@@ -19,20 +19,19 @@ const Branches = () => {
   const [deleteId, setDeleteId] = useState(null);
   const [searchText, setSearchText] = useState("");
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
-  const [searchCity, setSearchCity] = useState("");
-  const [searchCountry, setSearchCountry] = useState("");
+  const [filteredCities, setFilteredCities] = useState([]);
 
   const navigate = useNavigate();
   const location = useLocation();
 
   const tableName = "branches"; // تحديد اسم الجدول
 
-  // Fetch Countries
-  const fetchCountries = async () => {
+  // Fetch Selected Countries
+  const fetchSelectedCountries = async () => {
     const token = Cookies.get("token");
     try {
       const response = await fetch(
-        "https://inout-api.octopusteam.net/api/front/getCountries",
+        "https://inout-api.octopusteam.net/api/front/getSelectedCountries",
         {
           method: "GET",
           headers: {
@@ -41,10 +40,14 @@ const Branches = () => {
         }
       );
       const resData = await response.json();
-      setCountries(resData.data || []);
+      if (resData.status === 200) {
+        setCountries(resData.data || []);
+      } else {
+        toast.error(resData.msg || "Failed to fetch selected countries.");
+      }
     } catch (error) {
-      console.error("Error fetching countries:", error);
-      toast.error("Failed to fetch countries.");
+      console.error("Error fetching selected countries:", error);
+      toast.error("Failed to fetch selected countries.");
     }
   };
 
@@ -113,7 +116,7 @@ const Branches = () => {
 
   useEffect(() => {
     fetchBranches();
-    fetchCountries();
+    fetchSelectedCountries(); // استبدل fetchCountries بـ fetchSelectedCountries
     fetchCities();
   }, [location]);
 
@@ -239,7 +242,6 @@ const Branches = () => {
       },
       sortable: true,
       width: "200px",
-
     },
     {
       name: "City",
@@ -249,7 +251,6 @@ const Branches = () => {
       },
       sortable: true,
       width: "150px",
-
     },
     {
       name: "Actions",
@@ -271,9 +272,7 @@ const Branches = () => {
           </button>
           <button
             onClick={() => navigate(`/company/viewbranchdetails/${row.id}`)}
-            className="eye1
-            
-            flex items-center justify-center"
+            className="eye1 flex items-center justify-center"
           >
             <FaEye className="mr-2" />
             View
@@ -287,52 +286,41 @@ const Branches = () => {
     },
   ];
 
-
   const [filters, setFilters] = useState({
     country_id: "",
     city_id: "",
   });
 
+  useEffect(() => {
+    if (filters.country_id) {
+      const filtered = cities.filter((city) => city.country_id === parseInt(filters.country_id));
+      setFilteredCities(filtered);
+    } else {
+      setFilteredCities([]);
+    }
+  }, [filters.country_id, cities]);
 
   const applyFilters = () => {
     let filteredData = data;
-  
+
     if (filters.country_id) {
       filteredData = filteredData.filter(
         (branch) => branch.country_id === parseInt(filters.country_id)
       );
     }
-  
+
     if (filters.city_id) {
       filteredData = filteredData.filter(
         (branch) => branch.city_id === parseInt(filters.city_id)
       );
     }
-  
+
     return filteredData;
   };
-  
+
   const filteredData = applyFilters().filter((branch) =>
     branch.name.toLowerCase().includes(searchText.toLowerCase())
   );
-
-  // تصفية الفروع بناءً على المدينة والبلد والنص العام
-  // const filteredData = data.filter((branch) => {
-  //   const city = cities.find((c) => c.id === branch.city_id);
-  //   const country = countries.find((c) => c.id === branch.country_id);
-
-  //   const matchesCity = city?.name
-  //     .toLowerCase()
-  //     .includes(searchCity.toLowerCase());
-  //   const matchesCountry = country?.name
-  //     .toLowerCase()
-  //     .includes(searchCountry.toLowerCase());
-  //   const matchesSearch = branch.name
-  //     .toLowerCase()
-  //     .includes(searchText.toLowerCase());
-
-  //   return matchesCity && matchesCountry && matchesSearch;
-  // });
 
   return (
     <div className="container mt-5">
@@ -358,7 +346,7 @@ const Branches = () => {
           className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
         />
         <div className="flex items-center gap-4">
-        <Link
+          <Link
             to="/company/addbranch"
             className="icons bg-blue-800 text-white font-semibold py-2 px-6 rounded-lg "
           >
@@ -371,7 +359,6 @@ const Branches = () => {
             <FaFilter className="mr-2" />
             Filter
           </button>
-         
           <button
             onClick={() => setOpen(true)}
             className="icons bg-blue-800  text-white  rounded-lg "
@@ -398,7 +385,7 @@ const Branches = () => {
                   Import File
                 </h2>
                 <div className="flex flex-col items-center space-y-4">
-                  <ImportFile tableName={tableName} /> {/* مكون الاستيراد */}
+                  <ImportFile tableName={tableName} />
                 </div>
               </div>
             </div>
@@ -441,77 +428,57 @@ const Branches = () => {
         </div>
       )}
 
-{isFilterModalOpen && (
-  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-    <div className="bg-white p-6 rounded-lg w-full max-w-md">
-      <h3 className="text-xl font-bold mb-4">Filter Branches</h3>
-      <div className="space-y-4">
-      <label htmlFor="">select country</label>
+      {isFilterModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg w-full max-w-md">
+            <h3 className="text-xl font-bold mb-4">Filter Branches</h3>
+            <div className="space-y-4">
+              <label htmlFor="">Select Country</label>
+              <select
+                name="country_id"
+                value={filters.country_id}
+                onChange={(e) =>
+                  setFilters({ ...filters, country_id: e.target.value })
+                }
+                className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">All</option>
+                {countries.map((country) => (
+                  <option key={country.id} value={country.id}>
+                    {country.name}
+                  </option>
+                ))}
+              </select>
 
-        <select
-          name="country_id"
-          value={filters.country_id}
-          onChange={(e) =>
-            setFilters({ ...filters, country_id: e.target.value })
-          }
-          className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-
-          <option value="">All</option>
-          {countries.map((country) => (
-            <option key={country.id} value={country.id}>
-              {country.name}
-            </option>
-          ))}
-        </select>
-
-        <label htmlFor="">select city</label>
-
-        <select
-          name="city_id"
-          value={filters.city_id}
-          onChange={(e) => setFilters({ ...filters, city_id: e.target.value })}
-          className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="">Select City</option>
-          {cities.map((city) => (
-            <option key={city.id} value={city.id}>
-              {city.name}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div className="flex justify-end mt-6">
-        <button
-          onClick={() => setIsFilterModalOpen(false)}
-          className="bg-gray-500 text-white px-4 py-2 rounded-lg mr-2 hover:bg-gray-600 transition duration-200"
-        >
-          Cancel
-        </button>
-        <button
-          onClick={() => setIsFilterModalOpen(false)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200"
-        >
-          Apply
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-      {open && (
-        <div
-          className="fixed top-0 left-0 z-30 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
-          onClick={() => setOpen(false)}
-        >
-          <div
-            className="w-[350px] h-[350px] bg-white rounded-lg shadow-lg p-6"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 className="text-center text-xl font-semibold mb-4">
-              Import File
-            </h2>
-            <div className="flex flex-col items-center space-y-4">
-              <ImportFile tableName={tableName} />
+              <label htmlFor="">Select City</label>
+              <select
+                name="city_id"
+                value={filters.city_id}
+                onChange={(e) => setFilters({ ...filters, city_id: e.target.value })}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={!filters.country_id} // تعطيل إذا لم يتم اختيار دولة
+              >
+                <option value="">All</option>
+                {filteredCities.map((city) => (
+                  <option key={city.id} value={city.id}>
+                    {city.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex justify-end mt-6">
+              <button
+                onClick={() => setIsFilterModalOpen(false)}
+                className="bg-gray-500 text-white px-4 py-2 rounded-lg mr-2 hover:bg-gray-600 transition duration-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => setIsFilterModalOpen(false)}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200"
+              >
+                Apply
+              </button>
             </div>
           </div>
         </div>

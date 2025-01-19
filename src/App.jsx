@@ -23,8 +23,7 @@ import Consaltative from "./components/customers/Consaltative";
 
 import AddNewTask from "./components/todo/AddNewTask";
 import ShowAllTask from "./components/todo/ShowAllTask";
-import AddNewRule from "./components/admin/AddNewRole";
-import EditRoles from "./components/admin/EditRoles";
+
 import Employees from "./components/company/Employees";
 import AddReport from "./components/allProjects/AddReport";
 import Loginn from "./components/Login/Loginn";
@@ -80,6 +79,8 @@ import ViewBranchDetails from "./components/company/ViewBranchDetails";
 import ProjectTask from "./components/projectask/ProjectTask";
 import AddProjectTask from "./components/projectask/AddProjectTask";
 import EditProjectTask from "./components/projectask/EditProjectTask";
+// import CompleteEmp from "./components/company/CompleteEmp";
+import Role from "./components/roles/Role";
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -192,6 +193,10 @@ function App() {
               path="/company/editservice"
               element={<PrivateRoute element={<EditService />} />}
             />
+            {/* <Route
+              path="/company/completeemp"
+              element={<PrivateRoute element={<CompleteEmp />} />}
+            /> */}
             <Route
               path="/company/viewbranchdetails/:id"
               element={<PrivateRoute element={<ViewBranchDetails />} />}
@@ -366,17 +371,15 @@ function App() {
               path="/todo/showalltask"
               element={<PrivateRoute element={<ShowAllTask />} />}
             />
-            <Route
-              path="/admin/addnewrole"
-              element={<PrivateRoute element={<AddNewRule />} />}
-            />
-            <Route
-              path="/admin/editrole"
-              element={<PrivateRoute element={<EditRoles />} />}
-            />
+
             <Route
               path="/moderation/moderator"
               element={<PrivateRoute element={<Moderator />} />}
+            />
+
+            <Route
+              path="/roles/role"
+              element={<PrivateRoute element={<Role />} />}
             />
 
             <Route

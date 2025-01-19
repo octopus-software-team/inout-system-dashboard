@@ -608,3 +608,15 @@ table.dataTable td.dt-type-date {
 .model{
   width:700px
 }
+
+.any{
+  display: flex;
+}
+
+.so{
+  border-radius: 10px;
+}
+
+.new{
+  z-index: 0;
+}
