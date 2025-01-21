@@ -82,6 +82,7 @@ import EditProjectTask from "./components/projectask/EditProjectTask";
 // import CompleteEmp from "./components/company/CompleteEmp";
 import Role from "./components/roles/Role";
 import AddRole from "./components/roles/AddRole";
+import EditRole from "./components/roles/EditRole";
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -389,7 +390,7 @@ function App() {
             />
              <Route
               path="/roles/editrole/:id"
-              element={<PrivateRoute element={<AddRole />} />}
+              element={<PrivateRoute element={<EditRole />} />}
             />
              <Route
               path="/roles/deleterole"

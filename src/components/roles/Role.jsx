@@ -3,12 +3,14 @@ import DataTable from "react-data-table-component";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const RolesTable = () => {
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [search, setSearch] = useState(""); // حالة البحث
+  const [search, setSearch] = useState("");
   const navigate = useNavigate();
 
   // جلب البيانات من الـ API
@@ -49,6 +51,64 @@ const RolesTable = () => {
     role.name.toLowerCase().includes(search.toLowerCase())
   );
 
+  // دالة الحذف
+  const handleDelete = (id) => {
+    // عرض Toast تأكيد مخصص
+    toast.info(
+      <div>
+        <p>Are you sure you want to delete this role?</p>
+        <div className="flex justify-around mt-2">
+          <button
+            className="bg-red-500 text-white px-4 py-1 rounded"
+            onClick={() => {
+              confirmDelete(id); // تأكيد الحذف
+              toast.dismiss(); // إغلاق Toast
+            }}
+          >
+            Yes
+          </button>
+          <button
+            className="bg-gray-500 text-white px-4 py-1 rounded"
+            onClick={() => toast.dismiss()} // إغلاق Toast بدون حذف
+          >
+            No
+          </button>
+        </div>
+      </div>,
+      {
+        autoClose: false, // إيقاف الإغلاق التلقائي
+        closeButton: false, // إخفاء زر الإغلاق
+      }
+    );
+  };
+
+  // تأكيد الحذف
+  const confirmDelete = (id) => {
+    const token = Cookies.get("token");
+
+    fetch(`https://inout-api.octopusteam.net/api/front/DeleteRole/${id}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((resData) => {
+        if (resData.status === 200) {
+          toast.success("Role deleted successfully!");
+          // تحديث البيانات بعد الحذف
+          setData(data.filter((role) => role.id !== id));
+        } else {
+          toast.error("Failed to delete role.");
+        }
+      })
+      .catch((error) => {
+        console.error("Error deleting role:", error);
+        toast.error("Failed to delete role. Please try again later.");
+      });
+  };
+
   // تعريف أعمدة الجدول
   const columns = [
     {
@@ -68,16 +128,17 @@ const RolesTable = () => {
       cell: (row) => (
         <div className="flex space-x-2">
           <button
-            onClick={() => navigate(`/roles/editrole/${row.id}`)} // الانتقال إلى صفحة EditRole مع roleId
+            onClick={() =>
+              navigate(`/roles/editrole/${row.id}`, {
+                state: { roleData: row },
+              })
+            }
             className="btn1 edit"
           >
             <FaEdit className="mr-2" />
             Edit
           </button>
-          <button
-            onClick={() => navigate(`/roles/deleterole/${row.id}`)}
-            className="btn1 colors"
-          >
+          <button onClick={() => handleDelete(row.id)} className="btn1 colors">
             <FaTrash className="mr-2" />
             Delete
           </button>
@@ -111,7 +172,7 @@ const RolesTable = () => {
       </div>
 
       {isLoading ? (
-        <p>Loading...</p>
+        <p className="text-center mt-56">Loading...</p>
       ) : error ? (
         <p className="text-red-500 text-center">{error}</p>
       ) : (
@@ -128,6 +189,8 @@ const RolesTable = () => {
           className="shadow-lg rounded-lg overflow-hidden"
         />
       )}
+
+      <ToastContainer />
     </div>
   );
 };

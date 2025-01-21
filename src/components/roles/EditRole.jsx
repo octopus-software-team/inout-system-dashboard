@@ -1,55 +1,31 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import Cookies from "js-cookie";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const EditRole = () => {
-  const { roleId } = useParams(); // الحصول على roleId من الـ URL
+  const { id } = useParams();
+  const location = useLocation();
   const [roleName, setRoleName] = useState("");
   const [permissions, setPermissions] = useState([]);
   const [selectedPermissions, setSelectedPermissions] = useState([]);
   const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
-  // جلب بيانات الدور الحالي
   useEffect(() => {
-    const fetchRoleData = async () => {
-      const token = Cookies.get("token");
-      if (!token) {
-        console.error("No token found. Please log in.");
-        return;
-      }
+    if (location.state && location.state.roleData) {
+      const { name, permissions } = location.state.roleData;
+      setRoleName(name);
+      setSelectedPermissions(permissions.map((p) => p.id));
+      setIsLoading(false);
+    } else {
+      setError("No role data found.");
+      setIsLoading(false);
+    }
+  }, [location.state]);
 
-      try {
-        const response = await fetch(
-          `https://inout-api.octopusteam.net/api/front/UpdateRole/${roleId}`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch role data");
-        }
-
-        const data = await response.json();
-        if (data.status === 200) {
-          setRoleName(data.data.name);
-          setSelectedPermissions(data.data.permissions.map((p) => p.id));
-        }
-      } catch (error) {
-        console.error("Error fetching role data:", error);
-      }
-    };
-
-    fetchRoleData();
-  }, [roleId]);
-
-  // جلب جميع الصلاحيات المتاحة
   useEffect(() => {
     const fetchPermissions = async () => {
       const token = Cookies.get("token");
@@ -85,7 +61,6 @@ const EditRole = () => {
     fetchPermissions();
   }, []);
 
-  // تحديث الدور
   const handleUpdateRole = async () => {
     const token = Cookies.get("token");
     if (!token) {
@@ -105,9 +80,9 @@ const EditRole = () => {
 
     try {
       const response = await fetch(
-        `https://inout-api.octopusteam.net/api/front/UpdateRole/${roleId}`,
+        `https://inout-api.octopusteam.net/api/front/UpdateRole/${id}`,
         {
-          method: "PUT", // أو PATCH
+          method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
@@ -131,7 +106,14 @@ const EditRole = () => {
       }
 
       if (data.status === 200) {
-        toast.success("Role updated successfully!");
+        toast.success("Updated successfully!", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
         setTimeout(() => {
           navigate("/roles/role");
         }, 3000);
@@ -142,7 +124,6 @@ const EditRole = () => {
     }
   };
 
-  // تحديد أو إلغاء تحديد جميع الصلاحيات
   const handleSelectAll = () => {
     if (selectedPermissions.length === permissions.length) {
       setSelectedPermissions([]);
@@ -151,11 +132,10 @@ const EditRole = () => {
     }
   };
 
-  // تجميع الصلاحيات حسب المجموعات
   const groupPermissions = (permissions) => {
     const grouped = {};
     permissions.forEach((permission) => {
-      const key = permission.name.split("_")[1]; // افتراض أن الاسم يكون مثل "create_admin"
+      const key = permission.name.split("_")[1];
       if (!grouped[key]) {
         grouped[key] = [];
       }
@@ -165,6 +145,14 @@ const EditRole = () => {
   };
 
   const groupedPermissions = groupPermissions(permissions);
+
+  if (isLoading) {
+    return <p className="text-center mt-10">Loading...</p>;
+  }
+
+  if (error) {
+    return <p className="text-red-500 text-center mt-10">{error}</p>;
+  }
 
   return (
     <div className="flex justify-center items-center mt-10 bg-gray-100">
@@ -210,9 +198,16 @@ const EditRole = () => {
                     className="permission-item"
                     onClick={() => {
                       if (selectedPermissions.includes(permission.id)) {
-                        setSelectedPermissions(selectedPermissions.filter((id) => id !== permission.id));
+                        setSelectedPermissions(
+                          selectedPermissions.filter(
+                            (id) => id !== permission.id
+                          )
+                        );
                       } else {
-                        setSelectedPermissions([...selectedPermissions, permission.id]);
+                        setSelectedPermissions([
+                          ...selectedPermissions,
+                          permission.id,
+                        ]);
                       }
                     }}
                   >
@@ -221,9 +216,16 @@ const EditRole = () => {
                       checked={selectedPermissions.includes(permission.id)}
                       onChange={(e) => {
                         if (e.target.checked) {
-                          setSelectedPermissions([...selectedPermissions, permission.id]);
+                          setSelectedPermissions([
+                            ...selectedPermissions,
+                            permission.id,
+                          ]);
                         } else {
-                          setSelectedPermissions(selectedPermissions.filter((id) => id !== permission.id));
+                          setSelectedPermissions(
+                            selectedPermissions.filter(
+                              (id) => id !== permission.id
+                            )
+                          );
                         }
                       }}
                       className="custom-checkbox"
@@ -255,6 +257,43 @@ const EditRole = () => {
         draggable
         pauseOnHover
       />
+
+      <style>
+        {`
+          .custom-checkbox {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #4a90e2;
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+          }
+
+          .custom-checkbox:checked {
+            background-color: #4a90e2;
+          }
+
+          .custom-checkbox:checked::after {
+            content: "✔";
+            font-size: 14px;
+            color: white;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+          }
+
+          .permission-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+          }
+        `}
+      </style>
     </div>
   );
 };
