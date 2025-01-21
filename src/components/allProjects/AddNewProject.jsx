@@ -60,6 +60,8 @@ const AddNewProject = () => {
   const [owners, setOwners] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [consultives, setConsultives] = useState([]);
+  const [clients, setClients] = useState([]);
+
   const [engineers, setEngineers] = useState([]);
 
   // Selected States
@@ -178,31 +180,31 @@ const AddNewProject = () => {
       }
     };
 
-    const fetchServices = async () => {
-      try {
-        const token = Cookies.get("token");
+    // const fetchServices = async () => {
+    //   try {
+    //     const token = Cookies.get("token");
 
-        const response = await fetch(
-          "https://inout-api.octopusteam.net/api/front/getServices",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        const result = await response.json();
-        if (result.status === 200) {
-          setServices(
-            result.data.map((service) => ({
-              value: service.id,
-              label: service.name,
-            }))
-          );
-        } else {
-          console.error("Error fetching services data");
-        }
-      } catch (error) {
-        console.error("Error fetching data: ", error);
-      }
-    };
+    //     const response = await fetch(
+    //       "https://inout-api.octopusteam.net/api/front/getServices",
+    //       {
+    //         headers: { Authorization: `Bearer ${token}` },
+    //       }
+    //     );
+    //     const result = await response.json();
+    //     if (result.status === 200) {
+    //       setServices(
+    //         result.data.map((service) => ({
+    //           value: service.id,
+    //           label: service.name,
+    //         }))
+    //       );
+    //     } else {
+    //       console.error("Error fetching services data");
+    //     }
+    //   } catch (error) {
+    //     console.error("Error fetching data: ", error);
+    //   }
+    // };
 
     const fetchCustomers = async () => {
       try {
@@ -252,6 +254,33 @@ const AddNewProject = () => {
               label: item.name,
             }));
           setConsultives(formattedConsultive);
+        }
+      } catch (error) {
+        console.error("Error loading consultive data:", error);
+      }
+    };
+
+    const fetchClients = async () => {
+      try {
+        const token = Cookies.get("token");
+        const res = await fetch(
+          "https://inout-api.octopusteam.net/api/front/getCustomers",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const data = await res.json();
+        if (data.status === 200) {
+          const formattedConsultive = data.data
+            .filter((item) => item.type === 0)
+            .map((item) => ({
+              value: item.id,
+              label: item.name,
+            }));
+          setClients(formattedConsultive);
         }
       } catch (error) {
         console.error("Error loading consultive data:", error);
@@ -311,10 +340,11 @@ const AddNewProject = () => {
     };
 
     fetchBranches();
-    fetchServices();
+    // fetchServices();
     fetchCustomers();
     fetchConsultive();
     fetchOwners();
+    fetchClients();
     fetchEngineers();
 
     // Initialize Dropify
@@ -1147,7 +1177,7 @@ const AddNewProject = () => {
 
           <div className="flex items-center gap-2 mt-1">
             <Select
-              options={customers}
+              options={clients}
               value={selectedCustomer}
               onChange={(selected) => setSelectedCustomer(selected)}
               placeholder="Select customer"

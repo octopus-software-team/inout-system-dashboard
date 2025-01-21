@@ -6,9 +6,8 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import Select from "react-select"; // نستورد مكتبة react-select
+import Select from "react-select";
 
-// تأكد من تعيين العنصر الجذر للمودال
 Modal.setAppElement("#root");
 
 const ProjectDetails = () => {
@@ -24,17 +23,107 @@ const ProjectDetails = () => {
   const [projectsList, setProjectsList] = useState([]);
   const [formData, setFormData] = useState({
     project_id: id,
-    report_type: "daily", 
+    report_type: "daily",
     report_stock: "",
     is_inspection: 0,
     report: "",
   });
 
+  const [membersIds, setMembers] = useState([]);
+
+  useEffect(() => {
+    console.log(projectData);
+  }, [projectData]);
+
   const [taskFormData, setTaskFormData] = useState({
-    project_id: id, // تعيين القيمة الافتراضية لـ project_id
+    project_id: id,
     task: "",
   });
-  const [selectedMembers, setSelectedMembers] = useState([]); // State لتخزين الأعضاء المختارين
+  const [selectedMembers, setSelectedMembers] = useState([]);
+
+  // useEffect(() => {
+  //   const savedMembers = localStorage.getItem(`selectedMembers_${id}`);
+
+  //   const selectedMembers = projectData.members
+  //       .filter((engineer) => membersIds.includes(engineer.value))
+  //       .map((engineer) => ({
+  //         value: engineer.value,
+  //         label: engineer.label,
+  //         image: engineer.image,
+  //       }));
+
+  //       setSelectedMembers(selectedMembers);
+  //   // if (savedMembers) {
+
+  //   //   const memberIds = JSON.parse(savedMembers);
+
+  //   //   const selectedMembers = projectData.members
+  //   //     .filter((engineer) => memberIds.includes(engineer.value))
+  //   //     .map((engineer) => ({
+  //   //       value: engineer.value,
+  //   //       label: engineer.label,
+  //   //       image: engineer.image,
+  //   //     }));
+  //   //   setSelectedMembers(selectedMembers);
+  //   // }
+  // }, [engineers, id]); // أضف id كـ dependency
+
+  useEffect(() => {
+    if (projectData && projectData.members) {
+      const transformedMembers = projectData.members.map((member) => ({
+        value: member.employee.id,
+        label: member.employee.full_name,
+        image: member.employee.image,
+      }));
+      setSelectedMembers(transformedMembers);
+      setMembers(transformedMembers.map((member) => member.value)); // Store member IDs for local storage
+    }
+  }, [projectData]);
+
+  const handleMemberSelect = async (selectedOptions) => {
+    setSelectedMembers(selectedOptions);
+    const token = Cookies.get("token");
+
+    localStorage.setItem(
+      `selectedMembers_${id}`,
+      JSON.stringify(selectedOptions.map((member) => member.value))
+    );
+
+    const formData = new FormData();
+    selectedOptions.forEach((engineer, index) => {
+      formData.append(`inspection_engineer_id[${index}]`, engineer.value);
+    });
+    formData.append(`project_id`, id);
+
+    const response = await fetch(
+      "https://inout-api.octopusteam.net/api/front/updateProjectMembers",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      }
+    );
+  };
+
+  useEffect(() => {
+    console.log(selectedMembers);
+  }, [selectedMembers]);
+
+  const removeMember = (memberId) => {
+    setSelectedMembers((prevMembers) =>
+      prevMembers.filter((member) => member.value !== memberId)
+    );
+
+    const savedMembers = localStorage.getItem(`selectedMembers_${id}`);
+    if (savedMembers) {
+      const memberIds = JSON.parse(savedMembers).filter(
+        (id) => id !== memberId
+      );
+      localStorage.setItem(`selectedMembers_${id}`, JSON.stringify(memberIds));
+    }
+  };
 
   useEffect(() => {
     const fetchEngineers = async () => {
@@ -62,7 +151,14 @@ const ProjectDetails = () => {
         }
 
         const data = await response.json();
-        setEngineers(data.data);
+        if (data.status === 200) {
+          const engineers = data.data.map((engineer) => ({
+            value: engineer.id,
+            label: engineer.full_name,
+            image: engineer.image,
+          }));
+          setEngineers(engineers);
+        }
       } catch (err) {
         setError(err.message);
       }
@@ -70,16 +166,6 @@ const ProjectDetails = () => {
 
     fetchEngineers();
   }, []);
-
-  const removePTags = (html) => {
-    return html.replace(/<p>/g, "").replace(/<\/p>/g, "");
-  };
-
-  const engineerOptions = engineers.map((engineer) => ({
-    value: engineer.id,
-    label: engineer.full_name,
-    image: engineer.image,
-  }));
 
   useEffect(() => {
     const fetchProjectData = async () => {
@@ -159,6 +245,7 @@ const ProjectDetails = () => {
     fetchProjects();
   }, []);
 
+  // Open and Close Modals
   const openModal = (imageUrl) => {
     setSelectedImage(imageUrl);
     setIsModalOpen(true);
@@ -172,18 +259,19 @@ const ProjectDetails = () => {
   const openAddReportModal = () => {
     setIsAddReportModalOpen(true);
     setFormData({
-      project_id: id, // تعيين project_id
+      project_id: id,
       report_type: "daily",
       report_stock: "",
       is_inspection: 0,
       report: "",
     });
   };
+
   const closeAddReportModal = () => {
     setIsAddReportModalOpen(false);
     setFormData({
-      project_id: id, // عدم إعادة تعيين project_id
-      report_type: "daily", // إعادة تعيين القيم الأخرى
+      project_id: id,
+      report_type: "daily",
       report_stock: "",
       is_inspection: 0,
       report: "",
@@ -193,18 +281,20 @@ const ProjectDetails = () => {
   const openAddTaskModal = () => {
     setIsAddTaskModalOpen(true);
     setTaskFormData({
-      project_id: id, // تعيين project_id عند فتح المودال
-      task: "", // إعادة تعيين حقل النص
+      project_id: id,
+      task: "",
     });
   };
 
-const closeAddTaskModal = () => {
-  setIsAddTaskModalOpen(false);
-  setTaskFormData({
-    project_id: id, // تعيين project_id عند إغلاق المودال
-    task: "", // إعادة تعيين حقل النص
-  });
-};
+  const closeAddTaskModal = () => {
+    setIsAddTaskModalOpen(false);
+    setTaskFormData({
+      project_id: id,
+      task: "",
+    });
+  };
+
+  // Handle Add Report
   const handleAddReport = async () => {
     const token = Cookies.get("token");
 
@@ -212,6 +302,9 @@ const closeAddTaskModal = () => {
       setError("No authentication token found.");
       return;
     }
+
+    // إزالة التاج <p> من النص
+    const cleanedReport = formData.report.replace(/<p>|<\/p>/g, "");
 
     try {
       const response = await fetch(
@@ -222,7 +315,10 @@ const closeAddTaskModal = () => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(formData),
+          body: JSON.stringify({
+            ...formData,
+            report: cleanedReport, // استخدام النص بعد إزالة التاج <p>
+          }),
         }
       );
 
@@ -244,6 +340,7 @@ const closeAddTaskModal = () => {
     }
   };
 
+  // Handle Add Task
   const handleAddTask = async () => {
     const token = Cookies.get("token");
 
@@ -252,7 +349,6 @@ const closeAddTaskModal = () => {
       return;
     }
 
-    // تحقق من أن project_id موجود
     if (!taskFormData.project_id) {
       toast.error("Project ID is missing.");
       return;
@@ -268,8 +364,8 @@ const closeAddTaskModal = () => {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            project_id: taskFormData.project_id, // إرسال project_id
-            task: taskFormData.task, // إرسال محتوى المهمة
+            project_id: taskFormData.project_id,
+            task: taskFormData.task,
           }),
         }
       );
@@ -283,61 +379,12 @@ const closeAddTaskModal = () => {
         toast.success("Task added successfully!");
         setProjectData((prevData) => ({
           ...prevData,
-          tasks: [...prevData.tasks, data.data], // تحديث القائمة
+          tasks: [...prevData.tasks, data.data],
         }));
         setTaskFormData({
-          project_id: id, // إعادة تعيين project_id
-          task: "", // إعادة تعيين حقل النص
+          project_id: id,
+          task: "",
         });
-      }
-    } catch (err) {
-      toast.error(err.message);
-    }
-  };
-
-  const handleMemberSelect = (selectedOptions) => {
-    setSelectedMembers(selectedOptions);
-  };
-
-  const removeMember = (memberId) => {
-    setSelectedMembers(
-      selectedMembers.filter((member) => member.value !== memberId)
-    );
-  };
-
-  const handleUpdateMembers = async () => {
-    const token = Cookies.get("token");
-
-    if (!token) {
-      setError("No authentication token found.");
-      return;
-    }
-
-    const membersData = selectedMembers.reduce((acc, member, index) => {
-      acc[`inspection_engineer_id[${index}]`] = member.value;
-      return acc;
-    }, {});
-
-    try {
-      const response = await fetch(
-        "https://inout-api.octopusteam.net/api/front/updateProjectMembers",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(membersData),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status} ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      if (data.status === 200) {
-        toast.success("Members updated successfully!");
       }
     } catch (err) {
       toast.error(err.message);
@@ -370,15 +417,11 @@ const closeAddTaskModal = () => {
     );
   }
 
-  const generalInspection = projectData.projectDocuments.find(
-    (doc) => doc.section_type === 0 && doc.type === 1
-  );
-
-  const memberOptions = projectData.members.map((member) => ({
-    value: member.employee.id,
-    label: member.employee.full_name,
-    image: member.employee.image,
-  }));
+  const generalInspection =
+    projectData?.projectDocuments &&
+    projectData?.projectDocuments?.find(
+      (doc) => doc.section_type === 0 && doc.type === 1
+    );
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-slate-950 py-10 px-4">
@@ -429,12 +472,16 @@ const closeAddTaskModal = () => {
               </span>
               <Select
                 isMulti
-                options={engineerOptions}
+                options={engineers.map((engineer) => ({
+                  value: engineer.value,
+                  label: engineer.label,
+                  image: engineer.image,
+                }))}
                 value={selectedMembers}
                 onChange={handleMemberSelect}
                 className="w-full md:w-1/2"
               />
-              <div className="flex flex-wrap items-center mt-4 space-x-4">
+              {/* <div className="flex flex-wrap items-center mt-4 space-x-4">
                 {selectedMembers.map((member) => (
                   <div key={member.value} className="relative">
                     <img
@@ -451,61 +498,73 @@ const closeAddTaskModal = () => {
                     </button>
                   </div>
                 ))}
+              </div> */}
+
+              <div className="flex flex-wrap items-center mt-4 space-x-4">
+                {selectedMembers.map((member) => (
+                  <div key={member.value} className="relative">
+                    <img
+                      src={member.image}
+                      alt={member.label}
+                      className="w-16 h-16 rounded-full border-2 border-gray-300 dark:border-gray-700 shadow-sm object-cover cursor-pointer"
+                      onClick={() => openModal(member.image)}
+                    />
+                    {/* <button
+                      onClick={() => removeMember(member.value)}
+                      className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 text-xs hover:bg-red-600"
+                    >
+                      X
+                    </button> */}
+                  </div>
+                ))}
               </div>
-              {/* <button
-                onClick={handleUpdateMembers}
-                className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-              >
-                Update Members
-              </button> */}
             </div>
           </div>
         </div>
 
         <hr className="mb-10"></hr>
-
         <div className="mb-8">
-          <h1 className="text-3xl text-center mb-10 font-semibold text-gray-800 dark:text-white">
-            Inspections
-          </h1>
-          <h2 className="text-3xl font-semibold text-gray-800 dark:text-white mb-6">
-            General Inspection
-          </h2>
-          {generalInspection ? (
-            <div className="so grid border border-gray-200 p-5 grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="any">
-                <p className="text-lg mr-10">
-                  <strong className="text-gray-700 text-2xl dark:text-gray-300">
-                    Section:
-                  </strong>{" "}
-                  {generalInspection.name}
-                </p>
-                <p className="text-lg">
-                  <strong className="text-gray-700 text-2xl dark:text-gray-300">
-                    Description:
-                  </strong>{" "}
-                  {generalInspection.description}
-                </p>
-              </div>
-              <div></div>
-              {generalInspection.file && generalInspection.file.length > 0 && (
-                <div className="">
-                  <h3 className="text-2xl font-medium text-gray-800 dark:text-white mb-4">
-                    Documents
-                  </h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {generalInspection.file.map((url, index) => (
-                      <img
-                        key={index}
-                        src={url}
-                        alt={`Document ${index + 1}`}
-                        className="w-full h-40 object-cover rounded-lg shadow-sm border border-gray-300 dark:border-gray-700 cursor-pointer"
-                        onClick={() => openModal(url)}
-                      />
-                    ))}
+          {projectData.general && projectData.general.length > 0 ? (
+            <div className="border border-gray-200 p-5 rounded-lg mb-6">
+              <h2 className="text-3xl text-center font-semibold text-gray-800 dark:text-white mb-6">
+                General Inspection
+              </h2>
+              {projectData.general.map((general, index) => (
+                <div key={index} className="mb-6">
+                  <div className="any mb-4 gap-7">
+                    <p className="text-lg">
+                      <strong className="text-gray-700 text-2xl dark:text-gray-300">
+                        Section:
+                      </strong>{" "}
+                      {general.name}
+                    </p>
+                    <p className="text-lg">
+                      <strong className="text-gray-700 text-2xl dark:text-gray-300">
+                        Description:
+                      </strong>{" "}
+                      {general.description}
+                    </p>
                   </div>
+                  {general.file && general.file.length > 0 && (
+                    <div>
+                      <h3 className="text-2xl font-medium text-gray-800 dark:text-white mb-4">
+                        Documents
+                      </h3>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                        {general.file.map((url, index) => (
+                          <img
+                            key={index}
+                            src={url}
+                            alt={`Document ${index + 1}`}
+                            className="w-full h-40 object-cover rounded-lg shadow-sm border border-gray-300 dark:border-gray-700 cursor-pointer"
+                            onClick={() => openModal(url)}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
+              ))}
             </div>
           ) : (
             <p className="text-lg text-gray-700 dark:text-gray-300">
@@ -515,16 +574,67 @@ const closeAddTaskModal = () => {
         </div>
 
         <div className="mb-8">
-          <h2 className="text-3xl font-semibold text-gray-800 dark:text-white mb-4">
+          <h2 className="text-3xl text-center font-semibold text-gray-800 dark:text-white mb-4">
             Logistic Inspection
           </h2>
-          {projectData.projectDocuments[1] ? (
-            <p className="text-lg">
-              <strong className="text-gray-700 dark:text-gray-300">
-                Title:
-              </strong>{" "}
-              {projectData.projectDocuments[1].name}
+          <h2 className="text-3xl  font-semibold text-gray-800 dark:text-white mb-4">
+            Logistic Inspection
+          </h2>
+          {projectData.logistic && projectData.logistic.length > 0 ? (
+            projectData.logistic.map((logistic, index) => (
+              <div
+                key={index}
+                className="so grid border border-gray-200 p-5 grid-cols-1 md:grid-cols-2 gap-6 mt-5"
+              >
+                <div className="any">
+                  <p className="text-lg mr-10">
+                    <strong className="text-gray-700 text-2xl dark:text-gray-300">
+                      Section:
+                    </strong>{" "}
+                    {logistic.name}
+                  </p>
+                  <p className="text-lg">
+                    <strong className="text-gray-700 text-2xl dark:text-gray-300">
+                      Description:
+                    </strong>{" "}
+                    {logistic.description}
+                  </p>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="text-lg text-gray-700 dark:text-gray-300">
+              Not yet done
             </p>
+          )}
+        </div>
+
+        <div className="mb-8">
+          <h2 className="text-3xl font-semibold text-gray-800 dark:text-white mb-4">
+            Safety
+          </h2>
+          {projectData.safety && projectData.safety.length > 0 ? (
+            projectData.safety.map((safety, index) => (
+              <div
+                key={index}
+                className="so grid border border-gray-200 p-5 grid-cols-1 md:grid-cols-2 gap-6"
+              >
+                <div className="any">
+                  <p className="text-lg mr-10">
+                    <strong className="text-gray-700 text-2xl dark:text-gray-300">
+                      Section:
+                    </strong>{" "}
+                    {safety.name}
+                  </p>
+                  <p className="text-lg">
+                    <strong className="text-gray-700 text-2xl dark:text-gray-300">
+                      Description:
+                    </strong>{" "}
+                    {safety.description}
+                  </p>
+                </div>
+              </div>
+            ))
           ) : (
             <p className="text-lg text-gray-700 dark:text-gray-300">
               Not yet done
@@ -546,29 +656,36 @@ const closeAddTaskModal = () => {
             </button>
           </div>
           {projectData.reports.length > 0 ? (
-            projectData.reports.map((report) => (
-              <div
-                key={report.id}
-                className="p-4 border border-gray-300 dark:border-gray-700 rounded-lg mb-4 bg-gray-50 dark:bg-slate-800"
-              >
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    Employee: {report.employee}
-                  </span>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    Last Edited: {report.edit_at}
-                  </span>
+            <div>
+              {projectData.reports.map((report) => (
+                <div
+                  key={report.id}
+                  className="p-4 border border-gray-300 dark:border-gray-700 rounded-lg mb-4 bg-gray-50 dark:bg-slate-800"
+                >
+                  <div className="flex justify-between items-center mb-2">
+                    {report.admin && ( // عرض الـ Admin فقط إذا كان موجودًا
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                        Added by: {report.admin}
+                      </span>
+                    )}
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                      Last Edited: {report.edit_at}
+                    </span>
+                  </div>
+                  <div
+                    dangerouslySetInnerHTML={{
+                      __html: report.report.replace(/<p>|<\/p>/g, ""), // إزالة التاج <p> عند العرض
+                    }}
+                  />
                 </div>
-                <div>{report.report}</div>
-              </div>
-            ))
+              ))}
+            </div>
           ) : (
             <p className="text-lg text-gray-700 dark:text-gray-300">
               Not yet done
             </p>
           )}
         </div>
-
         <hr className="mb-10" />
 
         <div className="mb-8">
@@ -654,7 +771,6 @@ const closeAddTaskModal = () => {
             Add New Report
           </h2>
           <div className="space-y-4">
-            {/* Hidden Fields */}
             <input
               type="hidden"
               value={formData.project_id}
@@ -687,7 +803,6 @@ const closeAddTaskModal = () => {
               }
             />
 
-            {/* Visible Editor */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Report
@@ -729,7 +844,6 @@ const closeAddTaskModal = () => {
             Add New Task
           </h2>
           <div className="space-y-4">
-            {/* Hidden Field */}
             <input
               type="hidden"
               value={taskFormData.project_id}
@@ -741,7 +855,6 @@ const closeAddTaskModal = () => {
               }
             />
 
-            {/* Visible Textarea */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Task

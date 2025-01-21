@@ -31,31 +31,21 @@ const ShowAllProjects = () => {
   const navigate = useNavigate();
 
   const statusStyles = {
-    0: "text-yellow-600 bg-yellow-100", // Pending
-    1: "text-blue-600 bg-blue-100", // In Review
+    0: "text-yellow-600 bg-yellow-100", // Not Started
     2: "text-blue-600 bg-blue-100", // In Progress
-    3: "text-purple-600 bg-purple-100", // Under Testing
-    4: "text-orange-600 bg-orange-100", // Needs Changes
-    5: "text-yellow-600 bg-yellow-100", // Review Changes
-    6: "text-green-600 bg-green-100", // Approved
-    7: "text-red-600 bg-red-100", // Rejected
-    8: "text-green-600 bg-green-100", // Completed
-    9: "text-gray-600 bg-gray-100", // Archived
+    4: "text-green-600 bg-green-100", // Completed
+    6: "text-yellow-600 bg-yellow-100", // Pending
+    8: "text-purple-600 bg-purple-100", // Under Review
     10: "text-red-600 bg-red-100", // Cancelled
   };
 
   // Status Mapping
   const STATUS_MAPPING = {
-    0: "Pending",
-    1: "In Review",
+    0: "Not Started",
     2: "In Progress",
-    3: "Under Testing",
-    4: "Needs Changes",
-    5: "Review Changes",
-    6: "Approved",
-    7: "Rejected",
-    8: "Completed",
-    9: "Archived",
+    4: "Completed",
+    6: "Pending",
+    8: "Under Review",
     10: "Cancelled",
   };
 
@@ -293,13 +283,13 @@ const ShowAllProjects = () => {
       name: "#",
       selector: (row) => row.id,
       sortable: true,
-      width: "60px",
+      width: "100px",
     },
     {
       name: "Name",
       selector: (row) => row.name,
       sortable: true,
-      width: "80px",
+      width: "100px",
     },
     // {
     //   name: "Inspection Date",
@@ -327,17 +317,17 @@ const ShowAllProjects = () => {
       width: "150px",
 
       selector: (row) => {
-        const branch = branches.find((b) => b.id === row.branch_id);
+        const branch = branches && branches?.find((b) => b.id === row.branch_id);
         return branch ? branch.name : "Unknown";
       },
       sortable: true,
     },
     {
       name: "Owner",
-      width: "90px",
+      width: "150px",
 
       selector: (row) => {
-        const owner = owners.find((o) => o.id === row.project_owner_id);
+        const owner = owners &&  owners?.find((o) => o.id === row.project_owner_id);
         return owner ? owner.name : "Unknown";
       },
       sortable: true,
@@ -347,7 +337,7 @@ const ShowAllProjects = () => {
       width: "150px",
 
       selector: (row) => {
-        const customer = customers.find(
+        const customer = customers && customers?.find(
           (c) => c.id == row.customer_constructor_id
         );
         return customer ? customer.name : "Unknown";
@@ -442,7 +432,7 @@ const ShowAllProjects = () => {
       ignoreRowClick: true,
       allowOverflow: true,
       button: true,
-      width: "150px",
+      width: "500px",
     },
   ];
 
@@ -580,7 +570,8 @@ const ShowAllProjects = () => {
           <div className="bg-white p-6 rounded-lg w-full max-w-md">
             <h3 className="text-xl font-bold mb-4">Filter Projects</h3>
             <div className="space-y-4">
-              <label htmlFor="">status</label>
+              {/* فلتر الحالة (Status) */}
+              <label htmlFor="">Status</label>
               <select
                 name="status"
                 value={filters.status}
@@ -591,73 +582,6 @@ const ShowAllProjects = () => {
                 {Object.entries(STATUS_MAPPING).map(([key, value]) => (
                   <option key={key} value={key}>
                     {value}
-                  </option>
-                ))}
-              </select>
-              <label className="pt-3" htmlFor="">
-                engineer
-              </label>
-              <select
-                name="inspection_engineer_id"
-                value={filters.inspection_engineer_id}
-                onChange={handleFilterChange}
-                className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">All</option>
-                {engineers.map((engineer) => (
-                  <option key={engineer.id} value={engineer.id}>
-                    {engineer.full_name}
-                  </option>
-                ))}
-              </select>
-              <label className="" htmlFor="">
-                customer-constructor
-              </label>
-
-              <select
-                name="customer_constructor_id"
-                value={filters.customer_constructor_id}
-                onChange={handleFilterChange}
-                className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">All</option>
-                {customers.map((customer) => (
-                  <option key={customer.id} value={customer.id}>
-                    {customer.name}
-                  </option>
-                ))}
-              </select>
-              <label className="pt-3" htmlFor="">
-                Owner
-              </label>
-
-              <select
-                name="project_owner_id"
-                value={filters.project_owner_id}
-                onChange={handleFilterChange}
-                className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">All</option>
-                {owners.map((owner) => (
-                  <option key={owner.id} value={owner.id}>
-                    {owner.name}
-                  </option>
-                ))}
-              </select>
-              <label className="pt-3" htmlFor="">
-                Branch
-              </label>
-
-              <select
-                name="branch_id"
-                value={filters.branch_id}
-                onChange={handleFilterChange}
-                className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">All</option>
-                {branches.map((branch) => (
-                  <option key={branch.id} value={branch.id}>
-                    {branch.name}
                   </option>
                 ))}
               </select>

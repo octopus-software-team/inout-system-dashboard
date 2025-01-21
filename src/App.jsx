@@ -81,6 +81,7 @@ import AddProjectTask from "./components/projectask/AddProjectTask";
 import EditProjectTask from "./components/projectask/EditProjectTask";
 // import CompleteEmp from "./components/company/CompleteEmp";
 import Role from "./components/roles/Role";
+import AddRole from "./components/roles/AddRole";
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -382,6 +383,18 @@ function App() {
               element={<PrivateRoute element={<Role />} />}
             />
 
+            <Route
+              path="/roles/addrole"
+              element={<PrivateRoute element={<AddRole />} />}
+            />
+             <Route
+              path="/roles/editrole/:id"
+              element={<PrivateRoute element={<AddRole />} />}
+            />
+             <Route
+              path="/roles/deleterole"
+              element={<PrivateRoute element={<AddRole />} />}
+            />
             <Route
               path="/moderation/createadmin"
               element={<PrivateRoute element={<CreateAdmin />} />}
