@@ -156,7 +156,7 @@ const EditRole = () => {
 
   return (
     <div className="flex justify-center items-center mt-10 bg-gray-100">
-      <div className="w-full max-w-4xl p-6 bg-white rounded-lg shadow-md">
+      <div className="w-full max-w-7xl p-6 bg-white rounded-lg shadow-md">
         <h1 className="text-2xl font-bold text-center mb-6">Edit Role</h1>
 
         {error && (

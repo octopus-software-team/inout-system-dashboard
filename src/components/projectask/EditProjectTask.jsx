@@ -9,7 +9,9 @@ const EditProjectTask = () => {
   const location = useLocation();
   const [projectName, setProjectName] = useState("");
   const [task, setTask] = useState("");
+  const [employeeId, setEmployeeId] = useState(""); // حالة لتخزين employee_id
   const [projects, setProjects] = useState([]);
+  const [engineers, setEngineers] = useState([]); // حالة لتخزين بيانات المهندسين
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
@@ -20,6 +22,7 @@ const EditProjectTask = () => {
       const { task: selectedTask, projects: projectList } = location.state;
       setTask(selectedTask.task);
       setProjectName(selectedTask.project_id);
+      setEmployeeId(selectedTask.employee_id); // تعيين employee_id الموجود
       setProjects(projectList);
       setIsLoading(false);
     } else {
@@ -27,6 +30,39 @@ const EditProjectTask = () => {
       setIsLoading(false);
     }
   }, [location.state]);
+
+  // جلب بيانات المهندسين
+  useEffect(() => {
+    const token = Cookies.get("token");
+
+    if (!token) {
+      toast.error("No token found. Please log in.");
+      return;
+    }
+
+    fetch("https://inout-api.octopusteam.net/api/front/getEngineers", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch engineers");
+        return res.json();
+      })
+      .then((resData) => {
+        if (resData && resData.data) {
+          setEngineers(resData.data);
+        } else {
+          setError("No engineers found");
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching engineers:", error);
+        setError("Failed to fetch engineers");
+      });
+  }, []);
 
   // دالة تحديث التاسك
   const handleSubmit = async (e) => {
@@ -39,8 +75,8 @@ const EditProjectTask = () => {
       return;
     }
 
-    if (!projectName || !task) {
-      toast.error("Please select a project and enter a task.");
+    if (!projectName || !task || !employeeId) {
+      toast.error("Please select a project, an engineer, and enter a task.");
       return;
     }
 
@@ -55,6 +91,7 @@ const EditProjectTask = () => {
           },
           body: JSON.stringify({
             project_id: projectName,
+            employee_id: employeeId, // إضافة employee_id
             task: task,
           }),
         }
@@ -96,6 +133,28 @@ const EditProjectTask = () => {
             {projects.map((project) => (
               <option key={project.id} value={project.id}>
                 {project.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="mb-4">
+          <label htmlFor="engineer" className="block text-gray-700 font-semibold mb-2">
+            Select Engineer
+          </label>
+          <select
+            id="engineer"
+            value={employeeId}
+            onChange={(e) => setEmployeeId(e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          >
+            <option value="" disabled>
+              Choose an engineer
+            </option>
+            {engineers.map((engineer) => (
+              <option key={engineer.id} value={engineer.id}>
+                {engineer.full_name}
               </option>
             ))}
           </select>

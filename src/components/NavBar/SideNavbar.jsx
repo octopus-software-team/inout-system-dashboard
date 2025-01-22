@@ -23,7 +23,7 @@ import {
 import logo22 from "../../assests/logoo22.png";
 import DropDown from "../Login/DropDown";
 
-const projects = [
+const Projects = [
   {
     name: "Add New Project",
     path: "/allprojects/addnewproject",
@@ -36,13 +36,13 @@ const projects = [
   },
 
   {
-    name: "project Report",
+    name: "Project Report",
     path: "/company/projectsecrepo",
     icon: <FaCubes className="mr-2 text-gray-400" />,
   },
 
   {
-    name: "project Task",
+    name: "Project Task",
     path: "/projectask/projecttask",
     icon: <FaCubes className="mr-2 text-gray-400" />,
   },
@@ -93,7 +93,7 @@ const company = [
         icon: <FaCubes className="mr-2 text-gray-400" />,
       },
       {
-        name: "assets type",
+        name: "Assets type",
         path: "/company/assets/assetstype",
         icon: <FaCubes className="mr-2 text-gray-400" />,
       },
@@ -140,10 +140,18 @@ const admin = [
   },
 ];
 
-const moderator = [
+const Moderator = [
   {
-    name: "moderator",
+    name: "Moderator",
     path: "/moderation/moderator",
+    icon: <FaUserEdit className="mr-2 text-gray-400" />,
+  },
+];
+
+const AsignRoleToAdmin = [
+  {
+    name: "Asign Role To Admin",
+    path: "/asigns/asignroletoadmin",
     icon: <FaUserEdit className="mr-2 text-gray-400" />,
   },
 ];
@@ -279,7 +287,7 @@ const Navbar = () => {
             <NavItemWithSubMenu
               title="Projects"
               icon={<FaChartPie className="text-gray-400 w-5 h-5" />}
-              items={projects}
+              items={Projects}
               isOpen={activeItems["Projects"]}
               onToggle={() => handleToggleItem("Projects")}
             />
@@ -322,11 +330,11 @@ const Navbar = () => {
             {/* قائمة Admin */}
 
             <NavItemWithSubMenu
-              title="moderator"
+              title="Moderator"
               icon={<FaUserPlus className="text-gray-400 w-5 h-5" />}
-              items={moderator}
-              isOpen={activeItems["moderator"]}
-              onToggle={() => handleToggleItem("moderator")}
+              items={Moderator}
+              isOpen={activeItems["Moderator"]}
+              onToggle={() => handleToggleItem("Moderator")}
             />
             {
               <NavItemWithSubMenu
@@ -337,6 +345,15 @@ const Navbar = () => {
                 onToggle={() => handleToggleItem("Admin")}
               />
             }
+
+            {/* قائمة To Do */}
+            <NavItemWithSubMenu
+              title="Asign Role To Admin"
+              icon={<FaClipboardList className="text-gray-400 w-5 h-5" />}
+              items={AsignRoleToAdmin}
+              isOpen={activeItems["AsignRoleToAdmin"]}
+              onToggle={() => handleToggleItem("AsignRoleToAdmin")}
+            />
           </ul>
         </div>
       </aside>

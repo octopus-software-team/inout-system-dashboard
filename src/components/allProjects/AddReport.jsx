@@ -38,6 +38,7 @@ const ProjectDetails = () => {
   const [taskFormData, setTaskFormData] = useState({
     project_id: id,
     task: "",
+    employee_id: "", // إضافة حقل employee_id
   });
   const [selectedMembers, setSelectedMembers] = useState([]);
 
@@ -345,12 +346,12 @@ const ProjectDetails = () => {
     const token = Cookies.get("token");
 
     if (!token) {
-      setError("No authentication token found.");
+      toast.error("No authentication token found.");
       return;
     }
 
-    if (!taskFormData.project_id) {
-      toast.error("Project ID is missing.");
+    if (!taskFormData.project_id || !taskFormData.employee_id) {
+      toast.error("Project ID or Employee ID is missing.");
       return;
     }
 
@@ -366,6 +367,7 @@ const ProjectDetails = () => {
           body: JSON.stringify({
             project_id: taskFormData.project_id,
             task: taskFormData.task,
+            employee_id: taskFormData.employee_id, // إرسال employee_id
           }),
         }
       );
@@ -384,7 +386,9 @@ const ProjectDetails = () => {
         setTaskFormData({
           project_id: id,
           task: "",
+          employee_id: "", // إعادة تعيين employee_id
         });
+        closeAddTaskModal();
       }
     } catch (err) {
       toast.error(err.message);
@@ -531,7 +535,7 @@ const ProjectDetails = () => {
               </h2>
               {projectData.general.map((general, index) => (
                 <div key={index} className="mb-6">
-                  <div className="any mb-4 gap-7">
+                  <div className="mb-4">
                     <p className="text-lg">
                       <strong className="text-gray-700 text-2xl dark:text-gray-300">
                         Section:
@@ -546,21 +550,16 @@ const ProjectDetails = () => {
                     </p>
                   </div>
                   {general.file && general.file.length > 0 && (
-                    <div>
-                      <h3 className="text-2xl font-medium text-gray-800 dark:text-white mb-4">
-                        Documents
-                      </h3>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                        {general.file.map((url, index) => (
-                          <img
-                            key={index}
-                            src={url}
-                            alt={`Document ${index + 1}`}
-                            className="w-full h-40 object-cover rounded-lg shadow-sm border border-gray-300 dark:border-gray-700 cursor-pointer"
-                            onClick={() => openModal(url)}
-                          />
-                        ))}
-                      </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                      {general.file.map((url, index) => (
+                        <img
+                          key={index}
+                          src={url}
+                          alt={`Document ${index + 1}`}
+                          className="w-full h-48 object-cover rounded-lg shadow-sm border border-gray-300 dark:border-gray-700 cursor-pointer"
+                          onClick={() => openModal(url)}
+                        />
+                      ))}
                     </div>
                   )}
                 </div>
@@ -577,17 +576,14 @@ const ProjectDetails = () => {
           <h2 className="text-3xl text-center font-semibold text-gray-800 dark:text-white mb-4">
             Logistic Inspection
           </h2>
-          <h2 className="text-3xl  font-semibold text-gray-800 dark:text-white mb-4">
-            Logistic Inspection
-          </h2>
           {projectData.logistic && projectData.logistic.length > 0 ? (
             projectData.logistic.map((logistic, index) => (
               <div
                 key={index}
-                className="so grid border border-gray-200 p-5 grid-cols-1 md:grid-cols-2 gap-6 mt-5"
+                className="border border-gray-200 p-5 rounded-lg mb-6"
               >
-                <div className="any">
-                  <p className="text-lg mr-10">
+                <div className="mb-4">
+                  <p className="text-lg">
                     <strong className="text-gray-700 text-2xl dark:text-gray-300">
                       Section:
                     </strong>{" "}
@@ -600,6 +596,65 @@ const ProjectDetails = () => {
                     {logistic.description}
                   </p>
                 </div>
+                {logistic.file && logistic.file.length > 0 && (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {logistic.file.map((url, index) => (
+                      <img
+                        key={index}
+                        src={url}
+                        alt={`Document ${index + 1}`}
+                        className="w-full h-48 object-cover rounded-lg shadow-sm border border-gray-300 dark:border-gray-700 cursor-pointer"
+                        onClick={() => openModal(url)}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))
+          ) : (
+            <p className="text-lg text-gray-700 dark:text-gray-300">
+              Not yet done
+            </p>
+          )}
+        </div>
+
+        <div className="mb-8">
+          <h2 className="text-3xl font-semibold text-gray-800 dark:text-white mb-4">
+            Safety
+          </h2>
+          {projectData.safety && projectData.safety.length > 0 ? (
+            projectData.safety.map((safety, index) => (
+              <div
+                key={index}
+                className="border border-gray-200 p-5 rounded-lg mb-6"
+              >
+                <div className="mb-4">
+                  <p className="text-lg">
+                    <strong className="text-gray-700 text-2xl dark:text-gray-300">
+                      Section:
+                    </strong>{" "}
+                    {safety.name}
+                  </p>
+                  <p className="text-lg">
+                    <strong className="text-gray-700 text-2xl dark:text-gray-300">
+                      Description:
+                    </strong>{" "}
+                    {safety.description}
+                  </p>
+                </div>
+                {safety.file && safety.file.length > 0 && (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {safety.file.map((url, index) => (
+                      <img
+                        key={index}
+                        src={url}
+                        alt={`Document ${index + 1}`}
+                        className="w-full h-48 object-cover rounded-lg shadow-sm border border-gray-300 dark:border-gray-700 cursor-pointer"
+                        onClick={() => openModal(url)}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
             ))
           ) : (
@@ -711,13 +766,12 @@ const ProjectDetails = () => {
                       : task.status === 1
                       ? "bg-yellow-100 border-yellow-200 text-yellow-600"
                       : "bg-green-100 border-green-200 text-green-600"
-                  }
-                  `}
+                  }`}
                 >
                   <span>{task.task}</span>
                   <div className="flex items-center space-x-4">
                     <span className="text-sm text-gray-600 dark:text-gray-400">
-                      Employee: {task.employee_name}
+                      Employee: {task.employee_name} {/* عرض اسم الموظف */}
                     </span>
                     <span className="font-semibold">
                       {task.status === 0
@@ -857,6 +911,28 @@ const ProjectDetails = () => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Employee Name
+              </label>
+              <Select
+                options={engineers.map((engineer) => ({
+                  value: engineer.value,
+                  label: engineer.label,
+                }))}
+                value={engineers.find(
+                  (engineer) => engineer.value === taskFormData.employee_id
+                )}
+                onChange={(selectedOption) =>
+                  setTaskFormData({
+                    ...taskFormData,
+                    employee_id: selectedOption.value,
+                  })
+                }
+                className="w-full"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Task
               </label>
               <textarea
@@ -867,6 +943,7 @@ const ProjectDetails = () => {
                 }
               />
             </div>
+
             <div className="flex justify-end space-x-4">
               <button
                 onClick={closeAddTaskModal}

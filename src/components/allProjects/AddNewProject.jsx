@@ -180,31 +180,31 @@ const AddNewProject = () => {
       }
     };
 
-    // const fetchServices = async () => {
-    //   try {
-    //     const token = Cookies.get("token");
+    const fetchServices = async () => {
+      try {
+        const token = Cookies.get("token");
 
-    //     const response = await fetch(
-    //       "https://inout-api.octopusteam.net/api/front/getServices",
-    //       {
-    //         headers: { Authorization: `Bearer ${token}` },
-    //       }
-    //     );
-    //     const result = await response.json();
-    //     if (result.status === 200) {
-    //       setServices(
-    //         result.data.map((service) => ({
-    //           value: service.id,
-    //           label: service.name,
-    //         }))
-    //       );
-    //     } else {
-    //       console.error("Error fetching services data");
-    //     }
-    //   } catch (error) {
-    //     console.error("Error fetching data: ", error);
-    //   }
-    // };
+        const response = await fetch(
+          "https://inout-api.octopusteam.net/api/front/getServices",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        const result = await response.json();
+        if (result.status === 200) {
+          setServices(
+            result.data.map((service) => ({
+              value: service.id,
+              label: service.name,
+            }))
+          );
+        } else {
+          console.error("Error fetching services data");
+        }
+      } catch (error) {
+        console.error("Error fetching data: ", error);
+      }
+    };
 
     const fetchCustomers = async () => {
       try {
@@ -340,7 +340,7 @@ const AddNewProject = () => {
     };
 
     fetchBranches();
-    // fetchServices();
+    fetchServices();
     fetchCustomers();
     fetchConsultive();
     fetchOwners();
@@ -879,7 +879,7 @@ const AddNewProject = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Project Name */}
         <div>
-          <label className="total dark:text-white block ml-6 text-sm font-medium mb-1">
+          <label className="total dark:text-white block text-sm font-medium mb-1">
             Project Name
           </label>
           <input
@@ -890,7 +890,7 @@ const AddNewProject = () => {
             className="name border border-gray-300 rounded-md p-2 dark:bg-slate-900 w-full"
           />
           {errors.projectName && (
-            <p className="text-red-500 text-sm mt-1 ml-6">
+            <p className="text-red-500 text-sm mt-1 ">
               {errors.projectName}
             </p>
           )}
@@ -898,7 +898,7 @@ const AddNewProject = () => {
 
         {/* Project Status */}
         <div>
-          <label className="block ml-6 text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
+          <label className="block  text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
             Project Status
           </label>
           <select
@@ -919,7 +919,7 @@ const AddNewProject = () => {
             <option value="10">Cancelled</option>
           </select>
           {errors.projectStatus && (
-            <p className="text-red-500 text-sm mt-1 ml-6">
+            <p className="text-red-500 text-sm mt-1 ">
               {errors.projectStatus}
             </p>
           )}
@@ -929,7 +929,7 @@ const AddNewProject = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Branch */}
         <div className="p-1 mt-4">
-          <label className="total block text-sm font-medium ml-6">Branch</label>
+          <label className="total block text-sm font-medium ">Branch</label>
           <Select
             options={branches}
             name="branch_id"
@@ -938,7 +938,7 @@ const AddNewProject = () => {
             onChange={(selected) => setSelectedBranch(selected)}
           />
           {errors.selectedBranch && (
-            <p className="text-red-500 text-sm mt-1 ml-6">
+            <p className="text-red-500 text-sm mt-1 ">
               {errors.selectedBranch}
             </p>
           )}
@@ -946,7 +946,7 @@ const AddNewProject = () => {
 
         {/* Services */}
         <div className="p-1 mt-4">
-          <label className="total block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1 ml-6">
+          <label className="total block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1 ">
             Services
           </label>
           <div className="flex items-center gap-2">
@@ -1024,7 +1024,7 @@ const AddNewProject = () => {
             </Dialog>
           </div>
           {errors.selectedServices && (
-            <p className="text-red-500 text-sm mt-1 ml-6">
+            <p className="text-red-500 text-sm mt-1 ">
               {errors.selectedServices}
             </p>
           )}
@@ -1032,7 +1032,7 @@ const AddNewProject = () => {
 
         {/* Project Owner */}
         <div className="p-1">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1 ml-6">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1 ">
             Project Owner
           </label>
           <div className="flex items-center mt-1">
@@ -1163,7 +1163,7 @@ const AddNewProject = () => {
             </Dialog>
           </div>
           {errors.selectedOwner && (
-            <p className="text-red-500 text-sm mt-1 ml-6">
+            <p className="text-red-500 text-sm mt-1 ">
               {errors.selectedOwner}
             </p>
           )}
@@ -1171,7 +1171,7 @@ const AddNewProject = () => {
 
         {/* Customer / Contractor */}
         <div className="p-1">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1 ml-6">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1 ">
             Customer / Contractor
           </label>
 
@@ -1309,7 +1309,7 @@ const AddNewProject = () => {
             </Dialog>
           </div>
           {errors.selectedCustomer && (
-            <p className="text-red-500 text-sm mt-1 ml-6">
+            <p className="text-red-500 text-sm mt-1 ">
               {errors.selectedCustomer}
             </p>
           )}
@@ -1317,7 +1317,7 @@ const AddNewProject = () => {
 
         {/* Consultive(s) */}
         <div className="p-1">
-          <label className="block text-sm font-medium text-gray-700 ml-6">
+          <label className="block text-sm font-medium text-gray-700 ">
             Consultive(s)
           </label>
 
@@ -1456,7 +1456,7 @@ const AddNewProject = () => {
             </Dialog>
           </div>
           {errors.selectedConsultives && (
-            <p className="text-red-500 text-sm mt-1 ml-6">
+            <p className="text-red-500 text-sm mt-1 ">
               {errors.selectedConsultives}
             </p>
           )}
@@ -1464,7 +1464,7 @@ const AddNewProject = () => {
 
         {/* Inspection Date */}
         <div className="p-1">
-          <label className="block text-sm font-medium text-gray-700 ml-6">
+          <label className="block text-sm font-medium text-gray-700 ">
             Inspection Date
           </label>
           <input
@@ -1476,7 +1476,7 @@ const AddNewProject = () => {
             className="mt-1 block text-gray-600 w-full border border-gray-300 dark:border-gray-700 rounded-md p-2 dark:bg-slate-950 dark:text-white"
           />
           {errors.inspectionDate && (
-            <p className="text-red-500 text-sm mt-1 ml-6">
+            <p className="text-red-500 text-sm mt-1 ">
               {errors.inspectionDate}
             </p>
           )}
@@ -1484,7 +1484,7 @@ const AddNewProject = () => {
 
         {/* Engineer */}
         <div className="p-1">
-          <label className="block text-sm font-medium text-gray-700 ml-6">
+          <label className="block text-sm font-medium text-gray-700 ">
             Engineer
           </label>
 
@@ -1499,7 +1499,7 @@ const AddNewProject = () => {
             />
           </div>
           {errors.selectedEngineer && (
-            <p className="text-red-500 text-sm mt-1 ml-6">
+            <p className="text-red-500 text-sm mt-1 ">
               {errors.selectedEngineer}
             </p>
           )}
@@ -1507,7 +1507,7 @@ const AddNewProject = () => {
 
         {/* Inspection Time */}
         <div className="p-1">
-          <label className="block text-sm font-medium text-gray-700 ml-6">
+          <label className="block text-sm font-medium text-gray-700">
             Inspection Time
           </label>
           <input
@@ -1518,14 +1518,14 @@ const AddNewProject = () => {
             className="mt-1 block w-full text-gray-700 border border-gray-300 dark:border-gray-700 rounded-md p-2 dark:bg-slate-950 dark:text-white"
           />
           {errors.inspectionTime && (
-            <p className="text-red-500 text-sm mt-1 ml-6">
+            <p className="text-red-500 text-sm mt-1">
               {errors.inspectionTime}
             </p>
           )}
         </div>
 
         <div>
-          <label className="total dark:text-white  block ml-6 text-sm font-medium mb-1">
+          <label className="total dark:text-white  block  text-sm font-medium mb-1">
             notes
           </label>
           <textarea
@@ -1535,13 +1535,13 @@ const AddNewProject = () => {
             className="textarea dark:bg-slate-900"
           />
           {errors.notes && (
-            <p className="text-red-500 text-sm mt-1 ml-6">{errors.notes}</p>
+            <p className="text-red-500 text-sm mt-1 ">{errors.notes}</p>
           )}
         </div>
 
         {/* Inspection Location */}
         <div className="new p-1">
-          <label className="block text-sm font-medium text-gray-700 ml-6">
+          <label className="block text-sm font-medium text-gray-700 ">
             Inspection Location
           </label>
           <div className="mt-1 block w-full border border-gray-300 dark:border-gray-700 rounded-md p-2 dark:text-white">
@@ -1567,7 +1567,7 @@ const AddNewProject = () => {
             </div>
           </div>
           {errors.inspectionLocation && (
-            <p className="text-red-500 text-sm mt-1 ml-6">
+            <p className="text-red-500 text-sm mt-1 ">
               {errors.inspectionLocation}
             </p>
           )}

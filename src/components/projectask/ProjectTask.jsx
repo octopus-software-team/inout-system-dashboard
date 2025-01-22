@@ -9,6 +9,7 @@ import "react-toastify/dist/ReactToastify.css";
 const ProjectTask = () => {
   const [tasks, setTasks] = useState([]);
   const [projects, setProjects] = useState([]);
+  const [engineers, setEngineers] = useState([]); // حالة لتخزين بيانات المهندسين
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
@@ -27,6 +28,7 @@ const ProjectTask = () => {
       return;
     }
 
+    // جلب بيانات المهام
     fetch("https://inout-api.octopusteam.net/api/front/getProjectTasks", {
       method: "GET",
       headers: {
@@ -50,6 +52,7 @@ const ProjectTask = () => {
         setError("Failed to fetch tasks");
       });
 
+    // جلب بيانات المشاريع
     fetch("https://inout-api.octopusteam.net/api/front/getProjects", {
       method: "GET",
       headers: {
@@ -71,15 +74,46 @@ const ProjectTask = () => {
       .catch((error) => {
         console.error("Error fetching projects:", error);
         setError("Failed to fetch projects");
+      });
+
+    // جلب بيانات المهندسين
+    fetch("https://inout-api.octopusteam.net/api/front/getEngineers", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch engineers");
+        return res.json();
+      })
+      .then((resData) => {
+        if (resData && resData.data) {
+          setEngineers(resData.data);
+        } else {
+          setError("No engineers found");
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching engineers:", error);
+        setError("Failed to fetch engineers");
       })
       .finally(() => {
         setIsLoading(false);
       });
   }, []);
 
+  // دالة للحصول على اسم المشروع
   const getProjectName = (projectId) => {
     const project = projects.find((proj) => proj.id === projectId);
     return project ? project.name : "Unknown Project";
+  };
+
+  // دالة للحصول على اسم الموظف
+  const getEmployeeName = (employeeId) => {
+    const employee = engineers.find((eng) => eng.id === employeeId);
+    return employee ? employee.full_name : "Unknown Employee";
   };
 
   const handleDelete = (id) => {
@@ -141,7 +175,7 @@ const ProjectTask = () => {
   const handleEdit = (id) => {
     const selectedTask = tasks.find((task) => task.id === id);
     navigate(`/projectask/editprojecttask/${id}`, {
-      state: { task: selectedTask, projects },
+      state: { task: selectedTask, projects, engineers },
     });
   };
 
@@ -155,6 +189,12 @@ const ProjectTask = () => {
     {
       name: "Project Name",
       selector: (row) => getProjectName(row.project_id),
+      sortable: true,
+      width: "200px",
+    },
+    {
+      name: "Employee Name",
+      selector: (row) => row.employee_name, // استخدام employee_name مباشرةً
       sortable: true,
       width: "200px",
     },
@@ -189,7 +229,8 @@ const ProjectTask = () => {
     search === ""
       ? task
       : task.task.toLowerCase().includes(search.toLowerCase()) ||
-        getProjectName(task.project_id).toLowerCase().includes(search.toLowerCase())
+        getProjectName(task.project_id).toLowerCase().includes(search.toLowerCase()) ||
+        getEmployeeName(task.employee_id).toLowerCase().includes(search.toLowerCase())
   );
 
   return (
