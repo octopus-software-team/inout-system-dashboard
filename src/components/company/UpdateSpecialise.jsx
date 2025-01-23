@@ -125,6 +125,7 @@ const UpdateSpecialise = () => {
           >
             <option value={0}>Engineer</option>
             <option value={1}>Employee</option>
+            <option value={2}>Worker</option> {/* Added Worker Option */}
           </select>
         </div>
 

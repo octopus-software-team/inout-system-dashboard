@@ -7,7 +7,7 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import icon from "leaflet/dist/images/marker-icon.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
-import { Toaster, toast } from "sonner";
+import { Toaster, toast } from "react-hot-toast";
 
 // إعداد أيقونات Leaflet
 let DefaultIcon = L.icon({
@@ -631,42 +631,9 @@ const UpdateProject = () => {
                   name="notes"
                   value={formData.notes}
                   onChange={handleChange}
-                  
                   className="textarea1"
                 />
               </div>
-
-              {/* Notes */}
-              {/* <div>
-                <label
-                  htmlFor="notes"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                >
-                  Notes
-                </label>
-                <div
-                  id="notes"
-                  name="notes"
-                  onChange={handleChange}
-                  className="mt-1 
-          bg-white 
-          block 
-          w-full 
-          text-gray-800 
-          dark:border-gray-700 
-          rounded-md 
-          p-2 
-          dark:text-white 
-          focus:outline-none 
-          focus:border-none"
-                  contentEditable
-                  style={{
-                    minHeight: "205px",
-                    maxHeight: "500px",
-                    overflowY: "auto",
-                  }}
-                ></div>
-              </div> */}
 
               {/* الخريطة */}
               <div className="mt-4">

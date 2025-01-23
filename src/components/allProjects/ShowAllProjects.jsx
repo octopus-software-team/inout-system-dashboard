@@ -317,7 +317,8 @@ const ShowAllProjects = () => {
       width: "150px",
 
       selector: (row) => {
-        const branch = branches && branches?.find((b) => b.id === row.branch_id);
+        const branch =
+          branches && branches?.find((b) => b.id === row.branch_id);
         return branch ? branch.name : "Unknown";
       },
       sortable: true,
@@ -327,7 +328,8 @@ const ShowAllProjects = () => {
       width: "150px",
 
       selector: (row) => {
-        const owner = owners &&  owners?.find((o) => o.id === row.project_owner_id);
+        const owner =
+          owners && owners?.find((o) => o.id === row.project_owner_id);
         return owner ? owner.name : "Unknown";
       },
       sortable: true,
@@ -337,9 +339,9 @@ const ShowAllProjects = () => {
       width: "150px",
 
       selector: (row) => {
-        const customer = customers && customers?.find(
-          (c) => c.id == row.customer_constructor_id
-        );
+        const customer =
+          customers &&
+          customers?.find((c) => c.id == row.customer_constructor_id);
         return customer ? customer.name : "Unknown";
       },
       sortable: true,
@@ -582,6 +584,22 @@ const ShowAllProjects = () => {
                 {Object.entries(STATUS_MAPPING).map(([key, value]) => (
                   <option key={key} value={key}>
                     {value}
+                  </option>
+                ))}
+              </select>
+
+              {/* فلتر الفروع (Branches) */}
+              <label htmlFor="">Branch</label>
+              <select
+                name="branch_id"
+                value={filters.branch_id}
+                onChange={handleFilterChange}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">All</option>
+                {branches.map((branch) => (
+                  <option key={branch.id} value={branch.id}>
+                    {branch.name}
                   </option>
                 ))}
               </select>

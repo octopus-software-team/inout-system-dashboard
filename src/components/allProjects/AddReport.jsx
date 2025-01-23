@@ -619,7 +619,7 @@ const ProjectDetails = () => {
         </div>
 
         <div className="mb-8">
-          <h2 className="text-3xl font-semibold text-gray-800 dark:text-white mb-4">
+          <h2 className="text-3xl text-center font-semibold text-gray-800 dark:text-white mb-4">
             Safety
           </h2>
           {projectData.safety && projectData.safety.length > 0 ? (
@@ -664,38 +664,6 @@ const ProjectDetails = () => {
           )}
         </div>
 
-        <div className="mb-8">
-          <h2 className="text-3xl font-semibold text-gray-800 dark:text-white mb-4">
-            Safety
-          </h2>
-          {projectData.safety && projectData.safety.length > 0 ? (
-            projectData.safety.map((safety, index) => (
-              <div
-                key={index}
-                className="so grid border border-gray-200 p-5 grid-cols-1 md:grid-cols-2 gap-6"
-              >
-                <div className="any">
-                  <p className="text-lg mr-10">
-                    <strong className="text-gray-700 text-2xl dark:text-gray-300">
-                      Section:
-                    </strong>{" "}
-                    {safety.name}
-                  </p>
-                  <p className="text-lg">
-                    <strong className="text-gray-700 text-2xl dark:text-gray-300">
-                      Description:
-                    </strong>{" "}
-                    {safety.description}
-                  </p>
-                </div>
-              </div>
-            ))
-          ) : (
-            <p className="text-lg text-gray-700 dark:text-gray-300">
-              Not yet done
-            </p>
-          )}
-        </div>
         <hr className="mb-10" />
 
         <div className="mb-8">
@@ -825,38 +793,60 @@ const ProjectDetails = () => {
             Add New Report
           </h2>
           <div className="space-y-4">
-            <input
-              type="hidden"
-              value={formData.project_id}
-              onChange={(e) =>
-                setFormData({ ...formData, project_id: e.target.value })
-              }
-            />
-            <input
-              type="hidden"
-              value={formData.report_type}
-              onChange={(e) =>
-                setFormData({ ...formData, report_type: e.target.value })
-              }
-            />
-            <input
-              type="hidden"
-              value={formData.report_stock}
-              onChange={(e) =>
-                setFormData({ ...formData, report_stock: e.target.value })
-              }
-            />
-            <input
-              type="hidden"
-              value={formData.is_inspection}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  is_inspection: parseInt(e.target.value),
-                })
-              }
-            />
+            {/* Report Type Select Box */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Report Type
+              </label>
+              <select
+                value={formData.report_type}
+                onChange={(e) =>
+                  setFormData({ ...formData, report_type: e.target.value })
+                }
+                className="w-full border border-gray-300 dark:border-gray-700 rounded-lg p-2 bg-white dark:bg-slate-800 text-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+              </select>
+            </div>
 
+            {/* Report Stock Input (Conditional Rendering) */}
+            {formData.is_inspection === 1 && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Report Stock
+                </label>
+                <textarea
+                  value={formData.report_stock}
+                  onChange={(e) =>
+                    setFormData({ ...formData, report_stock: e.target.value })
+                  }
+                  className="w-full border border-gray-300 dark:border-gray-700 rounded-lg p-2 bg-white dark:bg-slate-800 text-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  rows="3"
+                />
+              </div>
+            )}
+
+            {/* Is Inspection Checkbox */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Is Inspection?
+              </label>
+              <input
+                type="checkbox"
+                checked={formData.is_inspection === 1}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    is_inspection: e.target.checked ? 1 : 0,
+                  })
+                }
+                className="mt-2"
+              />
+            </div>
+
+            {/* Report Editor (ReactQuill) */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Report
@@ -869,6 +859,8 @@ const ProjectDetails = () => {
                 className="bg-white dark:bg-slate-800 text-gray-700 dark:text-white"
               />
             </div>
+
+            {/* Buttons */}
             <div className="flex justify-end space-x-4">
               <button
                 onClick={closeAddReportModal}

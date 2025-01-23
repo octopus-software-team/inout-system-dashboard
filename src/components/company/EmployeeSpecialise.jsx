@@ -11,9 +11,10 @@ const EmployeesSpecials = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
-  const [isFilterOpen, setIsFilterOpen] = useState(false); // State للتحكم في فتح وإغلاق الـ Modal
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filters, setFilters] = useState({
     employeeName: "", // فلتر الاسم
+    employeeType: "", // فلتر النوع
   });
   const navigate = useNavigate();
 
@@ -55,7 +56,6 @@ const EmployeesSpecials = () => {
       });
   }, []);
 
-  // Handle filter change
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilters({
@@ -64,7 +64,6 @@ const EmployeesSpecials = () => {
     });
   };
 
-  // Apply filters to data
   const applyFilters = () => {
     let filteredData = data;
 
@@ -75,10 +74,16 @@ const EmployeesSpecials = () => {
       );
     }
 
+    // Filter by employee type
+    if (filters.employeeType) {
+      filteredData = filteredData.filter(
+        (item) => item.type.toString() === filters.employeeType
+      );
+    }
+
     return filteredData;
   };
 
-  // Filter data based on search and filters
   const filteredData = applyFilters().filter((item) =>
     search === ""
       ? item
@@ -168,7 +173,18 @@ const EmployeesSpecials = () => {
     },
     {
       name: "Type",
-      selector: (row) => (row.type === 0 ? "Engineer" : "Employee"),
+      selector: (row) => {
+        switch (row.type) {
+          case 0:
+            return "Engineer";
+          case 1:
+            return "Employee";
+          case 2:
+            return "Worker";
+          default:
+            return "Unknown";
+        }
+      },
       sortable: true,
       width: "200px",
     },
@@ -235,19 +251,17 @@ const EmployeesSpecials = () => {
           <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 w-80">
             <h3 className="text-xl font-semibold mb-4">Filter Employees</h3>
             <div className="space-y-4">
-              <label htmlFor="employeeName">Select Employee</label>
+              <label htmlFor="employeeType">Select Type</label>
               <select
-                name="employeeName"
-                value={filters.employeeName}
+                name="employeeType"
+                value={filters.employeeType}
                 onChange={handleFilterChange}
                 className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="">All Employees</option>
-                {data.map((employee) => (
-                  <option key={employee.id} value={employee.name}>
-                    {employee.name}
-                  </option>
-                ))}
+                <option value="">All Types</option>
+                <option value="0">Engineer</option>
+                <option value="1">Employee</option>
+                <option value="2">Worker</option>
               </select>
             </div>
             <div className="flex justify-end mt-6">
@@ -270,7 +284,9 @@ const EmployeesSpecials = () => {
 
       {isLoading ? (
         <div className="flex justify-center items-center">
-          <p className="text-gray-600 mt-56 text-xl font-semibold">Loading...</p>
+          <p className="text-gray-600 mt-56 text-xl font-semibold">
+            Loading...
+          </p>
         </div>
       ) : error ? (
         <p className="text-red-500 text-center">{error}</p>

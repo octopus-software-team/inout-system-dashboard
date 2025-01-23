@@ -96,8 +96,9 @@ const CreateSpecialise = () => {
             onChange={(e) => setType(parseInt(e.target.value))}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           >
-            <option value={0}>engineer</option>
-            <option value={1}>employee</option>
+            <option value={0}>Engineer</option>
+            <option value={1}>Employee</option>
+            <option value={2}>Worker</option> {/* Added Worker Option */}
           </select>
         </div>
 

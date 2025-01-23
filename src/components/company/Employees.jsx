@@ -321,38 +321,38 @@ const Employees = () => {
       name: "Specialization",
       selector: (row) => getEmployeeSpecialName(row.employee_special_id),
       sortable: true,
-      width: "90px",
+      width: "140px",
     },
-    {
-      name: "Date of Birth",
-      selector: (row) => row.date_of_birth,
-      sortable: true,
-      width: "100px",
-    },
+    // {
+    //   name: "Date of Birth",
+    //   selector: (row) => row.date_of_birth,
+    //   sortable: true,
+    //   width: "100px",
+    // },
     {
       name: "Type",
       selector: (row) => getType(row.type),
       sortable: true,
       width: "90px",
     },
-    {
-      name: "Grade",
-      selector: (row) => row.grade || "N/A", // عرض الـ grade أو "N/A" إذا كان null
-      sortable: true,
-      width: "70px",
-    },
+    // {
+    //   name: "Grade",
+    //   selector: (row) => row.grade || "N/A", // عرض الـ grade أو "N/A" إذا كان null
+    //   sortable: true,
+    //   width: "70px",
+    // },
     {
       name: "Nationality",
       selector: (row) => row.nationality || "N/A", // عرض الـ nationality أو "N/A" إذا كان null
       sortable: true,
       width: "100px",
     },
-    {
-      name: "Code",
-      selector: (row) => row.code || "N/A", // عرض الـ code أو "N/A" إذا كان null
-      sortable: true,
-      width: "100px",
-    },
+    // {
+    //   name: "Code",
+    //   selector: (row) => row.code || "N/A", // عرض الـ code أو "N/A" إذا كان null
+    //   sortable: true,
+    //   width: "100px",
+    // },
     {
       name: "QR Code",
       width: "100px", // زيادة العرض لاستيعاب النص
@@ -388,7 +388,7 @@ const Employees = () => {
           </Link>
           <button
             onClick={() => openConfirmModal(row.id)}
-            className="colors1 mr-2"
+            className="colors1 ml-2"
           >
             <FaTrash />
             Delete
