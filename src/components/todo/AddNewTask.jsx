@@ -93,7 +93,7 @@ const AddNewTask = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-slate-800 flex items-center justify-center py-10 px-4">
+    <div className="bg-gray-100 dark:bg-slate-800 flex items-center justify-center py-10 px-4">
       <div className="service w-full max-w-2xl dark:bg-slate-900 rounded-lg shadow-lg p-8">
         <h2 className="text-center text-3xl font-bold text-gray-800 dark:text-white mb-6">
           Add New Task

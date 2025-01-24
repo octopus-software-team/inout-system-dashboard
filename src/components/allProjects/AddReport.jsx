@@ -566,9 +566,14 @@ const ProjectDetails = () => {
               ))}
             </div>
           ) : (
-            <p className="text-lg text-gray-700 dark:text-gray-300">
-              Not yet done
-            </p>
+            <div className="border border-gray-200 p-5 rounded-lg mb-6">
+              <h2 className="text-3xl text-center font-semibold text-gray-800 dark:text-white mb-6">
+                General Inspection
+              </h2>
+              <p className="text-lg text-gray-700 dark:text-gray-300">
+                Not yet done
+              </p>
+            </div>
           )}
         </div>
 
@@ -612,15 +617,17 @@ const ProjectDetails = () => {
               </div>
             ))
           ) : (
-            <p className="text-lg text-gray-700 dark:text-gray-300">
-              Not yet done
-            </p>
+            <div className="border border-gray-200 p-5 rounded-lg mb-6">
+              <p className="text-lg text-gray-700 dark:text-gray-300">
+                Not yet done
+              </p>
+            </div>
           )}
         </div>
 
         <div className="mb-8">
           <h2 className="text-3xl text-center font-semibold text-gray-800 dark:text-white mb-4">
-            Safety
+            Safety Inspection
           </h2>
           {projectData.safety && projectData.safety.length > 0 ? (
             projectData.safety.map((safety, index) => (
@@ -658,9 +665,11 @@ const ProjectDetails = () => {
               </div>
             ))
           ) : (
-            <p className="text-lg text-gray-700 dark:text-gray-300">
-              Not yet done
-            </p>
+            <div className="border border-gray-200 p-5 rounded-lg mb-6">
+              <p className="text-lg text-gray-700 dark:text-gray-300">
+                Not yet done
+              </p>
+            </div>
           )}
         </div>
 
@@ -771,7 +780,7 @@ const ProjectDetails = () => {
           <img
             src={selectedImage}
             alt="Selected"
-            className="max-w-[50vw] max-h-[90vh] rounded-lg shadow-lg border border-gray-300 dark:border-gray-700"
+            className="max-w-[30vw] max-h-[60vh] rounded-lg shadow-lg border border-gray-300 dark:border-gray-700"
           />
         </div>
         <button

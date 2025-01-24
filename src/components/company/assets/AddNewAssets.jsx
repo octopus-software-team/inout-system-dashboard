@@ -315,6 +315,12 @@ const AddNewAssets = () => {
         />
         {/* <FaSearch className="ml-2 text-gray-500" /> */}
         <div className="flex items-center gap-4">
+        <Link
+            to="/company/assets/createassets"
+            className="icons bg-blue-800 text-white font-semibold py-2 px-6 rounded-lg"
+          >
+            + Create Assets
+          </Link>
           <button
             onClick={() => setIsFilterOpen(true)}
             className="flex items-center bg-blue-800 text-white py-2 px-4 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
@@ -322,12 +328,7 @@ const AddNewAssets = () => {
             <FaFilter className="mr-2" />
             Filter
           </button>
-          <Link
-            to="/company/assets/createassets"
-            className="icons bg-blue-800 text-white font-semibold py-2 px-6 rounded-lg"
-          >
-            + Create Assets
-          </Link>
+         
 
           <button
             onClick={() => setOpen(true)}

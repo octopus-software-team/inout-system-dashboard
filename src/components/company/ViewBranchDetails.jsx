@@ -321,7 +321,7 @@ const ViewBranchDetails = () => {
     branches.length === 0 ||
     assetTypes.length === 0
   ) {
-    return <div className="mt-56" style={styles.loading}>Loading...</div>;
+    return <div className="load" style={styles.loading}>Loading...</div>;
   }
 
   return (

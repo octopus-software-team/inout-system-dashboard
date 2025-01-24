@@ -309,7 +309,7 @@ const Employees = () => {
       name: "Name",
       selector: (row) => row.full_name,
       sortable: true,
-      width: "80px",
+      width: "150px",
     },
     {
       name: "Branch",
@@ -425,7 +425,7 @@ const Employees = () => {
             to="/company/engineers"
             className="icons bg-blue-800 text-white font-semibold  rounded-lg transition duration-300 flex items-center"
           >
-            + Add Employee
+            + Create Employee
           </Link>
           <button
             onClick={() => setOpen(true)}

@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import DataTable from 'react-data-table-component';
+import DataTable from "react-data-table-component";
 
 const Moderator = () => {
   const [data, setData] = useState([]);
@@ -72,9 +72,9 @@ const Moderator = () => {
           </button>
         </div>
       </div>,
-      { 
-        autoClose: false, 
-        closeButton: false 
+      {
+        autoClose: false,
+        closeButton: false,
       }
     );
   };
@@ -86,7 +86,7 @@ const Moderator = () => {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ id: adminId })
+      body: JSON.stringify({ id: adminId }),
     })
       .then(async (res) => {
         const responseText = await res.text();
@@ -109,22 +109,29 @@ const Moderator = () => {
 
   const columns = [
     {
-      name: '#',
-      selector: row => row.id,
+      name: "#",
+      selector: (row) => row.id,
       sortable: true,
+      width: "250px",
     },
     {
-      name: 'Name',
-      selector: row => row.name,
+      name: "Name",
+      selector: (row) => row.name,
       sortable: true,
+      width: "250px",
+
     },
     {
-      name: 'Email',
-      selector: row => row.email,
+      name: "Email",
+      selector: (row) => row.email,
       sortable: true,
+      width: "250px",
+
     },
     {
-      name: 'Actions',
+      name: "Actions",
+      width: "250px",
+
       cell: (row) => (
         <div className="space-x-2">
           <button
@@ -146,7 +153,7 @@ const Moderator = () => {
     },
   ];
 
-  const filteredData = data.filter(item => 
+  const filteredData = data.filter((item) =>
     item.name.toLowerCase().includes(search.toLowerCase())
   );
 

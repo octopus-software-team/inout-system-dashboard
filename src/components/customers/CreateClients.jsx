@@ -104,7 +104,7 @@ const CreateCustomer = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-slate-800 py-10 px-4">
+    <div className="flex items-center justify-center bg-gray-100 dark:bg-slate-800 py-10 px-4">
       <Toaster
         position="top-center"
         reverseOrder={false}

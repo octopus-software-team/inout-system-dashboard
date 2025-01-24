@@ -266,7 +266,7 @@ const Clients = () => {
       name: "#",
       selector: (row) => row.id,
       sortable: true,
-      width: "60px",
+      width: "100px",
       cell: (row) => (
         <span className="font-medium text-gray-800 dark:text-white">
           {row.id}
@@ -275,7 +275,7 @@ const Clients = () => {
     },
     {
       name: "Name",
-      width: "100px",
+      width: "150px",
 
       selector: (row) => row.name,
       sortable: true,
@@ -287,7 +287,7 @@ const Clients = () => {
     },
     {
       name: "Email",
-      width: "180px",
+      width: "200px",
 
       selector: (row) => row.email,
       sortable: true,
@@ -307,7 +307,7 @@ const Clients = () => {
     },
     {
       name: "Branch",
-      width: "100px",
+      width: "150px",
 
       selector: (row) => getBranchName(row.branch_id),
       sortable: true,
@@ -360,13 +360,13 @@ const Clients = () => {
         <div className="flex items-center gap-2">
           <Link
             to="/customers/createclients"
-            className="flex items-center bg-blue-800 text-white font-semibold py-2 px-4 rounded transition duration-200"
+            className="flex items-center bg-blue-800 text-white font-semibold py-2 px-4  rounded-lg"
           >
             + Create Client
           </Link>
           <button
             onClick={() => setIsFilterOpen(true)}
-            className="flex items-center bg-blue-800 text-white py-2 px-4 rounded transition duration-200"
+            className="flex items-center bg-blue-800 text-white py-2 px-4 rounded-lg"
           >
             <FaFilter className="mr-2" />
             Filter

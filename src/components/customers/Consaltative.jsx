@@ -225,25 +225,25 @@ const Consultative = () => {
       name: "#",
       selector: (row) => row.id,
       sortable: true,
-      width: "70px",
+      width: "200px",
     },
     {
       name: "Name",
       selector: (row) => row.name,
       sortable: true,
-      width: "150px",
+      width: "200px",
     },
     {
       name: "Phone Number",
       selector: (row) => row.phone,
       sortable: true,
-      width: "170px",
+      width: "200px",
     },
     {
       name: "Branch",
       selector: (row) => getBranchName(row.branch_id),
       sortable: true,
-      width: "150px",
+      width: "200px",
     },
     {
       name: "Actions",
@@ -289,13 +289,13 @@ const Consultative = () => {
         <div>
           <Link
             to="/customers/createconsultive"
-            className="icons text-white bg-blue-800 font-semibold py-2 px-6 rounded-lg mr-2"
+            className="icons text-white bg-blue-800 font-semibold py-5 px-4 rounded-lg mr-2"
           >
             + Create Consultive
           </Link>
           <button
             onClick={() => setIsFilterOpen(true)}
-            className="icons text-white bg-blue-800 font-semibold py-2 px-6 rounded-lg mr-2"
+            className="icons text-white bg-blue-800 font-semibold py-2 px-4 rounded-lg mr-2"
           >
             <FaFilter className="inline-block mr-2" />
             Filter

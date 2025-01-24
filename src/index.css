@@ -389,7 +389,7 @@ h2 {
 }
 
 .icons {
-  padding: 10px 30px !important;
+  padding: 10px 10px !important;
   border-radius: 10px !important;
 }
 
@@ -572,8 +572,6 @@ table.dataTable td.dt-type-date {
   border-top-color: rgba(0, 0, 0, 0.12);
 }
 
-
-
 .egKzlE {
   position: relative;
   width: 1500px !important;
@@ -582,9 +580,8 @@ table.dataTable td.dt-type-date {
   min-height: 0px;
 }
 
-
 .modal {
-  width: 500px;
+  width: 400px;
   position: absolute;
   top: 50%;
   left: 50%;
@@ -605,27 +602,25 @@ table.dataTable td.dt-type-date {
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.75);
 }
-.model{
-  width:700px
+.model {
+  width: 700px;
 }
 
-.any{
+.any {
   display: flex;
 }
 
-.so{
+.so {
   border-radius: 10px;
 }
 
-.new{
+.new {
   z-index: 0;
 }
 
-
-.ql-editor{
+.ql-editor {
   height: 300px !important;
 }
-
 
 /* يمكنك إضافة هذا الـ CSS في ملف CSS خاص بك أو داخل <style> في الـ JSX */
 .permission-item {
@@ -645,4 +640,44 @@ table.dataTable td.dt-type-date {
 
 .permission-item input[type="checkbox"] {
   margin: 0;
+}
+
+.toast {
+  position: fixed;
+  bottom: 800px;
+  right: 20px;
+  padding: 15px 20px;
+  border-radius: 5px;
+  background-color: #28a745;
+  color: white;
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  opacity: 0;
+  transform: translateY(100%);
+  animation: slideIn 0.5s ease-out forwards, fadeOut 0.5s ease-in 2.5s forwards;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+
+.load{
+  padding: 300px;
 }

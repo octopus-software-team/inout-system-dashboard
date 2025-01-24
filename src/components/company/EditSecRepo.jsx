@@ -17,7 +17,8 @@ const EditSecRepo = () => {
   const [report, setReport] = useState("");
   const [projects, setProjects] = useState([]);
   const [projectId, setProjectId] = useState("");
-
+  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState({});
 
   // Fetch the projects from the API
   useEffect(() => {
@@ -33,17 +34,13 @@ const EditSecRepo = () => {
         if (data.status === 200) {
           setProjects(data.data);
         } else {
-          toast.error(
-            `Error fetching projects: ${data.msg || "Unknown error"}`
-          );
+          toast.error(`Error fetching projects: ${data.msg || "Unknown error"}`);
         }
       })
       .catch((error) => {
         console.error("Error fetching projects:", error);
         toast.error("Failed to fetch projects. Please try again.");
       });
-
-    // Fetch employees
   }, []);
 
   // Use the data from location.state.report to fill in the fields
@@ -55,7 +52,6 @@ const EditSecRepo = () => {
     }
 
     const oldReport = location.state.report;
-    // Populate all the fields
     setId(oldReport.id);
     setProjectId(oldReport.project_id);
     setReportType(oldReport.report_type);
@@ -64,10 +60,27 @@ const EditSecRepo = () => {
     setReport(oldReport.report);
   }, [location, navigate]);
 
+  // Validate the form
+  const validateForm = () => {
+    const newErrors = {};
+    if (!projectId) newErrors.projectId = "Project is required.";
+    if (!reportType) newErrors.reportType = "Report type is required.";
+    if (!report) newErrors.report = "Report is required.";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
-    const token = Cookies.get("token");
 
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsLoading(true);
+
+    const token = Cookies.get("token");
     const formData = new FormData();
     formData.append("id", id);
     formData.append("project_id", projectId);
@@ -75,9 +88,6 @@ const EditSecRepo = () => {
     formData.append("is_inspection", isInspection);
     formData.append("report_stock", isInspection === 1 ? reportStock : "");
     formData.append("report", report);
-
-    // Log the payload for debugging
-    console.log("Payload being sent:", Object.fromEntries(formData.entries()));
 
     fetch(
       `https://inout-api.octopusteam.net/api/front/updateProjectReport/${paramId}`,
@@ -91,8 +101,7 @@ const EditSecRepo = () => {
     )
       .then((res) => res.json())
       .then((data) => {
-        console.log("Response after update:", data);
-
+        setIsLoading(false);
         if (data.status === 200) {
           toast.success("Report updated successfully!");
           setTimeout(() => navigate("/company/projectsecrepo"), 2000);
@@ -101,136 +110,176 @@ const EditSecRepo = () => {
         }
       })
       .catch((error) => {
+        setIsLoading(false);
         console.error("Error submitting report:", error);
         toast.error("Failed to submit report. Please try again.");
       });
   };
 
+  // Reset form fields
+  const resetForm = () => {
+    setId("");
+    setProjectId("");
+    setReportType("");
+    setReportStock("");
+    setIsInspection(1);
+    setReport("");
+  };
+
   return (
-    <div className="mt-10 flex justify-center items-center dark:text-white">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 py-8 px-4 sm:px-6 lg:px-8">
       <ToastContainer />
-      <form className="w-full max-w-sm" onSubmit={handleSubmit}>
-        <input id="id" hidden type="hidden" value={id} readOnly />
+      <div className="max-w-3xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+        <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">
+          Edit Security Report
+        </h2>
+        <form onSubmit={handleSubmit}>
+          <input id="id" type="hidden" value={id} readOnly />
 
-        {/* Project dropdown */}
-        <div className="mb-4">
-          <label
-            htmlFor="projectId"
-            className="block text-sm font-medium text-gray-700 dark:text-white"
-          >
-            Project Name
-          </label>
-          <select
-            id="projectId"
-            value={projectId}
-            onChange={(e) => setProjectId(e.target.value)}
-            required
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm 
-              focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
-              dark:bg-slate-900 dark:text-white"
-          >
-            <option value="" disabled>
-              Select a project
-            </option>
-            {projects.map((project) => (
-              <option key={project.id} value={project.id}>
-                {project.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Report Type */}
-        <div className="mb-4">
-          <label
-            htmlFor="reportType"
-            className="block text-sm font-medium text-gray-700 dark:text-white"
-          >
-            Report Type
-          </label>
-          <select
-            id="reportType"
-            value={reportType}
-            onChange={(e) => setReportType(e.target.value)}
-            className="mt-1 dark:bg-slate-900 block w-full px-3 py-2 
-              border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 
-              focus:ring-blue-500 focus:border-blue-500 dark:text-white dark:border-gray-600"
-          >
-            <option value="daily">Daily</option>
-            <option value="weekly">Weekly</option>
-            <option value="monthly">Monthly</option>
-          </select>
-        </div>
-
-        {/* Checkbox: Is Inspection */}
-        <div className="mb-4 flex items-center">
-          <label
-            htmlFor="isInspection"
-            className="mr-2 text-sm font-medium text-gray-700 dark:text-white"
-          >
-            Is Inspection:
-          </label>
-          <input
-            id="isInspection"
-            type="checkbox"
-            checked={isInspection === 1}
-            onChange={() => setIsInspection(isInspection === 1 ? 0 : 1)}
-            className="!bg-blue-400"
-          />
-        </div>
-
-        {/* Conditionally Render Report Stock if isInspection === 1 */}
-        {isInspection === 1 && (
-          <div className="mb-4">
+          {/* Project dropdown */}
+          <div className="mb-6">
             <label
-              htmlFor="reportStock"
-              className="block text-sm font-medium text-gray-700 dark:text-white"
+              htmlFor="projectId"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
             >
-              Report Stock
+              Project Name
+            </label>
+            <select
+              id="projectId"
+              value={projectId}
+              onChange={(e) => setProjectId(e.target.value)}
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm 
+                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+                dark:bg-gray-700 dark:text-white dark:border-gray-600"
+            >
+              <option value="" disabled>
+                Select a project
+              </option>
+              {projects.map((project) => (
+                <option key={project.id} value={project.id}>
+                  {project.name}
+                </option>
+              ))}
+            </select>
+            {errors.projectId && (
+              <p className="mt-2 text-sm text-red-600 dark:text-red-400">
+                {errors.projectId}
+              </p>
+            )}
+          </div>
+
+          {/* Report Type */}
+          <div className="mb-6">
+            <label
+              htmlFor="reportType"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
+              Report Type
+            </label>
+            <select
+              id="reportType"
+              value={reportType}
+              onChange={(e) => setReportType(e.target.value)}
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm 
+                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+                dark:bg-gray-700 dark:text-white dark:border-gray-600"
+            >
+              <option value="" disabled>
+                Select report type
+              </option>
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+            </select>
+            {errors.reportType && (
+              <p className="mt-2 text-sm text-red-600 dark:text-red-400">
+                {errors.reportType}
+              </p>
+            )}
+          </div>
+
+          {/* Checkbox: Is Inspection */}
+          <div className="mb-6 flex items-center">
+            <label
+              htmlFor="isInspection"
+              className="mr-2 text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
+              Is Inspection:
+            </label>
+            <input
+              id="isInspection"
+              type="checkbox"
+              checked={isInspection === 1}
+              onChange={() => setIsInspection(isInspection === 1 ? 0 : 1)}
+              className="w-5 h-5 text-blue-500 rounded focus:ring-blue-500 
+                dark:bg-gray-700 dark:border-gray-600"
+            />
+          </div>
+
+          {/* Conditionally Render Report Stock if isInspection === 1 */}
+          {isInspection === 1 && (
+            <div className="mb-6">
+              <label
+                htmlFor="reportStock"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >
+                Report Stock
+              </label>
+              <textarea
+                id="reportStock"
+                value={reportStock}
+                onChange={(e) => setReportStock(e.target.value)}
+                placeholder="Enter report stock"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm 
+                  focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+                  dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                rows="3"
+              ></textarea>
+            </div>
+          )}
+
+          {/* Report */}
+          <div className="mb-6">
+            <label
+              htmlFor="report"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
+              Report
             </label>
             <textarea
-              id="reportStock"
-              value={reportStock}
-              onChange={(e) => setReportStock(e.target.value)}
-              placeholder="Enter report stock"
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 
-                rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 
-                focus:border-blue-500 dark:bg-slate-900 dark:text-white dark:border-gray-600"
-              rows="3"
+              id="report"
+              value={report}
+              onChange={(e) => setReport(e.target.value)}
+              placeholder="Enter report"
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm 
+                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+                dark:bg-gray-700 dark:text-white dark:border-gray-600"
+              rows="4"
             ></textarea>
+            {errors.report && (
+              <p className="mt-2 text-sm text-red-600 dark:text-red-400">
+                {errors.report}
+              </p>
+            )}
           </div>
-        )}
 
-        {/* Report */}
-        <div className="mb-4">
-          <label
-            htmlFor="report"
-            className="block text-sm font-medium text-gray-700 dark:text-white"
-          >
-            Report
-          </label>
-          <textarea
-            id="report"
-            value={report}
-            onChange={(e) => setReport(e.target.value)}
-            placeholder="Enter report"
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 
-              rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 
-              focus:border-blue-500 dark:bg-slate-900 dark:text-white dark:border-gray-600"
-            rows="4"
-          ></textarea>
-        </div>
-
-      
-        <button
-          type="submit"
-          className="w-full px-4 py-2 bg-blue-500 text-white font-semibold 
-            rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 
-            dark:bg-blue-600 dark:hover:bg-blue-700"
-        >
-          Submit
-        </button>
-      </form>
+          {/* Submit Button */}
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="px-6 py-2 bg-blue-500 text-white font-semibold rounded-lg 
+                hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 
+                dark:bg-blue-600 dark:hover:bg-blue-700"
+            >
+              {isLoading ? "Submitting..." : "Submit"}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

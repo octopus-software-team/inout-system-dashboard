@@ -251,8 +251,8 @@ const ProjectTask = () => {
           to="/projectask/addprojecttask"
           className="icons bg-blue-800 text-white mr-2 font-semibold rounded-lg px-4 py-2"
         >
-          <FaPlus className="inline mr-2" />
-          Add Project Task
+          
+          + Create Project Task
         </Link>
       </div>
 

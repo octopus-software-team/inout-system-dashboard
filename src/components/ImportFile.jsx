@@ -71,7 +71,7 @@ const ImportFile = ({ tableName, onClose }) => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center p-8 bg-white rounded-lg shadow-md max-w-md mx-auto">
+    <div className="flex flex-col items-center justify-center  bg-white rounded-lg shadow-md max-w-md mx-auto">
       <label className="flex flex-col items-center justify-center w-full h-48 border-4 border-dashed border-blue-500 rounded-lg cursor-pointer bg-gray-50 hover:bg-blue-50 transition">
         <svg
           xmlns="http://www.w3.org/2000/svg"

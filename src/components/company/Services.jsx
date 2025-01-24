@@ -155,14 +155,14 @@ const AddServices = () => {
 
   const filteredData = applyFilters();
 
-   console.log(filteredData)
+  console.log(filteredData);
 
   // تعريف أعمدة الجدول
   const columns = [
     {
       title: "id",
       name: "id",
-      dataIndex : "id",
+      dataIndex: "id",
 
       selector: (row) => row?.id,
       sortable: true,
@@ -176,7 +176,7 @@ const AddServices = () => {
     },
     {
       title: "name",
-      dataIndex : "name",
+      dataIndex: "name",
       name: "Name",
       width: "400px",
       sorter: (a, b) => a.name - b.name,
@@ -326,14 +326,6 @@ const AddServices = () => {
           >
             Export
           </button>
-          {/* زر الفلترة الجديد */}
-          {/* <button
-            onClick={() => setIsFilterModalOpen(true)}
-            className="icons bg-blue-800 text-white ml-3 px-4 py-2 rounded"
-          >
-            <FaFilter className="inline mr-2" />
-            Filter
-          </button> */}
         </div>
       </div>
 

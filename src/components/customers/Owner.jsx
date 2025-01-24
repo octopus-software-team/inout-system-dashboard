@@ -256,7 +256,7 @@ const Owner = () => {
     },
     {
       name: "Email",
-      width: "170px",
+      width: "200px",
 
       selector: (row) => row.email,
       sortable: true,
@@ -280,7 +280,7 @@ const Owner = () => {
     },
     {
       name: "Branch",
-      width: "150px",
+      width: "200px",
 
       selector: (row) => getBranchName(row.branch_id),
       sortable: true,

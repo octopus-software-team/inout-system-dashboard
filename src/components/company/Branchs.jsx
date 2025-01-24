@@ -348,7 +348,7 @@ const Branches = () => {
         <div className="flex items-center gap-4">
           <Link
             to="/company/addbranch"
-            className="icons bg-blue-800 text-white font-semibold py-2 px-6 rounded-lg "
+            className="icons bg-blue-800 text-white font-semibold py-2 px-4 rounded-lg "
           >
             + Create Branch
           </Link>

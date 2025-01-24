@@ -9,20 +9,19 @@ const EditProjectTask = () => {
   const location = useLocation();
   const [projectName, setProjectName] = useState("");
   const [task, setTask] = useState("");
-  const [employeeId, setEmployeeId] = useState(""); // حالة لتخزين employee_id
+  const [employeeId, setEmployeeId] = useState("");
   const [projects, setProjects] = useState([]);
-  const [engineers, setEngineers] = useState([]); // حالة لتخزين بيانات المهندسين
+  const [engineers, setEngineers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  // استخدام البيانات الممررة من خلال navigate
   useEffect(() => {
     if (location.state && location.state.task && location.state.projects) {
       const { task: selectedTask, projects: projectList } = location.state;
       setTask(selectedTask.task);
       setProjectName(selectedTask.project_id);
-      setEmployeeId(selectedTask.employee_id); // تعيين employee_id الموجود
+      setEmployeeId(selectedTask.employee_id);
       setProjects(projectList);
       setIsLoading(false);
     } else {
@@ -31,7 +30,6 @@ const EditProjectTask = () => {
     }
   }, [location.state]);
 
-  // جلب بيانات المهندسين
   useEffect(() => {
     const token = Cookies.get("token");
 
@@ -64,7 +62,6 @@ const EditProjectTask = () => {
       });
   }, []);
 
-  // دالة تحديث التاسك
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -91,7 +88,7 @@ const EditProjectTask = () => {
           },
           body: JSON.stringify({
             project_id: projectName,
-            employee_id: employeeId, // إضافة employee_id
+            employee_id: employeeId,
             task: task,
           }),
         }
@@ -113,10 +110,10 @@ const EditProjectTask = () => {
 
   return (
     <div className="container p-6 mt-5">
-      <h2 className="text-center font-bold text-3xl text-black">Edit Project Task</h2>
+      <h2 className="text-center font-bold text-3xl text-black mb-8">Edit Project Task</h2>
 
-      <form onSubmit={handleSubmit} className="max-w-lg mx-auto mt-8">
-        <div className="mb-4">
+      <form onSubmit={handleSubmit} className="max-w-lg mx-auto bg-white p-8 rounded-lg shadow-lg">
+        <div className="mb-6">
           <label htmlFor="project" className="block text-gray-700 font-semibold mb-2">
             Select Project
           </label>
@@ -138,9 +135,9 @@ const EditProjectTask = () => {
           </select>
         </div>
 
-        <div className="mb-4">
+        <div className="mb-6">
           <label htmlFor="engineer" className="block text-gray-700 font-semibold mb-2">
-            Select Engineer
+            Select Employee
           </label>
           <select
             id="engineer"
@@ -150,7 +147,7 @@ const EditProjectTask = () => {
             required
           >
             <option value="" disabled>
-              Choose an engineer
+              Choose an Employee
             </option>
             {engineers.map((engineer) => (
               <option key={engineer.id} value={engineer.id}>
@@ -160,7 +157,7 @@ const EditProjectTask = () => {
           </select>
         </div>
 
-        <div className="mb-4">
+        <div className="mb-6">
           <label htmlFor="task" className="block text-gray-700 font-semibold mb-2">
             Task
           </label>

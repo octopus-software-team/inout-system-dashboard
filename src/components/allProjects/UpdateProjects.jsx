@@ -7,9 +7,8 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import icon from "leaflet/dist/images/marker-icon.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
-import { Toaster, toast } from "react-hot-toast";
+// import toast, { Toaster } from "react-hot-toast";
 
-// إعداد أيقونات Leaflet
 let DefaultIcon = L.icon({
   iconUrl: icon,
   shadowUrl: iconShadow,
@@ -17,7 +16,6 @@ let DefaultIcon = L.icon({
 });
 L.Marker.prototype.options.icon = DefaultIcon;
 
-// مكون لتحديد الموقع على الخريطة
 const LocationMarker = ({ setPosition }) => {
   useMapEvents({
     click(e) {
@@ -34,11 +32,12 @@ const UpdateProject = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [showToast, setShowToast] = useState(false);
+
 
   const [searchQuery, setSearchQuery] = useState("");
   const [searchLoading, setSearchLoading] = useState(false);
 
-  // البيانات الأساسية للمشروع
   const [formData, setFormData] = useState({
     id: "",
     name: "",
@@ -54,7 +53,6 @@ const UpdateProject = () => {
     longitude: "",
   });
 
-  // خيارات Select
   const [services, setServices] = useState([]);
   const [consultives, setConsultives] = useState([]);
   const [branches, setBranches] = useState([]);
@@ -62,11 +60,9 @@ const UpdateProject = () => {
   const [customers, setCustomers] = useState([]);
   const [engineers, setEngineers] = useState([]);
 
-  // الحقول المختارة في Select
   const [selectedServices, setSelectedServices] = useState([]);
   const [selectedConsultives, setSelectedConsultives] = useState([]);
 
-  // الموقع على الخريطة
   const [position, setPosition] = useState([23.8859, 45.0792]);
 
   useEffect(() => {
@@ -81,7 +77,6 @@ const UpdateProject = () => {
       try {
         setLoading(true);
 
-        // جلب الخدمات
         const servicesRes = await fetch(
           "https://inout-api.octopusteam.net/api/front/getServices",
           {
@@ -98,7 +93,6 @@ const UpdateProject = () => {
         }));
         setServices(servicesOptions);
 
-        // جلب الاستشاريين (العملاء من النوع 2)
         const consultiveRes = await fetch(
           "https://inout-api.octopusteam.net/api/front/getCustomers",
           {
@@ -117,7 +111,6 @@ const UpdateProject = () => {
           }));
         setConsultives(consultivesOptions);
 
-        // جلب الفروع
         const branchesRes = await fetch(
           "https://inout-api.octopusteam.net/api/front/getBranches",
           {
@@ -134,7 +127,6 @@ const UpdateProject = () => {
         }));
         setBranches(branchesOptions);
 
-        // جلب الملاك (العملاء من النوع 1)
         const ownersRes = await fetch(
           "https://inout-api.octopusteam.net/api/front/getCustomers",
           {
@@ -153,7 +145,6 @@ const UpdateProject = () => {
           }));
         setOwners(ownersOptions);
 
-        // جلب العملاء (العملاء من النوع 0)
         const customersRes = await fetch(
           "https://inout-api.octopusteam.net/api/front/getCustomers",
           {
@@ -172,7 +163,6 @@ const UpdateProject = () => {
           }));
         setCustomers(customersOptions);
 
-        // جلب المهندسين
         const engineersRes = await fetch(
           "https://inout-api.octopusteam.net/api/front/getEngineers",
           {
@@ -189,7 +179,6 @@ const UpdateProject = () => {
         }));
         setEngineers(engineersOptions);
 
-        // جلب بيانات المشروع المحدد
         const projectsRes = await fetch(
           "https://inout-api.octopusteam.net/api/front/getProjects",
           {
@@ -209,7 +198,6 @@ const UpdateProject = () => {
           throw new Error("Project not found");
         }
 
-        // تعيين بيانات المشروع في النموذج
         setFormData({
           id: project.id,
           name: project.name,
@@ -225,10 +213,8 @@ const UpdateProject = () => {
           longitude: project.longitude,
         });
 
-        // تعيين الموقع على الخريطة
         setPosition([project.latitude, project.longitude]);
 
-        // تعيين الخدمات المختارة
         const initialSelectedServices = servicesOptions
           .filter((s) =>
             project.services.some((ps) => ps.service_id === s.value)
@@ -239,7 +225,6 @@ const UpdateProject = () => {
           }));
         setSelectedServices(initialSelectedServices);
 
-        // تعيين الاستشاريين المختارين
         const initialSelectedConsultives = consultivesOptions
           .filter((c) =>
             project.consultive.some((pc) => pc.consultive_id === c.value)
@@ -251,7 +236,7 @@ const UpdateProject = () => {
         setSelectedConsultives(initialSelectedConsultives);
       } catch (err) {
         setError(err.message || "An unexpected error occurred.");
-        toast.error(err.message || "An unexpected error occurred.");
+        // toast.error(err.message || "An unexpected error occurred.");
       } finally {
         setLoading(false);
       }
@@ -260,28 +245,25 @@ const UpdateProject = () => {
     fetchData();
   }, [id, navigate]);
 
-  // تحديث الحقول في النموذج
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  // معالجة الإرسال (التعديل)
   const handleSubmit = async (e) => {
     e.preventDefault();
     const token = Cookies.get("token");
 
     if (!token) {
-      toast.error("No token found. Please log in.");
+      alert("No token found. Please log in.");
       return;
     }
 
     if (!formData.name) {
-      toast.error("Please enter the project name");
+      alert("Please enter the project name");
       return;
     }
 
-    // تعريف المتغيرات داخل الدالة
     const selectedServiceIds =
       selectedServices && selectedServices.length > 0
         ? selectedServices.map((s) => s.value)
@@ -323,17 +305,20 @@ const UpdateProject = () => {
         }
       );
 
-      const res = await response.json();
+      const result = await response.json();
 
-      if (res.status === 200) {
-        toast.success("Project has been updated successfully!");
-        navigate("/allprojects/showallprojects");
+      if (response.ok) {
+        setShowToast(true); // إظهار الـ Toast
+        setTimeout(() => {
+          setShowToast(false); // إخفاء الـ Toast بعد 3 ثواني
+          navigate("/allprojects/showallprojects");
+        }, 3000);
       } else {
-        toast.error(res.msg || "Failed to update project.");
+        alert(result.msg || "Failed to update project.");
       }
     } catch (error) {
       console.error("Error updating project:", error);
-      toast.error("Failed to update project. Please try again.");
+      alert("Failed to update project. Please try again.");
     }
   };
 
@@ -348,7 +333,7 @@ const UpdateProject = () => {
   const handleSearch = async (e) => {
     e.preventDefault();
     if (!searchQuery.trim()) {
-      toast.error("Please enter a location to search.");
+      alert("Please enter a location to search.");
       return;
     }
 
@@ -370,13 +355,13 @@ const UpdateProject = () => {
           latitude: lat,
           longitude: lon,
         });
-        toast.success(`Location found: ${data[0].display_name}`);
+        alert(`Location found: ${data[0].display_name}`);
       } else {
-        toast.error("Location not found. Please try a different query.");
+        alert("Location not found. Please try a different query.");
       }
     } catch (error) {
       console.error("Error searching location:", error);
-      toast.error("Error searching location. Please try again.");
+      alert("Error searching location. Please try again.");
     } finally {
       setSearchLoading(false);
     }
@@ -384,14 +369,13 @@ const UpdateProject = () => {
 
   return (
     <>
+      {showToast && <div className="toast">Updated Successfully!</div>}
       {loading ? (
         <div className="flex items-center justify-center w-full h-full text-xl">
           <p>Loading...</p>
         </div>
       ) : (
         <div className="container ml-0 p-10">
-          <Toaster position="top-center" richColors />
-
           <h2 className="total text-center  text-4xl font-bold mb-6">
             Update Project
           </h2>
@@ -402,7 +386,7 @@ const UpdateProject = () => {
                   htmlFor="name"
                   className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
                 >
-                  Project Name <span className="text-red-500">*</span>
+                  Project Name <span className="text-red-500"></span>
                 </label>
                 <input
                   type="text"
@@ -415,7 +399,6 @@ const UpdateProject = () => {
                 />
               </div>
 
-              {/* Project Status */}
               <div>
                 <label
                   htmlFor="status"
@@ -623,7 +606,7 @@ const UpdateProject = () => {
                   htmlFor="name"
                   className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
                 >
-                  notes <span className="text-red-500">*</span>
+                  notes <span className="text-red-500"></span>
                 </label>
                 <textarea
                   type="text"

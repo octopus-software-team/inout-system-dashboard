@@ -535,7 +535,7 @@ const ShowAllProjects = () => {
         <div className="flex items-center gap-4">
           <button
             onClick={() => setIsFilterOpen(true)}
-            className="flex items-center bg-blue-800 text-white py-2 px-4 rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-300"
+            className="flex items-center bg-blue-800 text-white py-2 px-4 rounded-lg "
           >
             <FaFilter className="mr-2" />
             Filter

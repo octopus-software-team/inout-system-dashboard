@@ -265,7 +265,7 @@ const AddSecRepo = () => {
       width: "120px",
       cell: (row) => <span className="text-gray-700">{row.employee}</span>,
     },
-  
+
     {
       name: "Edited At",
       selector: (row) => row.edit_at,
@@ -278,7 +278,9 @@ const AddSecRepo = () => {
       selector: (row) => row.admin,
       sortable: true,
       width: "120px",
-      cell: (row) => <span className="text-gray-700">{row.admin || "N/A"}</span>,
+      cell: (row) => (
+        <span className="text-gray-700">{row.admin || "N/A"}</span>
+      ),
     },
     {
       name: "Actions",
@@ -315,19 +317,19 @@ const AddSecRepo = () => {
           className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
         />
         <div className="flex items-center gap-4">
+          <Link
+            to="/company/createsecrepo"
+            className="icons flex items-center bg-blue-800 text-white font-semibold py-2 px-4 rounded transition "
+          >
+            + Create Project Report
+          </Link>
           <button
             onClick={() => setIsFilterOpen(true)}
-            className="flex items-center bg-blue-800 text-white py-2 px-4 rounded transition duration-200"
+            className="flex items-center bg-blue-800 text-white rounded-lg py-2 px-4"
           >
             <FaFilter className="mr-2" />
             Filter
           </button>
-          <Link
-            to="/company/createsecrepo"
-            className="icons flex items-center bg-blue-800 text-white font-semibold py-2 px-4 rounded transition duration-200"
-          >
-            + Create Project Report
-          </Link>
         </div>
       </div>
 
